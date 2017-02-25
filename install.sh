@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "Setting up your Mac..."
 
@@ -20,14 +22,14 @@ brew bundle
 brew cleanup
 
 # Link files
-ln -sfv ~/dotfiles/shell/zshrc ~/.zshrc
-ln -sfv ~/dotfiles/shell/tmux.conf ~/.tmux.conf
-ln -sfv ~/dotfiles/oh-my-zsh ~/.oh-my-zsh
-ln -sfv ~/dotfiles/git/gitconfig ~/.gitconfig
-ln -sfv ~/dotfiles/vim ~/.vim
-ln -sfv ~/dotfiles/vim/vimrc.vim ~/.vimrc
-ln -sfv ~/dotfiles/vim/gvimrc.vim ~/.gvimrc
-ln -sfv ~/dotfiles/atom ~/.atom
+ln -sfv ${BASEDIR}/shell/zshrc ~/.zshrc
+ln -sfv ${BASEDIR}/shell/tmux.conf ~/.tmux.conf
+ln -sfv ${BASEDIR}/oh-my-zsh ~/.oh-my-zsh
+ln -sfv ${BASEDIR}/git/gitconfig ~/.gitconfig
+ln -sfv ${BASEDIR}/vim ~/.vim
+ln -sfv ${BASEDIR}/vim/vimrc.vim ~/.vimrc
+ln -sfv ${BASEDIR}/vim/gvimrc.vim ~/.gvimrc
+ln -sfv ${BASEDIR}/atom ~/.atom
 
 # Load ZSH
 export ~/.zshrc
