@@ -45,6 +45,7 @@ Icon
 # App related files #
 #####################
 *.swp
+.netrwhist
 node_modules
 bower_components
 
@@ -57,4 +58,3 @@ atom/compile-cache
 atom/storage
 atom/blob-store
 oh-my-zsh/*
-vim/bundle/vim-colors-solarized/*

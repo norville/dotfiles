@@ -15,5 +15,7 @@
     ~/.gitconfig: git/gitconfig
 
 - shell:
-  - [git submodule update --init --recursive, Installing submodules...]
-  - [xcode-select --install, Installing XCode Command Line Tools...]
+    - [git submodule update --init --recursive, Installing submodules...]
+    - [xcode-select --install, Installing XCode Command Line Tools...]
+    - [./brew/brew.sh, Installing Homebrew and its formulas...]
+    - [./zsh/zsh.sh, Setting up ZSH...]

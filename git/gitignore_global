@@ -45,6 +45,7 @@ Icon
 # App related files #
 #####################
 *.swp
+.netrwhist
 node_modules
 atom/.apm
 atom/packages
