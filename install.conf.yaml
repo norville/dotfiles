@@ -19,3 +19,7 @@
     - [xcode-select --install, Installing XCode Command Line Tools...]
     - [./brew/brew.sh, Installing Homebrew and its formulas...]
     - [./zsh/zsh.sh, Setting up ZSH...]
+    - [npm update -g, Updating NPM...]
+      #TODO: update pip
+      #TODO: install pip powerlevel
+      #TODO: install fonts

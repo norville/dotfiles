@@ -3,36 +3,40 @@ tap 'caskroom/cask'
 tap 'caskroom/fonts'
 tap 'homebrew/bundle'
 
-# Install ZSH
-brew 'zsh'
-brew 'zsh-completions'
-brew 'zsh-syntax-highlighting'
-
 # Install GNU core utilities (those that come with macOS are outdated)
 brew 'coreutils'
 brew 'moreutils'
 brew 'findutils'
 
+# Dev
+brew 'node'
+brew 'rbenv'
+brew 'python'
+brew 'python3'
+
 # Install Binaries
 brew 'wget'
 brew 'git'
 brew 'macvim', args: ['with-override-system-vim', 'with-python3', 'with-lua']
+brew 'tmux'
 brew 'hub'
 brew 'tree'
 #brew 'mackup'
 
-# Dev
-brew 'node'
-brew 'rbenv'
+# Install ZSH
+brew 'zsh'
+brew 'zsh-completions'
+brew 'zsh-syntax-highlighting'
+brew 'antigen'
 
 # Apps
+cask 'iterm2'
 cask 'atom'
 cask 'dropbox'
 cask 'firefox'
 cask 'google-chrome'
 cask 'google-drive'
 cask 'handbrake'
-cask 'iterm2'
 cask 'spotify'
 cask 'transmission'
 cask 'vlc'
