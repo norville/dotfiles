@@ -6,12 +6,14 @@
 - clean: ['~']
 
 - link:
-    ~/.zshrc: zshrc
-    ~/.tmux.conf: tmux.conf
+    ~/.dotfiles: ''
+    ~/.zshrc: zsh/zshrc
+    ~/.tmux.conf: tmux/tmux.conf
     ~/.vim: vim
     ~/.vimrc: vim/vimrc.vim
     ~/.gvimrc: vim/gvimrc.vim
     ~/.gitconfig: git/gitconfig
 
 - shell:
-  - [git submodule update --init --recursive, Installing submodules]
+  - [git submodule update --init --recursive, Installing submodules...]
+  - [xcode-select --install, Installing XCode Command Line Tools...]

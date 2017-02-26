@@ -11,6 +11,9 @@ export ZSH=$DOTFILES/oh-my-zsh
 # Enable ZSH Completions
 fpath=(/usr/local/share/zsh-completions $fpath)
 
+# Enable syntax highlightning
+source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
 # OMZ-Theme powerlevel9k settings
 DEFAULT_USER=bassa
 POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context dir background_jobs)
