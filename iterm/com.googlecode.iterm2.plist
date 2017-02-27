@@ -65,7 +65,7 @@
 	<key>NSWindow Frame SUUpdateAlert</key>
 	<string>330 290 620 392 0 0 1280 778 </string>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>241 144 796 473 0 0 1280 778 </string>
+	<string>241 105 796 473 0 0 1280 778 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
 	<string>0 16 1277 762 0 0 1280 778 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
@@ -1425,7 +1425,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2017-02-25T17:21:04Z</date>
+	<date>2017-02-27T12:25:23Z</date>
 	<key>SUSendProfileInfo</key>
 	<false/>
 	<key>TabStyle</key>

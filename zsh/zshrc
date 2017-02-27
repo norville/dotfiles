@@ -39,29 +39,11 @@ else
   export EDITOR='mvim'
 fi
 
-# Activate Oh-My-Zsh
-#source $ZSH/oh-my-zsh.sh
-
-# Which plugins would you like to load? (plugins can be found in $ZSH/plugins/*)
-# Custom plugins may be added to $ZSH/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-#plugins=(osx brew git git-extras npm pip python rbenv)
-
 # OMZ-Theme powerlevel9k settings
-#DEFAULT_USER=bassa
-#POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context dir background_jobs)
-#POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status vcs ram)
-#POWERLEVEL9K_DIR_DEFAULT_BACKGROUND='033'
-
-# Set name of the theme to load.
-# Look in $ZSH/themes/
-# Optionally, if you set this to "random", it'll load a random theme each
-# time that oh-my-zsh is loaded.
-#ZSH_THEME="powerlevel9k/powerlevel9k"
-
-# Enable Powerline
-#. /usr/local/lib/python3.5/site-packages/powerline/bindings/zsh/powerline.zsh
+DEFAULT_USER=bassa
+POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context dir background_jobs)
+POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status vcs ram)
+POWERLEVEL9K_DIR_DEFAULT_BACKGROUND='033'
 
 # Activate Antigen
 source /usr/local/share/antigen/antigen.zsh
@@ -71,7 +53,7 @@ antigen use oh-my-zsh
 
 # Bundles from the default repo (robbyrussell's oh-my-zsh).
 antigen bundle osx
-antigen bundle tmux
+#antigen bundle tmux
 antigen bundle git
 antigen bundle git-extras
 antigen bundle python
@@ -87,7 +69,7 @@ antigen bundle docker
 antigen bundle zsh-users/zsh-syntax-highlighting
 
 # Load the theme.
-antigen theme powerlevel9k
+antigen theme bhilburn/powerlevel9k powerlevel9k
 
 # Tell antigen that you're done.
 antigen apply
