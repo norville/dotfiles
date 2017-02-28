@@ -41,9 +41,8 @@ fi
 
 # OMZ-Theme powerlevel9k settings
 DEFAULT_USER=bassa
-POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context dir background_jobs)
-POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status vcs ram)
-POWERLEVEL9K_DIR_DEFAULT_BACKGROUND='033'
+POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context dir vcs)
+POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status background_jobs ram)
 
 # Activate Antigen
 source /usr/local/share/antigen/antigen.zsh
@@ -53,7 +52,7 @@ antigen use oh-my-zsh
 
 # Bundles from the default repo (robbyrussell's oh-my-zsh).
 antigen bundle osx
-#antigen bundle tmux
+antigen bundle tmux
 antigen bundle git
 antigen bundle git-extras
 antigen bundle python

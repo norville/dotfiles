@@ -11,13 +11,14 @@ brew 'findutils'
 # Dev
 brew 'node'
 brew 'rbenv'
+brew 'ruby-build'
 brew 'python'
 brew 'python3'
 
 # Install Binaries
 brew 'wget'
 brew 'git'
-brew 'macvim', args: ['with-override-system-vim', 'with-python3', 'with-lua']
+brew 'macvim', args: ['with-override-system-vim', 'with-python3', 'with-lua', 'env-std']
 brew 'tmux'
 brew 'hub'
 brew 'tree'
