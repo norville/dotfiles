@@ -1,4 +1,4 @@
-""" ENABLE PATHOGEN
+""" ENABLE VUNDLE
 set nocompatible              " be iMproved, required
 filetype off                  " required
 
@@ -51,23 +51,29 @@ endif
 
 """ WINDOW
 set encoding=utf-8
+set termencoding=utf-8
 set number
 set ruler
 set showcmd
 set list
 set listchars=tab:▸\ ,eol:¬,trail:•,extends:…,precedes:…,nbsp: 
+set fillchars+=stl:\ ,stlnc:\
 set scrolloff=3
 set cursorline
 set laststatus=2
 set showtabline=2
 set noshowmode
 set background=dark
+set t_Co=256
+set term=xterm-256color
 colorscheme solarized
 
 """ POWERLINE
 python3 from powerline.vim import setup as powerline_setup
 python3 powerline_setup()
 python3 del powerline_setup
+set guifont=Roboto\ Mono\ for\ Powerline:h12
+let g:Powerline_symbols = 'fancy'
 
 """ STATUSLINE
 "if has('statusline')

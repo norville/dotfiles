@@ -6,7 +6,7 @@ if has("gui_running")
     if has("gui_macvim")
         set backupcopy=yes
         set guioptions-=T
-        set transparency=5
+"        set transparency=5
         set guifont=Roboto\ Mono\ for\ Powerline:h12
     elseif has("gui_win32")
         set guifont=Consolas:h12
