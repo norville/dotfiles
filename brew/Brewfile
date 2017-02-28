@@ -55,4 +55,6 @@ cask 'webpquicklook'
 cask 'suspicious-package'
 
 # Fonts
-#
+cask 'font-roboto-mono'
+cask 'font-roboto-mono-for-powerline'
+

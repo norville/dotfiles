@@ -20,7 +20,4 @@
     - [./brew/brew.sh, Installing Homebrew and its formulas...]
     - [./zsh/zsh.sh, Setting up ZSH...]
     - [./update_dev_env.sh, Setting up dev environments...]
-    - [pip3 install powerline-status, Installing Powerline...]
-    #TODO install fonts
-    #TODO setup iterm
     #TODO setup atom
