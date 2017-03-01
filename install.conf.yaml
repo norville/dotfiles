@@ -17,7 +17,6 @@
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules...]
-    - [xcode-select --install, Installing XCode Command Line Tools...]
     - [./brew/brew.sh, Installing Homebrew and its formulae...]
     - [./zsh/zsh.sh, Setting up ZSH...]
     - [./update_dev_env.sh, Setting up dev environments...]
