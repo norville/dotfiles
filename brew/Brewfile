@@ -41,6 +41,7 @@ cask 'handbrake'
 cask 'spotify'
 cask 'transmission'
 cask 'vlc'
+cask 'teamviewer'
 
 # Quicklook
 cask 'qlcolorcode'

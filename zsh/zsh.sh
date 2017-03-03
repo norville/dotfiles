@@ -2,16 +2,13 @@
 
 ZSH_PATH=$(which zsh)
 
-# Add ZSH to /etc/shells
-if [ ! grep $ZSH_PATH /etc/shells ]; then
+if [ $SHELL == $ZSH_PATH ]
+then
+	echo "ZSH is already the login shell."
+else
+	echo "Changing login shell to ZSH..."
 	sudo echo $ZSH_PATH >> /etc/shells
-fi
-
-# Chanhe login shell
-if [ ! $SHELL == $ZSH_PATH ]; then
 	chsh -s $ZSH_PATH
+#	export ~/.zshrc
 fi
-
-# Load ZSH
-export ~/.zshrc
 
