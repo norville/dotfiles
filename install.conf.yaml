@@ -16,7 +16,6 @@
     ~/.atom: atom
 
 - shell:
-    - [git submodule update --init --recursive, Installing submodules...]
     - [./brew/brew.sh, Installing Homebrew and its formulae...]
     - [./zsh/zsh.sh, Setting up ZSH...]
     - [./update_dev_env.sh, Setting up dev environments...]
