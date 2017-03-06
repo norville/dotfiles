@@ -16,6 +16,24 @@
     ~/.atom: atom
 
 - shell:
-    - [./brew/brew.sh, Installing Homebrew and its formulae...]
-    - [./zsh/zsh.sh, Setting up ZSH...]
-    - [./update_dev_env.sh, Setting up dev environments...]
+    -
+      description: "Installing Homebrew and its formulae..."
+      command: "./brew/brew.sh"
+      stdout: true
+      stderr: true
+      stdin: true
+
+    -
+      description: "Setting up ZSH..."
+      command: "./zsh/zsh.sh"
+      stdout: true
+      stderr: true
+      stdin: true
+
+    -
+      description: "Setting up dev environments..."
+      command: "./update_dev_env.sh"
+      stdout: true
+      stderr: true
+      stdin: true
+
