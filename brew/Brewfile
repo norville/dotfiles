@@ -18,10 +18,11 @@ brew 'python3'
 # Install Binaries
 brew 'wget'
 brew 'git'
-brew 'macvim', args: ['with-override-system-vim', 'with-python3', 'with-lua', 'env-std']
+brew 'vim'
 brew 'tmux'
 brew 'hub'
 brew 'tree'
+#brew 'macvim', args: ['with-override-system-vim', 'with-python3', 'with-lua', 'env-std']
 #brew 'mackup'
 
 # Install ZSH

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Update Homebrew
 brew update
 brew upgrade

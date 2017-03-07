@@ -25,14 +25,14 @@
 
     -
       description: "Setting up ZSH..."
-      command: "./zsh/zsh.sh"
+      command: "./zsh/set_zsh.sh"
       stdout: true
       stderr: true
       stdin: true
 
     -
       description: "Setting up dev environments..."
-      command: "./update_dev_env.sh"
+      command: "./update_env.sh"
       stdout: true
       stderr: true
       stdin: true
