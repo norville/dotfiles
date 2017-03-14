@@ -13,9 +13,11 @@ brew 'node'
 brew 'rbenv'
 brew 'ruby-build'
 brew 'python'
-brew 'python3'
+#brew 'python3'
+brew 'flake8'
 
 # Install Binaries
+brew 'openssl'
 brew 'wget'
 brew 'git'
 brew 'vim'
