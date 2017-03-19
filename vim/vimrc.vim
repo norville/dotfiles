@@ -66,12 +66,14 @@ set noshowmode
 set background=dark
 set t_Co=256
 set term=xterm-256color
-colorscheme solarized
+if globpath(&runtimepath, 'colors/solarized.vim', 1) !=# ''
+	colorscheme solarized
+endif
 
 """ POWERLINE
-python3 from powerline.vim import setup as powerline_setup
-python3 powerline_setup()
-python3 del powerline_setup
+python from powerline.vim import setup as powerline_setup
+python powerline_setup()
+python del powerline_setup
 set guifont=Roboto\ Mono\ for\ Powerline:h12
 let g:Powerline_symbols = 'fancy'
 

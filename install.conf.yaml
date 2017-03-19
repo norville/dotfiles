@@ -11,7 +11,6 @@
     ~/.tmux.conf: tmux/tmux.conf
     ~/.vim: vim
     ~/.vimrc: vim/vimrc.vim
-    ~/.gvimrc: vim/gvimrc.vim
     ~/.gitconfig: git/gitconfig
     ~/.atom: atom
 

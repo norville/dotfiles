@@ -10,9 +10,9 @@ brew 'findutils'
 
 # Dev
 brew 'python'
+brew 'python3'
 brew 'ruby'
 brew 'node'
-#brew 'python3'
 brew 'flake8'
 
 # Install Binaries
@@ -22,7 +22,6 @@ brew 'vim'
 brew 'tmux'
 brew 'hub'
 brew 'tree'
-#brew 'macvim', args: ['with-override-system-vim', 'with-python3', 'with-lua', 'env-std']
 #brew 'mackup'
 
 # Install ZSH
@@ -32,29 +31,17 @@ brew 'zsh-syntax-highlighting'
 brew 'antigen'
 
 # Apps
-cask 'iterm2', args: ['force']
-cask 'atom', args: ['force']
-cask 'dropbox', args: ['force']
-cask 'firefox', args: ['force']
-cask 'google-chrome', args: ['force']
-cask 'google-drive', args: ['force']
-cask 'handbrake', args: ['force']
-cask 'spotify', args: ['force']
-cask 'transmission', args: ['force']
-cask 'vlc', args: ['force']
-cask 'teamviewer', args: ['force']
-
-# Quicklook
-cask 'qlcolorcode'
-cask 'qlmarkdown'
-cask 'quicklook-json'
-cask 'quicklook-csv'
-cask 'qlstephen'
-cask 'qlprettypatch'
-cask 'betterzipql'
-cask 'qlimagesize'
-cask 'webpquicklook'
-cask 'suspicious-package'
+cask 'iterm2 --force'
+cask 'atom --force'
+cask 'dropbox --force'
+cask 'firefox --force'
+cask 'google-chrome --force'
+cask 'google-drive --force'
+cask 'handbrake --force'
+cask 'spotify --force'
+cask 'transmission --force'
+cask 'vlc --force'
+cask 'teamviewer --force'
 
 # Fonts
 cask 'font-roboto-mono'
