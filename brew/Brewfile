@@ -9,15 +9,13 @@ brew 'moreutils'
 brew 'findutils'
 
 # Dev
-brew 'node'
-brew 'rbenv'
-brew 'ruby-build'
 brew 'python'
+brew 'ruby'
+brew 'node'
 #brew 'python3'
 brew 'flake8'
 
 # Install Binaries
-brew 'openssl'
 brew 'wget'
 brew 'git'
 brew 'vim'
@@ -34,17 +32,17 @@ brew 'zsh-syntax-highlighting'
 brew 'antigen'
 
 # Apps
-cask 'iterm2'
-cask 'atom'
-cask 'dropbox'
-cask 'firefox'
-cask 'google-chrome'
-cask 'google-drive'
-cask 'handbrake'
-cask 'spotify'
-cask 'transmission'
-cask 'vlc'
-cask 'teamviewer'
+cask 'iterm2', args: ['force']
+cask 'atom', args: ['force']
+cask 'dropbox', args: ['force']
+cask 'firefox', args: ['force']
+cask 'google-chrome', args: ['force']
+cask 'google-drive', args: ['force']
+cask 'handbrake', args: ['force']
+cask 'spotify', args: ['force']
+cask 'transmission', args: ['force']
+cask 'vlc', args: ['force']
+cask 'teamviewer', args: ['force']
 
 # Quicklook
 cask 'qlcolorcode'

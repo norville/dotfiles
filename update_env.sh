@@ -3,27 +3,16 @@
 set -e
 
 # Update Homebrew
+brew doctor
 brew update
 brew upgrade
+brew cleanup
 
 # Update PyPI
-pip3 install --upgrade pip wheel setuptools powerline-status
+pip install --upgrade pip wheel setuptools powerline-status
 
 # Update NPM
 npm update -g
-
-# Update Ruby
-LATEST_RUBY=`egrep "^\s+\d\.\d\.\d+$" <(rbenv install -l) | tail -1`
-GLOBAL_RUBY=$(rbenv global)
-if [ $LATEST_RUBY==$GLOBAL_RUBY ]
-then
-	echo "Ruby is already up to date."
-else
-	rbenv install $LATEST_RUBY
-	rbenv init
-	rbenv rehash
-	rbenv global $LATEST_RUBY
-fi
 
 # Update VIM Plugins
 vim +PluginInstall +qall
