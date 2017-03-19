@@ -31,17 +31,17 @@ brew 'zsh-syntax-highlighting'
 brew 'antigen'
 
 # Apps
-cask 'iterm2 --force'
-cask 'atom --force'
-cask 'dropbox --force'
-cask 'firefox --force'
-cask 'google-chrome --force'
-cask 'google-drive --force'
-cask 'handbrake --force'
-cask 'spotify --force'
-cask 'transmission --force'
-cask 'vlc --force'
-cask 'teamviewer --force'
+cask iterm2 --force
+cask atom --force
+cask dropbox --force
+cask firefox --force
+cask google-chrome --force
+cask google-drive --force
+cask handbrake --force
+cask spotify --force
+cask transmission --force
+cask vlc --force
+cask teamviewer --force
 
 # Fonts
 cask 'font-roboto-mono'
