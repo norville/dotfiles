@@ -53,9 +53,11 @@ bower_components
 ######################
 atom/.apm
 atom/.node-gyp
+atom/*.json
 atom/packages
 atom/compile-cache
 atom/storage
 atom/blob-store
 atom/recovery
+vim/bundle/*
 

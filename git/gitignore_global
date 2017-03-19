@@ -29,27 +29,23 @@
 
 # OS generated files #
 ######################
-.DS_Store
-.DS_Store?
 ._*
 *~
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+*.cache
 .idea/
 .vagrant/
-*.cache
+.Spotlight-V100
+.Trashes
+.DS_Store
+.DS_Store?
 Icon
+ehthumbs.db
+Thumbs.db
 
 # App related files #
 #####################
 *.swp
 .netrwhist
-node_modules
-atom/*.json
-atom/.apm
-atom/packages
-atom/storage
-atom/blob-store
 bower_components
+node_modules
+
