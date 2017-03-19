@@ -47,6 +47,7 @@ Icon
 *.swp
 .netrwhist
 node_modules
+atom/*.json
 atom/.apm
 atom/packages
 atom/storage

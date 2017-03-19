@@ -12,3 +12,5 @@
 	ui = auto
 [credential]
 	helper = osxkeychain
+[status]
+	submoduleSummary = true
