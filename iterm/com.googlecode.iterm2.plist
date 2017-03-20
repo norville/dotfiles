@@ -278,9 +278,9 @@
 	<key>NSWindow Frame SUUpdateAlert</key>
 	<string>330 290 620 392 0 0 1280 778 </string>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>242 201 796 473 0 0 1280 778 </string>
+	<string>242 157 796 473 0 0 1280 778 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>0 25 1277 753 0 0 1280 778 </string>
+	<string>0 296 1277 762 0 0 1920 1058 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>518 55 710 723 0 0 1280 778 </string>
 	<key>New Bookmarks</key>
@@ -979,6 +979,8 @@
 	</dict>
 	<key>PrefsCustomFolder</key>
 	<string>/Users/bassa/dotfiles/iterm</string>
+	<key>PromptOnQuit</key>
+	<false/>
 	<key>SUAutomaticallyUpdate</key>
 	<true/>
 	<key>SUEnableAutomaticChecks</key>
@@ -990,7 +992,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2017-02-27T12:25:23Z</date>
+	<date>2017-03-19T17:03:28Z</date>
 	<key>SUSendProfileInfo</key>
 	<false/>
 	<key>TabStyle</key>
