@@ -51,13 +51,13 @@ bower_components
 
 # Dotfiles specifics #
 ######################
+atom/*.json
 atom/.apm
 atom/.node-gyp
-atom/*.json
-atom/packages
-atom/compile-cache
-atom/storage
 atom/blob-store
+atom/compile-cache
+atom/packages
 atom/recovery
+atom/storage
 vim/bundle/*
 

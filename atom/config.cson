@@ -2,7 +2,7 @@
   "atom-material-ui":
     colors: {}
     fonts:
-      fontSize: 14
+      fontSize: 12
     tabs:
       compactTabs: true
       noTabMinWidth: true
@@ -14,10 +14,6 @@
   "autocomplete-python":
     useKite: false
   core:
-    disabledPackages: [
-      "angularjs"
-      "vim-mode"
-    ]
     openEmptyEditorOnStart: false
     projectHome: "/Users/bassa/dev"
     telemetryConsent: "no"
@@ -33,19 +29,14 @@
     userId: "80335484-d43d-677e-01a2-35925a04eb78"
   fonts:
     fontFamily: "Roboto Mono"
+  "linter-ui-default":
+    showPanel: true
   minimap: {}
-  "package-sync":
-    createOnChange: true
-    forceOverwrite: true
-  "sync-settings":
-    _analyticsUserId: "76018be9-c217-41c6-a0d2-1dba7650f5c5"
-    _lastBackupHash: "8f7d65ca72afb631461b139fe57a12b6fb39496d"
-    gistId: "160d46703499bcf4cc48a6ec559e4344"
-    personalAccessToken: "ada2fa47a3eb0c9ca8e4c559ad71647dbfca2f00"
   "tree-view":
     showOnRightSide: true
-  "vim-mode":
+  "vim-mode-plus":
     startInInsertMode: true
+    useClipboardAsDefaultRegister: true
   welcome:
     showOnStartup: false
 ".python.source":
