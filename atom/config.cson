@@ -1,4 +1,7 @@
 "*":
+  "atom-beautify":
+    general:
+      _analyticsUserId: "b77394bf-c246-4811-ad91-047c8512c588"
   "atom-material-ui":
     colors: {}
     fonts:
@@ -30,6 +33,7 @@
   fonts:
     fontFamily: "Roboto Mono"
   "linter-ui-default":
+    panelHeight: 145
     showPanel: true
   minimap: {}
   "tree-view":

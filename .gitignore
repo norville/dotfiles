@@ -54,6 +54,7 @@ bower_components
 atom/*.json
 atom/.apm
 atom/.node-gyp
+atom/projects.cson
 atom/blob-store
 atom/compile-cache
 atom/packages
