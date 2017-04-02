@@ -17,22 +17,15 @@
 
 - shell:
     -
-      description: "Installing Homebrew and its formulae..."
-      command: "./brew/brew.sh"
+      description: "Configuring your environment..."
+      command: "./bin/set_env.sh"
       stdout: true
       stderr: true
       stdin: true
 
     -
-      description: "Setting up ZSH..."
-      command: "./zsh/set_zsh.sh"
-      stdout: true
-      stderr: true
-      stdin: true
-
-    -
-      description: "Setting up dev environments..."
-      command: "./update_env.sh"
+      description: "Updating your environment..."
+      command: "./bin/update_env.sh"
       stdout: true
       stderr: true
       stdin: true
