@@ -39,9 +39,13 @@ else
   export EDITOR='vim'
 fi
 
+# Edit PATH
+export PATH=$PATH:~/.dotfiles/bin
+
 # OMZ-Theme powerlevel9k settings
-DEFAULT_USER=bassa
-POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context dir vcs)
+POWERLEVEL9K_MODE='awesome-patched'
+DEFAULT_USER=$USER
+POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context root_indicator dir vcs)
 POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status background_jobs ram)
 
 # Activate Antigen
