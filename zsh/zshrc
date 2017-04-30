@@ -42,12 +42,6 @@ fi
 # Edit PATH
 export PATH=$PATH:~/.dotfiles/bin
 
-# OMZ-Theme powerlevel9k settings
-#POWERLEVEL9K_MODE='awesome-patched'
-DEFAULT_USER=$USER
-POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context root_indicator dir vcs)
-POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status background_jobs ram)
-
 # Activate Antigen
 source /usr/local/share/antigen/antigen.zsh
 
@@ -67,9 +61,14 @@ antigen bundle gem
 antigen bundle rails
 antigen bundle heroku
 antigen bundle docker
-
-# Syntax highlighting bundle.
 antigen bundle zsh-users/zsh-syntax-highlighting
+
+# OMZ-Theme powerlevel9k settings
+#POWERLEVEL9K_MODE='awesome-patched'
+DEFAULT_USER=$USER
+POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context root_indicator dir vcs)
+POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status background_jobs ram)
+POWERLEVEL9K_INSTALLATION_PATH=$ANTIGEN_BUNDLES/bhilburn/powerlevel9k/powerlevel9k.zsh-theme
 
 # Load the theme.
 antigen theme bhilburn/powerlevel9k powerlevel9k
