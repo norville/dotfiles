@@ -19,9 +19,6 @@ brew cleanup
 pip install --upgrade pip wheel setuptools
 pip install powerline-status pip-review
 
-# Download fonts for Powerline
-wget -P ~/Library/Fonts 'https://github.com/stefano-meschiari/dotemacs/raw/master/SourceCodePro%2BPowerline%2BAwesome%2BRegular.ttf'
-
 # Set ZSH as login shell
 ZSH_PATH=$(which zsh)
 

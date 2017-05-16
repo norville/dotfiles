@@ -24,6 +24,10 @@
       "atom-material-ui"
       "atom-material-syntax"
     ]
+  "django-templates":
+    defaultToDjangoTemplatesForFilePathsContaining: [
+      "polls"
+    ]
   editor:
     fontSize: 12
     showIndentGuide: true
