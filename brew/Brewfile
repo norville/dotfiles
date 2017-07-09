@@ -13,6 +13,7 @@ brew 'python'
 brew 'python3'
 brew 'ruby'
 brew 'node'
+brew 'yarn'
 brew 'flake8'
 
 # Install Binaries
