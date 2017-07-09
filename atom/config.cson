@@ -36,6 +36,8 @@
     userId: "80335484-d43d-677e-01a2-35925a04eb78"
   fonts:
     fontFamily: "Roboto Mono"
+  "language-babel":
+    autoIndentJSX: true
   "linter-ui-default":
     panelHeight: 145
     showPanel: true
