@@ -37,13 +37,9 @@
   fonts:
     fontFamily: "Roboto Mono"
   "language-babel":
-<<<<<<< HEAD
     allowLocalOverride: true
     autoIndentJSX: true
   "linter-eslint": {}
-=======
-    autoIndentJSX: true
->>>>>>> f775cd6b1d58bd7a1fe2eedaa9595fbc2ab9f098
   "linter-ui-default":
     panelHeight: 145
     showPanel: true
