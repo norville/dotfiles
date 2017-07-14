@@ -18,14 +18,14 @@
 - shell:
     -
       description: "Configuring your environment..."
-      command: "./bin/set_env.sh"
+      command: "./bin/dotfiles_env_set"
       stdout: true
       stderr: true
       stdin: true
 
     -
       description: "Updating your environment..."
-      command: "./bin/update_env.sh"
+      command: "./bin/dotfiles_env_update"
       stdout: true
       stderr: true
       stdin: true
