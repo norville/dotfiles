@@ -3,20 +3,32 @@
 set -e
 
 # Update dotfiles submodules
-git submodule update --recursive --remote
+echo "Updating Dotfiles submodules..."
+cd ~/dev/dotfiles
+git submodule update --remote --recursive
+git submodule update --init --recursive
+echo "Done."
 
 # Update Homebrew
+echo "Updating Homebrew..."
 brew doctor
 brew update
 brew upgrade
 brew cleanup
+echo "Done."
 
 # Update PyPI
+echo "Updating PyPI..."
 pip-review --auto
+echo "Done."
 
 # Update NPM
+echo "Updating NPM..."
 npm update -g
+echo "Done."
 
 # Update VIM Plugins
+echo "Updating Vundle plugins..."
 vim +PluginUpdate +qall
+echo "Done."
 
