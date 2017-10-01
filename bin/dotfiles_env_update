@@ -32,3 +32,6 @@ echo "Updating Vundle plugins..."
 vim +PluginUpdate +qall
 echo "Done."
 
+# List outdated casks
+brew cask outdated
+
