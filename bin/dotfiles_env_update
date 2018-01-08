@@ -15,6 +15,10 @@ brew doctor
 brew update
 brew upgrade
 brew cleanup
+
+# List outdated casks
+brew cask outdated
+brew cask upgrade
 echo "Done."
 
 # Update PyPI
@@ -31,7 +35,4 @@ echo "Done."
 echo "Updating Vundle plugins..."
 vim +PluginUpdate +qall
 echo "Done."
-
-# List outdated casks
-brew cask outdated
 

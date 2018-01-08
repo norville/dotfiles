@@ -2,8 +2,13 @@
   "atom-beautify":
     general:
       _analyticsUserId: "b77394bf-c246-4811-ad91-047c8512c588"
+  "atom-ide-ui":
+    use:
+      "atom-ide-diagnostics-ui": false
   "atom-material-ui":
-    colors: {}
+    colors:
+      abaseColor: "#607d8b"
+      predefinedColor: "Blue Grey"
     fonts:
       fontSize: 12
     tabs:
@@ -22,7 +27,7 @@
     telemetryConsent: "no"
     themes: [
       "atom-material-ui"
-      "atom-material-syntax"
+      "atom-material-syntax-dark"
     ]
   "django-templates":
     defaultToDjangoTemplatesForFilePathsContaining: [
@@ -47,6 +52,7 @@
   "tree-view":
     showOnRightSide: true
   "vim-mode-plus":
+    notifiedCoffeeScriptNoLongerSupportedToExtendVMP: true
     startInInsertMode: true
     useClipboardAsDefaultRegister: true
   welcome:
