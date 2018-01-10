@@ -14,6 +14,8 @@ Plugin 'altercation/vim-colors-solarized'
 Plugin 'tpope/vim-fugitive'
 Plugin 'scrooloose/nerdtree'
 Plugin 'scrooloose/syntastic'
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -71,11 +73,21 @@ if globpath(&runtimepath, 'colors/solarized.vim', 1) !=# ''
 endif
 
 """ POWERLINE
-python from powerline.vim import setup as powerline_setup
-python powerline_setup()
-python del powerline_setup
+"python from powerline.vim import setup as powerline_setup
+"python powerline_setup()
+"python del powerline_setup
+"set guifont=Roboto\ Mono\ for\ Powerline:h12
+"let g:Powerline_symbols = 'fancy'
+
+""" VIM-AIRLINE
+let g:airline_solarized_bg='dark'
+let g:airline_powerline_fonts = 1
+let g:airline#extensions#tabline#enabled = 1
+"let g:airline#extensions#tabline#left_sep = ' '
+"let g:airline#extensions#tabline#left_alt_sep = '|'
+let g:airline#extensions#tabline#formatter = 'unique_tail' "default | jsformatter | unique_tail | unique_tail_improved
+
 set guifont=Roboto\ Mono\ for\ Powerline:h12
-let g:Powerline_symbols = 'fancy'
 
 """ STATUSLINE
 "if has('statusline')
