@@ -1,10 +1,12 @@
 #!/bin/sh
 
+DOTFILES_DIR="~/.dotfiles"
+
 set -e
 
 # Update dotfiles submodules
 echo "Updating Dotfiles submodules..."
-cd ~/dev/dotfiles
+cd $DOTFILES_DIR
 git submodule update --remote --recursive
 git submodule update --init --recursive
 echo "Done."
@@ -14,11 +16,9 @@ echo "Updating Homebrew..."
 brew doctor
 brew update
 brew upgrade
-brew cleanup
-
-# List outdated casks
 brew cask outdated
 brew cask upgrade
+brew cleanup
 echo "Done."
 
 # Update PyPI
