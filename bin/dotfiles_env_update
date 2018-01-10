@@ -1,38 +1,42 @@
 #!/bin/sh
 
-DOTFILES_DIR="~/.dotfiles"
+DOTFILES_DIR=~/.dotfiles
 
 set -e
 
 # Update dotfiles submodules
-echo "Updating Dotfiles submodules..."
+echo "*** Updating Dotfiles submodules..."
 cd $DOTFILES_DIR
 git submodule update --remote --recursive
 git submodule update --init --recursive
-echo "Done."
+echo "*** Done."
 
 # Update Homebrew
-echo "Updating Homebrew..."
+echo "*** Updating Homebrew..."
 brew doctor
 brew update
 brew upgrade
 brew cask outdated
 brew cask upgrade
 brew cleanup
-echo "Done."
+echo "*** Done."
 
 # Update PyPI
-echo "Updating PyPI..."
+echo "*** Updating PyPI..."
 pip-review --auto
-echo "Done."
+echo "*** Done."
 
 # Update NPM
-echo "Updating NPM..."
+echo "*** Updating NPM..."
 npm update -g
-echo "Done."
+echo "*** Done."
 
 # Update VIM Plugins
-echo "Updating Vundle plugins..."
+echo "*** Updating Vundle plugins..."
 vim +PluginUpdate +qall
-echo "Done."
+echo "*** Done."
 
+# Update Antigen plugins
+echo "*** Updating Antigen plugins..."
+rm -rf ~/.antigen
+echo "*** Done."
