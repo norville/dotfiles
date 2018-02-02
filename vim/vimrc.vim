@@ -156,3 +156,4 @@ nmap <D-[> <<
 nmap <D-]> >>
 vmap <D-[> <gv
 vmap <D-]> >gv
+map <C-e> :NERDTreeToggle<CR>
