@@ -2,6 +2,9 @@
 
 set -e
 
+git submodule update --remote --recursive
+git submodule update --init --recursive
+
 # Check for Homebrew and install if we don't have it, else update it
 if test ! $(which brew); then
 	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
