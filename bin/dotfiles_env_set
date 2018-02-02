@@ -17,7 +17,7 @@ brew cleanup
 
 # Install PIP pacjages
 pip install --upgrade pip wheel setuptools
-pip install powerline-status pip-review
+pip install pip-review
 
 # Set ZSH as login shell
 ZSH_PATH=$(which zsh)

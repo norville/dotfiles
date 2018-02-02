@@ -7,7 +7,7 @@
 	email = ing.norville@gmail.com
 [core]
 	editor = vim
-	excludesfile = ~/dotfiles/git/gitignore_global
+	excludesfile = ~/.dotfiles/git/gitignore_global
 [color]
 	ui = auto
 [credential]
