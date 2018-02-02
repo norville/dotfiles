@@ -12,7 +12,6 @@
     ~/.vim: vim
     ~/.vimrc: vim/vimrc.vim
     ~/.gitconfig: git/gitconfig
-    ~/.atom: atom
     ~/.iterm: iterm
 
 - shell:
