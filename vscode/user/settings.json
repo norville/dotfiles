@@ -1,0 +1,18 @@
+{
+    "workbench.startupEditor": "newUntitledFile",
+    "workbench.colorTheme": "One Dark Pro",
+    "workbench.iconTheme": "vscode-icons",
+    "editor.fontFamily": "'Roboto Mono'",
+    "editor.renderWhitespace": "boundary",
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
+    "terminal.integrated.cursorBlinking": true,
+    "terminal.integrated.shell.linux": "/bin/bash",
+    "terminal.integrated.shell.osx": "/bin/bash",
+    "git.path": "git",
+    "python.pythonPath": "/usr/local/bin/python3",
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.autoComplete.addBrackets": true,
+    "html.format.endWithNewline": true,
+}
