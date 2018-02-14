@@ -13,6 +13,7 @@
     ~/.vimrc: vim/vimrc.vim
     ~/.gitconfig: git/gitconfig
     ~/.iterm: iterm
+    ~/Library/Application\ Support/Code/User: vscode/user
 
 - shell:
     -
