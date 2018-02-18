@@ -4,6 +4,7 @@
     "workbench.iconTheme": "vscode-icons",
     "editor.fontFamily": "'Roboto Mono'",
     "editor.renderWhitespace": "boundary",
+    "editor.formatOnSave": true,
     "files.insertFinalNewline": true,
     "files.trimTrailingWhitespace": true,
     "terminal.integrated.cursorBlinking": true,
