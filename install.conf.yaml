@@ -9,6 +9,7 @@
     ~/.dotfiles: ''
     ~/.zshrc: zsh/zshrc
     ~/.tmux.conf: tmux/tmux.conf
+    ~/.ssh: ssh
     ~/.vim: vim
     ~/.vimrc: vim/vimrc.vim
     ~/.gitconfig: git/gitconfig

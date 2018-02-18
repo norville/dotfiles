@@ -13,6 +13,7 @@
     "python.pythonPath": "/usr/local/bin/python3",
     "python.linting.pylintEnabled": false,
     "python.linting.flake8Enabled": true,
+    "python.linting.flake8Path": "/usr/local/bin/flake8",
     "python.autoComplete.addBrackets": true,
     "html.format.endWithNewline": true,
 }
