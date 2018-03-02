@@ -36,7 +36,7 @@ export LANG=en_US.UTF-8
 export EDITOR='vim'
 
 # Set PATH
-export PATH=$PATH:~/.dotfiles/bin
+export PATH="/Users/bassa/.dotfiles/bin:/usr/local/sbin:$PATH"
 
 # Activate Antigen
 source /usr/local/share/antigen/antigen.zsh
