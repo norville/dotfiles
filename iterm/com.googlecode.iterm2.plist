@@ -269,7 +269,7 @@
 	<key>NSWindow Frame SharedPreferences</key>
 	<string>381 253 796 473 0 0 1440 878 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>241 60 850 777 0 0 1440 878 </string>
+	<string>0 0 1440 878 0 0 1440 878 </string>
 	<key>New Bookmarks</key>
 	<array>
 		<dict>
@@ -892,7 +892,7 @@
 			<key>Thin Strokes</key>
 			<integer>1</integer>
 			<key>Transparency</key>
-			<real>0.0</real>
+			<real>0.15</real>
 			<key>Unlimited Scrollback</key>
 			<false/>
 			<key>Use Bold Font</key>
@@ -921,6 +921,8 @@
 	<true/>
 	<key>NoSyncNeverRemindPrefsChangesLostForFile_selection</key>
 	<integer>0</integer>
+	<key>NoSyncPermissionToShowTip</key>
+	<false/>
 	<key>NoSyncTimeOfFirstLaunchOfVersionWithTip</key>
 	<real>539306851.88448799</real>
 	<key>OpenArrangementAtStartup</key>
@@ -977,7 +979,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2018-02-02T23:28:33Z</date>
+	<date>2018-03-02T21:31:04Z</date>
 	<key>SUSendProfileInfo</key>
 	<false/>
 	<key>TabStyle</key>
