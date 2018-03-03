@@ -62,4 +62,5 @@ atom/packages
 atom/recovery
 atom/storage
 vim/bundle/*
+vscode/user/workspaceStorage
 

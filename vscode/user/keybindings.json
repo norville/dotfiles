@@ -1,0 +1,23 @@
+// Inserire i tasti di scelta rapida in questo file per sovrascrivere i valori predefiniti
+[
+    {
+        "key": "shift+cmd+t",
+        "command": "workbench.action.terminal.toggleTerminal"
+    },
+    {
+        "key": "shift+cmd+e",
+        "command": "workbench.view.extensions"
+    },
+    {
+        "key": "shift+cmd+x",
+        "command": "-workbench.view.extensions"
+    },
+    {
+        "key": "shift+cmd+x",
+        "command": "workbench.action.terminal.runActiveFile"
+    },
+    {
+        "key": "shift+alt+cmd+x",
+        "command": "workbench.action.terminal.runSelectedText"
+    }
+]
