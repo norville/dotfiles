@@ -9,7 +9,7 @@ brew 'moreutils'
 brew 'findutils'
 
 # Dev
-brew 'python'
+#brew 'python'
 brew 'python3'
 brew 'ruby'
 brew 'node'
