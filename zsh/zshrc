@@ -70,11 +70,11 @@ POWERLEVEL9K_INSTALLATION_PATH=$ANTIGEN_BUNDLES/bhilburn/powerlevel9k/powerlevel
 antigen theme bhilburn/powerlevel9k powerlevel9k
 
 # Check if this is an SSH session
-if [[ -n $SSH_CONNECTION ]]; then
+#if [[ -n $SSH_CONNECTION ]]; then
 	# if not
-else
+#else
 	# if yes
-fi
+#fi
 
 # Tell antigen that you're done.
 antigen apply

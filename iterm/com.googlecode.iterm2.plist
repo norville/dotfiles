@@ -267,9 +267,9 @@
 	<key>NSTableView Supports v2 KeyBingingTable</key>
 	<true/>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>381 253 796 473 0 0 1440 878 </string>
+	<string>118 311 918 512 0 0 1440 878 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>0 0 1440 878 0 0 1440 878 </string>
+	<string>0 26 1410 852 0 0 1440 878 </string>
 	<key>New Bookmarks</key>
 	<array>
 		<dict>
@@ -469,7 +469,7 @@
 			<key>Close Sessions On End</key>
 			<true/>
 			<key>Columns</key>
-			<integer>120</integer>
+			<integer>200</integer>
 			<key>Command</key>
 			<string>/usr/local/bin/zsh</string>
 			<key>Cursor Color</key>
@@ -892,7 +892,7 @@
 			<key>Thin Strokes</key>
 			<integer>1</integer>
 			<key>Transparency</key>
-			<real>0.15</real>
+			<real>0.14999999999999999</real>
 			<key>Unlimited Scrollback</key>
 			<false/>
 			<key>Use Bold Font</key>
@@ -979,7 +979,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2018-03-02T21:31:04Z</date>
+	<date>2018-03-05T13:19:17Z</date>
 	<key>SUSendProfileInfo</key>
 	<false/>
 	<key>TabStyle</key>
