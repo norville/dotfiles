@@ -21,6 +21,9 @@ brew cleanup
 # Install PIP pacjages
 pip3 install --upgrade pip wheel setuptools pip-review
 
+# Set ZSH completions
+$ curl -L https://raw.githubusercontent.com/docker/compose/1.21.0/contrib/completion/zsh/_docker-compose > ~/.zsh-completions/_docker-compose
+
 # Set ZSH as login shell
 ZSH_PATH=$(which zsh)
 
