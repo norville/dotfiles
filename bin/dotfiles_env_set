@@ -19,7 +19,7 @@ brew bundle -v --file=brew/Brewfile
 brew cleanup
 
 # Install PIP pacjages
-pip3 install --upgrade pip wheel setuptools pip-review flake8 pep8 autopep8
+pip3 install --upgrade pip wheel setuptools pip-review
 
 # Set ZSH as login shell
 ZSH_PATH=$(which zsh)

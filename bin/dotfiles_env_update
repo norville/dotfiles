@@ -23,6 +23,7 @@ echo "*** Done."
 
 # Update PyPI
 echo "*** Updating PyPI..."
+pip3 install --upgrade pip setuptools wheel pip-review
 pip-review --auto
 echo "*** Done."
 
