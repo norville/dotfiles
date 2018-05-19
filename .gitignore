@@ -45,6 +45,7 @@ Icon
 # App related files #
 #####################
 *.swp
+id_rsa*
 .netrwhist
 node_modules
 bower_components
