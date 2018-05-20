@@ -2,8 +2,7 @@
 
 set -e
 
-#git submodule update --remote --recursive
-#git submodule sync --recursive
+# Re-attach every submodule HEAD to master
 git submodule foreach -q --recursive 'git checkout $(git config -f $toplevel/.gitmodules submodule.$name.branch || echo master)'
 
 # If machine is a Mac
