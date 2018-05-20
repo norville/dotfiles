@@ -10,7 +10,9 @@ With lots of cool ideas taken from [Github does dotfiles](https://dotfiles.githu
 
 ## Install
 
+```bash
 git clone https://github.com/norville/dotfiles.git --recursive
 cd dotfiles
 ./install
+```
 
