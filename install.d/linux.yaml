@@ -7,19 +7,18 @@
 
 - link:
     ~/.dotfiles: ''
-    ~/.zshrc: zsh/zshrc
+    ~/.profile: sh/profile
+    ~/.bashrc: sh/bashrc
+    ~/.zshrc: sh/zshrc
     ~/.tmux.conf: tmux/tmux.conf
-    ~/.ssh: ssh
     ~/.vim: vim
     ~/.vimrc: vim/vimrc.vim
     ~/.gitconfig: git/gitconfig
-    ~/.iterm: iterm
-    ~/Library/Application\ Support/Code/User: vscode/user
 
 - shell:
     -
-      description: "Configuring your environment..."
-      command: "./bin/dotfiles_env_set"
+      description: "Installing your environment..."
+      command: "./bin/dotfiles_env_install"
       stdout: true
       stderr: true
       stdin: true
