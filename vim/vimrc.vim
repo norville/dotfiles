@@ -1,4 +1,6 @@
-""" ENABLE VUNDLE
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" VUNDLE
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set nocompatible              " be iMproved, required
 filetype off                  " required
 
@@ -10,7 +12,8 @@ call vundle#begin()
 
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
-Plugin 'altercation/vim-colors-solarized'
+"Plugin 'altercation/vim-colors-solarized'
+Plugin 'morhetz/gruvbox'
 Plugin 'tpope/vim-fugitive'
 Plugin 'scrooloose/nerdtree'
 Plugin 'scrooloose/syntastic'
@@ -32,28 +35,24 @@ filetype plugin indent on    " required
 "
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
-" 
-""" INDENT
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
-set noexpandtab
-set smarttab
-set backspace=indent,eol,start
-if has("autocmd")
-    autocmd FileType text setlocal textwidth=80
-    autocmd FileType html setlocal ts=2 sts=2 sw=2 expandtab
-    autocmd FileType css setlocal ts=2 sts=2 sw=2 expandtab
-	autocmd FileType javascript setlocal ts=4 sts=4 sw=4 noexpandtab
-	autocmd BufNewFile,BufRead *.rss,*.atom setfiletype xml
-else
-    set autoindent
-    set smartindent
-endif
 
-""" WINDOW
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" VIM-AIRLINE
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:airline_solarized_bg='dark'
+let g:airline_powerline_fonts = 1
+let g:airline#extensions#tabline#enabled = 1
+"let g:airline#extensions#tabline#left_sep = ' '
+"let g:airline#extensions#tabline#left_alt_sep = '|'
+let g:airline#extensions#tabline#formatter = 'unique_tail' "default | jsformatter | unique_tail | unique_tail_improved
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" INTERFACE
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+set guifont=Roboto\ Mono\ for\ Powerline:h12
 set encoding=utf-8
 set termencoding=utf-8
+set termguicolors
 set number
 set ruler
 set showcmd
@@ -68,28 +67,92 @@ set noshowmode
 set background=dark
 set t_Co=256
 set term=xterm-256color
-if globpath(&runtimepath, 'colors/solarized.vim', 1) !=# ''
-	colorscheme solarized
+colorscheme gruvbox
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" BUFFERS
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+set hidden
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" INDENT
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set noexpandtab
+set smarttab
+set backspace=indent,eol,start
+if has("autocmd")
+    autocmd FileType text setlocal textwidth=80
+    autocmd FileType html setlocal ts=2 sts=2 sw=2 expandtab
+    autocmd FileType css setlocal ts=2 sts=2 sw=2 expandtab
+    autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+    autocmd FileType javascript setlocal ts=4 sts=4 sw=4 expandtab
+    autocmd BufNewFile,BufRead *.rss,*.atom setfiletype xml
+else
+    set autoindent
+    set smartindent
 endif
 
-""" POWERLINE
-"python from powerline.vim import setup as powerline_setup
-"python powerline_setup()
-"python del powerline_setup
-"set guifont=Roboto\ Mono\ for\ Powerline:h12
-"let g:Powerline_symbols = 'fancy'
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" HIGHLIGHT AND SEARCH
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+syntax enable
+set incsearch
+set showmatch
+if has("mouse")
+    set mouse=a
+endif
+if &t_Co > 2 || has("gui_running")
+    syntax on
+    set hlsearch
+endif
 
-""" VIM-AIRLINE
-let g:airline_solarized_bg='dark'
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 1
-"let g:airline#extensions#tabline#left_sep = ' '
-"let g:airline#extensions#tabline#left_alt_sep = '|'
-let g:airline#extensions#tabline#formatter = 'unique_tail' "default | jsformatter | unique_tail | unique_tail_improved
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" FUNCTIONS
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! <SID>StripTrailingWhitespaces()
+    let _s=@/
+    let l=line(".")
+    let c=col(".")
+    %s/\s\+$//e
+    let @/=_s
+    call cursor(l,c)
+endfunction
 
-set guifont=Roboto\ Mono\ for\ Powerline:h12
+"function! SyntaxItem()
+"   return synIDattr(synID(line("."),col("."),1),"name")
+"endfunction
 
-""" STATUSLINE
+function! TabsToWhites()
+    set noexpandtab
+    retab!
+    set expandtab
+    retab!
+endfunction
+
+function! WhitesToTabs()
+    set expandtab
+    retab!
+    set noexpandtab
+    retab!
+endfunction
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" MAPPINGS
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+nnoremap <silent> <F5> :call <SID>StripTrailingWhitespaces()<CR>
+nnoremap <silent> <F6> g/^$/d<CR> "delete empty lines
+nmap <D-[> <<
+nmap <D-]> >>
+vmap <D-[> <gv
+vmap <D-]> >gv
+map <C-e> :NERDTreeToggle<CR>" POWERLINE
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" LEGACY
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "if has('statusline')
 "    set statusline=%#Question#                                              " set highlighting
 "    set statusline=%02.02n\.                                                " buffer number
@@ -106,54 +169,3 @@ set guifont=Roboto\ Mono\ for\ Powerline:h12
 "    set statusline+=[%03.v\,%03.l\ %03.p%%]                                 " cursor position
 "endif
 
-""" BUFFERS
-set hidden
-
-""" HIGHLIGHT AND SEARCH
-syntax enable
-set incsearch
-set showmatch
-if has("mouse")
-    set mouse=a
-endif
-if &t_Co > 2 || has("gui_running")
-    syntax on
-    set hlsearch
-endif
-
-""" FUNCTIONS
-function! <SID>StripTrailingWhitespaces()
-    let _s=@/
-    let l=line(".")
-    let c=col(".")
-    %s/\s\+$//e
-    let @/=_s
-    call cursor(l,c)
-endfunction
-
-"function! SyntaxItem()
-"   return synIDattr(synID(line("."),col("."),1),"name")
-"endfunction
-
-function! TabsToWhites()
-	set noexpandtab
-	retab!
-	set expandtab
-	retab!
-endfunction
-
-function! WhitesToTabs()
-	set expandtab
-	retab!
-	set noexpandtab
-	retab!
-endfunction
-
-""" MAPPINGS
-nnoremap <silent> <F5> :call <SID>StripTrailingWhitespaces()<CR>
-nnoremap <silent> <F6> g/^$/d<CR> "delete empty lines
-nmap <D-[> <<
-nmap <D-]> >>
-vmap <D-[> <gv
-vmap <D-]> >gv
-map <C-e> :NERDTreeToggle<CR>
