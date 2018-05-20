@@ -1,0 +1,81 @@
+unalias run-help
+autoload run-help
+HELPDIR=/usr/local/share/zsh/help
+
+# Enable ZSH Completions
+fpath=(/usr/local/share/zsh-completions $fpath)
+
+# Enable syntax highlightning
+source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Uncomment the following line to use case-sensitive completion.
+CASE_SENSITIVE="true"
+
+# Uncomment the following line to disable bi-weekly auto-update checks.
+#DISABLE_AUTO_UPDATE="true"
+
+# Uncomment to enable automatic upgrades
+DISABLE_UPDATE_PROMPT=true
+
+# Uncomment the following line to enable command auto-correction.
+ENABLE_CORRECTION="true"
+
+# Uncomment the following line if you want to change the command execution time
+# stamp shown in the history command output.
+# The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
+HIST_STAMPS="dd/mm/yyyy"
+
+# Uncomment the following line to change how often to auto-update (in days).
+export UPDATE_ZSH_DAYS=7
+
+# Set language
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+
+# Set default editor
+export EDITOR='vim'
+
+# Set PATH
+export PATH="/Users/bassa/.dotfiles/bin:/usr/local/sbin:$PATH"
+
+# Activate Antigen
+source /usr/local/share/antigen/antigen.zsh
+
+# Load the oh-my-zsh's library.
+antigen use oh-my-zsh
+
+# Bundles from the default repo (robbyrussell's oh-my-zsh).
+antigen bundle osx
+antigen bundle tmux
+antigen bundle git
+antigen bundle git-extras
+antigen bundle python
+antigen bundle pip
+antigen bundle npm
+antigen bundle rbenv
+antigen bundle gem
+antigen bundle rails
+antigen bundle heroku
+antigen bundle docker
+antigen bundle zsh-users/zsh-syntax-highlighting
+
+# OMZ-Theme powerlevel9k settings
+#POWERLEVEL9K_MODE='awesome-fontconfig'
+DEFAULT_USER=$USER
+POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context root_indicator dir vcs)
+POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status background_jobs ram)
+POWERLEVEL9K_INSTALLATION_PATH=$ANTIGEN_BUNDLES/bhilburn/powerlevel9k/powerlevel9k.zsh-theme
+
+# Load the theme.
+antigen theme bhilburn/powerlevel9k powerlevel9k
+
+# Check if this is an SSH session
+#if [[ -n $SSH_CONNECTION ]]; then
+	# if not
+#else
+	# if yes
+#fi
+
+# Tell antigen that you're done.
+antigen apply
+
