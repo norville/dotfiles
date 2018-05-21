@@ -60,7 +60,7 @@ antigen bundle docker
 antigen bundle zsh-users/zsh-syntax-highlighting
 
 # OMZ-Theme powerlevel9k settings
-#POWERLEVEL9K_MODE='awesome-fontconfig'
+POWERLEVEL9K_MODE='nerdfont-complete'
 DEFAULT_USER=$USER
 POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context root_indicator dir vcs)
 POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status background_jobs ram)

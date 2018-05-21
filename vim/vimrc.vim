@@ -12,7 +12,6 @@ call vundle#begin()
 
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
-"Plugin 'altercation/vim-colors-solarized'
 Plugin 'morhetz/gruvbox'
 Plugin 'tpope/vim-fugitive'
 Plugin 'scrooloose/nerdtree'
@@ -49,7 +48,7 @@ let g:airline#extensions#tabline#formatter = 'unique_tail' "default | jsformatte
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " INTERFACE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set guifont=Roboto\ Mono\ for\ Powerline:h12
+set guifont=Sauce\ Code\ Pro\ Nerd\ Font\ Complete:h12
 set encoding=utf-8
 set termencoding=utf-8
 set termguicolors
