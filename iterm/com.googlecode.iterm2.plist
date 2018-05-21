@@ -826,9 +826,9 @@
 	<key>NSWindow Frame SUUpdateAlert</key>
 	<string>410 364 620 392 0 0 1440 878 </string>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>118 350 796 473 0 0 1440 878 </string>
+	<string>118 272 796 473 0 0 1440 878 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>0 85 1410 777 0 0 1440 878 </string>
+	<string>0 35 1410 827 0 0 1440 878 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>11 26 1410 852 0 0 1440 878 </string>
 	<key>New Bookmarks</key>

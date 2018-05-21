@@ -66,6 +66,9 @@ set noshowmode
 set background=dark
 set t_Co=256
 set term=xterm-256color
+" Enable italic support
+"set term=xterm-256color-italic
+"let g:gruvbox_italic=1
 colorscheme gruvbox
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -107,6 +110,8 @@ if &t_Co > 2 || has("gui_running")
     syntax on
     set hlsearch
 endif
+" Enable italic support
+"highlight Comment cterm=italic
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " FUNCTIONS
