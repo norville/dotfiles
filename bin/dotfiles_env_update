@@ -9,6 +9,8 @@ echo "*** Updating Dotfiles submodules..."
 cd $DOTFILES_DIR
 git submodule sync --recursive
 git submodule update --remote --recursive
+git submodule foreach git checkout master
+git submodule foreach git pull origin master
 echo "*** Done."
 
 if [[ $(uname -s) == 'Darwin' ]]
