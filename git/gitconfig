@@ -10,7 +10,5 @@
 	excludesfile = ~/.dotfiles/git/gitignore_global
 [color]
 	ui = auto
-[credential]
-	helper = osxkeychain
 [status]
 	submoduleSummary = true

@@ -1,27 +1,27 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " VUNDLE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set nocompatible              " be iMproved, required
-filetype off                  " required
+"set nocompatible              " be iMproved, required
+"filetype off                  " required
 
 " set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
+"set rtp+=~/.vim/bundle/Vundle.vim
+"call vundle#begin()
 " alternatively, pass a path where Vundle should install plugins
 "call vundle#begin('~/some/path/here')
 
 " let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'morhetz/gruvbox'
-Plugin 'tpope/vim-fugitive'
-Plugin 'scrooloose/nerdtree'
-Plugin 'scrooloose/syntastic'
-Plugin 'vim-airline/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
+"Plugin 'VundleVim/Vundle.vim'
+"Plugin 'morhetz/gruvbox'
+"Plugin 'tpope/vim-fugitive'
+"Plugin 'scrooloose/nerdtree'
+"Plugin 'scrooloose/syntastic'
+"Plugin 'vim-airline/vim-airline'
+"Plugin 'vim-airline/vim-airline-themes'
 
 " All of your Plugins must be added before the following line
-call vundle#end()            " required
-filetype plugin indent on    " required
+"call vundle#end()            " required
+"filetype plugin indent on    " required
 " To ignore plugin indent changes, instead use:
 "filetype plugin on
 "
@@ -38,21 +38,21 @@ filetype plugin indent on    " required
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " VIM-AIRLINE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let g:airline_theme='gruvbox'
+"let g:airline_theme='gruvbox'
 "let g:airline_solarized_bg='dark'
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 1
+"let g:airline_powerline_fonts = 1
+"let g:airline#extensions#tabline#enabled = 1
 "let g:airline#extensions#tabline#left_sep = ' '
 "let g:airline#extensions#tabline#left_alt_sep = '|'
-let g:airline#extensions#tabline#formatter = 'unique_tail' "default | jsformatter | unique_tail | unique_tail_improved
+"let g:airline#extensions#tabline#formatter = 'unique_tail' "default | jsformatter | unique_tail | unique_tail_improved
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " INTERFACE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set guifont=Sauce\ Code\ Pro\ Nerd\ Font\ Complete:h12
+"set guifont=Sauce\ Code\ Pro\ Nerd\ Font\ Complete:h12
 set encoding=utf-8
 set termencoding=utf-8
-set termguicolors
+"set termguicolors
 set number
 set ruler
 set showcmd
@@ -64,13 +64,13 @@ set cursorline
 set laststatus=2
 set showtabline=2
 set noshowmode
-set background=dark
+"set background=dark
 set t_Co=256
 set term=xterm-256color
 " Enable italic support
 "set term=xterm-256color-italic
 "let g:gruvbox_italic=1
-colorscheme gruvbox
+"colorscheme gruvbox
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " BUFFERS
@@ -154,23 +154,4 @@ nmap <D-]> >>
 vmap <D-[> <gv
 vmap <D-]> >gv
 map <C-e> :NERDTreeToggle<CR>" POWERLINE
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" LEGACY
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"if has('statusline')
-"    set statusline=%#Question#                                              " set highlighting
-"    set statusline=%02.02n\.                                                " buffer number
-"    set statusline+=%Y%H%M%R%W\ %t\                                         " file name and flags
-"    set statusline+=[%{strlen(&ft)?&ft:'none'}\,                            " file type
-"    set statusline+=%{(&fenc==\"\"?&enc:&fenc)}\,                           " encoding
-"    set statusline+=%{&fileformat}\,                                        " file format
-"    set statusline+=%{&spelllang}                                           " language of spelling checker
-"    set statusline+=%{((exists(\"+bomb\")\ &&\ &bomb)?\",BOM\":\"\")}]\     " BOM
-"    set statusline+=[%{strftime(\"%F,%a,%T\",getftime(expand(\"%:p\")))}]   " time of last modification
-"    set statusline+=%=                                                      " ident to the right
-""    set statusline+=[%{SyntaxItem()}]\                                      " syntax highlight group under cursor
-"    set statusline+=[0x%03.B\ @\ 0x%03.O]\                                  " byte value @ byte position (hex)
-"    set statusline+=[%03.v\,%03.l\ %03.p%%]                                 " cursor position
-"endif
 
