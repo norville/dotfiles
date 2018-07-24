@@ -1,0 +1,77 @@
+#!/bin/bash
+
+set -e
+
+# change login shell to ZSH
+change_shell() {
+	# Set ZSH as login shell
+	ZSH_PATH=$(which zsh)
+
+	if [ $SHELL == $ZSH_PATH ]; then
+		echo "ZSH is already the login shell."
+	else
+		echo "Changing login shell to ZSH..."
+		echo $ZSH_PATH | sudo tee -a /etc/shells
+		chsh -s $ZSH_PATH
+	fi
+}
+
+# If machine is a Mac
+if [ $(uname -s) == 'Darwin' ]; then
+
+	# Become admin
+	sudo -v
+
+	# Check for Homebrew and install if we don't have it, else update it
+	if test ! $(which brew); then
+		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	else
+		brew update --force
+		brew upgrade --cleanup
+	fi
+
+	# Install all our dependencies with bundle (See Brewfile)
+	brew tap homebrew/bundle
+	brew bundle -v --file=brew/Brewfile
+	brew cleanup
+
+	# Install PIP pacjages
+	pip3 install --upgrade pip wheel setuptools pip-review
+
+	change_shell
+
+elif [ $(uname -s) == 'Linux' ]; then
+
+	# Become admin
+	sudo -v
+
+	# Install rquired apps
+	sudo apt update && sudo apt install -y \
+		zsh \
+		zsh-syntax-highlighting
+
+	# Cleanup
+	sudo apt autoremove
+	sudo apt autoclean
+
+	# Change login shell
+	change_shell
+
+	# Install or update zplug
+	if test ! $(which zplug); then
+		curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
+		zplug install
+	else
+		zplug update
+	fi
+	zplug clean --force
+	zplug clear
+
+fi
+
+# Install Vundle plugins
+
+# TODO check fot git & linked files
+#git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+vim +PluginInstall +qall
+
