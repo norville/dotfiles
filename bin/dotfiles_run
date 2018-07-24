@@ -16,11 +16,11 @@ change_shell() {
 	fi
 }
 
-# If machine is a Mac
-if [ $(uname -s) == 'Darwin' ]; then
+# Validate current user as admin
+sudo -v
 
-	# Become admin
-	sudo -v
+# If system is macOS
+if [ $(uname -s) == 'Darwin' ]; then
 
 	# Check for Homebrew and install if we don't have it, else update it
 	if test ! $(which brew); then
@@ -34,11 +34,6 @@ if [ $(uname -s) == 'Darwin' ]; then
 	brew tap homebrew/bundle
 	brew bundle -v --file=brew/Brewfile
 	brew cleanup
-
-	# Install PIP pacjages
-	pip3 install --upgrade pip wheel setuptools pip-review
-
-	change_shell
 
 elif [ $(uname -s) == 'Linux' ]; then
 
@@ -54,24 +49,27 @@ elif [ $(uname -s) == 'Linux' ]; then
 	sudo apt autoremove
 	sudo apt autoclean
 
-	# Change login shell
-	change_shell
-
-	# Install or update zplug
-	if test ! $(which zplug); then
-		curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
-		zplug install
-	else
-		zplug update
-	fi
-	zplug clean --force
-	zplug clear
-
 fi
 
-# Install Vundle plugins
+# Change login shell
+change_shell
 
-# TODO check fot git & linked files
-#git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-vim +PluginInstall +qall
+# Install ZPLUG
+if [ ! -d ~/.zplug ]; then
+	url="https://raw.githubusercontent.com/zplug/installer/master/installer.zsh"
+	curl -sL --proto-redir -all,https $url | zsh
+fi
+
+# TODO check for linked files
+
+# Install PIP packages
+#pip3 install --upgrade pip wheel setuptools pip-review
+
+# Install Vundle plugins
+if [ ! -d ~/.vim/bundle/Vundle.vim ]; then
+	git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+	vim +PluginInstall +qall
+else
+	vim +PluginUpdate +qall
+fi
 
