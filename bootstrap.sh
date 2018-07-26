@@ -2,18 +2,11 @@
 
 set -e
 
-DF_DIR=$HOME/dev/dotfiles
-DF_LNK=.dotfiles
+DF_DIR=~/dev/dotfiles	# Full path of dotfiles dir
+DF_LNK=~/.dotfiles		# Link dotfiles dir to ~/.dotfile
+DF_BKP=~/.dotfiles_bkp	# Backup dir for existing dotfiles
 
-if [ $PWD != $DF_DIR ]; then
-	echo "Error: Dotfiles must be in $DF_DIR."
-	exit 1
-fi
-if [ ! -d $HOME/$DF_LNK ]; then
-	ln -sf $PWD $HOME/$DF_LNK
-fi
-
-files=(
+links=(
 	".gitconfig"
 	".tmux.conf"
 	".vim"
@@ -21,9 +14,26 @@ files=(
 	".zshrc"
 )
 
-for file in ${files[@]}; do
-	ln -sf $DF_LNK/$file $HOME/$file
+cd $DF_DIR
+
+# Create ~/.dotfile shortcut
+if [ ! -L $DF_LNK ]; then
+	ln -s $DF_DIR $DF_LNK
+fi
+
+# Create symlinks
+for l in ${links[@]}; do
+	if [ ! -L ~/$l ]; then
+
+		# If dotfile already exists then make a backup
+		if [ -f ~/$l ]; then
+			mkdir -p $DF_BKP
+			mv ~/$l $DF_BKP/$l
+		else
+			ln -s $DF_LNK/$l ~/$l
+		fi
+	fi
 done
 
-./bin/dotfiles_run
+#./bin/dotfiles_run
 
