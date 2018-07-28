@@ -36,5 +36,6 @@ for l in ${links[@]}; do
 	fi
 done
 
-#./bin/dotfiles_run
+# Install software and config system
+./bin/dotfiles_run
 
