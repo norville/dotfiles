@@ -1,0 +1,49 @@
+#!/bin/bash
+
+DOTFILES_DIR=~/.dotfiles
+
+set -e
+
+# Update dotfiles submodules
+echo "*** Updating Dotfiles submodules..."
+cd $DOTFILES_DIR
+git submodule sync --recursive
+git submodule update --remote --recursive
+git submodule foreach git checkout master
+git submodule foreach git pull origin master
+echo "*** Done."
+
+if [[ $(uname -s) == 'Darwin' ]]
+then
+	# Update Homebrew
+	echo "*** Updating Homebrew..."
+	brew doctor
+	brew update
+	brew upgrade
+	brew cask outdated
+	brew cask upgrade
+	brew cleanup
+	echo "*** Done."
+
+	# Update PyPI
+	echo "*** Updating PyPI..."
+	pip3 install --upgrade pip setuptools wheel pip-review
+	pip-review --auto
+	echo "*** Done."
+
+	# Update NPM
+	echo "*** Updating NPM..."
+	npm update -g
+	echo "*** Done."
+
+	# Update Antigen plugins
+	echo "*** Updating Antigen plugins..."
+	rm -rf ~/.antigen
+	echo "*** Done."
+
+fi
+
+# Update VIM Plugins
+echo "*** Updating Vundle plugins..."
+vim +PluginUpdate +qall
+echo "*** Done."
