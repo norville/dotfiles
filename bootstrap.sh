@@ -37,5 +37,4 @@ for l in ${links[@]}; do
 done
 
 # Install software and config system
-./bin/dotfiles_run
-
+./bin/dotfiles_run.sh
