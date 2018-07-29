@@ -90,9 +90,9 @@ zplug zsh-users/zsh-completions
 #zplug "bhilburn/powerlevel9k", use:powerlevel9k.zsh-theme
 zplug nojhan/liquidprompt
 
-zplug load
-
 if ! zplug check; then
 	zplug install
 fi
+
+zplug load
 

@@ -3,6 +3,7 @@
 set -e
 
 # Validate current user as admin
+$USR=$(whoami)
 sudo -v
 
 # If system is macOS
@@ -45,14 +46,11 @@ if [ $SHELL == $ZSH_PATH ]; then
 else
 	echo "Changing login shell to ZSH..."
 	echo $ZSH_PATH | sudo tee -a /etc/shells
-	chsh -s $ZSH_PATH
+	sudo chsh -s $ZSH_PATH $USR
 fi
 
 # Install ZPLUG
-if [ ! -d ~/.zplug ]; then
-	url="https://raw.githubusercontent.com/zplug/installer/master/installer.zsh"
-	curl -sL --proto-redir -all,https $url | zsh
-fi
+./dotfiles_zplug.sh
 
 # Install Vundle plugins
 if [ ! -d ~/.vim/bundle/Vundle.vim ]; then
