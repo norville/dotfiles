@@ -14,7 +14,7 @@ if has('macunix')
 	if (has("termguicolors"))
 		set termguicolors
 	endif
-	colorscheme gruvbox
+	silent! colorscheme gruvbox
 	
 	" Enable italic support
 	"set term=xterm-256color-italic
@@ -23,6 +23,6 @@ if has('macunix')
 else
 	let g:airline_theme='solarized'
 	let g:airline_solarized_bg='dark'
-	colorscheme solarized
+	silent! colorscheme solarized
 endif
 
