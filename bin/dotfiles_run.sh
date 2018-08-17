@@ -3,7 +3,7 @@
 set -e
 
 # Validate current user as admin
-$USR=$(whoami)
+USR=$(whoami)
 sudo -v
 
 # If system is macOS

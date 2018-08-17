@@ -38,6 +38,9 @@ export EDITOR='vim'
 # Set PATH
 export PATH="~/.dotfiles/bin:/usr/local/sbin:$PATH"
 
+# Set AUTO_CD
+setopt AUTO_CD
+
 # OMZ-Theme powerlevel9k settings
 #POWERLEVEL9K_MODE='nerdfont-complete'
 #DEFAULT_USER=$USER
