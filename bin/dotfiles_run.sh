@@ -50,7 +50,7 @@ else
 fi
 
 # Install ZPLUG
-./dotfiles_zplug.sh
+./bin/dotfiles_zplug.sh
 
 # Install Vundle plugins
 if [ ! -d ~/.vim/bundle/Vundle.vim ]; then
