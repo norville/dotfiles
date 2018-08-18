@@ -2,9 +2,6 @@
 #autoload run-help
 #HELPDIR=/usr/local/share/zsh/help
 
-# Enable ZSH Completions
-fpath=(/usr/local/share/zsh-completions $fpath)
-
 # Enable syntax highlightning
 #source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
@@ -88,14 +85,34 @@ source ~/.zplug/init.zsh
 zplug 'zplug/zplug', hook-build:'zplug --self-manage'
 zplug zsh-users/zsh-syntax-highlighting
 zplug zsh-users/zsh-completions
-#zplug vasyharan/zsh-brew-services
+zplug vasyharan/zsh-brew-services, if:"[[ $OSTYPE == *darwin* ]]"
+zplug trapd00r/zsh-syntax-highlighting-filetypes
+zplug srijanshetty/zsh-pip-completion
 
-#zplug "bhilburn/powerlevel9k", use:powerlevel9k.zsh-theme
-zplug nojhan/liquidprompt
+zplug "plugins/common-aliases", from:oh-my-zsh
+zplug "plugins/colorize", from:oh-my-zsh
+zplug "plugins/extract", from:oh-my-zsh
+zplug "plugins/tmux", from:oh-my-zsh
+zplug "plugins/vi-mode", from:oh-my-zsh
+zplug "plugins/vundle", from:oh-my-zsh
+zplug "plugins/docker", from:oh-my-zsh
+zplug "plugins/git", from:oh-my-zsh
+zplug "plugins/brew", from:oh-my-zsh, if:"[[ $OSTYPE == *darwin* ]]"
+zplug "plugins/osx", from:oh-my-zsh, if:"[[ $OSTYPE == *darwin* ]]"
+
+zplug "bhilburn/powerlevel9k", use:powerlevel9k.zsh-theme, if:"[[ $OSTYPE == *darwin* ]]"
+zplug nojhan/liquidprompt, if:"[[ $OSTYPE == *linux* ]]"
 
 if ! zplug check; then
 	zplug install
 fi
 
 zplug load
+
+# Enable Docker Completions
+#url='https://raw.githubusercontent.com/docker/compose/1.22.0/contrib/completion/zsh/_docker-compose'
+#> ~/.zsh/completion/_docker-compose
+
+# Load compinit
+autoload -Uz compinit && compinit -i
 
