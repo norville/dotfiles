@@ -34,6 +34,9 @@ source ~/.zsh/theme.zsh
 # Load plugins
 source ~/.zsh/plugins.zsh
 
+# Enable syntax highlightning
+#source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
 # Set list colors theme
 DCS="$HOME/.zsh/dircolors-solarized"
 if [[ $OSTYPE == *linux* && -d $DCS ]]; then
@@ -48,7 +51,8 @@ alias lr='ls -hAlFR'
 alias lt='ls -hAlFt'
 
 # Enable Completions
-fpath=(~/.zsh/completion $fpath)
+#fpath=(~/.zsh/completion $fpath)
+#fpath=(/usr/local/share/zsh-completions $fpath)
 autoload -Uz compinit && compinit -i
 
 # Check if this is an SSH session
