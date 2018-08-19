@@ -23,9 +23,11 @@ zplug "plugins/osx", from:oh-my-zsh, if:"[[ $OSTYPE == *darwin* ]]"
 zplug "bhilburn/powerlevel9k", use:powerlevel9k.zsh-theme, if:"[[ $OSTYPE == *darwin* ]]"
 zplug nojhan/liquidprompt, if:"[[ $OSTYPE == *linux* ]]"
 
-if ! zplug check; then
+if ! zplug check --verbose; then
 	zplug install
 fi
 
-zplug load
+zplug update
+
+zplug load --verbose
 

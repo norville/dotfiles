@@ -1,25 +1,14 @@
 #!/usr/bin/zsh
 
-# Check if zplug is installed
+# Check for zplug and update it
 if [[ ! -d ~/.zplug ]]; then
 	ZPLUG_URL="https://raw.githubusercontent.com/zplug/installer/master/installer.zsh"
 	curl -sL --proto-redir -all,https $ZPLUG_URL | zsh
-	source ~/.zplug/init.zsh && zplug update --self
+else
+	zplug update
+	zplug clean --force
+	zplug clear
 fi
-
-# Init zplug
-source ~/.zplug/init.zsh
-
-# Clear zplug cache
-zplug clear
-
-# Install packages that have not been installed yet
-if ! zplug check --verbose; then
-	zplug install
-fi
-
-# Load zplug
-zplug load
 
 # Install ZSH completions
 COMP_DIR="$HOME/.zsh/completion"
