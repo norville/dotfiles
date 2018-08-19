@@ -6,6 +6,12 @@ set -e
 USR=$(whoami)
 sudo -v
 
+# Change dir to dotfiles dir
+DF_DIR=~/dev/dotfiles	# Dotfiles dir full path
+if [ "$PWD" != "$DF_DIR" ]; then
+	cd $DF_DIR
+fi
+
 # If system is macOS
 if [ $(uname -s) == 'Darwin' ]; then
 
@@ -55,19 +61,6 @@ else
 	sudo chsh -s $ZSH_PATH $USR
 fi
 
-# Install ZSH completions
-compdir=~/.zsh/completion
-dcc='https://raw.githubusercontent.com/docker/compose/1.22.0/contrib/completion/zsh/_docker-compose'
-if [ ! -f $compdir/_docker-compose ]; then
-	curl -L $dcc > $compdir/_docker-compose
-fi
-
-# Install ZPLUG
-./bin/dotfiles_zplug.sh
-
-# Install Vundle plugins
-if [ ! -d ~/.vim/bundle/Vundle.vim ]; then
-	git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-fi
-vim -i NONE -c VundleUpdate -c quitall
+# Configure environment
+exec ./dotfiles_cfg.sh
 

@@ -53,5 +53,5 @@ for file in ${files[@]}; do
 done
 
 # Install software and config system
-./bin/dotfiles_run.sh
+exec ./bin/dotfiles_run.sh
 
