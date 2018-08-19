@@ -5,5 +5,3 @@ vim/bundle/*
 # Ignore Solarized dircolors
 zsh/dircolors-solarized/
 
-# Ignore ZSH completions
-zsh/completion/*
