@@ -10,6 +10,9 @@ fi
 # Init zplug
 source ~/.zplug/init.zsh
 
+# Clear zplug cache
+zplug clear
+
 # Install packages that have not been installed yet
 if ! zplug check --verbose; then
 	zplug install

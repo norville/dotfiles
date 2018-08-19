@@ -62,5 +62,5 @@ else
 fi
 
 # Configure environment
-exec ./dotfiles_cfg.sh
+exec ./bin/dotfiles_cfg.sh
 
