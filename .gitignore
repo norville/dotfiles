@@ -1,2 +1,9 @@
-.vim/bundle/*
-!.vim/bundle/.gitkeep
+# Ignore Vundle and its plugins except parent dir
+vim/bundle/*
+#!vim/bundle/.gitkeep
+
+# Ignore Solarized dircolors
+zsh/dircolors-solarized/
+
+# Ignore ZSH completions
+zsh/completion/*

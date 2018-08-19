@@ -28,6 +28,12 @@ if [ $(uname -s) == 'Darwin' ]; then
 # If system is Linux
 elif [ $(uname -s) == 'Linux' ]; then
 
+	# Install Solarized dircolors
+	sdc=~/.zsh/dircolors-solarized
+	if [ ! -d $sdc ]; then
+		git clone https://github.com/seebi/dircolors-solarized.git $sdc
+	fi
+	
 	# Install rquired apps
 	sudo apt update && sudo apt install -y \
 		zsh \
@@ -47,6 +53,13 @@ else
 	echo "Changing login shell to ZSH..."
 	echo $ZSH_PATH | sudo tee -a /etc/shells
 	sudo chsh -s $ZSH_PATH $USR
+fi
+
+# Install ZSH completions
+compdir=~/.zsh/completion
+dcc='https://raw.githubusercontent.com/docker/compose/1.22.0/contrib/completion/zsh/_docker-compose'
+if [ ! -f $compdir/_docker-compose ]; then
+	curl -L $dcc > $compdir/_docker-compose
 fi
 
 # Install ZPLUG

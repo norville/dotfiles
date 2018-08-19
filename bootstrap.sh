@@ -2,39 +2,56 @@
 
 set -e
 
-DF_DIR=~/dev/dotfiles	# Full path of dotfiles dir
+DF_DIR=~/dev/dotfiles	# Dotfiles dir full path
 DF_BKP=~/.dotfiles_bkp	# Backup dir for existing dotfiles
-DF_LNK=.dotfiles		# Shortcut to dotfiles
+DF_LNK=.dotfiles	# Dotfiles shortcut. For correct expansion DO NOT prepend '~/'
 
-links=(
-	".gitconfig"
-	".tmux.conf"
-	".vim"
-	".vimrc"
-	".zshrc"
+# List of dotfiles to be symlinked
+files=(
+	"gitcfg"
+	"gitconfig"
+	"tmux"
+	"tmux.conf"
+	"vim"
+	"vimrc"
+	"zsh"
+	"zshrc"
 )
 
-# Create ~/.dotfile shortcut
-cd $DF_DIR
+# Change dir to dotfiles dir
+if [ "$PWD" != "$DF_DIR" ]; then
+	cd $DF_DIR
+fi
+
+# Check for shortcut
 if [ ! -L ~/$DF_LNK ]; then
+
+	# Link dir to shortcut
 	ln -s $DF_DIR ~/$DF_LNK
 fi
 
 # Create symlinks
-cd ~/$DF_LNK
-for l in ${links[@]}; do
-	if [ ! -L ~/$l ]; then
+for file in ${files[@]}; do
 
-		# If dotfile already exists then make a backup
-		if [ -f ~/$l ]; then
+	# Set dotfile path
+	dotfile=~/.$file
+
+	# Check for existing dotfiles
+	if [ ! -L $dotfile ]; then
+
+		# Check for regular files
+		if [ -f $dotfile ]; then
+
+			# Make a backup
 			mkdir -p $DF_BKP
-			mv ~/$l $DF_BKP/$l
-		else
-			# Source must be the shortcut without '~', or it will expand to full path
-			ln -s $DF_LNK/$l ~/$l
+			mv $dotfile $DF_BKP/.$file
 		fi
+
+		# Link dotfile
+		ln -s $DF_LNK/$file $dotfile
 	fi
 done
 
 # Install software and config system
 ./bin/dotfiles_run.sh
+
