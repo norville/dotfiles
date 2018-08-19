@@ -1,15 +1,5 @@
-#unalias run-help
-#autoload run-help
-#HELPDIR=/usr/local/share/zsh/help
-
-# Enable syntax highlightning
-#source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
 # Uncomment the following line to use case-sensitive completion.
 CASE_SENSITIVE="true"
-
-# Uncomment the following line to disable bi-weekly auto-update checks.
-#DISABLE_AUTO_UPDATE="true"
 
 # Uncomment to enable automatic upgrades
 DISABLE_UPDATE_PROMPT=true
@@ -86,19 +76,20 @@ zplug 'zplug/zplug', hook-build:'zplug --self-manage'
 zplug zsh-users/zsh-syntax-highlighting
 zplug zsh-users/zsh-completions
 zplug vasyharan/zsh-brew-services, if:"[[ $OSTYPE == *darwin* ]]"
-zplug trapd00r/zsh-syntax-highlighting-filetypes
+#zplug trapd00r/zsh-syntax-highlighting-filetypes
 zplug srijanshetty/zsh-pip-completion
 
 zplug "plugins/common-aliases", from:oh-my-zsh
 zplug "plugins/colorize", from:oh-my-zsh
 zplug "plugins/extract", from:oh-my-zsh
 zplug "plugins/tmux", from:oh-my-zsh
-zplug "plugins/vi-mode", from:oh-my-zsh
+#zplug "plugins/vi-mode", from:oh-my-zsh
 zplug "plugins/vundle", from:oh-my-zsh
 zplug "plugins/docker", from:oh-my-zsh
 zplug "plugins/git", from:oh-my-zsh
 zplug "plugins/brew", from:oh-my-zsh, if:"[[ $OSTYPE == *darwin* ]]"
 zplug "plugins/osx", from:oh-my-zsh, if:"[[ $OSTYPE == *darwin* ]]"
+zplug "plugins/zsh-dircolors-solarized", from:oh-my-zsh, if:"[[ $OSTYPE == *linux* ]]"
 
 zplug "bhilburn/powerlevel9k", use:powerlevel9k.zsh-theme, if:"[[ $OSTYPE == *darwin* ]]"
 zplug nojhan/liquidprompt, if:"[[ $OSTYPE == *linux* ]]"
@@ -109,9 +100,18 @@ fi
 
 zplug load
 
+# Set list colors theme
+#git clone https://github.com/seebi/dircolors-solarized
+#eval `dircolors /path/to/dircolorsdb`
+
 # Enable Docker Completions
 #url='https://raw.githubusercontent.com/docker/compose/1.22.0/contrib/completion/zsh/_docker-compose'
 #> ~/.zsh/completion/_docker-compose
+
+# Aliases
+alias ls='ls --color=auto'
+alias ll='ls -halF'
+alias la='ls -hAlF'
 
 # Load compinit
 autoload -Uz compinit && compinit -i
