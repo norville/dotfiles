@@ -8,9 +8,9 @@ let g:airline#extensions#tabline#formatter = 'unique_tail' "default | jsformatte
 """ Enable Indent Guides
 let g:indent_guides_enable_on_vim_startup = 1
 
-if has('macunix')
+"if has('macunix')
 	let g:airline_theme='gruvbox'
-	set guifont=Sauce\ Code\ Pro\ Nerd\ Font\ Complete:h12
+"	set guifont=Sauce\ Code\ Pro\ Nerd\ Font\ Complete:h12
 	if (has("termguicolors"))
 		set termguicolors
 	endif
@@ -20,9 +20,9 @@ if has('macunix')
 	"set term=xterm-256color-italic
 	"let g:gruvbox_italic=1
 	"highlight Comment cterm=italic
-else
-	let g:airline_theme='solarized'
-	let g:airline_solarized_bg='dark'
-	silent! colorscheme solarized
-endif
+"else
+"	let g:airline_theme='solarized'
+"	let g:airline_solarized_bg='dark'
+"	silent! colorscheme solarized
+"endif
 
