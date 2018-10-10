@@ -1,9 +1,10 @@
 # Configure ZPLUG
 source ~/.zplug/init.zsh
 
-zplug 'zplug/zplug', hook-build:'zplug --self-manage'
-zplug zsh-users/zsh-syntax-highlighting
-zplug zsh-users/zsh-completions
+zplug "zplug/zplug", hook-build:'zplug --self-manage'
+zplug "zsh-users/zsh-completions"
+zplug "zsh-users/zsh-syntax-highlighting"
+zplug "zsh-users/zsh-history-substring-search"
 zplug vasyharan/zsh-brew-services, if:"[[ $OSTYPE == *darwin* ]]"
 #zplug trapd00r/zsh-syntax-highlighting-filetypes
 zplug srijanshetty/zsh-pip-completion
