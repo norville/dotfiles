@@ -23,7 +23,8 @@ export LANG=en_US.UTF-8
 export EDITOR='vim'
 
 # Set PATH
-export PATH="$HOME/.dotfiles/bin:/usr/local/sbin:$PATH"
+typeset -U path
+path=(~/.dotfiles/bin $path[@])
 
 # Set AUTO_CD
 setopt AUTO_CD
@@ -54,6 +55,12 @@ alias lt='ls -hAlFt'
 #fpath=(~/.zsh/completion $fpath)
 #fpath=(/usr/local/share/zsh-completions $fpath)
 autoload -Uz compinit && compinit -i
+# Enable arrow keys
+zstyle ':completion:*' menu select
+# Enable aliases
+setopt COMPLETE_ALIASES
+# Allow sudo compl
+#zstyle ':completion::complete:*' gain-privileges 1
 
 # Check if this is an SSH session
 #if [[ -n $SSH_CONNECTION ]]; then
