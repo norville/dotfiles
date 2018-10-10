@@ -2,6 +2,3 @@
 vim/bundle/*
 #!vim/bundle/.gitkeep
 
-# Ignore Solarized dircolors
-zsh/dircolors-solarized/
-
