@@ -38,11 +38,11 @@ source ~/.zsh/plugins.zsh
 # Enable syntax highlightning
 #source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-# Set list colors theme
-DCS="$HOME/.zsh/dircolors-solarized"
-if [[ $OSTYPE == *linux* && -d $DCS ]]; then
-	eval `dircolors $DCS/dircolors.256dark`
-fi
+## Set list colors theme
+#DCS="$HOME/.zsh/dircolors-solarized"
+#if [[ $OSTYPE == *linux* && -d $DCS ]]; then
+#	eval `dircolors $DCS/dircolors.256dark`
+#fi
 
 # Aliases
 alias ls='ls --color=auto'
@@ -56,9 +56,9 @@ alias lt='ls -hAlFt'
 #fpath=(/usr/local/share/zsh-completions $fpath)
 autoload -Uz compinit && compinit -i
 # Enable arrow keys
-zstyle ':completion:*' menu select
+#zstyle ':completion:*' menu select
 # Enable aliases
-setopt COMPLETE_ALIASES
+#setopt COMPLETE_ALIASES
 # Allow sudo compl
 #zstyle ':completion::complete:*' gain-privileges 1
 

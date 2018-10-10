@@ -35,14 +35,16 @@ if [ $(uname -s) == 'Darwin' ]; then
 elif [ $(uname -s) == 'Linux' ]; then
 
 	# Install Solarized dircolors
-	sdc=~/.zsh/dircolors-solarized
-	if [ ! -d $sdc ]; then
-		git clone https://github.com/seebi/dircolors-solarized.git $sdc
-	fi
+	#sdc=~/.zsh/dircolors-solarized
+	#if [ ! -d $sdc ]; then
+	#	git clone https://github.com/seebi/dircolors-solarized.git $sdc
+	#fi
 	
 	# Install rquired apps
 	sudo apt update && sudo apt install -y \
 		zsh \
+		zsh-antigen \
+		zsh-theme-powerlevel9k \
 		zsh-syntax-highlighting
 
 	# Cleanup
