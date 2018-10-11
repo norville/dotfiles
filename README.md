@@ -11,14 +11,14 @@ With lots of cool ideas taken from [Github does dotfiles](https://dotfiles.githu
 ## Install
 
 ```bash
-git clone https://github.com/norville/dotfiles.git
-cd dotfiles
-./install
+git clone https://github.com/norville/dotfiles.git && cd dotfiles
+./sync.sh
 ```
 
 ## TODO
-+ no submodule
 + cross-platform
-+ ZSH as login shell
-+ ZSH plugin manager
-+ idempotent installation script
++ sync.sh: add info functions
++ dev frameworks (python, node, ruby)
++ zsh customization
++ sync macOS preferences
++ backup Mac Apps preferences via 'mackup'
