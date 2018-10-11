@@ -29,7 +29,6 @@ antigen bundle vundle
 
 # Last bundles to load
 antigen bundle zsh-users/zsh-completions
-antigen bundle trapd00r/zsh-syntax-highlighting-filetypes
 antigen bundle zsh-users/zsh-syntax-highlighting
 antigen bundle zsh-users/zsh-history-substring-search
 

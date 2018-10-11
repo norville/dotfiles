@@ -40,5 +40,5 @@ path=(~/.dotfiles/bin $path[@])
 setopt AUTO_CD
 
 # Enable Completions
-#autoload -Uz compinit && compinit -i
+autoload -Uz compinit && compinit -i
 
