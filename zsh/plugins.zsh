@@ -1,11 +1,13 @@
 # Activate Antigen
-source ~/.antigen/antigen.zsh
+#source ~/.antigen/antigen.zsh
+source /usr/local/share/antigen/antigen.zsh
 
 # Load OH-MY-ZSH
 antigen use oh-my-zsh
 
 # Load theme
-antigen theme nojhan/liquidprompt
+#antigen theme nojhan/liquidprompt
+antigen theme bhilburn/powerlevel9k powerlevel9k
 
 # Load bundles
 antigen bundle tmux

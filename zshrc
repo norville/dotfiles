@@ -26,11 +26,7 @@ source ~/.zsh/theme.zsh
 source ~/.zsh/plugins.zsh
 
 # Aliases
-alias ls='ls --color=auto'
-alias ll='ls -halF'
-alias la='ls -hAlF'
-alias lr='ls -hAlFR'
-alias lt='ls -hAlFt'
+source ~/.zsh/aliases.zsh
 
 # Set PATH
 typeset -U path
