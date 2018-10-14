@@ -23,7 +23,7 @@ HIST_STAMPS="dd/mm/yyyy"
 typeset -U path
 path=(~/.dotfiles/bin /usr/local/sbin $path[@])
 
-# Enable Completions
+# Enable Homebrew Completion
 if type brew &>/dev/null; then
   FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
 fi

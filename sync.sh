@@ -98,6 +98,12 @@ fi
 mkdir -p ~/.antigen
 curl -L git.io/antigen > ~/.antigen/antigen.zsh
 
+# Enable Docker Completion
+if [[ ! -d ~/.zsh_completion ]]; then
+	mkdir -p ~/.zsh_completion
+	curl -L https://raw.githubusercontent.com/docker/machine/v0.14.0/contrib/completion/zsh/_docker-machine > ~/.zsh_completion/_docker-machine
+fi
+
 # Install Vundle plugins
 if [[ ! -d ~/.vim/bundle/Vundle.vim ]]; then
 	git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
