@@ -19,22 +19,24 @@ HIST_STAMPS="dd/mm/yyyy"
 # Set default editor
 #export EDITOR='vim'
 
+# Set PATH
+typeset -U path
+path=(~/.dotfiles/bin /usr/local/sbin $path[@])
+
+# Enable Completions
+if type brew &>/dev/null; then
+  FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
+fi
+
+# Set AUTO_CD
+setopt AUTO_CD
+
+# Aliases
+source ~/.zsh/aliases.zsh
+
 # Load theme settings
 source ~/.zsh/theme.zsh
 
 # Load plugins
 source ~/.zsh/plugins.zsh
-
-# Aliases
-source ~/.zsh/aliases.zsh
-
-# Set PATH
-typeset -U path
-path=(~/.dotfiles/bin $path[@])
-
-# Set AUTO_CD
-setopt AUTO_CD
-
-# Enable Completions
-autoload -Uz compinit && compinit -i
 

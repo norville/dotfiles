@@ -1,6 +1,13 @@
+# Check for Antigen
+if [[ ! -f ~/.antigen/antigen.zsh ]]; then
+	if [[ ! -d ~/.antigen ]]; then
+		mkdir -p ~/.antigen
+	fi
+	curl -L git.io/antigen > ~/.antigen/antigen.zsh
+fi
+
 # Activate Antigen
-#source ~/.antigen/antigen.zsh
-source /usr/local/share/antigen/antigen.zsh
+source ~/.antigen/antigen.zsh
 
 # Load OH-MY-ZSH
 antigen use oh-my-zsh

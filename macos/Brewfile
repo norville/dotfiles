@@ -1,7 +1,8 @@
+cask_args appdir: '/Applications'
+
 # Taps
-tap 'caskroom/cask'
-tap 'caskroom/fonts'
-tap 'homebrew/bundle'
+tap 'homebrew/cask'
+tap 'homebrew/cask-fonts'
 
 # Install GNU core utilities (those that come with macOS are outdated)
 brew 'coreutils'
@@ -9,42 +10,34 @@ brew 'moreutils'
 brew 'findutils'
 
 # Dev
-#brew 'python'
-brew 'python3'
-brew 'ruby'
-brew 'node'
+#brew 'python3'
+#brew 'ruby'
+#brew 'node'
 #brew 'yarn'
-#brew 'flake8'
 
 # Install Binaries
-brew 'wget'
+brew 'zsh'
 brew 'git'
 brew 'vim'
 brew 'tmux'
-brew 'hub'
 brew 'tree'
-#brew 'mackup'
-
-# Install ZSH
-brew 'zsh'
-brew 'zsh-completions'
-brew 'zsh-syntax-highlighting'
-brew 'antigen'
+brew 'wget'
+brew 'mackup'
+brew 'mas'
 
 # Apps
-#cask 'iterm2'
-#cask 'atom'
-#cask 'dropbox'
-#cask 'firefox'
-#cask 'google-chrome'
-#cask 'google-drive'
-#cask 'handbrake'
-#cask 'spotify'
-#cask 'transmission'
-#cask 'vlc'
-#cask 'teamviewer'
+cask 'iterm2'
+cask 'dropbox'
+cask 'firefox'
+cask 'google-chrome'
+cask 'google-drive'
+cask 'handbrake'
+cask 'transmission'
+cask 'vlc'
+cask 'teamviewer'
+#cask '
 
 # Fonts
-cask 'font-roboto-mono'
-cask 'font-roboto-mono-for-powerline'
+cask 'font-sourcecodepro-nerd-font'
+cask 'font-sourcecodepro-nerd-font-mono'
 
