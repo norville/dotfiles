@@ -23,6 +23,9 @@ HIST_STAMPS="dd/mm/yyyy"
 typeset -U path
 path=(~/.dotfiles/bin /usr/local/sbin $path[@])
 
+# Enable Docker Completion
+FPATH=~/.zsh_completion:$FPATH
+
 # Enable Homebrew Completion
 if type brew &>/dev/null; then
   FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH

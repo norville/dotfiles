@@ -101,7 +101,7 @@ fi
 mkdir -p ~/.antigen
 curl -L git.io/antigen > ~/.antigen/antigen.zsh
 
-# Enable Docker Completion
+# Download Docker Completion file
 if [[ ! -d ~/.zsh_completion ]]; then
 	mkdir -p ~/.zsh_completion
 	curl -L https://raw.githubusercontent.com/docker/machine/v0.14.0/contrib/completion/zsh/_docker-machine > ~/.zsh_completion/_docker-machine
