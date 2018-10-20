@@ -70,6 +70,9 @@ if [[ $(uname -s) == 'Darwin' ]]; then
 	brew bundle -v --file=./macos/Brewfile
 	brew cleanup
 
+	# Install MS Office
+	#TODO call ./macos/officemac.sh
+
 # If system is Linux
 elif [[ $(uname -s) == 'Linux' ]]; then
 	# Install rquired apps

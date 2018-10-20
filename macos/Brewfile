@@ -26,16 +26,17 @@ brew 'mackup'
 brew 'mas'
 
 # Apps
-cask 'iterm2'
-cask 'dropbox'
-cask 'firefox'
 cask 'google-chrome'
+cask 'firefox'
+cask 'dropbox'
 cask 'google-drive'
-cask 'handbrake'
+cask 'iterm2'
 cask 'transmission'
-cask 'vlc'
 cask 'teamviewer'
-#cask '
+cask 'diskmaker-x'
+cask 'etcher'
+cask 'vlc'
+cask 'handbrake'
 
 # Fonts
 cask 'font-sourcecodepro-nerd-font'
