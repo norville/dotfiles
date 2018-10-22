@@ -46,9 +46,9 @@ function install_pkg () {
 		rm "$pkgPath"
 		echo "MSOFFICE - Registering Microsoft Auto Update (MAU)"
 		if [[ -e "$MAU_APP" ]]; then
-			$LS_REG_DIR/lsregister -R -f -trusted "$MAU_APP"
+			"$LS_REG_DIR"/lsregister -R -f -trusted "$MAU_APP"
 			if [[ -e "$MAU_APP/Contents/MacOS/Microsoft AU Daemon.app" ]]; then
-					$LS_REG_DIR/lsregister -R -f -trusted "$MAU_APP/Contents/MacOS/Microsoft AU Daemon.app"
+					"$LS_REG_DIR"/lsregister -R -f -trusted "$MAU_APP/Contents/MacOS/Microsoft AU Daemon.app"
 			fi
 		fi
 	done
@@ -56,7 +56,7 @@ function install_pkg () {
 
 if [[ ! -e "$MAU_APP" ]]; then
 	# Install Office
-	install_pkg $PKG_URL
+	install_pkg "$PKG_URL"
 else
 	# Update Office
 	"$MAU_APP"/Contents/MacOS/msupdate --install
