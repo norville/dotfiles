@@ -61,7 +61,7 @@ if [[ $(uname -s) == 'Darwin' ]]; then
 	fi
 
 	# Check for Homebrew and install if we don't have it, else update it
-	if [[ ! $(which brew)]]; then
+	if [[ ! $(which brew) ]]; then
 		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 	else
 		brew update --force
