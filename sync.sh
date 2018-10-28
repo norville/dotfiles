@@ -35,7 +35,7 @@ if [[ ! -L ~/$DF_LNK ]]; then
 fi
 
 # Create symlinks
-for file in ${files[[@]]}; do
+for file in ${files[@]}; do
 	# Set dotfile path
 	dotfile=~/.$file
 	# Check for existing dotfiles
