@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo -v
+
 # Comment any download url below to skip install #
 PKG_URL="https://go.microsoft.com/fwlink/?linkid=525133"
 MAU_URL="https://go.microsoft.com/fwlink/?linkid=830196"
@@ -59,7 +61,7 @@ if [[ ! -e "$MAU_APP" ]]; then
 	install_pkg "$PKG_URL"
 else
 	# Update Office
-	"$MAU_APP"/Contents/MacOS/msupdate --install
+	sudo "$MAU_APP"/Contents/MacOS/msupdate --install
 fi
 
 echo "MSOFFICE - INSTALL COMPLETE"

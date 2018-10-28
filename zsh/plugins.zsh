@@ -4,6 +4,9 @@ source ~/.antigen/antigen.zsh
 # Load OH-MY-ZSH
 antigen use oh-my-zsh
 
+# Load theme settings
+source ~/.zsh/theme.zsh
+
 # Load theme
 #antigen theme nojhan/liquidprompt
 antigen theme bhilburn/powerlevel9k powerlevel9k

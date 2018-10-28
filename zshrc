@@ -37,9 +37,6 @@ setopt AUTO_CD
 # Aliases
 source ~/.zsh/aliases.zsh
 
-# Load theme settings
-source ~/.zsh/theme.zsh
-
 # Load plugins
 source ~/.zsh/plugins.zsh
 

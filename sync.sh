@@ -71,7 +71,7 @@ if [[ $(uname -s) == 'Darwin' ]]; then
 	brew cleanup
 
 	# Install MS Office
-	#TODO call ./macos/officemac.sh
+	macos/officemac.sh
 
 # If system is Linux
 elif [[ $(uname -s) == 'Linux' ]]; then
