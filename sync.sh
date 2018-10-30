@@ -63,12 +63,16 @@ if [[ $(uname -s) == 'Darwin' ]]; then
 	# Check for Homebrew and install if we don't have it, else update it
 	if [[ ! $(which brew) ]]; then
 		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+		brew bundle -v --file=./macos/Brewfile
 	else
+		echo "List extra formulae:"
+		brew bundle cleanup --file=./macos/Brewfile
 		brew update --force
 		brew upgrade --cleanup
+		brew cask upgrade #--greedy
 	fi
-	brew bundle -v --file=./macos/Brewfile
 	brew cleanup
+	brew doctor
 
 	# Install MS Office
 	macos/officemac.sh
