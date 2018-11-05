@@ -24,6 +24,7 @@ brew 'tree'
 brew 'wget'
 brew 'mackup'
 brew 'mas'
+brew 'openssh'
 
 # Apps
 cask 'google-chrome'
