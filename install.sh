@@ -23,10 +23,6 @@ files=(
 	"zshrc"
 )
 
-###############################################################################
-#
-###############################################################################
-
 bot "### DOTFILES INSTALLER ###"
 bot "This script will install your dotfiles, necessary apps and configure your system."
 
@@ -36,54 +32,64 @@ if [[ "$PWD" != "$DF_DIR" ]]; then
 fi
 
 # Check for shortcut
-bot "Set dotfiles default directory ($DF_DIR => ~/$DF_LNK):"
+bot "Check dotfiles default directory..."
 if [[ ! -L ~/$DF_LNK ]]; then
-	running "Creating shortcut to home:"
+	running "Creating shortcut to home"
 	action "ln -s $DF_DIR ~/$DF_LNK"
 	ln -s $DF_DIR ~/$DF_LNK
+	try "Cannot create shortcut to home."
+else
+	finish
 fi
-ok
 
 # Create symlinks
-bot "Link dotfiles to home directory:"
+bot "Link dotfiles to home directory..."
 for file in ${files[@]}; do
 	# Set dotfile path
 	dotfile=~/.$file
-	running "Linking $dotfile:"
 	# Check for existing dotfiles
 	if [[ ! -L $dotfile ]]; then
 		# Check for regular files
 		if [[ -f $dotfile ]]; then
 			# Make a backup
-			running "Backing up existing version of $dotfile:"
-			mkdir -p $DF_BKP
-			action "mv $dotfile $DF_BKP/.$file"
-			mv $dotfile $DF_BKP/.$file
-			ok
+			warn "'$dotfile' already exixts."
+			read -r -p "Make a backup of '$dotfile'? [y|n]" response
+			if [[ $response =~ (yes|y|Y) ]]; then
+				running "Backing up $dotfile"
+				mkdir -p $DF_BKP
+				action "mv $dotfile $DF_BKP/.$file"
+				mv $dotfile $DF_BKP/.$file
+				try "Cannot backup '$dotfile'."
+			fi
 		fi
 		# Link dotfile
+		running "Linking '$file'"
 		action "ln -s $DF_LNK/$file $dotfile"
 		ln -s $DF_LNK/$file $dotfile
-		ok
+		try "Cannot link '$file'."
 	fi
 done
+finish
 
 # Ask for the administrator password upfront
 bot "Ready to setup your system, enter admin password:"
 sudo -v
 
 # /etc/hosts
-bot "Configure /etc/hosts..."
-read -r -p "Overwrite /etc/hosts with the ad-blocking hosts file from someonewhocares.org? [y|n] " response
+hostfile=/etc/hosts
+bot "Configure '$hostfile'..."
+read -r -p "Overwrite $hostfile with someonewhocares.org's hosts file? [y|n] " response
 if [[ $response =~ (yes|y|Y) ]]; then
-	action "cp /etc/hosts /etc/hosts.bkp"
-	sudo cp /etc/hosts /etc/hosts.bkp
-	ok
-	action "curl -sL https://someonewhocares.org/hosts/hosts > /etc/hosts"
-	sudo curl -sL https://someonewhocares.org/hosts/hosts > /etc/hosts
-	ok
-	bot "Your /etc/hosts file has been updated. Last version is saved in /etc/hosts.backup ."
+	running "Backing up $hostfile"
+	action "cp $hostfile $hostfile.bkp"
+	sudo cp $hostfile $hostfile.bkp
+	try "Cannot backup '$hostfile'."
+	running "Overwriting $hostfile"
+	action "curl -sL https://someonewhocares.org/hosts/hosts > $hostfile"
+	sudo curl -sL https://someonewhocares.org/hosts/hosts > $hostfile
+	try "Cannot overwrite '$hostfile'."
 fi
+finish
 
 bot "Detect system..."
 # If system is macOS
@@ -95,30 +101,24 @@ if [[ $(uname -s) == 'Darwin' ]]; then
 	# Check for Homebrew and install if we don't have it, else update it
 	bot "Setup Homebrew..."
 	if [[ ! $(which brew) ]]; then
-		running "Homebrew is not installed, let's do it now:"
+		running "Installing Homebrew"
 		action "/usr/bin/ruby -e \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)\""
 		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-		if [[ $? != 0 ]]; then
-			error "Unable to install Homebrew. Exiting"
-			exit 2
-		fi
-		ok
+		try "Cannot install Homebrew."
+		running "Installing required formulae"
 		action "brew bundle -v --file=$BREWFILE"
 		brew bundle -v --file=$BREWFILE
-		if [[ $? != 0 ]]; then
-			error "Unable to install Homebrew formulae. Exiting"
-			exit 2
-		fi
-		ok
+		try "Cannot install Homebrew formulae."
 	else
-		running "Homebrew is already installed, let's update everything:"
+		running "Updating Homebrew"
 		if [[ $(brew bundle cleanup --file=$BREWFILE) ]]; then
-			warn "Found unused formulae!"
-			read -r -p "Do you want to uninstall all unused formulae? [y|n] " response
+			warn "Extra formulae already installed."
+			read -r -p "Do you want to uninstall all extra formulae? [y|n] " response
 			if [[ $response =~ (yes|y|Y) ]]; then
+				running "Uninstalling extra formulae"
 				action "brew bundle cleanup --file=$BREWFILE --force"
 				brew bundle cleanup --file=$BREWFILE --force
-				ok
+				try "Cannot uninstall extra formulae."
 			fi
 		fi
 		action "brew update --force"
