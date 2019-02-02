@@ -124,8 +124,8 @@ if [[ $(uname -s) == 'Darwin' ]]; then
 		action "brew update --force"
 		brew update --force
 		ok
-		action "brew upgrade --cleanup"
-		brew upgrade --cleanup
+		action "brew upgrade"
+		brew upgrade
 		ok
 		action "brew cask upgrade"
 		brew cask upgrade #--greedy
@@ -141,7 +141,8 @@ if [[ $(uname -s) == 'Darwin' ]]; then
 
 	# Install MS Office
 	bot "Setup Microsoft Office..."
-	macos/officemac.sh
+	#TODO install via Mac App Store
+	#macos/officemac.sh
 	ok
 
 # If system is Linux
