@@ -7,11 +7,24 @@ antigen use oh-my-zsh
 # Load theme settings
 source ~/.zsh/theme.zsh
 
-# Load theme
-#antigen theme nojhan/liquidprompt
-antigen theme bhilburn/powerlevel9k powerlevel9k
+if [[ $(uname -s) == 'Darwin' ]]; then
 
-# Load bundles
+	# Load macOS theme
+	antigen theme bhilburn/powerlevel9k powerlevel9k
+
+	# Load macOS bundles
+	antigen bundle osx
+
+elif [[ $(uname -s) == 'Linux' ]]; then
+
+	# Load Linux theme
+	antigen theme nojhan/liquidprompt
+
+	# Load Linux bundles
+
+fi
+
+# Load default bundles
 antigen bundle tmux
 antigen bundle git
 antigen bundle git-extras
@@ -19,7 +32,8 @@ antigen bundle common-aliases
 antigen bundle colorize
 antigen bundle extract
 antigen bundle vundle
-#antigen bundle osx
+
+# Load optional bundles
 #antigen bundle vasyharan/zsh-brew-services
 #antigen bundle python
 #antigen bundle pip
