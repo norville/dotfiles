@@ -1,4 +1,3 @@
-# Ignore Vundle and its plugins except parent dir
+# Ignore Vundle and its plugins
 vim/bundle/*
-#!vim/bundle/.gitkeep
 
