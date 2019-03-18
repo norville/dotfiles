@@ -9,9 +9,9 @@ source ~/.vim/plugins.vim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set number relativenumber
 augroup numbertoggle
-	autocmd!
-	autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
-	autocmd BufLeave,FocusLost,InsertEnter   * set norelativenumber
+    autocmd!
+    autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
+    autocmd BufLeave,FocusLost,InsertEnter   * set norelativenumber
 augroup END
 set encoding=utf-8
 set termencoding=utf-8
@@ -25,7 +25,6 @@ set cursorline
 set laststatus=2
 set showtabline=2
 set noshowmode
-set background=dark
 set t_Co=256
 set term=xterm-256color
 source ~/.vim/gui.vim
@@ -55,7 +54,7 @@ set hidden
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4
-set noexpandtab
+set expandtab
 set smarttab
 set backspace=indent,eol,start
 if has("autocmd")
