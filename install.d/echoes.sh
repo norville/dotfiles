@@ -16,28 +16,28 @@ function bot() {
 	echo -en "\n$COL_CYAN|°_°|$COL_RESET $1"
 }
 
-function running() {
-	echo -en "\n$COL_MAGENTA|\u25b6\u25b6\u25b6|$COL_RESET $1 "
+function info() {
+	echo -en "\n$COL_MAGENTA|...|$COL_RESET $1 "
 }
 
-function action() {
-	echo -en "$COL_BLUE\u279c$COL_RESET $COL_WHITE $1 $COL_RESET"
+function cmd() {
+	echo -en "$COL_BLUE—>$COL_RESET $COL_WHITE $1 $COL_RESET"
 }
 
-function finish() {
-	echo -e "\n$COL_GREEN...done!$COL_RESET"
+function success() {
+	echo -en "\n$COL_CYAN|°_°|$COL_RESET$COL_GREEN Done:$COL_RESET $1"
 }
 
-function ok() {
-	echo -e "$COL_GREEN\u2714$COL_RESET"
-}
-
-function warn() {
-	echo -e "\n$COL_YELLOW|!!!| $1 $COL_RESET"
+function alert() {
+	echo -en "\n$COL_YELLOW|!!!| $1 $COL_RESET"
 }
 
 function error() {
-	echo -e "\n$COL_RED|\u00d7\u00d7\u00d7| $1 $COL_RESET"
+	echo -en "\n$COL_RED|xxx| $1 $COL_RESET"
+}
+
+function ok() {
+	echo -en "$COL_GREEN ok! $COL_RESET"
 }
 
 function try() {
