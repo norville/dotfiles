@@ -224,5 +224,10 @@ fi
 vim -i NONE -c VundleUpdate -c quitall > /dev/null 2>&1
 #ok
 
+# Update PIP base packages
+pip3 install -U pip setuptools wheel
+# Install required packages
+#pip3 install -r install.d/requirements.txt
+
 #bot "All done! Close this session and log in again."
 
