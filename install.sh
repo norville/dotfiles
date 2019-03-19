@@ -176,9 +176,7 @@ fi
 # Set ZSH as login shell
 #bot "Setup ZSH as login shell..."
 ZSH_PATH=$(which zsh)
-if [[ $SHELL == $ZSH_PATH ]]; then
-#	bot "ZSH is already your login shell."
-else
+if [[ $SHELL != $ZSH_PATH ]]; then
 #	running "Changing login shell to ZSH..."
 #	action "echo $ZSH_PATH | sudo tee -a /etc/shells"
 	echo $ZSH_PATH | sudo tee -a /etc/shells
@@ -186,6 +184,8 @@ else
 #	action "sudo chsh -s $ZSH_PATH $USR"
 	sudo chsh -s $ZSH_PATH $USR
 #	ok
+#else
+#	bot "ZSH is already your login shell."
 fi
 
 # Install Antigen
