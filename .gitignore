@@ -1,3 +1,5 @@
 # Ignore Vundle and its plugins
-vim/bundle/*
+link/vim/bundle/*
 
+# Ignore ZSH compile files
+*.zwc
