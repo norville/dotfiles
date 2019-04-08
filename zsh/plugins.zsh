@@ -1,5 +1,11 @@
-# Activate Antigen
-source ~/.antigen/antigen.zsh
+# Activate or install Antigen
+if [[ -f ~/.antigen/antigen.zsh ]]; then
+    source ~/.antigen/antigen.zsh
+else
+    rm -rf ~/.antigen
+    mkdir -p ~/.antigen
+    curl -sL git.io/antigen > ~/.antigen/antigen.zsh
+fi
 
 # Load OH-MY-ZSH
 antigen use oh-my-zsh
@@ -9,7 +15,7 @@ source ~/.zsh/theme.zsh
 
 # Load macOS bundles
 if [[ $(uname -s) == 'Darwin' ]]; then
-	antigen bundle osx
+    antigen bundle osx
 fi
 
 # Load default bundles
