@@ -7,21 +7,9 @@ antigen use oh-my-zsh
 # Load theme settings
 source ~/.zsh/theme.zsh
 
+# Load macOS bundles
 if [[ $(uname -s) == 'Darwin' ]]; then
-
-	# Load macOS theme
-	antigen theme bhilburn/powerlevel9k powerlevel9k
-
-	# Load macOS bundles
 	antigen bundle osx
-
-elif [[ $(uname -s) == 'Linux' ]]; then
-
-	# Load Linux theme
-	antigen theme nojhan/liquidprompt
-
-	# Load Linux bundles
-
 fi
 
 # Load default bundles
