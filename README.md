@@ -11,14 +11,13 @@ With lots of cool ideas taken from [Github does dotfiles](https://dotfiles.githu
 ## Install
 
 ```bash
-git clone https://github.com/norville/dotfiles.git && cd dotfiles
-./sync.sh
+git clone https://github.com/norville/dotfiles.git
+./dotfiles/install.sh
 ```
 
 ## TODO
-+ cross-platform
-+ sync.sh: add info functions
-+ dev frameworks (python, node, ruby)
-+ zsh customization
-+ sync macOS preferences
++ install.sh: print help statements and progression info
++ tmux configuration
++ dev frameworks (pipenv, node, ruby)
 + backup Mac Apps preferences via 'mackup'
++ sync macOS preferences
