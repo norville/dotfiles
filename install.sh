@@ -9,7 +9,9 @@ set -e
 USR=$(whoami)
 DF_DIR=~/dev/dotfiles   # Dotfiles dir full path
 DF_BKP=~/.dotfiles_bkp  # Backup dir for existing dotfiles
-DF_LNK=.dotfiles        # Dotfiles shortcut. For correct expansion DO NOT prepend '~/'
+DF_DST=.dotfiles        # Dotfiles destination. For correct expansion DO NOT prepend '~/'
+DF_SRC=./link           # Dotfiles source
+INST_DIR=$DF_DIR/install.d    # Installation script dir
 
 # List of dotfiles to be symlinked
 files=(
@@ -33,10 +35,10 @@ fi
 
 # Check for shortcut
 #bot "Check dotfiles default directory..."
-if [[ ! -L ~/$DF_LNK ]]; then
+if [[ ! -L ~/$DF_DST ]]; then
     #running "Creating shortcut to home"
-    #action "ln -s $DF_DIR ~/$DF_LNK"
-    ln -s $DF_DIR ~/$DF_LNK
+    #action "ln -s $DF_DIR ~/$DF_DST"
+    ln -s $DF_DIR ~/$DF_DST
     #try "Cannot create shortcut to home."
 #else
     #finish
@@ -44,7 +46,7 @@ fi
 
 # Create symlinks
 #bot "Link dotfiles to home directory..."
-for file in ${files[@]}; do
+for file in $(ls $DF_SRC); do
     # Set dotfile path
     dotfile=~/.$file
     # Check for existing dotfiles
@@ -64,8 +66,8 @@ for file in ${files[@]}; do
         fi
         # Link dotfile
         #running "Linking '$file'"
-        #action "ln -s $DF_LNK/$file $dotfile"
-        ln -s $DF_LNK/$file $dotfile
+        #action "ln -s $DF_DST/$file $dotfile"
+        ln -s $DF_DST/$file $dotfile
         #try "Cannot link '$file'."
     fi
 done
@@ -96,7 +98,7 @@ fi
 if [[ $(uname -s) == 'Darwin' ]]; then
     #bot "macOS detected!"
 
-    BREWFILE=~/dev/dotfiles/macos/Brewfile
+    BREWFILE=$INST_DIR/Brewfile
 
     # Check for Homebrew and install if we don't have it, else update it
     #bot "Setup Homebrew..."
@@ -149,7 +151,7 @@ if [[ $(uname -s) == 'Darwin' ]]; then
 elif [[ $(uname -s) == 'Linux' ]]; then
     #bot "Linux detected!"
 
-    APT_FILE=~/dev/dotfiles/install.d/apt-packages
+    APT_FILE=$INST_DIR/apt-packages
 
     # Install rquired apps
     #running "Installing/updating required packages via APT:"
