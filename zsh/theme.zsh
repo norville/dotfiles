@@ -1,8 +1,9 @@
-# 
+#
 # Theme settings
 #
 
 # OMZ-Theme powerlevel9k settings
+POWERLEVEL9K_MODE='nerdfont-complete'
 DEFAULT_USER=$USER
 POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context dir vcs)
 POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status background_jobs ram load)
@@ -29,13 +30,6 @@ POWERLEVEL9K_LOAD_NORMAL_BACKGROUND='72'
 POWERLEVEL9K_LOAD_WARNING_BACKGROUND='172'
 POWERLEVEL9K_LOAD_CRITICAL_BACKGROUND='124'
 POWERLEVEL9K_INSTALLATION_PATH=$ANTIGEN_BUNDLES/bhilburn/powerlevel9k/powerlevel9k.zsh-theme
-
-# If ssh client is BASPRO, then set nerdfonts
-if [[ ! $SSH_CONNECTION || $SSH_CLIENT==*"10.116.1.195"* ]]; then
-    POWERLEVEL9K_MODE='nerdfont-complete'
-#else
-    #POWERLEVEL9K_MODE='default'
-fi
 
 #
 # Load default theme
