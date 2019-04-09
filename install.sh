@@ -7,227 +7,165 @@ set -e
 
 # Define variables
 USR=$(whoami)
-DF_DIR=~/dev/dotfiles   # Dotfiles dir full path
-DF_BKP=~/.dotfiles_bkp  # Backup dir for existing dotfiles
-DF_DST=.dotfiles        # Dotfiles destination. For correct expansion DO NOT prepend '~/'
-DF_SRC=./link           # Dotfiles source
-INST_DIR=$DF_DIR/install.d    # Installation script dir
+DF_FULL_DIR=~/dev/dotfiles          # Dotfiles full path
+DF_SHORT_DIR=.dotfiles              # Dotfiles short path. For correct expansion DO NOT prepend '~/'
+DF_LINK_DIR=$DF_SHORT_DIR/link      # Direcotry containing files to be linked
+DF_INST_DIR=$DF_FULL_DIR/install.d  # Directory containing files for installation script
+DF_BKP_DIR=~/.dotfiles_bkp          # Backup dir for existing dotfiles
 
-# List of dotfiles to be symlinked
-files=(
-    "gitcfg"
-    "gitconfig"
-    "tmux"
-    "tmux.conf"
-    "vim"
-    "vimrc"
-    "zsh"
-    "zshrc"
-)
+echo -e "\n"
+echo "################################################################################"
+echo "## DOTFILES INSTALLER                                                         ##"
+echo "## Sync dotfiles, install or update required apps, configure the environment. ##"
+echo "################################################################################"
 
-#bot "### DOTFILES INSTALLER ###"
-#bot "This script will install your dotfiles, necessary apps and configure your system."
+echo -e "\n[# 1] Sync dotfiles\n"
 
-# Change dir to dotfiles dir
-if [[ "$PWD" != "$DF_DIR" ]]; then
-    cd $DF_DIR
+# Change to dotfiles dir
+echo -en "\n[iii] Ensure current directory is '$DF_FULL_DIR' : "
+if [[ "$PWD" != "$DF_FULL_DIR" ]]; then
+    echo -en "\n[>>>] Changing to '$DF_FULL_DIR'..."
+    cd $DF_FULL_DIR
 fi
+echo "OK"
 
 # Check for shortcut
-#bot "Check dotfiles default directory..."
-if [[ ! -L ~/$DF_DST ]]; then
-    #running "Creating shortcut to home"
-    #action "ln -s $DF_DIR ~/$DF_DST"
-    ln -s $DF_DIR ~/$DF_DST
-    #try "Cannot create shortcut to home."
-#else
-    #finish
+echo -en "\n[iii] Ensure '~/$DF_SHORT_DIR' exists : "
+if [[ ! -L ~/$DF_SHORT_DIR ]]; then
+    echo -en "\n[>>>] Creating shortcut to dotfiles..."
+    ln -s $DF_FULL_DIR ~/$DF_SHORT_DIR
 fi
+echo "OK"
 
 # Create symlinks
-#bot "Link dotfiles to home directory..."
-for file in $(ls $DF_SRC); do
+echo -en "\n[iii] Link dotfiles to home directory : "
+for file in $(ls ~/$DF_LINK_DIR); do
     # Set dotfile path
     dotfile=~/.$file
+    echo -en "\n[>>>] Linking '$DF_LINK_DIR/$file' to '$dotfile'..."
     # Check for existing dotfiles
-    if [[ ! -L $dotfile ]]; then
-        # Check for regular files
-        if [[ -f $dotfile ]]; then
+    if [[ -e $dotfile || -d $dotfile ]]; then
+        #TODO add argument to confirm/decline all backups
+        echo "'$dotfile' already exixts!"
+        # Ask for backup
+        read -r -p "[???] Make a backup of '$dotfile'? [y|n] " response
+        if [[ $response =~ (yes|y|Y) ]]; then
             # Make a backup
-            #warn "'$dotfile' already exixts."
-            read -r -p "Make a backup of '$dotfile'? [y|n]" response
-            if [[ $response =~ (yes|y|Y) ]]; then
-                #running "Backing up $dotfile"
-                mkdir -p $DF_BKP
-                #action "mv $dotfile $DF_BKP/.$file"
-                mv $dotfile $DF_BKP/.$file
-                #try "Cannot backup '$dotfile'."
-            fi
+            echo -n "[>>>] Backing up '$dotfile'..."
+            mkdir -p $DF_BKP_DIR
+            cp $dotfile $DF_BKP_DIR/.$file
+            echo "DONE"
         fi
-        # Link dotfile
-        #running "Linking '$file'"
-        #action "ln -s $DF_DST/$file $dotfile"
-        ln -s $DF_DST/$file $dotfile
-        #try "Cannot link '$file'."
     fi
+    # Force new symlink
+    ln -sf $DF_LINK_DIR/$file $dotfile
 done
-#finish
+
+echo -e "\n[# 2] Install or update required apps\n"
 
 # Ask for the administrator password upfront
-#bot "Ready to setup your system, enter admin password:"
+echo "[iii] Need admin privileges to go on..."
 sudo -v
 
-# /etc/hosts
-hostfile=/etc/hosts
-#bot "Configure '$hostfile'..."
-read -r -p "Overwrite $hostfile with someonewhocares.org's hosts file? [y|n] " response
-if [[ $response =~ (yes|y|Y) ]]; then
-    #running "Backing up $hostfile"
-    #action "cp $hostfile $hostfile.bkp"
-    sudo cp $hostfile $hostfile.bkp
-    #try "Cannot backup '$hostfile'."
-    #running "Overwriting $hostfile"
-    #action "curl -sL https://someonewhocares.org/hosts/hosts > $hostfile"
-    sudo curl -sL https://someonewhocares.org/hosts/hosts > $hostfile
-    #try "Cannot overwrite '$hostfile'."
-fi
-#finish
-
-#bot "Detect system..."
 # If system is macOS
 if [[ $(uname -s) == 'Darwin' ]]; then
-    #bot "macOS detected!"
+    echo "[iii] macOS detected!"
 
-    BREWFILE=$INST_DIR/Brewfile
-
-    # Check for Homebrew and install if we don't have it, else update it
-    #bot "Setup Homebrew..."
+    # Check for Homebrew
+    #TODO check if Brewfile exists
+    echo "[iii] Check Homebrew instance :"
     if [[ ! $(which brew) ]]; then
-        #running "Installing Homebrew"
-        #action "/usr/bin/ruby -e \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)\""
+        echo "[>>>] Installing Homebrew and required formulae..."
         /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-        try "Cannot install Homebrew."
-        #running "Installing required formulae"
-        #action "brew bundle -v --file=$BREWFILE"
-        brew bundle -v --file=$BREWFILE
-        #try "Cannot install Homebrew formulae."
+        brew bundle -v --file=$DF_INST_DIR/Brewfile
     else
-        #running "Updating Homebrew"
-        if [[ $(brew bundle cleanup --file=$BREWFILE) ]]; then
-            #warn "Extra formulae already installed."
-            read -r -p "Do you want to uninstall all extra formulae? [y|n] " response
+        echo -n "[>>>] Updating Homebrew and required formulae..."
+        if [[ $(brew bundle cleanup --file=$DF_INST_DIR/Brewfile) ]]; then
+            echo "found extra formulae already installed!"
+            read -r -p "[???] Do you want to uninstall all extra formulae? [y|n] " response
             if [[ $response =~ (yes|y|Y) ]]; then
-                #running "Uninstalling extra formulae"
-                #action "brew bundle cleanup --file=$BREWFILE --force"
-                brew bundle cleanup --file=$BREWFILE --force
-                #try "Cannot uninstall extra formulae."
+                echo "[>>>] Uninstalling extra formulae..."
+                brew bundle cleanup --file=$DF_INST_DIR/Brewfile --force
             fi
         fi
-        #action "brew update --force"
         brew update --force
-        #ok
-        #action "brew upgrade"
         brew upgrade
-        #ok
-        #action "brew cask upgrade"
         brew cask upgrade #--greedy
-        #ok
     fi
-    #running "Cleaning Homebrew leftovers:"
-    #action "brew cleanup"
+    # Cleaning Homebrew leftovers"
     brew cleanup
-    #ok
-    #action "brew doctor"
     brew doctor
-    #ok
 
     # Update PIP base packages
+    echo "[iii] Check Python packages :"
     pip3 install -U pip setuptools wheel
 
     #TODO install apps via Mac App Store
-    #ok
 
 # If system is Linux
 elif [[ $(uname -s) == 'Linux' ]]; then
-    #bot "Linux detected!"
+    echo "[iii] Linux detected!"
 
-    APT_FILE=$INST_DIR/apt-packages
-
-    # Install rquired apps
-    #running "Installing/updating required packages via APT:"
-    #action "sudo apt-get update"
+    # Install required apps
+    echo "[iii] Install or update required packages via APT :"
     sudo apt-get update
-    #ok
-    #action "xargs -a $APT_FILE sudo apt-get install -y"
-    xargs -a $APT_FILE sudo apt-get install -y
+    xargs -a $DF_INST_DIR/apt-packages sudo apt-get install -y
     if [[ $? != 0 ]]; then
-        #error "Unable to install APT packages. Exiting"
+        echo "[!!!] Unable to install APT packages! Exiting"
         exit 2
     fi
-    #ok
-
-    # Cleanup
-    #action "sudo apt autoremove"
     sudo apt autoremove
-    #ok
-    #action "sudo apt autoclean"
     sudo apt autoclean
-    #ok
 fi
+
+echo -e "\n[# 3] Configure the environment\n"
 
 # Set ZSH as login shell
-#bot "Setup ZSH as login shell..."
+echo -en "\n[iii] Setup ZSH as login shell : "
 ZSH_PATH=$(which zsh)
 if [[ $SHELL != $ZSH_PATH ]]; then
-    #running "Changing login shell to ZSH..."
-    #action "echo $ZSH_PATH | sudo tee -a /etc/shells"
+    echo -en "\n[>>>] Changing login shell to ZSH..."
     echo $ZSH_PATH | sudo tee -a /etc/shells
-    #ok
-    #action "sudo chsh -s $ZSH_PATH $USR"
     sudo chsh -s $ZSH_PATH $USR
-    #ok
-#else
-    #bot "ZSH is already your login shell."
 fi
+echo "OK"
 
 # Install Antigen
-#bot "Setup Antigen as ZSH plugin manager..."
+echo -en "\n[iii] Setup Antigen as ZSH plugin manager : "
+# Check if already configured
 if [[ -d ~/.antigen ]]; then
-    #running "Resetting Antigen plugins:"
-    #action "rm -rf ~/.antigen"
+    # Remove current config
+    echo -en "\n[>>>] Resetting Antigen plugins..."
     rm -rf ~/.antigen
-    #ok
+    echo -n "OK"
 fi
+# Download Antigen
+echo -en "\n[>>>] Downloading Antigen : "
 mkdir -p ~/.antigen
-#action "curl -sL git.io/antigen > ~/.antigen/antigen.zsh"
 curl -sL git.io/antigen > ~/.antigen/antigen.zsh
-#ok
+echo "DONE"
 
 # Download Docker Completion file
-#bot "Setup Docker completion:"
+echo -en "\n[iii] Setup Docker completion : "
 if [[ ! -d ~/.zsh_completion ]]; then
-    #running "Downloading Docker completion files:"
+    echo -en "\n[>>>] Downloading Docker completion files..."
     mkdir -p ~/.zsh_completion
-    #action "curl -sL https://raw.githubusercontent.com/docker/machine/v0.14.0/contrib/completion/zsh/_docker-machine > ~/.zsh_completion/_docker-machine"
     curl -sL https://raw.githubusercontent.com/docker/machine/v0.14.0/contrib/completion/zsh/_docker-machine > ~/.zsh_completion/_docker-machine
 fi
-#ok
+echo "DONE"
 
 # Install Vundle plugins
-#bot "Setup Vundle as VIM plugin manager.."
+echo -en "\n[iii] Setup Vundle as VIM plugin manager : "
 if [[ ! -d ~/.vim/bundle/Vundle.vim ]]; then
-    #running "Downloading Vundle:"
-    #action "git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim"
+    echo -en "\n[>>>] Downloading Vundle..."
     git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-    #ok
+    echo "OK"
 fi
-#running "Install or update VIM plugins:"
-#action "vim -i NONE -c VundleUpdate -c quitall > /dev/null 2>&1"
+echo -en "\n[>>>] Updating Vundle plugins : "
 vim -i NONE -c VundleUpdate -c quitall > /dev/null 2>&1
-#ok
+echo "DONE"
 
 # Install required Python packages
 #pip3 install -r install.d/requirements.txt
 
-#bot "All done! Close this session and log in again."
-
+echo -e "\n[###] All done! Close this session and log in again.\n"

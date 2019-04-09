@@ -21,3 +21,5 @@ git clone https://github.com/norville/dotfiles.git
 + dev frameworks (pipenv, node, ruby)
 + backup Mac Apps preferences via 'mackup'
 + sync macOS preferences
++ add arguments to install.sh to select between sync/install/update/config
++ manage SSH keys
