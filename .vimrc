@@ -7,12 +7,16 @@ source ~/.vim/plugins.vim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " GUI
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Line numbers relative to cursorline
 set number relativenumber
+" Toggle relative line numbers in insert mode
 augroup numbertoggle
     autocmd!
     autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
     autocmd BufLeave,FocusLost,InsertEnter   * set norelativenumber
 augroup END
+
 set encoding=utf-8
 set termencoding=utf-8
 set ruler
@@ -27,6 +31,7 @@ set showtabline=2
 set noshowmode
 set t_Co=256
 set term=xterm-256color
+
 source ~/.vim/gui.vim
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

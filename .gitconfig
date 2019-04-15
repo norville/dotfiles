@@ -1,14 +1,14 @@
 [filter "lfs"]
-	clean = git-lfs clean %f
-	smudge = git-lfs smudge %f
-	required = true
+    clean = git-lfs clean %f
+    smudge = git-lfs smudge %f
+    required = true
 [user]
-	name = norville
-	email = ing.norville@gmail.com
+    name = norville
+    email = ing.norville@gmail.com
 [core]
-	editor = vim
-	excludesfile = ~/.gitcfg/gitignore_global
+    editor = vim
+    excludesfile = ~/.gitcfg/gitignore_global
 [color]
-	ui = auto
+    ui = auto
 [status]
-	submoduleSummary = true
+    submoduleSummary = true

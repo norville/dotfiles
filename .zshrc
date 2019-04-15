@@ -21,7 +21,7 @@ HIST_STAMPS="dd/mm/yyyy"
 
 # Set PATH
 typeset -U path
-path=(~/.dotfiles/bin /usr/local/sbin $path[@])
+path=(~/bin /usr/local/sbin $path[@])
 
 # Enable Docker Completion
 FPATH=~/.zsh_completion:$FPATH
