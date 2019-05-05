@@ -1,5 +1,8 @@
 # Ignore git bare dir
 .dfbare
 
+# Ignore Antigen and its plugins
+.zsh/antigen/*
+
 # Ignore Vundle and its plugins
-vim/bundle/*
+.vim/bundle/*

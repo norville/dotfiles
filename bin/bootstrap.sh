@@ -174,7 +174,7 @@ if [[ $SHELL != $ZSH_PATH ]]; then
 
     # Set ZSH as login shell
     echo $ZSH_PATH | sudo tee -a /etc/shells
-    sudo chsh -s $ZSH_PATH $USR
+    sudo chsh -s $ZSH_PATH $(whoami)
     exit_status "setting ZSH as login shell"
 
 else
@@ -185,6 +185,7 @@ else
 fi
 
 # Antigen
+# TODO mv antigen dir inside ~/.zsh
 
 # ZSH Completions
 
@@ -193,6 +194,10 @@ fi
 # Vundle
 
 # TODO
+# - mv bin/bootstrap.sh bin/dfbstrap.sh
+# - .basrc and .profile ?
+# - .ssh/{config,known_hosts}
+# - colorize exit_status
 # - install nerd font
 # - set gruvbox theme for terminal (mac/linux)
 
