@@ -45,7 +45,8 @@ function prep_repo {
         # Clone remote repo into the bare repo inside $HOME
         # git clone --bare <git-repo-url> <git-bare-dir>
         cd $HOME
-        git clone --bare $REPO_URL $BARE_DIR
+        git clone --bare -b bare $REPO_URL $BARE_DIR
+        #git clone --bare $REPO_URL $BARE_DIR
         exit_status "cloning bare repo into $BARE_DIR"
 
         # Checkout bare repo
