@@ -104,8 +104,10 @@ if [[ $(uname -s) == 'Linux' ]]; then
     sudo apt autoclean
 
     # TODO
+    # - make it distro indipendent
     # - install nerd font
     # - set gruvbox theme for terminal
+    # - restore preferences
 
 elif [[ $(uname -s) == 'Darwin' ]]; then
 
@@ -211,10 +213,24 @@ exit_status "installing Antigen"
 
 ### Editor and plugins
 
-# Vundle
+# Install or update Vundle and required plugins
+VDL_URL='https://github.com/VundleVim/Vundle.vim.git'
+VDL_DIR=$HOME/.vim/bundle
+if [[ ! -d $VDL_DIR/Vundle.vim ]]; then
+
+    # Download Vundle
+    git clone $VDL_URL $VDL_DIR/Vundle.vim
+    exit_status "installing Vundle"
+
+fi
+# Update Vundle and required plugins
+vim -i NONE -c VundleUpdate -c quitall > /dev/null 2>&1
+exit_status "updating Vundle plugins"
 
 # TODO
+# - !!! check what runs first: clone or dfbstrap?
 # - mv bin/bootstrap.sh bin/dfbstrap.sh
+# - 30s countdown to terminate all sessions
 # - .basrc and .profile ?
 # - .ssh/{config,known_hosts}
 # - colorize exit_status
