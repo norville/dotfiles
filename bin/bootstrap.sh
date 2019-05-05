@@ -103,6 +103,10 @@ if [[ $(uname -s) == 'Linux' ]]; then
     sudo apt autoremove
     sudo apt autoclean
 
+    # TODO
+    # - install nerd font
+    # - set gruvbox theme for terminal
+
 elif [[ $(uname -s) == 'Darwin' ]]; then
 
     ### If system is macOS
@@ -174,7 +178,7 @@ if [[ $SHELL != $ZSH_PATH ]]; then
 
     # Set ZSH as login shell
     echo $ZSH_PATH | sudo tee -a /etc/shells
-    sudo chsh -s $ZSH_PATH $(whoami)
+    sudo chsh -s $ZSH_PATH $USER
     exit_status "setting ZSH as login shell"
 
 else
@@ -184,10 +188,26 @@ else
 
 fi
 
-# Antigen
-# TODO mv antigen dir inside ~/.zsh
+# Always get last version of Antigen
+ANT_URL='https://raw.githubusercontent.com/zsh-users/antigen/master/bin/antigen.zsh'
+ANT_DIR=$HOME/.zsh/antigen
+if [[ -d $ANT_DIR ]]; then
 
-# ZSH Completions
+    # Delete existing version
+    rm -rf $ANT_DIR
+    exit_status "removing current version of Antigen"
+
+fi
+mkdir -p $ANT_DIR
+# Download last version
+curl -sL $ANT_URL > $ANT_DIR/antigen.zsh
+exit_status "installing Antigen"
+
+# Install ZSH Completions
+#COMP_DIR=$HOME/.zsh/completions
+#if [[ ! -d $COMP_DIR ]]; then
+    #mkdir -p $COMP_DIR
+#fi
 
 ### Editor and plugins
 
@@ -198,8 +218,12 @@ fi
 # - .basrc and .profile ?
 # - .ssh/{config,known_hosts}
 # - colorize exit_status
-# - install nerd font
-# - set gruvbox theme for terminal (mac/linux)
+# - case system detection
+# - break into IDEMPOTENT functions:
+#   • prep (repo)
+#   • apps (min sw)
+#   • env (shell, plugins, editor)
+#   • code (dev frameworks)
 
 ### Bootstrap end
 

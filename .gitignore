@@ -4,5 +4,8 @@
 # Ignore Antigen and its plugins
 .zsh/antigen/*
 
+# Ignore ZSH completions
+.zsh/completions/*
+
 # Ignore Vundle and its plugins
 .vim/bundle/*

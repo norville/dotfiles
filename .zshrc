@@ -23,8 +23,10 @@ HIST_STAMPS="dd/mm/yyyy"
 typeset -U path
 path=(~/bin /usr/local/sbin $path[@])
 
-# Enable Docker Completion
-FPATH=~/.zsh_completion:$FPATH
+# Add custom completion dir
+if [[ -d ~/zsh/completions ]]; then
+    FPATH=~/.zsh/completions:$FPATH
+fi
 
 # Enable Homebrew Completion
 if type brew &>/dev/null; then
