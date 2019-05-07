@@ -10,14 +10,11 @@ With lots of cool ideas taken from [Github does dotfiles](https://dotfiles.githu
 
 ## Install
 
-```bash
-git clone https://github.com/norville/dotfiles.git
-./dotfiles/install.sh
+```sh
+curl -L https://git.io/fjnXj | sh
+```
+Or
+```sh
+wget https://git.io/fjnXj | sh
 ```
 
-## TODO
-+ install.sh: print help statements and progression info
-+ tmux configuration
-+ dev frameworks (pipenv, node, ruby)
-+ backup Mac Apps preferences via 'mackup'
-+ sync macOS preferences
