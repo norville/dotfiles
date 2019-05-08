@@ -15,6 +15,6 @@ curl -L https://git.io/fjnXj | sh
 ```
 Or
 ```sh
-wget https://git.io/fjnXj | sh
+wget -O - https://git.io/fjnXj | sh
 ```
 

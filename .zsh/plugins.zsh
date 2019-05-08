@@ -20,13 +20,13 @@ if [[ -f $ANT_DIR/antigen.zsh ]]; then
     fi
 
     # Load default bundles
-    antigen bundle tmux
     antigen bundle git
     antigen bundle git-extras
     antigen bundle common-aliases
     antigen bundle colorize
     antigen bundle extract
     antigen bundle vundle
+    antigen bundle tmux
     antigen bundle python
     #antigen bundle pipenv
     antigen bundle docker

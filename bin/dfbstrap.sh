@@ -244,3 +244,5 @@ exit_status "updating Vundle plugins"
 
 ### Bootstrap end
 
+# TODO countdown to reboot
+

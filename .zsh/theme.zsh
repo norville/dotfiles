@@ -44,6 +44,10 @@ POWERLEVEL9K_INSTALLATION_PATH=$ANTIGEN_BUNDLES/bhilburn/powerlevel9k/powerlevel
 #
 # Load default theme
 #
-antigen theme bhilburn/powerlevel9k powerlevel9k
-#antigen theme nojhan/liquidprompt
+
+if [[ $(uname -s) == 'Darwin' ]]; then
+    antigen theme bhilburn/powerlevel9k powerlevel9k
+else
+    antigen theme nojhan/liquidprompt
+fi
 
