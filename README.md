@@ -10,11 +10,11 @@ With lots of cool ideas taken from [Github does dotfiles](https://dotfiles.githu
 
 ## Install
 
-```sh
-curl -L https://git.io/fjnXj | sh
+```bash
+curl -L https://git.io/fjnXj | bash
 ```
 Or
-```sh
-wget -O - https://git.io/fjnXj | sh
+```bash
+wget -O - https://git.io/fjnXj | bash
 ```
 
