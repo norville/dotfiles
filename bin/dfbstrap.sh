@@ -244,9 +244,7 @@ exit_status "updating Vundle plugins"
 
 # TODO
 # - !!! check what runs first: clone or dfbstrap?
-# - mv bin/bootstrap.sh bin/dfbstrap.sh
-# - 30s countdown to terminate all sessions
-# - .basrc and .profile ?
+# - .bashrc and .profile ?
 # - .ssh/{config,known_hosts}
 # - colorize exit_status
 # - case system detection
