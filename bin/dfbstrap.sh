@@ -96,6 +96,7 @@ if [[ $(uname -s) == 'Linux' ]]; then
     prep_repo
 
     # Install required packages
+    # TODO check pkgs before
     APT_PKGS=~/.dfconf/apt-packages
     xargs -a $APT_PKGS sudo apt-get install -y
     exit_status "installing required packages in $APT_PKGS"
@@ -104,9 +105,22 @@ if [[ $(uname -s) == 'Linux' ]]; then
     sudo apt autoremove
     sudo apt autoclean
 
+    # Install Nerd-Fonts
+    FONT_URL='https://github.com/ryanoasis/nerd-fonts/blob/master/patched-fonts/SourceCodePro/Regular/complete/Sauce%20Code%20Pro%20Nerd%20Font%20Complete%20Mono.ttf'
+    FONT_NAME='Sauce Code Pro Nerd Font Complete Mono.ttf'
+    FONT_DIR=$HOME/.local/share/fonts
+    # Ensure FONT_DIR exists
+    if [[ ! -d $FONT_DIR ]]; then
+        mkdir -p $FONT_DIR
+    fi
+    cd $FONT_DIR
+    # Download nerd-font
+    curl -fLo $FONT_NAME $FONT_URL
+    exit_status "downloading $FONT_NAME in $FONT_DIR"
+    cd -
+
     # TODO
-    # - make it distro indipendent
-    # - install nerd font
+    # - make it distro indipendent: support yum and arch pkgs
     # - set gruvbox theme for terminal
     # - restore preferences
 
