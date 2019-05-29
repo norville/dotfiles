@@ -2,18 +2,23 @@
 
 ### Define variables and functions
 
+FONT_NAME='Sauce Code Pro Nerd Font Complete Mono.ttf'
+
 # Local paths
-BARE_DIR=.dfbare                                    # git dir for bare repo
-BKP_DIR=$HOME/.dfbackup                             # backup dir for pre-existing dotfiles
-APT_PKGS=$HOME/.dfconf/apt-packages
-FONT_DIR=$HOME/.local/share/fonts
-BREW_PKGS=$HOME/.dfconf/Brewfile
+BARE_DIR=.dfbare                    # git dir name for bare repo
+BAKP_DIR=$HOME/.dfbackup            # backup dir for pre-existing dotfiles
+APT_PKGS=$HOME/.dfconf/apt-packages # required APT packages
+FONT_DIR=$HOME/.local/share/fonts   # user fonts dir
+BRW_PKGS=$HOME/.dfconf/Brewfile     # required brew packages
+ATGN_DIR=$HOME/.zsh/antigen         # Antigen plugins dir
+VNDL_DIR=$HOME/.vim/bundle          # Vundle plugins dir
 
 # Remote URLs
-REPO_URL='https://github.com/norville/dotfiles.git'   # URL to remote repo
+REPO_URL='https://github.com/norville/dotfiles.git'
 FONT_URL='https://github.com/ryanoasis/nerd-fonts/blob/master/patched-fonts/SourceCodePro/Regular/complete/Sauce%20Code%20Pro%20Nerd%20Font%20Complete%20Mono.ttf'
-FONT_NAME='Sauce Code Pro Nerd Font Complete Mono.ttf'
 BREW_URL='https://raw.githubusercontent.com/Homebrew/install/master/install'
+ATGN_URL='https://raw.githubusercontent.com/zsh-users/antigen/master/bin/antigen.zsh'
+VNDL_URL='https://github.com/VundleVim/Vundle.vim.git'
 
 # Check local paths
 
@@ -76,9 +81,9 @@ function prep_repo {
         # If checkout fails
         if [[ $? != 0 ]]; then
             # Create backup dir
-            mkdir -p $BKP_DIR
-            # Move pre-existing dotfiles to $BKP_DIR
-            dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} $BKP_DIR/{}
+            mkdir -p $BAKP_DIR
+            # Move pre-existing dotfiles to $BAKP_DIR
+            dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} $BAKP_DIR/{}
             dfconf checkout
         fi
 
@@ -136,7 +141,7 @@ function apps() {
             /usr/bin/ruby -e "$(curl -fsSL $BREW_URL)"
             exit_status "installing Homebrew"
 
-            brew bundle -v --file=$BREW_PKGS
+            brew bundle -v --file=$BRW_PKGS
             exit_status "installing required packages"
 
         else
@@ -144,11 +149,11 @@ function apps() {
             # Update Homebrew and all required packages
 
             # Check for extra packages
-            if [[ $(brew bundle cleanup --file=$BREW_PKGS) ]]; then
+            if [[ $(brew bundle cleanup --file=$BRW_PKGS) ]]; then
                 read -r -p "Do you want to uninstall all extra formulae? [y|n] " response
                 if [[ $response =~ (yes|y|Y) ]]; then
                     # Remove extra packages
-                    brew bundle cleanup --file=$BREW_PKGS --force
+                    brew bundle cleanup --file=$BRW_PKGS --force
                     exit_status "removing extra packages"
                 fi
             fi
@@ -200,18 +205,16 @@ function env() {
     fi
 
     # Always get last version of Antigen
-    ANT_URL='https://raw.githubusercontent.com/zsh-users/antigen/master/bin/antigen.zsh'
-    ANT_DIR=$HOME/.zsh/antigen
-    if [[ -d $ANT_DIR ]]; then
+    if [[ -d $ATGN_DIR ]]; then
 
         # Delete existing version
-        rm -rf $ANT_DIR
+        rm -rf $ATGN_DIR
         exit_status "removing current version of Antigen"
 
     fi
-    mkdir -p $ANT_DIR
+    mkdir -p $ATGN_DIR
     # Download last version
-    curl -sL $ANT_URL > $ANT_DIR/antigen.zsh
+    curl -sL $ATGN_URL > $ATGN_DIR/antigen.zsh
     exit_status "installing Antigen"
 
     # Install ZSH Completions
@@ -223,12 +226,10 @@ function env() {
     ### Editor and plugins
 
     # Install or update Vundle and required plugins
-    VDL_URL='https://github.com/VundleVim/Vundle.vim.git'
-    VDL_DIR=$HOME/.vim/bundle
-    if [[ ! -d $VDL_DIR/Vundle.vim ]]; then
+    if [[ ! -d $VNDL_DIR/Vundle.vim ]]; then
 
         # Download Vundle
-        git clone $VDL_URL $VDL_DIR/Vundle.vim
+        git clone $VNDL_URL $VNDL_DIR/Vundle.vim
         exit_status "installing Vundle"
 
     fi
