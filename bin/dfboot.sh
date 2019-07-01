@@ -141,6 +141,7 @@ function apps() {
             /usr/bin/ruby -e "$(curl -fsSL $BREW_URL)"
             exit_status "installing Homebrew"
 
+            #TODO which casks?
             brew bundle -v --file=$BRW_PKGS
             exit_status "installing required packages"
 
@@ -204,6 +205,7 @@ function env() {
 
     fi
 
+    #TODO move to config?
     # Always get last version of Antigen
     if [[ -d $ATGN_DIR ]]; then
 
@@ -225,6 +227,7 @@ function env() {
 
     ### Editor and plugins
 
+    #TODO move to config?
     # Install or update Vundle and required plugins
     if [[ ! -d $VNDL_DIR/Vundle.vim ]]; then
 
@@ -259,6 +262,8 @@ env
 # - !!! check what runs first: clone or dfbstrap?
 # - .bashrc and .profile ?
 # - .ssh/{config,known_hosts}
+# - SSH Keys
+# - /etc/hosts
 # - colorize exit_status
 # - case system detection
 # - break into IDEMPOTENT functions - respect ORDER:
