@@ -14,7 +14,9 @@ let g:airline#extensions#tabline#formatter = 'unique_tail' "default | jsformatte
 " Enable Indent Guides
 let g:indent_guides_enable_on_vim_startup = 1
 " Theme settings
-let g:airline_theme='gruvbox'
+if g:colors_name == 'gruvbox'
+    let g:airline_theme='gruvbox'
+endif
 
 """ If system is macOS
 "if has('macunix')
