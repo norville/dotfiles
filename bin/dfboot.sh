@@ -205,20 +205,6 @@ function env() {
 
     fi
 
-    #TODO move to config?
-    # Always get last version of Antigen
-    if [[ -d $ATGN_DIR ]]; then
-
-        # Delete existing version
-        rm -rf $ATGN_DIR
-        exit_status "removing current version of Antigen"
-
-    fi
-    mkdir -p $ATGN_DIR
-    # Download last version
-    curl -sL $ATGN_URL > $ATGN_DIR/antigen.zsh
-    exit_status "installing Antigen"
-
     # Install ZSH Completions
     #COMP_DIR=$HOME/.zsh/completions
     #if [[ ! -d $COMP_DIR ]]; then

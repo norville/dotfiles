@@ -1,12 +1,16 @@
-# Activate Antigen
-
-ANT_DIR=~/.zsh/antigen  # Default Antigen dir
+# Set Antigen path
+if [[ $(uname -s) == 'Darwin' ]]; then
+    ANTIGEN='/usr/local/share/antigen/antigen.zsh'
+    MACOS=true
+else
+    ANTIGEN='/usr/share/zsh-antigen/antigen.zsh'
+fi
 
 # Check for Antigen
-if [[ -f $ANT_DIR/antigen.zsh ]]; then
+if [[ -f $ANTIGEN ]]; then
 
     # Load main script
-    source $ANT_DIR/antigen.zsh
+    source $ANTIGEN
 
     # Load OH-MY-ZSH
     antigen use oh-my-zsh
@@ -15,7 +19,7 @@ if [[ -f $ANT_DIR/antigen.zsh ]]; then
     source ~/.zsh/theme.zsh
 
     # Load macOS bundles
-    if [[ $(uname -s) == 'Darwin' ]]; then
+    if [[ $MACOS ]]; then
         antigen bundle osx
     fi
 

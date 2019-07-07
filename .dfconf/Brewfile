@@ -17,6 +17,7 @@ brew 'findutils'
 
 # Install Binaries
 brew 'zsh'
+brew 'antigen'
 brew 'git'
 brew 'vim'
 brew 'tmux'
