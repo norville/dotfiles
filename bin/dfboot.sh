@@ -1,28 +1,38 @@
 #!/bin/bash
 
-### Define variables and functions
+# TODO
+# - !!! check what runs first: clone or dfbstrap?
+# - .bashrc and .profile ?
+# - .ssh/{config,known_hosts}
+# - SSH Keys generation and copy
+# - /etc/hosts
+# - colorize exit_status
+# - case system detection
+# - break into IDEMPOTENT functions - respect ORDER:
+# - • sudo -v
+#   • prep (repo)
+#   • apps (min sw)
+#   • env (shell, plugins, editor)
+#   • code (dev frameworks)
 
-FONT_NAME='Sauce Code Pro Nerd Font Complete Mono.ttf'
+### Define variables and functions
 
 # Local paths
 BARE_DIR=.dfbare                    # git dir name for bare repo
 BAKP_DIR=$HOME/.dfbackup            # backup dir for pre-existing dotfiles
 APT_PKGS=$HOME/.dfconf/apt-packages # required APT packages
-FONT_DIR=$HOME/.local/share/fonts   # user fonts dir
 BRW_PKGS=$HOME/.dfconf/Brewfile     # required brew packages
-ATGN_DIR=$HOME/.zsh/antigen         # Antigen plugins dir
+BRW_PKGS=$HOME/.dfconf/Caskfile     # required brew casks
 VNDL_DIR=$HOME/.vim/bundle          # Vundle plugins dir
 
 # Remote URLs
 REPO_URL='https://github.com/norville/dotfiles.git'
-FONT_URL='https://github.com/ryanoasis/nerd-fonts/blob/master/patched-fonts/SourceCodePro/Regular/complete/Sauce%20Code%20Pro%20Nerd%20Font%20Complete%20Mono.ttf'
 BREW_URL='https://raw.githubusercontent.com/Homebrew/install/master/install'
-ATGN_URL='https://raw.githubusercontent.com/zsh-users/antigen/master/bin/antigen.zsh'
 VNDL_URL='https://github.com/VundleVim/Vundle.vim.git'
 
-# Check local paths
+# TODO Check local paths
 
-# Check remote URLs
+# TODO Check remote URLs
 
 # Check last exit status and print message
 function exit_status() {
@@ -100,6 +110,8 @@ function prep_repo {
 # Install or update required packages
 function apps() {
 
+    # TODO make it distro indipendent: support yum and arch pkgs
+
     # Detect system
     if [[ $(uname -s) == 'Linux' ]]; then
 
@@ -113,22 +125,6 @@ function apps() {
         sudo apt autoremove
         sudo apt autoclean
 
-        # Install Nerd-Fonts
-        # Ensure FONT_DIR exists
-        if [[ ! -d $FONT_DIR ]]; then
-            mkdir -p $FONT_DIR
-        fi
-        cd $FONT_DIR
-        # Download nerd-font
-        curl -fLo $FONT_NAME $FONT_URL
-        exit_status "downloading $FONT_NAME in $FONT_DIR"
-        cd -
-
-        # TODO
-        # - make it distro indipendent: support yum and arch pkgs
-        # - set gruvbox theme for terminal
-        # - restore preferences
-
     elif [[ $(uname -s) == 'Darwin' ]]; then
 
         # If system is macOS
@@ -141,9 +137,12 @@ function apps() {
             /usr/bin/ruby -e "$(curl -fsSL $BREW_URL)"
             exit_status "installing Homebrew"
 
-            #TODO which casks?
             brew bundle -v --file=$BRW_PKGS
             exit_status "installing required packages"
+
+            # TODO
+            # - install other apps via Caskfile
+            # - install apps via Mac App Store
 
         else
 
@@ -178,10 +177,6 @@ function apps() {
         pip3 install -U pip setuptools wheel
         exit_status "updating PIP packages"
 
-        # TODO
-        # - install apps via Mac App Store
-        # - restore preferences (Mackup / Mathias)
-
     fi
 
 }
@@ -205,15 +200,8 @@ function env() {
 
     fi
 
-    # Install ZSH Completions
-    #COMP_DIR=$HOME/.zsh/completions
-    #if [[ ! -d $COMP_DIR ]]; then
-        #mkdir -p $COMP_DIR
-    #fi
-
     ### Editor and plugins
 
-    #TODO move to config?
     # Install or update Vundle and required plugins
     if [[ ! -d $VNDL_DIR/Vundle.vim ]]; then
 
@@ -225,6 +213,11 @@ function env() {
     # Update Vundle and required plugins
     vim -i NONE -c VundleUpdate -c quitall > /dev/null 2>&1
     exit_status "updating Vundle plugins"
+
+    # TODO
+    # - LNX set gruvbox theme for terminal
+    # - LNX restore preferences
+    # - MAC restore preferences (Mackup / Mathias)
 
 }
 
@@ -244,22 +237,6 @@ apps
 ### Configure environment
 env
 
-# TODO
-# - !!! check what runs first: clone or dfbstrap?
-# - .bashrc and .profile ?
-# - .ssh/{config,known_hosts}
-# - SSH Keys
-# - /etc/hosts
-# - colorize exit_status
-# - case system detection
-# - break into IDEMPOTENT functions - respect ORDER:
-# - • sudo -v
-#   • prep (repo)
-#   • apps (min sw)
-#   • env (shell, plugins, editor)
-#   • code (dev frameworks)
-
 ### Bootstrap end
 
 # TODO countdown to reboot
-
