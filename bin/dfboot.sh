@@ -6,13 +6,13 @@
 # - .ssh/{config,known_hosts}
 # - SSH Keys generation and copy
 # - /etc/hosts
-# - colorize exit_status
+# - colorize df_exit_status
 # - case system detection
 # - break into IDEMPOTENT functions - respect ORDER:
 # - • sudo -v
 #   • prep (repo)
-#   • apps (min sw)
-#   • env (shell, plugins, editor)
+#   • df_get_pkgs (min sw)
+#   • df_env (shell, plugins, editor)
 #   • code (dev frameworks)
 
 ### Define variables and functions
@@ -22,7 +22,7 @@ BARE_DIR=.dfbare                    # git dir name for bare repo
 BAKP_DIR=$HOME/.dfbackup            # backup dir for pre-existing dotfiles
 APT_PKGS=$HOME/.dfconf/apt-packages # required APT packages
 BRW_PKGS=$HOME/.dfconf/Brewfile     # required brew packages
-BRW_PKGS=$HOME/.dfconf/Caskfile     # required brew casks
+CSK_PKGS=$HOME/.dfconf/Caskfile     # required brew casks
 VNDL_DIR=$HOME/.vim/bundle          # Vundle plugins dir
 
 # Remote URLs
@@ -30,12 +30,8 @@ REPO_URL='https://github.com/norville/dotfiles.git'
 BREW_URL='https://raw.githubusercontent.com/Homebrew/install/master/install'
 VNDL_URL='https://github.com/VundleVim/Vundle.vim.git'
 
-# TODO Check local paths
-
-# TODO Check remote URLs
-
 # Check last exit status and print message
-function exit_status() {
+function df_exit_status() {
 
     if [[ $? != 0 ]]; then
         # Print error message and exit
@@ -57,14 +53,12 @@ function dfconf {
 }
 
 # Clone dotfiles into a local bare repo
-function prep_repo {
+function df_clone_bare {
 
-    # If system is Linux ensure git is installed
-    if [[ $(uname -s) == 'Linux' ]]; then
-
-        sudo apt-get install git -y
-        exit_status "installing git"
-
+    # If git is not installed exit now
+    if [[ ! $(which git) ]]; then
+        exit 1
+        #TODO ask permission to install git (or better, all required packages)
     fi
 
     # Check bare repo dir
@@ -74,17 +68,15 @@ function prep_repo {
         mkdir -p $BARE_DIR
     fi
 
-    # Check bare repo status
+    # Check bare repo is not already set
     cd $BARE_DIR
     if [[ ! $(git rev-parse --is-bare-repository) ]]; then
 
+        # Clone remote repo into bare repo
         cd $HOME
-        # Clone remote repo into the bare repo inside $HOME
-        #git clone --bare <git-repo-url> <git-bare-dir>
-        #git clone --bare $REPO_URL $BARE_DIR
-        # Clone specifc branch
-        git clone --bare -b bare $REPO_URL $BARE_DIR
-        exit_status "cloning bare repo into $BARE_DIR"
+        #git clone --bare $REPO_URL $BARE_DIR           # Clone master branch
+        git clone --bare -b bare $REPO_URL $BARE_DIR    # Clone specifc branch
+        df_exit_status "cloning bare repo into $BARE_DIR"
 
         # Checkout bare repo
         dfconf checkout
@@ -96,6 +88,7 @@ function prep_repo {
             dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} $BAKP_DIR/{}
             dfconf checkout
         fi
+        df_exit_status "checking out bare repo"
 
         # Config bare repo to ignore untracked files
         dfconf config status.showUntrackedFiles no
@@ -107,82 +100,94 @@ function prep_repo {
 
 }
 
-# Install or update required packages
-function apps() {
+# Get last version of Homebrew and install a bundle of packages if given
+function df_brew() {
 
-    # TODO make it distro indipendent: support yum and arch pkgs
+    # Install or update Homebrew
+    if [[ ! $(which brew) ]]; then
+        /usr/bin/ruby -e "$(curl -fsSL $BREW_URL)"
+        df_exit_status "installing Homebrew"
+    else
+        # Update Homebrew
+        brew update --force
+        df_exit_status "updating Homebrew"
+    fi
+
+    # Check if bundle is valid
+    if [[ ! -f $1 ]]; then
+        # bundle not valid
+        exit 1
+        #TODO handle error message
+    else
+
+        # Install bundle
+        brew bundle -v --file=$1
+        df_exit_status "installing bundle $1"
+
+        # Check for previous packages
+        if [[ $(brew bundle cleanup --file=$1) ]]; then
+            read -r -p "Found packages already installed, do you want to uninstall them? [y|n] " response
+            if [[ $response =~ (yes|y|Y) ]]; then
+
+                # Uninstall extra packages
+                brew bundle cleanup --file=$1 --force
+                df_exit_status "removing extra packages"
+
+            else
+
+                # Upgrade all formulae
+                brew upgrade
+                df_exit_status "upgrading Homebrew formulae"
+
+                # Upgrade all casks
+                brew cask upgrade #--greedy
+                df_exit_status "upgrading Homebrew caks"
+
+            fi
+        fi
+
+    fi
+
+    # Do some maintenance
+    brew cleanup
+    brew doctor
+
+}
+
+# Install or update required packages
+function df_get_pkgs() {
 
     # Detect system
     if [[ $(uname -s) == 'Linux' ]]; then
 
-        # If system is Linux
+        # System is Linux
 
-        # Install required packages
+        # Install or update required packages via APT
+        # TODO make it distro indipendent: support yum and arch pkgs
         xargs -a $APT_PKGS sudo apt-get install -y
-        exit_status "installing required packages in $APT_PKGS"
+        df_exit_status "installing required packages in $APT_PKGS"
 
         # Cleanup
         sudo apt autoremove
         sudo apt autoclean
 
-    elif [[ $(uname -s) == 'Darwin' ]]; then
+    else
 
-        # If system is macOS
+        # System is macOS
 
-        # Check for Homebrew
-        if [[ ! $(which brew) ]]; then
-
-            # Install Homebrew and all required packages
-
-            /usr/bin/ruby -e "$(curl -fsSL $BREW_URL)"
-            exit_status "installing Homebrew"
-
-            brew bundle -v --file=$BRW_PKGS
-            exit_status "installing required packages"
-
-            # TODO
-            # - install other apps via Caskfile
-            # - install apps via Mac App Store
-
-        else
-
-            # Update Homebrew and all required packages
-
-            # Check for extra packages
-            if [[ $(brew bundle cleanup --file=$BRW_PKGS) ]]; then
-                read -r -p "Do you want to uninstall all extra formulae? [y|n] " response
-                if [[ $response =~ (yes|y|Y) ]]; then
-                    # Remove extra packages
-                    brew bundle cleanup --file=$BRW_PKGS --force
-                    exit_status "removing extra packages"
-                fi
-            fi
-
-            brew update --force
-            exit_status "updating Homebrew"
-
-            brew upgrade
-            exit_status "upgrading Homebrew formulae"
-
-            brew cask upgrade #--greedy
-            exit_status "upgrading Homebrew caks"
-
-        fi
-
-        # Cleanup
-        brew cleanup
-        brew doctor
+        df_brew $BRW_PKGS
+        df_brew $CSK_PKGS
 
         # Update PIP base packages
         pip3 install -U pip setuptools wheel
-        exit_status "updating PIP packages"
+        df_exit_status "updating PIP packages"
 
     fi
 
 }
 
 # Configure the environment
-function env() {
+function df_env() {
 
     # Ensure ZSH is the login shell
     ZSH_PATH=$(which zsh)
@@ -191,28 +196,25 @@ function env() {
         # Set ZSH as login shell
         echo $ZSH_PATH | sudo tee -a /etc/shells
         sudo chsh -s $ZSH_PATH $USER
-        exit_status "setting ZSH as login shell"
+        df_exit_status "setting ZSH as login shell"
 
     else
 
         # Already set!
-        exit_status "checking login shell (ZSH)"
+        df_exit_status "checking login shell (ZSH)"
 
     fi
-
-    ### Editor and plugins
 
     # Install or update Vundle and required plugins
     if [[ ! -d $VNDL_DIR/Vundle.vim ]]; then
-
         # Download Vundle
         git clone $VNDL_URL $VNDL_DIR/Vundle.vim
-        exit_status "installing Vundle"
-
+        df_exit_status "installing Vundle"
     fi
+
     # Update Vundle and required plugins
     vim -i NONE -c VundleUpdate -c quitall > /dev/null 2>&1
-    exit_status "updating Vundle plugins"
+    df_exit_status "updating Vundle plugins"
 
     # TODO
     # - LNX set gruvbox theme for terminal
@@ -229,13 +231,13 @@ function env() {
 sudo -v
 
 ### Prepare bare repo
-prep_repo
+df_clone_bare
 
 ### Install or update required software
-apps
+df_get_pkgs
 
 ### Configure environment
-env
+df_env
 
 ### Bootstrap end
 

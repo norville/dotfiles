@@ -1,19 +1,9 @@
 #
-# Theme settings
+# Antigen theme settings
 #
 
-# Fall back mode for powerlevel9k when SSH-ing to server with 'dotfiles' repo and
-# powerlevel9k installed, but 'dotfiles' repo and fonts not available on client.
-if [ -z $SSH_CLIENT ]; then
-    # this env variable will be available only if this .zshrc is used on client
-    export LC_CLIENT_HAS_DOT_FILE_REPO=1
-    POWERLEVEL9K_MODE='nerdfont-complete'
-fi
-if [ -z $LC_CLIENT_HAS_DOT_FILE_REPO ]; then
-    POWERLEVEL9K_MODE='default'
-fi
-
-# OMZ-Theme powerlevel9k settings
+### Powerlevel9k settings
+POWERLEVEL9K_MODE='nerdfont-complete'
 DEFAULT_USER=$USER
 POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context dir vcs)
 POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status background_jobs ram load)
@@ -41,8 +31,25 @@ POWERLEVEL9K_LOAD_WARNING_BACKGROUND='172'
 POWERLEVEL9K_LOAD_CRITICAL_BACKGROUND='124'
 POWERLEVEL9K_INSTALLATION_PATH=$ANTIGEN_BUNDLES/bhilburn/powerlevel9k/powerlevel9k.zsh-theme
 
-#
-# Load default theme
-#
+### Load theme
 antigen theme bhilburn/powerlevel9k powerlevel9k
-#antigen theme nojhan/liquidprompt
+
+# TODO re-check fallbackconditions and fix documentation
+### Fallback settings
+# Fall back mode for powerlevel9k when SSH-ing to server with 'dotfiles' repo and
+# powerlevel9k installed, but 'dotfiles' repo and fonts not available on client.
+#if [ -z $SSH_CLIENT ]; then
+#
+#    export LC_CLIENT_HAS_DOT_FILE_REPO=1    # this env variable will be available only if this .zshrc is used on client
+#
+#    # set default powerlevel9k mode
+#    POWERLEVEL9K_MODE='nerdfont-complete'
+#
+#fi
+#
+#if [ -z $LC_CLIENT_HAS_DOT_FILE_REPO ]; then
+#
+#    # set fallback powerlevel9k mode
+#    POWERLEVEL9K_MODE='default'
+#
+#fi

@@ -18,11 +18,6 @@ if [[ -f $ANTIGEN ]]; then
     # Load theme settings
     source ~/.zsh/theme.zsh
 
-    # Load macOS bundles
-    if [[ $MACOS ]]; then
-        antigen bundle osx
-    fi
-
     # Load default bundles
     antigen bundle git
     antigen bundle git-extras
@@ -43,6 +38,11 @@ if [[ -f $ANTIGEN ]]; then
     #antigen bundle rbenv
     #antigen bundle gem
     #antigen bundle rails
+
+    # Load macOS bundles
+    if [[ $MACOS ]]; then
+        antigen bundle osx
+    fi
 
     # Last bundles to load
     antigen bundle zsh-users/zsh-completions
