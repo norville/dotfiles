@@ -43,16 +43,22 @@ function df_exit_status() {
 
 }
 
+function df_message() {
+
+    echo $1
+
+}
+
 # Automatically run git against the bare repo in $HOME
 function dfconf {
-
     # /usr/bin/git --git-dir=<git-bare-dir> --work-tree=<dotfiles-dir>
     /usr/bin/git --git-dir=$BARE_DIR --work-tree=$HOME $@
-
 }
 
 # Clone dotfiles into a local bare repo
 function df_clone_bare {
+
+    df_message "Checking local bare repo"
 
     # If git is not installed exit now
     if [[ ! $(which git) ]]; then
@@ -60,15 +66,12 @@ function df_clone_bare {
         #TODO ask permission to install git (or better, all required packages)
     fi
 
-    # Check bare repo dir
+    # Set bare repo dir
     cd $HOME
-    if [[ ! -d $BARE_DIR ]]; then
-        # Create directory for bare repository
-        mkdir -p $BARE_DIR
-    fi
-
-    # Check bare repo is not already set
+    mkdir -p $BARE_DIR
     cd $BARE_DIR
+
+    # If bare repo is not already set
     if [[ ! $(git rev-parse --is-bare-repository) ]]; then
 
         # Clone remote repo into bare repo
@@ -97,6 +100,7 @@ function df_clone_bare {
     # Ensure current dir is $HOME
     cd $HOME
 
+    df_message "Bare repo ready"
 }
 
 # Get last version of Homebrew and install a bundle of packages if given
@@ -147,11 +151,12 @@ function df_brew() {
         brew doctor
 
     fi
-
 }
 
 # Install or update required packages
 function df_get_pkgs() {
+
+    df_message "Getting required packages"
 
     # Detect system
     if [[ $(uname -s) == 'Linux' ]]; then
@@ -179,10 +184,15 @@ function df_get_pkgs() {
 
     fi
 
+    df_message "Required packages ready"
 }
 
 # Configure the environment
 function df_env() {
+
+    df_message "Configuring this environment"
+
+    df_message "Configuring the shell"
 
     # Ensure ZSH is the login shell
     ZSH_PATH=$(which zsh)
@@ -193,12 +203,9 @@ function df_env() {
         sudo chsh -s $ZSH_PATH $USER
         df_exit_status "setting ZSH as login shell"
 
-    else
-
-        # Already set!
-        df_exit_status "checking login shell (ZSH)"
-
     fi
+
+    df_message "Configuring the editor"
 
     # Install or update Vundle and required plugins
     if [[ ! -d $VNDL_DIR/Vundle.vim ]]; then
@@ -216,6 +223,7 @@ function df_env() {
     # - LNX restore preferences
     # - MAC restore preferences (Mackup / Mathias)
 
+    df_message "Environment ready"
 }
 
 ### Bootstrap begin
