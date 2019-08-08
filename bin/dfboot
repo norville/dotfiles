@@ -62,8 +62,7 @@ function df_clone_bare {
 
     # If git is not installed exit now
     if [[ ! $(which git) ]]; then
-        exit 1
-        #TODO ask permission to install git (or better, all required packages)
+        sudo apt-get install -y git
     fi
 
     # Set bare repo dir
@@ -228,7 +227,7 @@ function df_env() {
 
 ### Bootstrap begin
 
-#set -e
+set -e
 
 # Get admin privileges
 sudo -v
