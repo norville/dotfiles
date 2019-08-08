@@ -2,6 +2,5 @@ curl
 git
 vim
 zsh
-zsh-antigen
 tmux
 python3-pip

@@ -20,6 +20,7 @@
 # Local paths
 BARE_DIR=.dfbare                    # git dir name for bare repo
 BAKP_DIR=$HOME/.dfbackup            # backup dir for pre-existing dotfiles
+ANT_DIR=$HOME/.antigen              # antigen plugins dir
 APT_PKGS=$HOME/.dfconf/apt-packages # required APT packages
 BRW_PKGS=$HOME/.dfconf/Brewfile     # required brew packages
 VNDL_DIR=$HOME/.vim/bundle          # Vundle plugins dir
@@ -182,6 +183,13 @@ function df_get_pkgs() {
         df_exit_status "updating PIP packages"
 
     fi
+
+    # Install/update antigen
+    if [[ -d $ANT_DIR ]]; then
+        rm -rf $ANT_DIR
+    fi
+    mkdir -p $ANT_DIR
+    curl -L git.io/antigen > $ANT_DIR/antigen.zsh
 
     df_message "Required packages ready"
 }

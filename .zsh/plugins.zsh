@@ -1,9 +1,8 @@
 # Set Antigen path
+ANTIGEN="$HOME/.antigen/antigen.zsh"
+
 if [[ $(uname -s) == 'Darwin' ]]; then
-    ANTIGEN='/usr/local/share/antigen/antigen.zsh'
     MACOS=true
-else
-    ANTIGEN='/usr/share/zsh-antigen/antigen.zsh'
 fi
 
 # Check for Antigen
