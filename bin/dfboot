@@ -24,6 +24,7 @@ ANT_DIR=$HOME/.antigen              # antigen plugins dir
 APT_PKGS=$HOME/.dfconf/apt-packages # required APT packages
 BRW_PKGS=$HOME/.dfconf/Brewfile     # required brew packages
 VNDL_DIR=$HOME/.vim/bundle          # Vundle plugins dir
+FONT_DIR=$HOME/.fonts
 
 # Remote URLs
 REPO_URL='https://github.com/norville/dotfiles.git'
