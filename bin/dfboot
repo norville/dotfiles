@@ -29,6 +29,7 @@ VNDL_DIR=$HOME/.vim/bundle          # Vundle plugins dir
 REPO_URL='https://github.com/norville/dotfiles.git'
 BREW_URL='https://raw.githubusercontent.com/Homebrew/install/master/install'
 VNDL_URL='https://github.com/VundleVim/Vundle.vim.git'
+FONT_URL='https://github.com/ryanoasis/nerd-fonts/blob/master/patched-fonts/Meslo/M/Regular/complete/Meslo%20LG%20M%20Regular%20Nerd%20Font%20Complete.ttf'
 
 # Check last exit status and print message
 function df_exit_status() {
@@ -171,6 +172,10 @@ function df_get_pkgs() {
         # Cleanup
         sudo apt autoremove
         sudo apt autoclean
+
+        # TODO install meslo nerd
+        mkdir -p $FONT_DIR
+        wget -O $FONT_DIR/MesloNerdComplete.ttf $FONT_URL
 
     else
 
