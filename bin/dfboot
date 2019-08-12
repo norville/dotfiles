@@ -15,16 +15,22 @@
 #   • df_env (shell, plugins, editor)
 #   • code (dev frameworks)
 
+### Provide --help flag
+if [ ${#@} -ne 0 ] && [ "${@#"--help"}" = "" ]; then
+    printf -- '...help...\n';
+    exit 0;
+fi;
+
 ### Define variables and functions
 
 # Local paths
-BARE_DIR=.dfbare                    # git dir name for bare repo
+BARE_DIR=$HOME/.dfbare              # git dir name for bare repo
 BAKP_DIR=$HOME/.dfbackup            # backup dir for pre-existing dotfiles
-ANT_DIR=$HOME/.antigen              # antigen plugins dir
+ANTG_DIR=$HOME/.antigen             # antigen plugins dir
+VNDL_DIR=$HOME/.vim/bundle          # Vundle plugins dir
+FONT_DIR=$HOME/.fonts               # Fonts dir (linux)
 APT_PKGS=$HOME/.dfconf/apt-packages # required APT packages
 BRW_PKGS=$HOME/.dfconf/Brewfile     # required brew packages
-VNDL_DIR=$HOME/.vim/bundle          # Vundle plugins dir
-FONT_DIR=$HOME/.fonts
 
 # Remote URLs
 REPO_URL='https://github.com/norville/dotfiles.git'
@@ -43,6 +49,16 @@ function df_exit_status() {
         # Print success message
         echo "Done $1"
     fi
+
+}
+
+function df_handle_error() {
+
+    ERR_CODE=$?
+    printf -- "Error ${ERR_CODE} has occurred."
+    # ... cleanup code ...
+    printf -- "\nExiting with error code ${ERROR_CODE}.\n"
+    exit ${ERROR_CODE}
 
 }
 
@@ -65,19 +81,19 @@ function df_clone_bare {
 
     # If git is not installed exit now
     if [[ ! $(which git) ]]; then
+        df_message "Git not installed, getting it via APT"
+        #TODO call portable app to install only git
         sudo apt-get install -y git
+        df_exit_status "installing git"
     fi
 
     # Set bare repo dir
-    cd $HOME
     mkdir -p $BARE_DIR
-    cd $BARE_DIR
 
     # If bare repo is not already set
-    if [[ ! $(git rev-parse --is-bare-repository) ]]; then
+    if [[ ! $(git --git-dir=$BARE_DIR rev-parse --is-bare-repository) ]]; then
 
         # Clone remote repo into bare repo
-        cd $HOME
         #git clone --bare $REPO_URL $BARE_DIR           # Clone master branch
         git clone --bare -b bare $REPO_URL $BARE_DIR    # Clone specifc branch
         df_exit_status "cloning bare repo into $BARE_DIR"
@@ -98,9 +114,6 @@ function df_clone_bare {
         dfconf config status.showUntrackedFiles no
 
     fi
-
-    # Ensure current dir is $HOME
-    cd $HOME
 
     df_message "Bare repo ready"
 }
@@ -158,6 +171,10 @@ function df_brew() {
 # Install or update required packages
 function df_get_pkgs() {
 
+    #TODO modify logic:
+    # - no args (default) = install list of packages
+    # - 1+ args = install given packages
+
     df_message "Getting required packages"
 
     # Detect system
@@ -191,11 +208,11 @@ function df_get_pkgs() {
     fi
 
     # Install/update antigen
-    if [[ -d $ANT_DIR ]]; then
-        rm -rf $ANT_DIR
+    if [[ -d $ANTG_DIR ]]; then
+        rm -rf $ANTG_DIR
     fi
-    mkdir -p $ANT_DIR
-    curl -L git.io/antigen > $ANT_DIR/antigen.zsh
+    mkdir -p $ANTG_DIR
+    curl -L git.io/antigen > $ANTG_DIR/antigen.zsh
 
     df_message "Required packages ready"
 }
@@ -241,7 +258,11 @@ function df_env() {
 
 ### Bootstrap begin
 
+# Force exit in case of error
 set -e
+
+# Call error handler before exiting
+trap "df_handle_error" EXIT
 
 # Get admin privileges
 sudo -v
@@ -258,3 +279,8 @@ df_env
 ### Bootstrap end
 
 # TODO countdown to reboot
+
+### Exit in style
+printf -- '\n'
+exit 0
+
