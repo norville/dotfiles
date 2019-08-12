@@ -176,7 +176,17 @@ function df_get_pkgs() {
     df_message "Getting required packages"
 
     # Detect system
-    if [[ $(uname -s) == 'Linux' ]]; then
+    if [[ $MACOS ]]; then
+
+        # System is macOS
+
+        df_brew $BRW_PKGS
+
+        # Update PIP base packages
+        pip3 install -U pip setuptools wheel
+        df_exit_status "updating PIP packages"
+
+    else
 
         # System is Linux
 
@@ -188,16 +198,6 @@ function df_get_pkgs() {
         # Cleanup
         sudo apt autoremove
         sudo apt autoclean
-
-    else
-
-        # System is macOS
-
-        df_brew $BRW_PKGS
-
-        # Update PIP base packages
-        pip3 install -U pip setuptools wheel
-        df_exit_status "updating PIP packages"
 
     fi
 
@@ -257,6 +257,11 @@ set -e
 
 # Call error handler before exiting
 trap "df_handle_error" EXIT
+
+# Detect system
+if [[ $(uname -s) == 'Darwin' ]]; then
+    export MACOS=true
+fi
 
 # Get admin privileges
 sudo -v

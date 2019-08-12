@@ -1,12 +1,6 @@
 # Set Antigen path
 ANTIGEN="$HOME/.antigen/antigen.zsh"
 
-if [[ $(uname -s) == 'Darwin' ]]; then
-    MACOS=true
-else
-    MACOS=false
-fi
-
 # Check for Antigen
 if [[ -f $ANTIGEN ]]; then
 

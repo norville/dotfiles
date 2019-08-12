@@ -19,6 +19,11 @@ HIST_STAMPS="dd/mm/yyyy"
 # Set default editor
 #export EDITOR='vim'
 
+# Detect system
+if [[ $(uname -s) == 'Darwin' ]]; then
+    export MACOS=true
+fi
+
 # Set PATH
 typeset -U path
 path=(~/bin /usr/local/sbin $path[@])
