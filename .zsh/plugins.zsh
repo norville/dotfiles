@@ -10,21 +10,8 @@ if [[ -f $ANTIGEN ]]; then
     # Load OH-MY-ZSH
     antigen use oh-my-zsh
 
-    if [[ $MACOS ]]; then
-
-        # Load macOS theme settings
-        source ~/.zsh/theme.zsh
-
-        # Load macOS bundles
-        antigen bundle osx
-
-    else
-
-        #Load Linux theme
-        antigen bundle mafredri/zsh-async
-        antigen bundle sindresorhus/pure
-
-    fi
+    # Load theme
+    source ./theme.sh
 
     # Load default bundles
     antigen bundle git
@@ -37,6 +24,18 @@ if [[ -f $ANTIGEN ]]; then
     antigen bundle python
     antigen bundle docker
     antigen bundle docker-compose
+
+    if [[ $MACOS ]]; then
+
+        # Load macOS bundles
+        antigen bundle osx
+
+    #else
+
+        # Load Linux bundles
+        #antigen bundle xxx
+
+    fi
 
     # Load optional bundles
     #antigen bundle vasyharan/zsh-brew-services
