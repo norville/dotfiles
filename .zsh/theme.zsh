@@ -1,7 +1,3 @@
-#
-# Antigen theme settings
-#
-
 ### Powerlevel9k settings
 POWERLEVEL9K_MODE='nerdfont-complete'
 DEFAULT_USER=$USER
@@ -34,22 +30,3 @@ POWERLEVEL9K_INSTALLATION_PATH=$ANTIGEN_BUNDLES/bhilburn/powerlevel9k/powerlevel
 ### Load theme
 antigen theme bhilburn/powerlevel9k powerlevel9k
 
-# TODO re-check fallbackconditions and fix documentation
-### Fallback settings
-# Fall back mode for powerlevel9k when SSH-ing to server with 'dotfiles' repo and
-# powerlevel9k installed, but 'dotfiles' repo and fonts not available on client.
-#if [ -z $SSH_CLIENT ]; then
-#
-#    export LC_CLIENT_HAS_DOT_FILE_REPO=1    # this env variable will be available only if this .zshrc is used on client
-#
-#    # set default powerlevel9k mode
-#    POWERLEVEL9K_MODE='nerdfont-complete'
-#
-#fi
-#
-#if [ -z $LC_CLIENT_HAS_DOT_FILE_REPO ]; then
-#
-#    # set fallback powerlevel9k mode
-#    POWERLEVEL9K_MODE='default'
-#
-#fi

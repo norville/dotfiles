@@ -3,6 +3,8 @@ ANTIGEN="$HOME/.antigen/antigen.zsh"
 
 if [[ $(uname -s) == 'Darwin' ]]; then
     MACOS=true
+else
+    MACOS=false
 fi
 
 # Check for Antigen
@@ -14,8 +16,21 @@ if [[ -f $ANTIGEN ]]; then
     # Load OH-MY-ZSH
     antigen use oh-my-zsh
 
-    # Load theme settings
-    source ~/.zsh/theme.zsh
+    if [[ $MACOS ]]; then
+
+        # Load macOS theme settings
+        source ~/.zsh/theme.zsh
+
+        # Load macOS bundles
+        antigen bundle osx
+
+    else
+
+        #Load Linux theme
+        antigen bundle mafredri/zsh-async
+        antigen bundle sindresorhus/pure
+
+    fi
 
     # Load default bundles
     antigen bundle git
@@ -26,22 +41,17 @@ if [[ -f $ANTIGEN ]]; then
     antigen bundle vundle
     antigen bundle tmux
     antigen bundle python
-    #antigen bundle pipenv
     antigen bundle docker
     antigen bundle docker-compose
 
     # Load optional bundles
     #antigen bundle vasyharan/zsh-brew-services
     #antigen bundle srijanshetty/zsh-pip-completion
+    #antigen bundle pipenv
     #antigen bundle npm
     #antigen bundle rbenv
     #antigen bundle gem
     #antigen bundle rails
-
-    # Load macOS bundles
-    if [[ $MACOS ]]; then
-        antigen bundle osx
-    fi
 
     # Last bundles to load
     antigen bundle zsh-users/zsh-completions
