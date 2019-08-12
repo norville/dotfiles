@@ -208,7 +208,7 @@ function df_get_pkgs() {
     mkdir -p $ANTG_DIR
     curl -L git.io/antigen > $ANTG_DIR/antigen.zsh
 
-    df_message "Required packages ready"
+    #df_message "Required packages ready"
 }
 
 # Configure the environment
