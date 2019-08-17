@@ -256,7 +256,7 @@ function df_env() {
 set -e
 
 # Call error handler before exiting
-trap "df_handle_error" EXIT
+#trap "df_handle_error" EXIT
 
 # Detect system
 if [[ $(uname -s) == 'Darwin' ]]; then
