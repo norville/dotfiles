@@ -55,7 +55,7 @@ function df_handle_error() {
     ERR_CODE=$?
     printf -- "Error ${ERR_CODE} has occurred."
     # ... cleanup code ...
-    printf -- "\nExiting with error code ${ERROR_CODE}.\n"
+    printf -- "\nExiting with error code ${ERR_CODE}.\n"
     exit ${ERROR_CODE}
 
 }

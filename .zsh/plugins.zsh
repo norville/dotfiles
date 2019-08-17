@@ -11,7 +11,7 @@ if [[ -f $ANTIGEN ]]; then
     antigen use oh-my-zsh
 
     # Load theme
-    source ./theme.sh
+    source $HOME/.zsh/theme.zsh
 
     # Load default bundles
     antigen bundle git
