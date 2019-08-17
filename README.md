@@ -11,10 +11,10 @@ With lots of cool ideas taken from [Github does dotfiles](https://dotfiles.githu
 ## Install
 
 ```bash
-curl -L https://git.io/norville_dfboot | bash
+curl -L https://raw.githubusercontent.com/norville/dotfiles/bare/bin/dfboot | bash
 ```
 Or
 ```bash
-wget -O - https://git.io/norville_dfboot | bash
+wget -O - https://raw.githubusercontent.com/norville/dotfiles/bare/bin/dfboot | bash
 ```
 
