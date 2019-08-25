@@ -2,24 +2,27 @@
 tap 'homebrew/cask'
 tap 'homebrew/cask-fonts'
 
-# Install GNU core utilities (those that come with macOS are outdated)
+# Basic apps
+brew 'vim'
+brew 'git'
+brew 'wget'
+brew 'curl'
+
+# GNU core utilities (those that come with macOS are outdated)
 brew 'coreutils'
 brew 'moreutils'
 brew 'findutils'
 
-# Dev
+# Frameworks
 brew 'python'
 brew 'ruby'
 #brew 'node'
 #brew 'yarn'
 
-# Install Binaries
-brew 'vim'
-brew 'git'
+# Other tools
 brew 'tmux'
 brew 'zsh'
 brew 'tree'
-brew 'wget'
 brew 'mackup'
 brew 'mas'
 brew 'openssh'
