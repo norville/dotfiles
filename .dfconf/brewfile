@@ -1,0 +1,49 @@
+# Taps
+tap "homebrew/cask"
+tap "homebrew/cask-fonts"
+
+# Basic apps
+brew "vim"
+brew "git"
+brew "wget"
+brew "curl"
+brew "zsh"
+
+# GNU core utilities (those that come with macOS are outdated)
+brew "coreutils"
+brew "moreutils"
+brew "findutils"
+
+# Frameworks
+brew "python"
+#brew "ruby"
+#brew "node"
+#brew "yarn"
+
+# Other tools
+brew "openssh"
+brew "tmux"
+brew "tree"
+brew "mackup"
+brew "mas"
+
+# Apps not on Mac App Store
+cask "google-chrome"
+cask "firefox"
+cask "iterm2"
+cask "transmission"
+cask "teamviewer"
+cask "vlc"
+cask "handbrake"
+cask "skype"
+cask "google-chat"
+cask "spotify"
+cask "visual-studio-code"
+cask "docker"
+cask "spectacle"
+cask "forklift"
+
+# Fonts
+cask "font-meslo-lg"
+cask "font-meslo-nerd-font"
+cask "font-meslo-nerd-font-mono"

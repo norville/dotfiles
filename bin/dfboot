@@ -47,9 +47,9 @@ BREW_URL="https://raw.githubusercontent.com/Homebrew/install/master/install"
 VNDL_URL="https://github.com/VundleVim/Vundle.vim.git"
 
 # Required packages
-BASE_PKG="vim git wget curl zsh"
-UBNT_PKG="$BASE_PKG python3-pip"
-BREW_PKG="$HOME/.dfconf/Brewfile"
+UBNT_PKG="vim git wget curl zsh python3-pip"
+PYPI_PKG="pip setuptools wheel autopep8 flake8"
+BREW_PKG="$HOME/.dfconf/brewfile"
 
 ### Define functions
 
@@ -88,21 +88,21 @@ function bdb_info() {
 # Print run message - NO NEWLINE
 function bdb_run() {
 
-    echo -en "\n$COL_MAGENTA|***| $1 ...$COL_RESET"
+    echo -en "\n$COL_BLUE|***| $1 ... $COL_RESET"
 
 }
 
 # Print outcome message - INLINE
 function bdb_outcome() {
 
-    echo -e "$COL_BLUE $1 $COL_RESET"
+    echo -e "$COL_CYAN$1$COL_RESET"
 
 }
 
 # Print message before command - NEWLINE
-function bdb_action() {
+function bdb_command() {
 
-    echo -e "\n$COL_CYAN|>>>| $1 $COL_RESET"
+    echo -e "\n$COL_MAGENTA|>>>| $1 $COL_RESET"
 
 }
 
@@ -112,10 +112,9 @@ function bdb_check_sys() {
     # Detect system
     bdb_run "Running BDB on a "
     if [[ $(uname -s) == 'Darwin' ]]; then
-        export MACOS=true
+        export MACOS="true"
         bdb_outcome "macOS system"
     else
-        export MACOS=false
         bdb_outcome "Linux system"
     fi
 
@@ -124,27 +123,18 @@ function bdb_check_sys() {
     bdb_run "Getting admin privileges"
     sudo -v
 
-    # Check basic packages
-    bdb_run "Checking for basic packages"
-    if [[ $MACOS == true && ! $(which brew) ]]; then
+    # Check system requirements
+    bdb_run "Checking system requirements"
+    if [[ ! $MACOS ]]; then
 
-        # Init macOS base sys
-        bdb_outcome "installing basic macOS packages"
-        /usr/bin/ruby -e "$(curl -fsSL $BREW_URL)"
-        bdb_exit_status "installing Homebrew"
-        bdb_action "Installing basic packages"
-        brew install $BASE_PKG
-        bdb_exit_status "installing macOS basic packages"
+        bdb_outcome "for Linux"
 
-    elif [[ $MACOS == false && ! $(which git) ]]; then
+        if [[ ! $(which git) ]]; then
+            bdb_command "Installing git"
+            sudo apt install -y $BASE_PKG
+            bdb_exit_status "installing git"
+        fi
 
-        # Init Linux base sys
-        bdb_outcome "installing basic Linux packages"
-        sudo apt update && sudo apt install -y $BASE_PKG
-        bdb_exit_status "installing basic Linux packages"
-
-    else
-        bdb_outcome "<$BASE_PKG> installed"
     fi
 
     bdb_info "System ready"
@@ -170,20 +160,22 @@ function bdb_clone_repo() {
     # If bare repo is not already set
     if [[ ! $(git --git-dir=$BARE_DIR rev-parse --is-bare-repository) ]]; then
 
-        bdb_action "Dotfiles not found, cloning remote repo into a bare one"
+        export NEWSYS="true"
 
         # Clone remote repo into bare repo
+        bdb_command "Dotfiles not found, cloning remote repo into a bare one"
         #git clone --bare $REPO_URL $BARE_DIR           # Clone master branch
         git clone --bare -b bare $REPO_URL $BARE_DIR # Clone specifc branch
         bdb_exit_status "cloning bare repo into $BARE_DIR"
 
         # Checkout bare repo
-        bdb_action "Checking out dotfiles repo"
+        bdb_command "Checking out dotfiles repo"
         dfconf checkout
         # If checkout fails
+        # TODO prevent checkout from exiting before doing a backup
         if [[ $? != 0 ]]; then
             # Create backup dir
-            bdb_action "Backing up overlapping dotfiles"
+            bdb_command "Backing up overlapping dotfiles"
             mkdir -p $BAKP_DIR
             # Move pre-existing dotfiles to $BAKP_DIR
             dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} $BAKP_DIR/{}
@@ -202,76 +194,82 @@ function bdb_clone_repo() {
 
 }
 
-# Install or update required packages
+# Install or update packages
 function bdb_get_packages() {
 
     bdb_run "Getting required packages"
 
     # Detect system
-    if [[ $MACOS == true ]]; then
+    if [[ $MACOS ]]; then
 
         # System is macOS
         bdb_outcome "for macOS"
 
-        # Check if bundle is valid
-        if [[ -f $BREW_PKG && -s $BREW_PKG ]]; then
-
+        # Check Homebrew
+        if [[ ! $(which brew) ]]; then
+            # Install Homebrew
+            bdb_command "Installing Homebrew"
+            /usr/bin/ruby -e "$(curl -fsSL $BREW_URL)"
+            bdb_exit_status "installing Homebrew"
+        else
             # Update Homebrew
-            bdb_action "Updating Homebrew"
-            brew update --force
+            bdb_command "Updating Homebrew"
+            brew update
             bdb_exit_status "updating Homebrew"
+        fi
 
-            # Install bundle if not up to date
-            if [[ ! $(brew bundle check --file=$BREW_PKG) ]]; then
+        # Install or update ?
+        if [[ $NEWSYS ]]; then
 
-                bdb_action "Installing required formulae"
-                brew bundle -v --file=$BREW_PKG
-                bdb_exit_status "installing required formulae"
-
-            fi
-
-            # Look for extra packages
-            if [[ $(brew bundle cleanup --file=$BREW_PKG) ]]; then
-
-                # Extra packages installed
-                bdb_run "Found extra formulae installed"
-                read -r -p "do you want to uninstall them? [y|n] " response
-                if [[ $response =~ (yes|y|Y) ]]; then
-
-                    # Delete extra packages
-                    brew bundle cleanup --file=$BREW_PKG --force
-                    bdb_exit_status "removing extra formulae"
-
-                else
-
-                    # Upgrade all formulae
-                    bdb_action "Upgrading all formulae"
-                    brew upgrade
-                    bdb_exit_status "upgrading Homebrew formulae"
-
-                    # Upgrade all casks
-                    bdb_action "Upgrading all casks"
-                    brew cask upgrade #--greedy
-                    bdb_exit_status "upgrading Homebrew caks"
-
-                fi
-            fi
-
-            # Do some maintenance
-            brew cleanup
-            brew doctor
+            # Install brew bundle
+            bdb_command "Installing required formulae from <$BREW_PKG>"
+            brew bundle install --file=$BREW_PKG
+            bdb_exit_status "installing required formulae"
 
         else
 
-            # bundle not valid
-            bdb_info "Invalid bundle. Exiting..."
-            exit 3
+            # Update brew formulae
+            bdb_run "Updating required formulae from <$BREW_PKG>"
+
+            # Check extra formulae
+            bdb_run "Checking installed formulae"
+            if [[ $(brew bundle cleanup --file=$BREW_PKG) ]]; then
+
+                # Extra packages installed
+                bdb_run "Found extra formulae, do you want to uninstall them? [y|n] "
+                read -r response
+                if [[ $response =~ (yes|y|Y) ]]; then
+                    # Delete extra packages
+                    bdb_command "Removing extra formulae"
+                    brew bundle cleanup --file=$BREW_PKG --force
+                    bdb_exit_status "removing extra formulae"
+                fi
+
+            else
+                bdb_outcome "nothing found"
+            fi
+
+            # Upgrade all formulae
+            bdb_command "Upgrading all formulae"
+            brew upgrade
+            bdb_exit_status "upgrading all formulae"
+
+            # Upgrade all casks
+            bdb_command "Upgrading all casks"
+            brew cask upgrade --greedy
+            bdb_exit_status "upgrading all casks"
 
         fi
 
+        # Cleanup
+        bdb_command "Cleaning Homebrew"
+        brew cleanup
+        brew doctor
+        bdb_exit_status "cleaning Homebrew"
+
         # Update PIP base packages
-        bdb_action "Updating PIP packages"
-        pip3 install -U pip setuptools wheel
+        bdb_command "Updating PIP packages: <$PYPI_PKG>"
+        pip3 install -U $PYPI_PKG
         bdb_exit_status "updating PIP packages"
 
     else
@@ -280,18 +278,20 @@ function bdb_get_packages() {
         bdb_outcome "for Ubuntu"
 
         # Install or update required packages via APT
-        bdb_action "Installing APT packages: <$UBNT_PKG>"
+        bdb_command "Installing APT packages: <$UBNT_PKG>"
         sudo apt update && sudo apt install -y $UBNT_PKG
         bdb_exit_status "installing APT packages"
 
         # Cleanup
+        bdb_command "Cleaning APT"
         sudo apt autoremove
         sudo apt autoclean
+        bdb_exit_status "cleaning APT"
 
     fi
 
     # Install/update antigen
-    bdb_action "Installing Antigen"
+    bdb_command "Installing Antigen"
     if [[ -d $ANTG_DIR ]]; then
         rm -rf $ANTG_DIR
     fi
@@ -314,11 +314,13 @@ function bdb_set_env() {
     if [[ $SHELL != $ZSH_PATH ]]; then
 
         # Set ZSH as login shell
-        bdb_action "Setting ZSH as login shell"
+        bdb_command "Setting ZSH as login shell"
         echo $ZSH_PATH | sudo tee -a /etc/shells
         sudo chsh -s $ZSH_PATH $USER
         bdb_exit_status "setting ZSH as login shell"
 
+    else
+        bdb_outcome "ZSH is the login shell"
     fi
 
     # Install or update Vundle and required plugins
@@ -326,13 +328,13 @@ function bdb_set_env() {
     if [[ ! -d $VNDL_DIR/Vundle.vim ]]; then
 
         # Install Vundle
-        bdb_action "Installing Vundle - VIM plugin manager"
+        bdb_command "Installing Vundle - VIM plugin manager"
         git clone $VNDL_URL $VNDL_DIR/Vundle.vim
         bdb_exit_status "installing Vundle"
 
     fi
     # Update Vundle and required plugins
-    bdb_action "Updating VIM plugins via Vundle"
+    bdb_command "Updating VIM plugins via Vundle"
     vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
     bdb_exit_status "updating Vundle plugins"
 
