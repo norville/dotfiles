@@ -131,7 +131,7 @@ function bdb_check_sys() {
 
         if [[ ! $(which git) ]]; then
             bdb_command "Installing git"
-            sudo apt install -y $BASE_PKG
+            sudo apt install -y $UBNT_PKG
             bdb_exit_status "installing git"
         fi
 
@@ -207,15 +207,19 @@ function bdb_get_packages() {
 
         # Check Homebrew
         if [[ ! $(which brew) ]]; then
+
             # Install Homebrew
             bdb_command "Installing Homebrew"
             /usr/bin/ruby -e "$(curl -fsSL $BREW_URL)"
             bdb_exit_status "installing Homebrew"
+
         else
+
             # Update Homebrew
             bdb_command "Updating Homebrew"
             brew update
             bdb_exit_status "updating Homebrew"
+
         fi
 
         # Install or update ?
@@ -227,9 +231,6 @@ function bdb_get_packages() {
             bdb_exit_status "installing required formulae"
 
         else
-
-            # Update brew formulae
-            bdb_run "Updating required formulae from <$BREW_PKG>"
 
             # Check extra formulae
             bdb_run "Checking installed formulae"
@@ -314,13 +315,13 @@ function bdb_set_env() {
     if [[ $SHELL != $ZSH_PATH ]]; then
 
         # Set ZSH as login shell
-        bdb_command "Setting ZSH as login shell"
+        bdb_command "Setting ZSH as the login shell"
         echo $ZSH_PATH | sudo tee -a /etc/shells
         sudo chsh -s $ZSH_PATH $USER
-        bdb_exit_status "setting ZSH as login shell"
+        bdb_exit_status "setting ZSH as the login shell"
 
     else
-        bdb_outcome "ZSH is the login shell"
+        bdb_outcome "ZSH is already the login shell"
     fi
 
     # Install or update Vundle and required plugins
@@ -338,10 +339,29 @@ function bdb_set_env() {
     vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
     bdb_exit_status "updating Vundle plugins"
 
-    # TODO
-    # - LNX set gruvbox theme for terminal
-    # - LNX restore preferences
-    # - MAC restore preferences (Mackup / Mathias)
+    # User preferences
+    if [[ $NEWSYS ]]; then
+
+        bdb_run "Restoring user preferences"
+        if [[ $MACOS ]]; then
+
+            #bdb_command "Restoring macOS preferences"
+            #TODO Mathias
+            #bdb_exit_status "restoring macOS preferences"
+
+            bdb_command "Restoring App preferences"
+            mackup restore
+            bdb_exit_status "restoring App preferences"
+
+        else
+
+            #bdb_command "Restoring Linux preferences"
+            #TODO GNU Stow
+            #bdb_exit_status "restoring Linux preferences"
+
+        fi
+
+    fi
 
     bdb_info "Environment ready"
 
