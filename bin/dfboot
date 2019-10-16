@@ -280,7 +280,7 @@ function bdb_get_packages() {
             # brew cask upgrade --greedy
             # bdb_exit_status "upgrading all casks"
 
-        fi
+        #fi
 
         # Cleanup
         bdb_command "Cleaning Homebrew"
