@@ -11,10 +11,10 @@ With lots of cool ideas taken from [Github does dotfiles](https://dotfiles.githu
 ## Install
 
 ```bash
-curl -L https://raw.githubusercontent.com/norville/dotfiles/bare/bin/dfboot | bash
+xcode-select --install && curl -L https://raw.githubusercontent.com/norville/dotfiles/bare/bin/dfboot | bash
 ```
 Or
 ```bash
-wget -O - https://raw.githubusercontent.com/norville/dotfiles/bare/bin/dfboot | bash
+xcode-select --install && wget -O - https://raw.githubusercontent.com/norville/dotfiles/bare/bin/dfboot | bash
 ```
 

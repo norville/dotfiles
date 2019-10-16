@@ -265,8 +265,11 @@ function bdb_get_packages() {
         # Cleanup
         bdb_command "Cleaning Homebrew"
         brew cleanup
-        brew doctor
         bdb_exit_status "cleaning Homebrew"
+
+        bdb_command "Verifying Homebrew"
+        brew doctor
+        bdb_exit_status "verifying Homebrew"
 
         # Update PIP base packages
         bdb_command "Updating PIP packages: <$PYPI_PKG>"
@@ -353,7 +356,7 @@ function bdb_set_env() {
             mackup restore
             bdb_exit_status "restoring App preferences"
 
-        else
+        #else
 
             #bdb_command "Restoring Linux preferences"
             #TODO GNU Stow
