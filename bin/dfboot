@@ -14,7 +14,7 @@
 set -e
 
 # Call error handler before exiting
-trap "bdb_handle_error" EXIT
+#trap "bdb_handle_error" EXIT
 
 # Provide --help flag
 if [ ${#@} -ne 0 ] && [ "${@#"--help"}" = "" ]; then
@@ -238,47 +238,47 @@ function bdb_get_packages() {
 
         # else
 
-            # Check extra formulae
-            bdb_run "Looking for extra formulae"
-            if [[ $(brew bundle cleanup --file=$BREW_PKG) ]]; then
+        # Check extra formulae
+        bdb_run "Looking for extra formulae"
+        if [[ $(brew bundle cleanup --file=$BREW_PKG) ]]; then
 
-                # Extra packages installed
-                bdb_run "Found extra formulae, do you want to uninstall them? [y|n] "
-                read -r response
-                if [[ $response =~ (yes|y|Y) ]]; then
+            # Extra packages installed
+            bdb_run "Found extra formulae, do you want to uninstall them? [y|n] "
+            read -r response
+            if [[ $response =~ (yes|y|Y) ]]; then
 
-                    # Delete extra packages
-                    bdb_command "Removing extra formulae"
-                    brew bundle cleanup --file=$BREW_PKG --force
-                    bdb_exit_status "removing extra formulae"
-                
-                else
-
-                    # Upgrade all formulae
-                    bdb_command "Upgrading all formulae"
-                    brew upgrade
-                    bdb_exit_status "upgrading all formulae"
-
-                    # Upgrade all casks
-                    bdb_command "Upgrading all casks"
-                    brew cask upgrade --greedy
-                    bdb_exit_status "upgrading all casks"
-
-                fi
+                # Delete extra packages
+                bdb_command "Removing extra formulae"
+                brew bundle cleanup --file=$BREW_PKG --force
+                bdb_exit_status "removing extra formulae"
 
             else
-                bdb_outcome "ok"
+
+                # Upgrade all formulae
+                bdb_command "Upgrading all formulae"
+                brew upgrade
+                bdb_exit_status "upgrading all formulae"
+
+                # Upgrade all casks
+                bdb_command "Upgrading all casks"
+                brew cask upgrade --greedy
+                bdb_exit_status "upgrading all casks"
+
             fi
 
-            # # Upgrade all formulae
-            # bdb_command "Upgrading all formulae"
-            # brew upgrade
-            # bdb_exit_status "upgrading all formulae"
+        else
+            bdb_outcome "ok"
+        fi
 
-            # # Upgrade all casks
-            # bdb_command "Upgrading all casks"
-            # brew cask upgrade --greedy
-            # bdb_exit_status "upgrading all casks"
+        # # Upgrade all formulae
+        # bdb_command "Upgrading all formulae"
+        # brew upgrade
+        # bdb_exit_status "upgrading all formulae"
+
+        # # Upgrade all casks
+        # bdb_command "Upgrading all casks"
+        # brew cask upgrade --greedy
+        # bdb_exit_status "upgrading all casks"
 
         #fi
 
@@ -374,7 +374,7 @@ function bdb_set_env() {
         mackup restore
         bdb_exit_status "restoring App preferences"
 
-    #else
+        #else
 
         #bdb_command "Restoring Linux preferences"
         #TODO GNU Stow
