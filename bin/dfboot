@@ -186,7 +186,7 @@ function bdb_clone_repo() {
         # Config bare repo to ignore untracked files
         dfconf config status.showUntrackedFiles no
 
-    #else
+        #else
 
         #TODO handle remote pull if repo is set
         #dfconf pull origin bare
@@ -252,7 +252,9 @@ function bdb_get_packages() {
             fi
 
         else
+
             bdb_outcome "ok"
+
         fi
 
         # Cleanup
@@ -347,7 +349,7 @@ function bdb_set_env() {
         mackup restore
         bdb_exit_status "restoring App preferences"
 
-        #else
+    #else
 
         #bdb_command "Restoring Linux preferences"
         #TODO GNU Stow
