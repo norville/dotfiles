@@ -60,7 +60,6 @@ mas "Microsoft OneNote", id: 784801555
 mas "Microsoft PowerPoint", id: 462062816
 mas "Microsoft Word", id: 462054704
 mas "MindNode", id: 1289197285
-mas "monday", id: 1298450641
 mas "Numbers", id: 409203825
 mas "OneDrive", id: 823766827
 mas "Pages", id: 409201541
@@ -70,7 +69,7 @@ mas "Sweet Home 3D", id: 669289700
 mas "The Unarchiver", id: 425424353
 mas "WhatsApp", id: 1147396723
 mas "WiFi Explorer", id: 494803304
-mas "Xcode", id: 497799835
+#mas "Xcode", id: 497799835
 
 # Fonts
 cask "font-meslo-lg"

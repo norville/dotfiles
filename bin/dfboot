@@ -160,7 +160,7 @@ function bdb_clone_repo() {
     # If bare repo is not already set
     if [[ ! $(git --git-dir=$BARE_DIR rev-parse --is-bare-repository) ]]; then
 
-        export NEWSYS="true"
+        #export NEWSYS="true"
 
         # Clone remote repo into bare repo
         bdb_command "Dotfiles not found, cloning remote repo into a bare one"
@@ -213,52 +213,72 @@ function bdb_get_packages() {
             /usr/bin/ruby -e "$(curl -fsSL $BREW_URL)"
             bdb_exit_status "installing Homebrew"
 
-        else
+        # else
 
-            # Update Homebrew
-            bdb_command "Updating Homebrew"
-            brew update
-            bdb_exit_status "updating Homebrew"
+        #     # Update Homebrew
+        #     bdb_command "Updating Homebrew"
+        #     brew update
+        #     bdb_exit_status "updating Homebrew"
 
         fi
 
+        # Install brew bundle
+        bdb_command "Installing required formulae from <$BREW_PKG>"
+        brew bundle install --file=$BREW_PKG
+        bdb_exit_status "installing required formulae"
+
         # Install or update ?
-        if [[ $NEWSYS ]]; then
+        #TODO - change test with bundle test
+        # if [[ $NEWSYS ]]; then
 
-            # Install brew bundle
-            bdb_command "Installing required formulae from <$BREW_PKG>"
-            brew bundle install --file=$BREW_PKG
-            bdb_exit_status "installing required formulae"
+        #     # Install brew bundle
+        #     bdb_command "Installing required formulae from <$BREW_PKG>"
+        #     brew bundle install --file=$BREW_PKG
+        #     bdb_exit_status "installing required formulae"
 
-        else
+        # else
 
             # Check extra formulae
-            bdb_run "Checking installed formulae"
+            bdb_run "Looking for extra formulae"
             if [[ $(brew bundle cleanup --file=$BREW_PKG) ]]; then
 
                 # Extra packages installed
                 bdb_run "Found extra formulae, do you want to uninstall them? [y|n] "
                 read -r response
                 if [[ $response =~ (yes|y|Y) ]]; then
+
                     # Delete extra packages
                     bdb_command "Removing extra formulae"
                     brew bundle cleanup --file=$BREW_PKG --force
                     bdb_exit_status "removing extra formulae"
+                
+                else
+
+                    # Upgrade all formulae
+                    bdb_command "Upgrading all formulae"
+                    brew upgrade
+                    bdb_exit_status "upgrading all formulae"
+
+                    # Upgrade all casks
+                    bdb_command "Upgrading all casks"
+                    brew cask upgrade --greedy
+                    bdb_exit_status "upgrading all casks"
+
                 fi
 
             else
-                bdb_outcome "nothing found"
+                bdb_outcome "ok"
             fi
 
-            # Upgrade all formulae
-            bdb_command "Upgrading all formulae"
-            brew upgrade
-            bdb_exit_status "upgrading all formulae"
+            # # Upgrade all formulae
+            # bdb_command "Upgrading all formulae"
+            # brew upgrade
+            # bdb_exit_status "upgrading all formulae"
 
-            # Upgrade all casks
-            bdb_command "Upgrading all casks"
-            brew cask upgrade --greedy
-            bdb_exit_status "upgrading all casks"
+            # # Upgrade all casks
+            # bdb_command "Upgrading all casks"
+            # brew cask upgrade --greedy
+            # bdb_exit_status "upgrading all casks"
 
         fi
 
@@ -343,26 +363,22 @@ function bdb_set_env() {
     bdb_exit_status "updating Vundle plugins"
 
     # User preferences
-    if [[ $NEWSYS ]]; then
+    bdb_run "Restoring user preferences"
+    if [[ $MACOS ]]; then
 
-        bdb_run "Restoring user preferences"
-        if [[ $MACOS ]]; then
+        #bdb_command "Restoring macOS preferences"
+        #TODO Mathias
+        #bdb_exit_status "restoring macOS preferences"
 
-            #bdb_command "Restoring macOS preferences"
-            #TODO Mathias
-            #bdb_exit_status "restoring macOS preferences"
+        bdb_command "Restoring App preferences"
+        mackup restore
+        bdb_exit_status "restoring App preferences"
 
-            bdb_command "Restoring App preferences"
-            mackup restore
-            bdb_exit_status "restoring App preferences"
+    #else
 
-        #else
-
-            #bdb_command "Restoring Linux preferences"
-            #TODO GNU Stow
-            #bdb_exit_status "restoring Linux preferences"
-
-        fi
+        #bdb_command "Restoring Linux preferences"
+        #TODO GNU Stow
+        #bdb_exit_status "restoring Linux preferences"
 
     fi
 
