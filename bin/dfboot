@@ -186,9 +186,12 @@ function bdb_clone_repo() {
         # Config bare repo to ignore untracked files
         dfconf config status.showUntrackedFiles no
 
-    fi
+    #else
 
-    #TODO handle remote pull if repo is set
+        #TODO handle remote pull if repo is set
+        #dfconf pull origin bare
+
+    fi
 
     bdb_info "Dotfiles ready"
 
@@ -213,30 +216,12 @@ function bdb_get_packages() {
             /usr/bin/ruby -e "$(curl -fsSL $BREW_URL)"
             bdb_exit_status "installing Homebrew"
 
-        # else
-
-        #     # Update Homebrew
-        #     bdb_command "Updating Homebrew"
-        #     brew update
-        #     bdb_exit_status "updating Homebrew"
-
         fi
 
         # Install brew bundle
         bdb_command "Installing required formulae from <$BREW_PKG>"
         brew bundle install --file=$BREW_PKG
         bdb_exit_status "installing required formulae"
-
-        # Install or update ?
-        #TODO - change test with bundle test
-        # if [[ $NEWSYS ]]; then
-
-        #     # Install brew bundle
-        #     bdb_command "Installing required formulae from <$BREW_PKG>"
-        #     brew bundle install --file=$BREW_PKG
-        #     bdb_exit_status "installing required formulae"
-
-        # else
 
         # Check extra formulae
         bdb_run "Looking for extra formulae"
@@ -269,18 +254,6 @@ function bdb_get_packages() {
         else
             bdb_outcome "ok"
         fi
-
-        # # Upgrade all formulae
-        # bdb_command "Upgrading all formulae"
-        # brew upgrade
-        # bdb_exit_status "upgrading all formulae"
-
-        # # Upgrade all casks
-        # bdb_command "Upgrading all casks"
-        # brew cask upgrade --greedy
-        # bdb_exit_status "upgrading all casks"
-
-        #fi
 
         # Cleanup
         bdb_command "Cleaning Homebrew"

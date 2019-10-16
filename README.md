@@ -21,7 +21,7 @@ xcode-select --install
 sudo xcode-select -switch /Applications/Xcode.app
 ```
 
-Before install sign in to Mac App Store
+Before install sign in to iCloud and Mac App Store
 
 Then
 ```bash
