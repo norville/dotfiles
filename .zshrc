@@ -2,7 +2,7 @@
 CASE_SENSITIVE="true"
 
 # Uncomment to enable automatic upgrades
-DISABLE_UPDATE_PROMPT=true
+#DISABLE_UPDATE_PROMPT=true
 
 # Uncomment the following line to enable command auto-correction.
 ENABLE_CORRECTION="true"
@@ -19,9 +19,16 @@ HIST_STAMPS="dd/mm/yyyy"
 # Set default editor
 #export EDITOR='vim'
 
-# Detect system
+# OS-related settings
 if [[ $(uname -s) == 'Darwin' ]]; then
+
     export MACOS=true
+
+    # Enable Homebrew Completion
+    if type brew &>/dev/null; then
+        FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
+    fi
+
 fi
 
 # Set PATH
@@ -31,11 +38,6 @@ path=(~/bin /usr/local/sbin $path[@])
 # Add custom completion dir
 if [[ -d ~/zsh/completions ]]; then
     FPATH=~/.zsh/completions:$FPATH
-fi
-
-# Enable Homebrew Completion
-if type brew &>/dev/null; then
-  FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
 fi
 
 # Set AUTO_CD
