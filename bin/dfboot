@@ -38,7 +38,7 @@ COL_WHITE=$ESC_SEQ"97;01m"
 # Local paths
 BARE_DIR="$HOME/.dfbare"     # git dir name for bare repo
 BAKP_DIR="$HOME/.dfbackup"   # backup dir for pre-existing dotfiles
-ANTG_DIR="$HOME/.antigen"    # antigen plugins dir
+ZGEN_DIR="$HOME/.zgen"    # antigen plugins dir
 VNDL_DIR="$HOME/.vim/bundle" # Vundle plugins dir
 
 # Remote URLs
@@ -289,14 +289,16 @@ function bdb_get_packages() {
 
     fi
 
-    # Install/update antigen
-    bdb_command "Installing Antigen"
-    if [[ -d $ANTG_DIR ]]; then
-        rm -rf $ANTG_DIR
+    # Install/update zgen
+    bdb_command "Installing zgen"
+    if [[ -d $ZGEN_DIR ]]; then
+        zgen selfupdate
+        zgen update
+    else
+        mkdir -p $ZGEN_DIR
+        git clone https://github.com/tarjoilija/zgen.git $ZGEN_DIR
     fi
-    mkdir -p $ANTG_DIR
-    curl -L git.io/antigen >$ANTG_DIR/antigen.zsh
-    bdb_exit_status "installing Antigen"
+    bdb_exit_status "installing zgen"
 
     bdb_info "Required packages ready"
 
