@@ -2,22 +2,18 @@
 """ VUNDLE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let vundle_plug_install = 0
-let vundle_dir = expand('~/.vim/bundle/Vundle.vim')
-
 """ Verify Vundle
-if !isdirectory(vundle_dir)
-    echo "Installing Vundle..."
-    echo ""
+let g:vundle_plug_install = 0
+if !isdirectory(expand('~/.vim/bundle/Vundle.vim'))
+    let g:vundle_plug_install = 1
     silent !mkdir -p ~/.vim/bundle
-    silent !git clone https://github.com/VundleVim/Vundle.vim.git vundle_dir
-    let vundle_plug_install = 1
+    silent !git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 endif
 
 """ Required by Vundle
 filetype off
 set nocompatible
-set rtp+=vundle_dir
+set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
 
@@ -36,8 +32,9 @@ Plugin 'vim-airline/vim-airline-themes'
 """ End plugin list
 
 """ Install plugins if needed
-if vundle_plug_install = 1
+if g:vundle_plug_install == 1
     :PluginInstall
+    """ TODO - hide installer
 endif
 
 """ Required by Vundle

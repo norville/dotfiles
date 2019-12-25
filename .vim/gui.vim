@@ -6,13 +6,13 @@ endif
 silent! colorscheme gruvbox
 
 """ Enable Indent Guides
-if g:loaded_indent_guides == 1
+if exists("g:loaded_indent_guides")
     let g:indent_guides_enable_on_vim_startup = 1
 endif
 
 """ Configure Airline
-if g:loaded_airline == 1
-    let g:airline_powerline_fonts = 1
+if exists("g:loaded_airline")
+    let g:airline_powerline_fonts = 1   """TODO - requires nerdfonts!!!
     let g:airline#extensions#tabline#enabled = 1
     let g:airline#extensions#tabline#left_sep = ' '
     let g:airline#extensions#tabline#left_alt_sep = '|'
