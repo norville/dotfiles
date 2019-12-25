@@ -110,34 +110,46 @@ function bdb_command() {
 function bdb_check_sys() {
 
     # Detect system
-    bdb_run "Running BDB on a "
-    if [[ $(uname -s) == 'Darwin' ]]; then
-        export MACOS="true"
-        bdb_outcome "macOS system"
-    else
-        bdb_outcome "Linux system"
-    fi
+    DISTRO=$(lsb_release -i)
+    DISTRO=${DISTRO:15}
+    case "$DISTRO" in
+        Ubuntu ) echo "Ubuntu"
+        ;;
+        Manjaro* ) echo "Manjaro"
+        ;;
+        * ) echo "Mac"
+        ;;
+    esac
+
+    #bdb_run "Running BDB on a "
+
+    # if [[ $(uname -s) == 'Darwin' ]]; then
+    #     export MACOS="true"
+    #     bdb_outcome "macOS system"
+    # else
+    #     bdb_outcome "Linux system"
+    # fi
 
     # Get admin privileges
     #TODO no newline after password input
-    bdb_run "Getting admin privileges"
-    sudo -v
+    # bdb_run "Getting admin privileges"
+    # sudo -v
 
     # Check system requirements
-    bdb_run "Checking system requirements"
-    if [[ ! $MACOS ]]; then
+    # bdb_run "Checking system requirements"
+    # if [[ ! $MACOS ]]; then
 
-        bdb_outcome "for Linux"
+    #     bdb_outcome "for Linux"
 
-        if [[ ! $(which git) ]]; then
-            bdb_command "Installing git"
-            sudo apt install -y $UBNT_PKG
-            bdb_exit_status "installing git"
-        fi
+    #     if [[ ! $(which git) ]]; then
+    #         bdb_command "Installing git"
+    #         sudo apt install -y $UBNT_PKG
+    #         bdb_exit_status "installing git"
+    #     fi
 
-    fi
+    # fi
 
-    bdb_info "System ready"
+    # bdb_info "System ready"
 
 }
 
@@ -370,13 +382,13 @@ bdb_info "Welcome to Bassa Dofiles Bootstrapper (BDB)!"
 bdb_check_sys
 
 # Prepare bare repo
-bdb_clone_repo
+#bdb_clone_repo
 
 # Install or update required software
-bdb_get_packages
+#bdb_get_packages
 
 # Configure environment
-bdb_set_env
+#bdb_set_env
 
 ### Bootstrap end
 bdb_info "All done!"
