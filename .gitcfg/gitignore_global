@@ -36,6 +36,18 @@
 Icon
 ehthumbs.db
 Thumbs.db
+.ICEauthority
+.Xauthority
+.bash_history
+.bash_logout
+.bash_profile
+.config/
+.dmrc
+.local/
+.mozilla/
+.pki/
+.viminfo
+.xsession-errors
 
 # App related files #
 *.swp
