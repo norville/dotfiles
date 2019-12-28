@@ -112,12 +112,17 @@ function bdb_check_sys() {
     # Detect system
     DISTRO=$(lsb_release -i)
     DISTRO=${DISTRO:15}
-    case "$DISTRO" in
-        Ubuntu ) echo "Ubuntu"
+    #DISTRO="Ubuntu"
+    case $DISTRO in
+        Ubuntu)
+            echo $DISTRO
+            echo "Ubuntu"
         ;;
-        Manjaro* ) echo "Manjaro"
+        Manjaro-ARM)
+            echo $DISTRO
+            echo "Manjaro"
         ;;
-        * ) echo "Mac"
+        *)
         ;;
     esac
 

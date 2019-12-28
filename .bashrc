@@ -12,3 +12,6 @@ PS1='[\u@\h \W]\$ '
 # Alias for dfbare repo management
 alias dfconf='git --git-dir=${HOME}/.dfbare/ --work-tree=${HOME} $@'
 ###       END     ###
+
+# Start Keychain ssh-agent
+eval $(keychain --eval --quiet)
