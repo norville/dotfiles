@@ -26,20 +26,23 @@ fi
 
 # Output colors
 ESC_SEQ="\x1b["
-COL_RESET=$ESC_SEQ"39;49;00m"
-COL_RED=$ESC_SEQ"31;01m"
-COL_GREEN=$ESC_SEQ"32;01m"
-COL_YELLOW=$ESC_SEQ"33;01m"
-COL_BLUE=$ESC_SEQ"34;01m"
-COL_MAGENTA=$ESC_SEQ"35;01m"
-COL_CYAN=$ESC_SEQ"36;01m"
-COL_WHITE=$ESC_SEQ"97;01m"
+RST_COL=$ESC_SEQ"39;49;00m"     # reset
+RED_COL=$ESC_SEQ"31;01m"        # red
+GRN_COL=$ESC_SEQ"32;01m"        # green
+YLW_COL=$ESC_SEQ"33;01m"        # yellow
+BLU_COL=$ESC_SEQ"34;01m"        # blue
+MGN_COL=$ESC_SEQ"35;01m"        # magenta
+CYN_COL=$ESC_SEQ"36;01m"        # cyan
+WHT_COL=$ESC_SEQ"97;01m"        # white
+
+# Local OS
+LOCL_SYS=""
 
 # Local paths
-BARE_DIR="$HOME/.dfbare"     # git dir name for bare repo
-BAKP_DIR="$HOME/.dfbackup"   # backup dir for pre-existing dotfiles
-ZGEN_DIR="$HOME/.zgen"    # antigen plugins dir
-VNDL_DIR="$HOME/.vim/bundle" # Vundle plugins dir
+BARE_DIR="$HOME/.dfbare"        # git bare repo dir
+BAKP_DIR="$HOME/.dfbackup"      # pre-existing dotfiles backup dir
+ZGEN_DIR="$HOME/.zgen"          # zgen plugins dir
+VNDL_DIR="$HOME/.vim/bundle"    # vundle plugins dir
 
 # Remote URLs
 REPO_URL="https://github.com/norville/dotfiles.git"
@@ -47,7 +50,7 @@ BREW_URL="https://raw.githubusercontent.com/Homebrew/install/master/install"
 VNDL_URL="https://github.com/VundleVim/Vundle.vim.git"
 
 # Required packages
-UBNT_PKG="vim git wget curl zsh python3-pip"
+UNIX_PKG="vim git wget curl zsh python3-pip"
 PYPI_PKG="pip setuptools wheel autopep8 flake8"
 BREW_PKG="$HOME/.dfconf/brewfile"
 
@@ -69,11 +72,11 @@ function bdb_handle_error() {
 function bdb_exit_status() {
 
     if [[ $? != 0 ]]; then
-        # Print error message and exit
-        echo -e "\n$COL_RED|xxx| ERROR $1 $COL_RESET"
+        # Print error message
+        echo -e "\n$RED_COL|xxx| ERROR $1 $RST_COL"
     else
         # Print success message
-        echo -e "$COL_GREEN|+++| DONE $1 $COL_RESET"
+        echo -en "$GRN_COL|+++| DONE $1 $RST_COL"
     fi
 
 }
@@ -81,75 +84,92 @@ function bdb_exit_status() {
 # Print info message - NEWLINE
 function bdb_info() {
 
-    echo -e "\n$COL_WHITE|BDB| $1 $COL_RESET"
+    echo -en "\n$WHT_COL|BDB| $1 $RST_COL"
 
 }
 
 # Print run message - NO NEWLINE
 function bdb_run() {
 
-    echo -en "\n$COL_BLUE|***| $1 ... $COL_RESET"
+    echo -en "\n$BLU_COL|***| $1 ... $RST_COL"
 
 }
 
 # Print outcome message - INLINE
 function bdb_outcome() {
 
-    echo -e "$COL_CYAN$1$COL_RESET"
+    echo -en "$CYN_COL$1$RST_COL"
 
 }
 
 # Print message before command - NEWLINE
 function bdb_command() {
 
-    echo -e "\n$COL_MAGENTA|>>>| $1 $COL_RESET"
+    echo -e "\n$MGN_COL|>>>| $1 $RST_COL"
 
 }
 
 # Check the system and prepare for bootstrap
-function bdb_check_sys() {
+function bdb_do_sys() {
 
-    # Detect system
-    DISTRO=$(lsb_release -i)
-    DISTRO=${DISTRO:15}
-    case "$DISTRO" in
-        Ubuntu ) echo "Ubuntu"
-        ;;
-        Manjaro* ) echo "Manjaro"
-        ;;
-        * ) echo "Mac"
-        ;;
-    esac
-
-    #bdb_run "Running BDB on a "
-
-    # if [[ $(uname -s) == 'Darwin' ]]; then
-    #     export MACOS="true"
-    #     bdb_outcome "macOS system"
-    # else
-    #     bdb_outcome "Linux system"
-    # fi
+    bdb_info "Detect local system and check basic packages"
 
     # Get admin privileges
+    bdb_run "Getting admin privileges"
     #TODO no newline after password input
-    # bdb_run "Getting admin privileges"
-    # sudo -v
+    sudo -v
 
-    # Check system requirements
-    # bdb_run "Checking system requirements"
-    # if [[ ! $MACOS ]]; then
+    bdb_run "Running BDB on a "
 
-    #     bdb_outcome "for Linux"
+    # Detect local system
+    if [[ $(which apt-get) ]]; then         # Test for debian-like distro
 
-    #     if [[ ! $(which git) ]]; then
-    #         bdb_command "Installing git"
-    #         sudo apt install -y $UBNT_PKG
-    #         bdb_exit_status "installing git"
-    #     fi
+        bdb_outcome "Debian system"
+        LOCL_SYS="debian"
+        bdb_command "Updating APT"
+        sudo apt-get update
+        bdb_exit_status "updating APT"
 
-    # fi
+        # Check for git
+        if [[ ! $(which git) ]]; then
 
-    # bdb_info "System ready"
+            bdb_command "Installing git"
+            sudo apt-get install -y git
+            bdb_exit_status "installing git"
+
+        fi
+
+    elif [[ $(which pacman) ]]; then        # Test for arch-like distro
+
+        bdb_outcome "ArchLinux system"
+        LOCL_SYS="arch"
+        bdb_command "Updating Pacman"
+        sudo pacman -Syy
+        bdb_exit_status "updating Pacman"
+
+    else                                    # Assume macos, install brew
+
+        bdb_outcome "macOS system"
+        LOCL_SYS="macos"
+
+        # Check for homebrew
+        if [[ ! $(which brew) ]]; then
+
+            bdb_command "Installing Homebrew"
+            /usr/bin/ruby -e "$(curl -fsSL $BREW_URL)"
+            bdb_exit_status "installing Homebrew"
+
+        else
+
+            bdb_command "Updating Homebrew"
+            brew update
+            bdb_exit_status "updating Homebrew"
+
+        fi
+
+    fi
+
+    bdb_info "System ready"
 
 }
 
@@ -161,47 +181,52 @@ function dfconf() {
 
 }
 
-# Clone dotfiles into a local bare repo
-function bdb_clone_repo() {
+# Check dotfiles repo
+function bdb_do_repo() {
+
+    bdb_info "Detect dotfiles or clone remote repo"
 
     bdb_run "Looking for dotfiles"
 
     # Set bare repo dir
     mkdir -p $BARE_DIR
 
-    # If bare repo is not already set
+    # Check for local bare repo
     if [[ ! $(git --git-dir=$BARE_DIR rev-parse --is-bare-repository) ]]; then
 
-        #export NEWSYS="true"
+        bdb_outcome "none found. Let's clone remote repo!"
 
         # Clone remote repo into bare repo
-        bdb_command "Dotfiles not found, cloning remote repo into a bare one"
+        bdb_command "Cloning dotfiles into a bare repo"
         #git clone --bare $REPO_URL $BARE_DIR           # Clone master branch
-        git clone --bare -b bare $REPO_URL $BARE_DIR # Clone specifc branch
-        bdb_exit_status "cloning bare repo into $BARE_DIR"
+        git clone --bare -b bare $REPO_URL $BARE_DIR    # Clone specifc branch
+        bdb_exit_status "cloning dotfiles into <$BARE_DIR>"
 
         # Checkout bare repo
         bdb_command "Checking out dotfiles repo"
         dfconf checkout
+
         # If checkout fails
         # TODO prevent checkout from exiting before doing a backup
         if [[ $? != 0 ]]; then
+
             # Create backup dir
             bdb_command "Backing up overlapping dotfiles"
             mkdir -p $BAKP_DIR
             # Move pre-existing dotfiles to $BAKP_DIR
             dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} $BAKP_DIR/{}
             dfconf checkout
+
         fi
+
         bdb_exit_status "checking out bare repo"
 
         # Config bare repo to ignore untracked files
         dfconf config status.showUntrackedFiles no
 
-        #else
+    else
 
-        #TODO handle remote pull if repo is set
-        #dfconf pull origin bare
+        bdb_outcome "local bare repo ok"
 
     fi
 
@@ -210,25 +235,14 @@ function bdb_clone_repo() {
 }
 
 # Install or update packages
-function bdb_get_packages() {
+function bdb_do_apps() {
 
-    bdb_run "Getting required packages"
+    bdb_info "Install or update required packages"
 
     # Detect system
-    if [[ $MACOS ]]; then
+    if [[ $LOCL_SYS == "macos" ]]; then
 
         # System is macOS
-        bdb_outcome "for macOS"
-
-        # Check Homebrew
-        if [[ ! $(which brew) ]]; then
-
-            # Install Homebrew
-            bdb_command "Installing Homebrew"
-            /usr/bin/ruby -e "$(curl -fsSL $BREW_URL)"
-            bdb_exit_status "installing Homebrew"
-
-        fi
 
         # Install brew bundle
         bdb_command "Installing required formulae from <$BREW_PKG>"
@@ -239,10 +253,11 @@ function bdb_get_packages() {
         bdb_run "Looking for extra formulae"
         if [[ $(brew bundle cleanup --file=$BREW_PKG) ]]; then
 
-            # Extra packages installed
-            bdb_run "Found extra formulae, do you want to uninstall them? [y|n] "
-            read -r response
-            if [[ $response =~ (yes|y|Y) ]]; then
+            bdb_outcome "some found"
+
+            bdb_run "Do you want to uninstall extra formulae? [y|n] "
+            read -r -n 1 response
+            if [[ $response =~ (y|Y) ]]; then
 
                 # Delete extra packages
                 bdb_command "Removing extra formulae"
@@ -256,16 +271,11 @@ function bdb_get_packages() {
                 brew upgrade
                 bdb_exit_status "upgrading all formulae"
 
-                # Upgrade all casks
-                bdb_command "Upgrading all casks"
-                brew cask upgrade --greedy
-                bdb_exit_status "upgrading all casks"
-
             fi
 
         else
 
-            bdb_outcome "ok"
+            bdb_outcome "none found"
 
         fi
 
@@ -274,23 +284,17 @@ function bdb_get_packages() {
         brew cleanup
         bdb_exit_status "cleaning Homebrew"
 
-        bdb_command "Verifying Homebrew"
-        brew doctor
-        bdb_exit_status "verifying Homebrew"
+        #bdb_command "Verifying Homebrew"
+        #brew doctor
+        #bdb_exit_status "verifying Homebrew"
 
-        # Update PIP base packages
-        bdb_command "Updating PIP packages: <$PYPI_PKG>"
-        pip3 install -U $PYPI_PKG
-        bdb_exit_status "updating PIP packages"
+    elif [[ $LOCL_SYS == "debian" ]]; then
 
-    else
-
-        # System is Linux
-        bdb_outcome "for Ubuntu"
+        # System is debian
 
         # Install or update required packages via APT
-        bdb_command "Installing APT packages: <$UBNT_PKG>"
-        sudo apt update && sudo apt install -y $UBNT_PKG
+        bdb_command "Installing APT packages: <$UNIX_PKG>"
+        sudo apt-get install -y $UNIX_PKG
         bdb_exit_status "installing APT packages"
 
         # Cleanup
@@ -299,45 +303,56 @@ function bdb_get_packages() {
         sudo apt autoclean
         bdb_exit_status "cleaning APT"
 
+    elif [[ $LOCL_SYS == "arch" ]]; then
+
+        # System is arch
+
+        # Install or update required packages via Pacman
+        bdb_command "Installing Arch packages: <$UNIX_PKG>"
+        sudo pacman -Sy $UNIX_PKG
+        bdb_exit_status "installing Arch packages"
+
+        # Cleanup
+        bdb_command "Cleaning Pacman cache"
+        sudo pacman -Scc
+        bdb_exit_status "cleaning Pacman cache"
+
+    else
+        bdb_outcome "package manager not found!"
     fi
 
-    # Install/update zgen
-    bdb_command "Installing zgen"
-    if [[ -d $ZGEN_DIR ]]; then
-        zgen selfupdate
-        zgen update
-    else
-        mkdir -p $ZGEN_DIR
-        git clone https://github.com/tarjoilija/zgen.git $ZGEN_DIR
-    fi
-    bdb_exit_status "installing zgen"
+    # Update PIP base packages
+    bdb_command "Updating PIP packages: <$PYPI_PKG>"
+    pip3 install -U $PYPI_PKG
+    bdb_exit_status "updating PIP packages"
 
     bdb_info "Required packages ready"
 
 }
 
-# Configure the environment
-function bdb_set_env() {
+# Configure the command line interface
+function bdb_do_cli() {
 
-    bdb_info "Configuring this environment"
+    bdb_info "Set up your command line interface"
 
-    # Ensure ZSH is the login shell
-    bdb_run "Configuring the shell"
+    bdb_run "Configuring ZSH as your login shell"
     ZSH_PATH=$(which zsh)
     if [[ $SHELL != $ZSH_PATH ]]; then
 
         # Set ZSH as login shell
-        bdb_command "Setting ZSH as the login shell"
+        bdb_command "Switching to ZSH"
         echo $ZSH_PATH | sudo tee -a /etc/shells
         sudo chsh -s $ZSH_PATH $USER
-        bdb_exit_status "setting ZSH as the login shell"
+        bdb_exit_status "switching to ZSH"
 
     else
-        bdb_outcome "ZSH is already the login shell"
+
+        bdb_outcome "ok"
+
     fi
 
     # Install or update Vundle and required plugins
-    bdb_run "Configuring the editor"
+    bdb_run "Configuring VIM as your text editor"
     if [[ ! -d $VNDL_DIR/Vundle.vim ]]; then
 
         # Install Vundle
@@ -352,16 +367,17 @@ function bdb_set_env() {
     bdb_exit_status "updating Vundle plugins"
 
     # User preferences
-    bdb_run "Restoring user preferences"
-    if [[ $MACOS ]]; then
+    #bdb_run "Restoring user preferences"
+    #if [[ $MACOS ]]; then
 
         #bdb_command "Restoring macOS preferences"
         #TODO Mathias
         #bdb_exit_status "restoring macOS preferences"
 
-        bdb_command "Restoring App preferences"
-        mackup restore
-        bdb_exit_status "restoring App preferences"
+        #bdb_command "Restoring App preferences"
+        #TODO improve mackup
+        #mackup restore
+        #bdb_exit_status "restoring App preferences"
 
     #else
 
@@ -369,26 +385,22 @@ function bdb_set_env() {
         #TODO GNU Stow
         #bdb_exit_status "restoring Linux preferences"
 
-    fi
+    #fi
 
-    bdb_info "Environment ready"
+    bdb_info "CLI ready"
 
 }
 
 ### Bootstrap begin
-bdb_info "Welcome to Bassa Dofiles Bootstrapper (BDB)!"
+bdb_info "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
 
-# Checkthe system
-bdb_check_sys
+bdb_do_sys
 
-# Prepare bare repo
-#bdb_clone_repo
+bdb_do_repo
 
-# Install or update required software
-#bdb_get_packages
+bdb_do_apps
 
-# Configure environment
-#bdb_set_env
+bdb_do_cli
 
 ### Bootstrap end
 bdb_info "All done!"
