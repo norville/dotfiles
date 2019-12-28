@@ -50,8 +50,7 @@ BREW_URL="https://raw.githubusercontent.com/Homebrew/install/master/install"
 VNDL_URL="https://github.com/VundleVim/Vundle.vim.git"
 
 # Required packages
-UNIX_PKG="vim git wget curl zsh python3-pip"
-PYPI_PKG="pip setuptools wheel autopep8 flake8"
+UNIX_PKG="vim git wget curl zsh"
 BREW_PKG="$HOME/.dfconf/brewfile"
 
 ### Define functions
@@ -309,22 +308,17 @@ function bdb_do_apps() {
 
         # Install or update required packages via Pacman
         bdb_command "Installing Arch packages: <$UNIX_PKG>"
-        sudo pacman -Sy $UNIX_PKG
+        sudo pacman --noconfirm --needed -S $UNIX_PKG
         bdb_exit_status "installing Arch packages"
 
         # Cleanup
         bdb_command "Cleaning Pacman cache"
-        sudo pacman -Scc
+        sudo pacman --noconfirm -Scc
         bdb_exit_status "cleaning Pacman cache"
 
     else
         bdb_outcome "package manager not found!"
     fi
-
-    # Update PIP base packages
-    bdb_command "Updating PIP packages: <$PYPI_PKG>"
-    pip3 install -U $PYPI_PKG
-    bdb_exit_status "updating PIP packages"
 
     bdb_info "Required packages ready"
 
