@@ -26,23 +26,22 @@ fi
 
 # Output colors
 ESC_SEQ="\x1b["
-RST_COL=$ESC_SEQ"39;49;00m"     # reset
-RED_COL=$ESC_SEQ"31;01m"        # red
-GRN_COL=$ESC_SEQ"32;01m"        # green
-YLW_COL=$ESC_SEQ"33;01m"        # yellow
-BLU_COL=$ESC_SEQ"34;01m"        # blue
-MGN_COL=$ESC_SEQ"35;01m"        # magenta
-CYN_COL=$ESC_SEQ"36;01m"        # cyan
-WHT_COL=$ESC_SEQ"97;01m"        # white
+RST_COL="${ESC_SEQ}39;49;00m"     # reset
+RED_COL="${ESC_SEQ}31;01m"        # red
+GRN_COL="${ESC_SEQ}32;01m"        # green
+YLW_COL="${ESC_SEQ}33;01m"        # yellow
+BLU_COL="${ESC_SEQ}34;01m"        # blue
+MGN_COL="${ESC_SEQ}35;01m"        # magenta
+CYN_COL="${ESC_SEQ}36;01m"        # cyan
+WHT_COL="${ESC_SEQ}97;01m"        # white
 
 # Local OS
 LOCL_SYS=""
 
 # Local paths
-BARE_DIR="$HOME/.dfbare"        # git bare repo dir
-BAKP_DIR="$HOME/.dfbackup"      # pre-existing dotfiles backup dir
-ZGEN_DIR="$HOME/.zgen"          # zgen plugins dir
-VNDL_DIR="$HOME/.vim/bundle"    # vundle plugins dir
+BARE_DIR="${HOME}/.dfbare"        # git bare repo dir
+BAKP_DIR="${HOME}/.dfbackup"      # pre-existing dotfiles backup dir
+VNDL_DIR="${HOME}/.vim/bundle"    # vundle plugins dir
 
 # Remote URLs
 REPO_URL="https://github.com/norville/dotfiles.git"
@@ -51,18 +50,21 @@ VNDL_URL="https://github.com/VundleVim/Vundle.vim.git"
 
 # Required packages
 UNIX_PKG="vim git wget curl zsh"
-BREW_PKG="$HOME/.dfconf/brewfile"
+BREW_PKG="${HOME}/.dfconf/brewfile"
 
 ### Define functions
 
 function bdb_handle_error() {
 
     ERR_CODE=$?
-    if [[ $ERR_CODE != 0 ]]; then
-        printf -- "Error ${ERR_CODE} has occurred."
-        # TODO - handle exit codes and cleanup
-        printf -- "\nExiting with error code ${ERR_CODE}.\n"
-        exit ${ERR_CODE}
+    if [[ ${ERR_CODE} != 0 ]]; then
+
+        # TODO - handle exit codes and cleanup (MENU)
+
+        #printf -- "Error ${ERR_CODE} has occurred."
+        #printf -- "\nExiting with error code ${ERR_CODE}.\n"
+        #exit ${ERR_CODE}
+
     fi
 
 }
@@ -72,10 +74,10 @@ function bdb_exit_status() {
 
     if [[ $? != 0 ]]; then
         # Print error message
-        echo -e "\n$RED_COL|xxx| ERROR $1 $RST_COL"
+        echo -e "\n${RED_COL}|xxx| ERROR $1 ${RST_COL}"
     else
         # Print success message
-        echo -en "$GRN_COL|+++| DONE $1 $RST_COL"
+        echo -en "${GRN_COL}|+++| DONE $1 ${RST_COL}"
     fi
 
 }
@@ -83,28 +85,28 @@ function bdb_exit_status() {
 # Print info message - NEWLINE
 function bdb_info() {
 
-    echo -en "\n$WHT_COL|BDB| $1 $RST_COL"
+    echo -en "\n${WHT_COL}|BDB| $1 ${RST_COL}"
 
 }
 
 # Print run message - NO NEWLINE
 function bdb_run() {
 
-    echo -en "\n$BLU_COL|***| $1 ... $RST_COL"
+    echo -en "\n${BLU_COL}|***| $1 ... ${RST_COL}"
 
 }
 
 # Print outcome message - INLINE
 function bdb_outcome() {
 
-    echo -en "$CYN_COL$1$RST_COL"
+    echo -en "${CYN_COL}$1${RST_COL}"
 
 }
 
 # Print message before command - NEWLINE
 function bdb_command() {
 
-    echo -e "\n$MGN_COL|>>>| $1 $RST_COL"
+    echo -e "\n${MGN_COL}|>>>| $1 ${RST_COL}"
 
 }
 
@@ -155,7 +157,7 @@ function bdb_do_sys() {
         if [[ ! $(which brew) ]]; then
 
             bdb_command "Installing Homebrew"
-            /usr/bin/ruby -e "$(curl -fsSL $BREW_URL)"
+            /usr/bin/ruby -e "$(curl -fsSL ${BREW_URL})"
             bdb_exit_status "installing Homebrew"
 
         else
@@ -172,11 +174,11 @@ function bdb_do_sys() {
 
 }
 
-# Automatically run git against the bare repo in $HOME
+# Automatically run git against the bare repo in ${HOME}
 function dfconf() {
 
     # /usr/bin/git --git-dir=<git-bare-dir> --work-tree=<dotfiles-dir>
-    /usr/bin/git --git-dir=$BARE_DIR --work-tree=$HOME $@
+    /usr/bin/git --git-dir=${BARE_DIR} --work-tree=${HOME} $@
 
 }
 
@@ -188,18 +190,18 @@ function bdb_do_repo() {
     bdb_run "Looking for dotfiles"
 
     # Set bare repo dir
-    mkdir -p $BARE_DIR
+    mkdir -p ${BARE_DIR}
 
     # Check for local bare repo
-    if [[ ! $(git --git-dir=$BARE_DIR rev-parse --is-bare-repository) ]]; then
+    if [[ ! $(git --git-dir=${BARE_DIR} rev-parse --is-bare-repository) ]]; then
 
         bdb_outcome "none found. Let's clone remote repo!"
 
         # Clone remote repo into bare repo
         bdb_command "Cloning dotfiles into a bare repo"
-        #git clone --bare $REPO_URL $BARE_DIR           # Clone master branch
-        git clone --bare -b bare $REPO_URL $BARE_DIR    # Clone specifc branch
-        bdb_exit_status "cloning dotfiles into <$BARE_DIR>"
+        #git clone --bare ${REPO_URL} ${BARE_DIR}           # Clone master branch
+        git clone --bare -b bare ${REPO_URL} ${BARE_DIR}    # Clone specifc branch
+        bdb_exit_status "cloning dotfiles into <${BARE_DIR}>"
 
         # Checkout bare repo
         bdb_command "Checking out dotfiles repo"
@@ -211,9 +213,9 @@ function bdb_do_repo() {
 
             # Create backup dir
             bdb_command "Backing up overlapping dotfiles"
-            mkdir -p $BAKP_DIR
-            # Move pre-existing dotfiles to $BAKP_DIR
-            dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} $BAKP_DIR/{}
+            mkdir -p ${BAKP_DIR}
+            # Move pre-existing dotfiles to ${BAKP_DIR}
+            dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} ${BAKP_DIR}/{}
             dfconf checkout
 
         fi
@@ -225,7 +227,11 @@ function bdb_do_repo() {
 
     else
 
+        # repo ok, run git status
         bdb_outcome "local bare repo ok"
+        bdb_command "Showing repo status"
+        dfconf status
+        bdb_exit_status "showing repo status"
 
     fi
 
@@ -239,28 +245,26 @@ function bdb_do_apps() {
     bdb_info "Install or update required packages"
 
     # Detect system
-    if [[ $LOCL_SYS == "macos" ]]; then
+    if [[ ${LOCL_SYS} == "macos" ]]; then
 
         # System is macOS
 
         # Install brew bundle
-        bdb_command "Installing required formulae from <$BREW_PKG>"
-        brew bundle install --file=$BREW_PKG
+        bdb_command "Installing required formulae from <${BREW_PKG}>"
+        brew bundle install --file=${BREW_PKG}
         bdb_exit_status "installing required formulae"
 
         # Check extra formulae
         bdb_run "Looking for extra formulae"
-        if [[ $(brew bundle cleanup --file=$BREW_PKG) ]]; then
-
-            bdb_outcome "some found"
+        if [[ $(brew bundle cleanup --file=${BREW_PKG}) ]]; then
 
             bdb_run "Do you want to uninstall extra formulae? [y|n] "
             read -r -n 1 response
-            if [[ $response =~ (y|Y) ]]; then
+            if [[ ${response} =~ (y|Y) ]]; then
 
                 # Delete extra packages
                 bdb_command "Removing extra formulae"
-                brew bundle cleanup --file=$BREW_PKG --force
+                brew bundle cleanup --file=${BREW_PKG} --force
                 bdb_exit_status "removing extra formulae"
 
             else
@@ -272,10 +276,6 @@ function bdb_do_apps() {
 
             fi
 
-        else
-
-            bdb_outcome "none found"
-
         fi
 
         # Cleanup
@@ -283,17 +283,17 @@ function bdb_do_apps() {
         brew cleanup
         bdb_exit_status "cleaning Homebrew"
 
-        #bdb_command "Verifying Homebrew"
-        #brew doctor
-        #bdb_exit_status "verifying Homebrew"
+        bdb_command "Verifying Homebrew"
+        brew doctor
+        bdb_exit_status "verifying Homebrew"
 
-    elif [[ $LOCL_SYS == "debian" ]]; then
+    elif [[ ${LOCL_SYS} == "debian" ]]; then
 
         # System is debian
 
         # Install or update required packages via APT
-        bdb_command "Installing APT packages: <$UNIX_PKG>"
-        sudo apt-get install -y $UNIX_PKG
+        bdb_command "Installing APT packages: <${UNIX_PKG}>"
+        sudo apt-get install -y ${UNIX_PKG}
         bdb_exit_status "installing APT packages"
 
         # Cleanup
@@ -302,13 +302,13 @@ function bdb_do_apps() {
         sudo apt autoclean
         bdb_exit_status "cleaning APT"
 
-    elif [[ $LOCL_SYS == "arch" ]]; then
+    elif [[ ${LOCL_SYS} == "arch" ]]; then
 
         # System is arch
 
         # Install or update required packages via Pacman
-        bdb_command "Installing Arch packages: <$UNIX_PKG>"
-        sudo pacman --noconfirm --needed -S $UNIX_PKG
+        bdb_command "Installing Arch packages: <${UNIX_PKG}>"
+        sudo pacman --noconfirm --needed -S ${UNIX_PKG}
         bdb_exit_status "installing Arch packages"
 
         # Cleanup
@@ -331,27 +331,31 @@ function bdb_do_cli() {
 
     bdb_run "Configuring ZSH as your login shell"
     ZSH_PATH=$(which zsh)
-    if [[ $SHELL != $ZSH_PATH ]]; then
+    if [[ ${SHELL} != ${ZSH_PATH} ]]; then
 
         # Set ZSH as login shell
         bdb_command "Switching to ZSH"
-        echo $ZSH_PATH | sudo tee -a /etc/shells
-        sudo chsh -s $ZSH_PATH $USER
+        echo ${ZSH_PATH} | sudo tee -a /etc/shells
+        sudo chsh -s ${ZSH_PATH} ${USER}
         bdb_exit_status "switching to ZSH"
 
     else
 
-        bdb_outcome "ok"
+        bdb_outcome "done"
+        bdb_command "Updating Antigen"
+        antigen selfupdate
+        antigen update
+        bdb_exit_status "updating Antigen"
 
     fi
 
     # Install or update Vundle and required plugins
     bdb_run "Configuring VIM as your text editor"
-    if [[ ! -d $VNDL_DIR/Vundle.vim ]]; then
+    if [[ ! -d ${VNDL_DIR}/Vundle.vim ]]; then
 
         # Install Vundle
         bdb_command "Installing Vundle - VIM plugin manager"
-        git clone $VNDL_URL $VNDL_DIR/Vundle.vim
+        git clone ${VNDL_URL} ${VNDL_DIR}/Vundle.vim
         bdb_exit_status "installing Vundle"
 
     fi
