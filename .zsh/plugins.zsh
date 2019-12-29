@@ -19,15 +19,9 @@ source ${ATGN_DIR}/antigen.zsh
 antigen use oh-my-zsh
 
 # Load ZSH theme if config file ready
-if [[ -f ${HOME}/.zsh/theme.zsh ]]; then
-
-    # Load theme settings
-    source ${HOME}/.zsh/theme.zsh
-
-    # Load theme plugin
-    antigen theme romkatv/powerlevel10k powerlevel10k
-
-fi
+[[ ! -f ${HOME}/.zsh/p10k.zsh ]] || source ${HOME}/.zsh/p10k.zsh
+# Load theme plugin
+antigen theme romkatv/powerlevel10k powerlevel10k
 
 # Load default plugins
 antigen bundle sudo
