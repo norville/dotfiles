@@ -24,33 +24,18 @@ fi
 
 ### Define variables
 
-# Output colors
 ESC_SEQ="\x1b["
-RST_COL="${ESC_SEQ}39;49;00m"     # reset
-RED_COL="${ESC_SEQ}31;01m"        # red
-GRN_COL="${ESC_SEQ}32;01m"        # green
-YLW_COL="${ESC_SEQ}33;01m"        # yellow
-BLU_COL="${ESC_SEQ}34;01m"        # blue
-MGN_COL="${ESC_SEQ}35;01m"        # magenta
-CYN_COL="${ESC_SEQ}36;01m"        # cyan
-WHT_COL="${ESC_SEQ}97;01m"        # white
+RST_COL="${ESC_SEQ}39;49;00m"   # reset
+RED_COL="${ESC_SEQ}31;01m"      # red
+GRN_COL="${ESC_SEQ}32;01m"      # green
+YLW_COL="${ESC_SEQ}33;01m"      # yellow
+BLU_COL="${ESC_SEQ}34;01m"      # blue
+MGN_COL="${ESC_SEQ}35;01m"      # magenta
+CYN_COL="${ESC_SEQ}36;01m"      # cyan
+WHT_COL="${ESC_SEQ}97;01m"      # white
 
-# Local OS
-LOCL_SYS=""
-
-# Local paths
-BARE_DIR="${HOME}/.dfbare"        # git bare repo dir
-BAKP_DIR="${HOME}/.dfbackup"      # pre-existing dotfiles backup dir
-VNDL_DIR="${HOME}/.vim/bundle"    # vundle plugins dir
-
-# Remote URLs
-REPO_URL="https://github.com/norville/dotfiles.git"
-BREW_URL="https://raw.githubusercontent.com/Homebrew/install/master/install"
-VNDL_URL="https://github.com/VundleVim/Vundle.vim.git"
-
-# Required packages
-UNIX_PKG="vim git wget curl zsh"
-BREW_PKG="${HOME}/.dfconf/brewfile"
+LOCL_SYS=""                     # local os
+BARE_DIR="${HOME}/.dfbare"      # git bare repo dir
 
 ### Define functions
 
@@ -156,6 +141,7 @@ function bdb_do_sys() {
         # Check for homebrew
         if [[ ! $(which brew) ]]; then
 
+            BREW_URL="https://raw.githubusercontent.com/Homebrew/install/master/install"
             bdb_command "Installing Homebrew"
             /usr/bin/ruby -e "$(curl -fsSL ${BREW_URL})"
             bdb_exit_status "installing Homebrew"
@@ -198,6 +184,7 @@ function bdb_do_repo() {
         bdb_outcome "none found. Let's clone remote repo!"
 
         # Clone remote repo into bare repo
+        REPO_URL="https://github.com/norville/dotfiles.git"
         bdb_command "Cloning dotfiles into a bare repo"
         #git clone --bare ${REPO_URL} ${BARE_DIR}           # Clone master branch
         git clone --bare -b bare ${REPO_URL} ${BARE_DIR}    # Clone specifc branch
@@ -212,6 +199,7 @@ function bdb_do_repo() {
         if [[ $? != 0 ]]; then
 
             # Create backup dir
+            BAKP_DIR="${HOME}/.dfbackup"
             bdb_command "Backing up overlapping dotfiles"
             mkdir -p ${BAKP_DIR}
             # Move pre-existing dotfiles to ${BAKP_DIR}
@@ -243,6 +231,9 @@ function bdb_do_repo() {
 function bdb_do_apps() {
 
     bdb_info "Install or update required packages"
+
+    BREW_PKG="${HOME}/.dfconf/brewfile"
+    UNIX_PKG="vim git wget curl zsh tilix"
 
     # Detect system
     if [[ ${LOCL_SYS} == "macos" ]]; then
@@ -356,10 +347,12 @@ function bdb_do_cli() {
     fi
 
     # Install or update Vundle and required plugins
+    VNDL_DIR="${HOME}/.vim/bundle"
     bdb_run "Configuring VIM as your text editor"
     if [[ ! -d ${VNDL_DIR}/Vundle.vim ]]; then
 
         # Install Vundle
+        VNDL_URL="https://github.com/VundleVim/Vundle.vim.git"
         bdb_command "Installing Vundle - VIM plugin manager"
         git clone ${VNDL_URL} ${VNDL_DIR}/Vundle.vim
         bdb_exit_status "installing Vundle"
