@@ -232,15 +232,13 @@ function bdb_do_apps() {
 
     bdb_info "Install or update required packages"
 
-    BREW_PKG="${HOME}/.dfconf/brewfile"
-    UNIX_PKG="vim git wget curl zsh tilix"
-
     # Detect system
     if [[ ${LOCL_SYS} == "macos" ]]; then
 
         # System is macOS
 
         # Install brew bundle
+        BREW_PKG="${HOME}/.dfconf/brewfile"
         bdb_command "Installing required formulae from <${BREW_PKG}>"
         brew bundle install --file=${BREW_PKG}
         bdb_exit_status "installing required formulae"
@@ -283,8 +281,9 @@ function bdb_do_apps() {
         # System is debian
 
         # Install or update required packages via APT
-        bdb_command "Installing APT packages: <${UNIX_PKG}>"
-        sudo apt-get install -y ${UNIX_PKG}
+        DEBN_PKG="vim git wget curl zsh"
+        bdb_command "Installing APT packages: <${DEBN_PKG}>"
+        sudo apt-get install -y ${DEBN_PKG}
         bdb_exit_status "installing APT packages"
 
         # Cleanup
@@ -298,8 +297,9 @@ function bdb_do_apps() {
         # System is arch
 
         # Install or update required packages via Pacman
-        bdb_command "Installing Arch packages: <${UNIX_PKG}>"
-        sudo pacman --noconfirm --needed -S ${UNIX_PKG}
+        ARCH_PKG="vim git wget curl zsh tilix"
+        bdb_command "Installing Arch packages: <${ARCH_PKG}>"
+        sudo pacman --noconfirm --needed -S ${ARCH_PKG}
         bdb_exit_status "installing Arch packages"
 
         # Cleanup
@@ -363,12 +363,13 @@ function bdb_do_cli() {
     vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
     bdb_exit_status "updating Vundle plugins"
 
+    bdb_info "CLI ready"
     bdb_info "Restore user preferences"
 
     # Detect system
-    if [[ $(uname -s) == "Linux" ]]; then
+    if [[ ${LOCL_SYS} == "arch" ]]; then
 
-        bdb_run "Restoring Linux preferences"
+        bdb_run "Restoring Terminal preferences"
 
         # Install right fonts for p10k if missing
         FONT_DIR="${HOME}/.local/share/fonts"
@@ -420,7 +421,7 @@ function bdb_do_cli() {
 
     fi
 
-    bdb_info "CLI ready"
+    bdb_info "User prefs restored"
 
 }
 
