@@ -61,9 +61,9 @@ function bdb_handle_error() {
 
         # TODO - handle exit codes and cleanup (MENU)
 
-        #printf -- "Error ${ERR_CODE} has occurred."
-        #printf -- "\nExiting with error code ${ERR_CODE}.\n"
-        #exit ${ERR_CODE}
+        printf -- "Error ${ERR_CODE} has occurred."
+        printf -- "\nExiting with error code ${ERR_CODE}.\n"
+        exit ${ERR_CODE}
 
     fi
 
@@ -342,10 +342,13 @@ function bdb_do_cli() {
     else
 
         bdb_outcome "done"
-        bdb_command "Updating Antigen"
-        antigen selfupdate
-        antigen update
-        bdb_exit_status "updating Antigen"
+        if [[ -d ${HOME}/.antigen ]]; then
+
+            bdb_command "Updating Antigen"
+            rm -rf ${HOME}/.antigen
+            bdb_exit_status "updating Antigen"
+
+        fi
 
     fi
 
