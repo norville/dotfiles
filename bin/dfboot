@@ -186,8 +186,8 @@ function bdb_do_repo() {
         # Clone remote repo into bare repo
         REPO_URL="https://github.com/norville/dotfiles.git"
         bdb_command "Cloning dotfiles into a bare repo"
-        #git clone --bare ${REPO_URL} ${BARE_DIR}           # Clone master branch
-        git clone --bare -b bare ${REPO_URL} ${BARE_DIR}    # Clone specifc branch
+        git clone --bare ${REPO_URL} ${BARE_DIR}                    # Clone master branch
+        #git clone --bare -b <git-branch> ${REPO_URL} ${BARE_DIR}   # Clone specifc branch
         bdb_exit_status "cloning dotfiles into <${BARE_DIR}>"
 
         # Checkout bare repo
