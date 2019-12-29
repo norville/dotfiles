@@ -363,31 +363,51 @@ function bdb_do_cli() {
     vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
     bdb_exit_status "updating Vundle plugins"
 
-    # Linux preferences
+    bdb_info "Restore user preferences"
+
+    # Detect system
     if [[ $(uname -s) == "Linux" ]]; then
 
-        # Install right fonts for p10k
+        bdb_run "Restoring Linux preferences"
+
+        # Install right fonts for p10k if missing
         FONT_DIR="${HOME}/.local/share/fonts"
-        FNT1_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Regular.ttf"
-        FNT2_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Bold.ttf"
-        FNT3_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Italic.ttf"
-        FNT4_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Bold%20Italic.ttf"
+        if [[ ! -f ${FONT_DIR}/meslo_regular.ttf ]]; then
 
-        bdb_command "Installing Meslo Nerdfont for p10k"
+            FNT1_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Regular.ttf"
+            FNT2_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Bold.ttf"
+            FNT3_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Italic.ttf"
+            FNT4_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Bold%20Italic.ttf"
 
-        curl ${FNT1_URL} -o ${FONT_DIR}/meslo_regular.ttf
-        curl ${FNT2_URL} -o ${FONT_DIR}/meslo_bold.ttf
-        curl ${FNT3_URL} -o ${FONT_DIR}/meslo_italic.ttf
-        curl ${FNT4_URL} -o ${FONT_DIR}/meslo_bold_italic.ttf
+            bdb_command "Installing Meslo Nerdfont for p10k"
 
-        fc-cache
+            curl ${FNT1_URL} -o ${FONT_DIR}/meslo_regular.ttf
+            curl ${FNT2_URL} -o ${FONT_DIR}/meslo_bold.ttf
+            curl ${FNT3_URL} -o ${FONT_DIR}/meslo_italic.ttf
+            curl ${FNT4_URL} -o ${FONT_DIR}/meslo_bold_italic.ttf
 
-        bdb_exit_status "installing Meslo Nerdfont for p10k"
+            fc-cache
 
-    fi
+            bdb_exit_status "installing Meslo Nerdfont for p10k"
 
-    #bdb_run "Restoring user preferences"
-    #if [[ $MACOS ]]; then
+        fi
+
+        # Set up tilix
+        if [[ ! -f /usr/share/tilix/schemes/gruvbox-* ]]; then
+
+            bdb_command "Installing Gruvbox theme for Tilix"
+            git clone https://github.com/MichaelThessel/tilix-gruvbox.git
+            cd tilix-gruvbox
+            sudo cp gruvbox-* /usr/share/tilix/schemes
+            cd ..
+            rm -rf tilix-gruvbox
+            bdb_exit_status "installing Gruvbox theme for Tilix"
+
+        fi
+
+        #TODO GNU Stow
+
+    #else
 
         #bdb_command "Restoring macOS preferences"
         #TODO Mathias
@@ -398,13 +418,7 @@ function bdb_do_cli() {
         #mackup restore
         #bdb_exit_status "restoring App preferences"
 
-    #else
-
-        #bdb_command "Restoring Linux preferences"
-        #TODO GNU Stow
-        #bdb_exit_status "restoring Linux preferences"
-
-    #fi
+    fi
 
     bdb_info "CLI ready"
 
@@ -427,3 +441,4 @@ bdb_info "All done!"
 # Exit in style
 printf -- '\n'
 exit 0
+
