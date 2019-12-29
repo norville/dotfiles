@@ -331,6 +331,7 @@ function bdb_do_cli() {
 
     bdb_run "Configuring ZSH as your login shell"
     ZSH_PATH=$(which zsh)
+    # If current shell is not zsh
     if [[ ${SHELL} != ${ZSH_PATH} ]]; then
 
         # Set ZSH as login shell
@@ -342,6 +343,8 @@ function bdb_do_cli() {
     else
 
         bdb_outcome "done"
+
+        # Delete antigen dir to force cloning
         if [[ -d ${HOME}/.antigen ]]; then
 
             bdb_command "Updating Antigen"
@@ -367,7 +370,29 @@ function bdb_do_cli() {
     vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
     bdb_exit_status "updating Vundle plugins"
 
-    # User preferences
+    # Linux preferences
+    if [[ $(uname -s) == "Linux" ]]; then
+
+        # Install right fonts for p10k
+        FONT_DIR="${HOME}/.local/share/fonts"
+        FNT1_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Regular.ttf"
+        FNT2_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Bold.ttf"
+        FNT3_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Italic.ttf"
+        FNT4_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Bold%20Italic.ttf"
+
+        bdb_command "Installing Meslo Nerdfont for p10k"
+
+        curl ${FNT1_URL} -o ${FONT_DIR}/meslo_regular.ttf
+        curl ${FNT2_URL} -o ${FONT_DIR}/meslo_bold.ttf
+        curl ${FNT3_URL} -o ${FONT_DIR}/meslo_italic.ttf
+        curl ${FNT4_URL} -o ${FONT_DIR}/meslo_bold_italic.ttf
+
+        fc-cache
+
+        bdb_exit_status "installing Meslo Nerdfont for p10k"
+
+    fi
+
     #bdb_run "Restoring user preferences"
     #if [[ $MACOS ]]; then
 
