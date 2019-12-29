@@ -44,28 +44,21 @@ if [[ -d ${HOME}/zsh/completions ]]; then
 
 fi
 
-# On macOS
-if [[ $(uname -s) == 'Darwin' ]]; then
+# Enable Homebrew Completion
+if type brew &>/dev/null; then
 
-    # Enable Homebrew Completion
-    if type brew &>/dev/null; then
-        FPATH=$(brew --prefix)/share/zsh/site-functions:${FPATH}
-    fi
+    FPATH=$(brew --prefix)/share/zsh/site-functions:${FPATH}
 
 fi
 
 ###############################################################################
 
-### OS-DEPENDENT ##############################################################
+### SERVICES ##################################################################
 
-if [[ $(uname -s) == 'Linux' ]]; then
+# Start keychain ssh-agent
+if type keychain &>/dev/null; then
 
-    if [[ $(which keychain) ]]; then
-
-        # Start Keychain ssh-agent
-        eval $(keychain --eval --quiet)
-
-    fi
+    eval $(keychain --eval --quiet)
 
 fi
 
