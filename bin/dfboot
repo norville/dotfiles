@@ -108,7 +108,8 @@ function bdb_do_sys() {
     bdb_run "Running BDB on a "
 
     # Detect local system
-    if [[ $(which apt-get) ]]; then         # Test for debian-like distro
+
+    if type apt-get &>/dev/null; then         # Test for debian-like distro
 
         bdb_outcome "Debian system"
         LOCL_SYS="debian"
@@ -117,7 +118,7 @@ function bdb_do_sys() {
         bdb_exit_status "updating APT"
 
         # Check for git
-        if [[ ! $(which git) ]]; then
+        if ! type git &>/dev/null; then
 
             bdb_command "Installing git"
             sudo apt-get install -y git
@@ -125,7 +126,7 @@ function bdb_do_sys() {
 
         fi
 
-    elif [[ $(which pacman) ]]; then        # Test for arch-like distro
+    elif type pacman &>/dev/null; then        # Test for arch-like distro
 
         bdb_outcome "ArchLinux system"
         LOCL_SYS="arch"
@@ -281,7 +282,7 @@ function bdb_do_apps() {
         # System is debian
 
         # Install or update required packages via APT
-        DEBN_PKG="vim git wget curl zsh"
+        DEBN_PKG="vim git wget curl zsh tmux"
         bdb_command "Installing APT packages: <${DEBN_PKG}>"
         sudo apt-get install -y ${DEBN_PKG}
         bdb_exit_status "installing APT packages"
@@ -297,7 +298,7 @@ function bdb_do_apps() {
         # System is arch
 
         # Install or update required packages via Pacman
-        ARCH_PKG="vim git wget curl zsh tilix"
+        ARCH_PKG="vim git wget curl zsh tilix tmux"
         bdb_command "Installing Arch packages: <${ARCH_PKG}>"
         sudo pacman --noconfirm --needed -S ${ARCH_PKG}
         bdb_exit_status "installing Arch packages"
@@ -382,12 +383,13 @@ function bdb_do_cli() {
 
             bdb_command "Installing Meslo Nerdfont for p10k"
 
+            mkdir -p ${FONT_DIR}
             curl ${FNT1_URL} -o ${FONT_DIR}/meslo_regular.ttf
             curl ${FNT2_URL} -o ${FONT_DIR}/meslo_bold.ttf
             curl ${FNT3_URL} -o ${FONT_DIR}/meslo_italic.ttf
             curl ${FNT4_URL} -o ${FONT_DIR}/meslo_bold_italic.ttf
 
-            fc-cache
+            fc-cache -f
 
             bdb_exit_status "installing Meslo Nerdfont for p10k"
 
