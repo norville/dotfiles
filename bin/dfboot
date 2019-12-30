@@ -34,7 +34,7 @@ MGN_COL="${ESC_SEQ}35;01m"      # magenta
 CYN_COL="${ESC_SEQ}36;01m"      # cyan
 WHT_COL="${ESC_SEQ}97;01m"      # white
 
-LOCL_SYS=""                     # local os
+DISTRO=""                     # local os
 BARE_DIR="${HOME}/.dfbare"      # git bare repo dir
 
 ### Define functions
@@ -112,7 +112,7 @@ function bdb_do_sys() {
     if type apt-get &>/dev/null; then         # Test for debian-like distro
 
         bdb_outcome "Debian system"
-        LOCL_SYS="debian"
+        DISTRO="debian"
         bdb_command "Updating APT"
         sudo apt-get update
         bdb_exit_status "updating APT"
@@ -129,7 +129,7 @@ function bdb_do_sys() {
     elif type pacman &>/dev/null; then        # Test for arch-like distro
 
         bdb_outcome "ArchLinux system"
-        LOCL_SYS="arch"
+        DISTRO="arch"
         bdb_command "Updating Pacman"
         sudo pacman -Syy
         bdb_exit_status "updating Pacman"
@@ -137,10 +137,10 @@ function bdb_do_sys() {
     else                                    # Assume macos, install brew
 
         bdb_outcome "macOS system"
-        LOCL_SYS="macos"
+        DISTRO="macos"
 
         # Check for homebrew
-        if [[ ! $(which brew) ]]; then
+        if ! type brew &>/dev/null; then
 
             BREW_URL="https://raw.githubusercontent.com/Homebrew/install/master/install"
             bdb_command "Installing Homebrew"
@@ -234,7 +234,7 @@ function bdb_do_apps() {
     bdb_info "Install or update required packages"
 
     # Detect system
-    if [[ ${LOCL_SYS} == "macos" ]]; then
+    if [[ ${DISTRO} == "macos" ]]; then
 
         # System is macOS
 
@@ -277,7 +277,7 @@ function bdb_do_apps() {
         brew doctor
         bdb_exit_status "verifying Homebrew"
 
-    elif [[ ${LOCL_SYS} == "debian" ]]; then
+    elif [[ ${DISTRO} == "debian" ]]; then
 
         # System is debian
 
@@ -293,7 +293,7 @@ function bdb_do_apps() {
         sudo apt autoclean
         bdb_exit_status "cleaning APT"
 
-    elif [[ ${LOCL_SYS} == "arch" ]]; then
+    elif [[ ${DISTRO} == "arch" ]]; then
 
         # System is arch
 
@@ -368,7 +368,7 @@ function bdb_do_cli() {
     bdb_info "Restore user preferences"
 
     # Detect system
-    if [[ ${LOCL_SYS} == "arch" ]]; then
+    if [[ ${DISTRO} == "arch" ]]; then
 
         bdb_run "Restoring Terminal preferences"
 
