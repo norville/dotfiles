@@ -396,7 +396,7 @@ function bdb_do_cli() {
         fi
 
         # Set up tilix
-        if [[ ! -f /usr/share/tilix/schemes/gruvbox-* ]]; then
+        if [[ ! -f /usr/share/tilix/schemes/gruvbox-dark.json ]]; then
 
             bdb_command "Installing Gruvbox theme for Tilix"
             git clone https://github.com/MichaelThessel/tilix-gruvbox.git
