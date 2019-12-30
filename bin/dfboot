@@ -282,7 +282,7 @@ function bdb_do_apps() {
         # System is debian
 
         # Install or update required packages via APT
-        DEBN_PKG="vim git wget curl zsh tmux"
+        DEBN_PKG="vim git wget curl zsh"
         bdb_command "Installing APT packages: <${DEBN_PKG}>"
         sudo apt-get install -y ${DEBN_PKG}
         bdb_exit_status "installing APT packages"
@@ -298,7 +298,7 @@ function bdb_do_apps() {
         # System is arch
 
         # Install or update required packages via Pacman
-        ARCH_PKG="vim git wget curl zsh tilix tmux"
+        ARCH_PKG="vim git wget curl zsh tilix"
         bdb_command "Installing Arch packages: <${ARCH_PKG}>"
         sudo pacman --noconfirm --needed -S ${ARCH_PKG}
         bdb_exit_status "installing Arch packages"

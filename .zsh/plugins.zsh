@@ -32,7 +32,6 @@ antigen bundle common-aliases
 antigen bundle colorize
 antigen bundle extract
 antigen bundle vundle
-antigen bundle tmux
 antigen bundle python
 antigen bundle docker
 antigen bundle docker-compose
@@ -45,6 +44,7 @@ antigen bundle docker-compose
 #antigen bundle rbenv
 #antigen bundle gem
 #antigen bundle rails
+#antigen bundle tmux
 
 # Last plugins to load
 antigen bundle zsh-users/zsh-completions
