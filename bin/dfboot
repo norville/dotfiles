@@ -34,8 +34,9 @@ MGN_COL="${ESC_SEQ}35;01m"      # magenta
 CYN_COL="${ESC_SEQ}36;01m"      # cyan
 WHT_COL="${ESC_SEQ}97;01m"      # white
 
-DISTRO=""                     # local os
+DISTRO=""                       # local os
 BARE_DIR="${HOME}/.dfbare"      # git bare repo dir
+CURR_CMD=$(basename $0)         # current running command
 
 ### Define functions
 
@@ -59,10 +60,10 @@ function bdb_exit_status() {
 
     if [[ $? != 0 ]]; then
         # Print error message
-        echo -e "\n${RED_COL}|xxx| ERROR $1 ${RST_COL}"
+        echo -e "\n${RED_COL}|xxx| ${CURR_CMD}: ${1:-"ERROR"} ${RST_COL}"
     else
         # Print success message
-        echo -en "${GRN_COL}|+++| DONE $1 ${RST_COL}"
+        echo -en "${GRN_COL}|+++| ${CURR_CMD}: ${1:-"DONE"} ${RST_COL}"
     fi
 
 }
