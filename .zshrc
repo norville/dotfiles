@@ -37,18 +37,15 @@ path=(~/bin /usr/local/sbin $path[@])
 
 ### COMPLETIONS ###############################################################
 
-# Add custom completion dir
-[[ -d ${HOME}/zsh/completions ]] && FPATH=${HOME}/.zsh/completions:${FPATH}
-
 # Enable Homebrew Completion
-[[ type brew &>/dev/null ]] && FPATH=$(brew --prefix)/share/zsh/site-functions:${FPATH}
+[[ $(type brew &>/dev/null) ]] && FPATH=$(brew --prefix)/share/zsh/site-functions:${FPATH}
 
 ##############################################################################
 
 ### SERVICES ##################################################################
 
 # Start keychain ssh-agent
-[[ type keychain &>/dev/null ]] && eval $(keychain --eval --quiet)
+[[ $(type keychain &>/dev/null) ]] && eval $(keychain --eval --quiet)
 
 ###############################################################################
 
