@@ -11,10 +11,10 @@ if [[ $(uname -s) == 'Linux' ]]; then
     alias ls='ls --color=auto'
     PS1='[\u@\h \W]\$ '
 
-    # Start Keychain ssh-agent
-    eval $(keychain --eval --quiet)
-
 fi
+
+# Start keychain ssh-agent
+[[ type keychain &>/dev/null ]] && eval $(keychain --eval --quiet)
 
 ### DO NOT DELETE ###
 # Alias for dfbare repo management

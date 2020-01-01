@@ -21,7 +21,7 @@ HIST_STAMPS="dd/mm/yyyy"
 #export LANG=en_US.UTF-8
 
 # Set default editor
-#export EDITOR='vim'
+export EDITOR='vim'
 
 # Set AUTO_CD
 setopt AUTO_CD
@@ -38,29 +38,17 @@ path=(~/bin /usr/local/sbin $path[@])
 ### COMPLETIONS ###############################################################
 
 # Add custom completion dir
-if [[ -d ${HOME}/zsh/completions ]]; then
-
-    FPATH=${HOME}/.zsh/completions:${FPATH}
-
-fi
+[[ -d ${HOME}/zsh/completions ]] && FPATH=${HOME}/.zsh/completions:${FPATH}
 
 # Enable Homebrew Completion
-if type brew &>/dev/null; then
+[[ type brew &>/dev/null ]] && FPATH=$(brew --prefix)/share/zsh/site-functions:${FPATH}
 
-    FPATH=$(brew --prefix)/share/zsh/site-functions:${FPATH}
-
-fi
-
-###############################################################################
+##############################################################################
 
 ### SERVICES ##################################################################
 
 # Start keychain ssh-agent
-if type keychain &>/dev/null; then
-
-    eval $(keychain --eval --quiet)
-
-fi
+[[ type keychain &>/dev/null ]] && eval $(keychain --eval --quiet)
 
 ###############################################################################
 
@@ -81,5 +69,5 @@ alias dfconf="git --git-dir=${HOME}/.dfbare/ --work-tree=${HOME}"
 
 ### PLUGINS ###################################################################
 
-source ${HOME}/.zsh/plugins.zsh
+[[ -f ${HOME}/.zsh/plugins.zsh ]] && . ${HOME}/.zsh/plugins.zsh
 
