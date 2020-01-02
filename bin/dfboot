@@ -40,7 +40,7 @@ CURR_CMD=$(basename $0)         # current running command
 
 ### Define functions
 
-function bdb_handle_error() {
+bdb_handle_error() {
 
     ERR_CODE=$?
     if [[ ${ERR_CODE} != 0 ]]; then
@@ -56,7 +56,7 @@ function bdb_handle_error() {
 }
 
 # Check last exit status and print outcome message
-function bdb_exit_status() {
+bdb_exit_status() {
 
     if [[ $? != 0 ]]; then
         # Print error message
@@ -69,35 +69,35 @@ function bdb_exit_status() {
 }
 
 # Print info message - NEWLINE
-function bdb_info() {
+bdb_info() {
 
     echo -en "\n${WHT_COL}|BDB| $1 ${RST_COL}"
 
 }
 
 # Print run message - NO NEWLINE
-function bdb_run() {
+bdb_run() {
 
     echo -en "\n${BLU_COL}|***| $1 ... ${RST_COL}"
 
 }
 
 # Print outcome message - INLINE
-function bdb_outcome() {
+bdb_outcome() {
 
     echo -en "${CYN_COL}$1${RST_COL}"
 
 }
 
 # Print message before command - NEWLINE
-function bdb_command() {
+bdb_command() {
 
     echo -e "\n${MGN_COL}|>>>| $1 ${RST_COL}"
 
 }
 
 # Check the system and prepare for bootstrap
-function bdb_do_sys() {
+bdb_do_sys() {
 
     bdb_info "Detect local system and check basic packages"
 
@@ -163,7 +163,7 @@ function bdb_do_sys() {
 }
 
 # Automatically run git against the bare repo in ${HOME}
-function dfconf() {
+dfconf() {
 
     # /usr/bin/git --git-dir=<git-bare-dir> --work-tree=<dotfiles-dir>
     /usr/bin/git --git-dir=${BARE_DIR} --work-tree=${HOME} $@
@@ -171,7 +171,7 @@ function dfconf() {
 }
 
 # Check dotfiles repo
-function bdb_do_repo() {
+bdb_do_repo() {
 
     bdb_info "Detect dotfiles or clone remote repo"
 
@@ -230,7 +230,7 @@ function bdb_do_repo() {
 }
 
 # Install or update packages
-function bdb_do_apps() {
+bdb_do_apps() {
 
     bdb_info "Install or update required packages"
 
@@ -318,7 +318,7 @@ function bdb_do_apps() {
 }
 
 # Configure the command line interface
-function bdb_do_cli() {
+bdb_do_cli() {
 
     bdb_info "Set up your command line interface"
 
