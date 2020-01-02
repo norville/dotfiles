@@ -17,7 +17,7 @@ set -e
 #trap "bdb_handle_error" EXIT
 
 # Provide --help flag
-if [ ${#@} -ne 0 ] && [ "${@#"--help"}" = "" ]; then
+if [ "${#@}" -ne 0 ] && [ "${@#"--help"}" = "" ]; then
     printf -- '...help...\n'
     exit 0
 fi
@@ -43,7 +43,7 @@ CURR_CMD=$(basename $0)         # current running command
 bdb_handle_error() {
 
     ERR_CODE=$?
-    if [[ ${ERR_CODE} != 0 ]]; then
+    if [[ "${ERR_CODE}" != 0 ]]; then
 
         # TODO - handle exit codes and cleanup (MENU)
 
@@ -58,7 +58,7 @@ bdb_handle_error() {
 # Check last exit status and print outcome message
 bdb_exit_status() {
 
-    if [[ $? != 0 ]]; then
+    if [[ "$?" != 0 ]]; then
         # Print error message
         echo -e "\n${RED_COL}|xxx| ${CURR_CMD}: ${1:-"ERROR"} ${RST_COL}"
     else
@@ -181,7 +181,7 @@ bdb_do_repo() {
     mkdir -p ${BARE_DIR}
 
     # Check for local bare repo
-    if [[ ! $(git --git-dir=${BARE_DIR} rev-parse --is-bare-repository) ]]; then
+    if [[ ! "$(git --git-dir=${BARE_DIR} rev-parse --is-bare-repository)" ]]; then
 
         bdb_outcome "none found. Let's clone remote repo!"
 
@@ -198,7 +198,7 @@ bdb_do_repo() {
 
         # If checkout fails
         # TODO prevent checkout from exiting before doing a backup
-        if [[ $? != 0 ]]; then
+        if [[ "$?" != 0 ]]; then
 
             # Create backup dir
             BAKP_DIR="${HOME}/.dfbackup"
@@ -235,7 +235,7 @@ bdb_do_apps() {
     bdb_info "Install or update required packages"
 
     # Detect system
-    if [[ ${DISTRO} == "macos" ]]; then
+    if [[ "${DISTRO}" == "macos" ]]; then
 
         # System is macOS
 
@@ -247,11 +247,11 @@ bdb_do_apps() {
 
         # Check extra formulae
         bdb_run "Looking for extra formulae"
-        if [[ $(brew bundle cleanup --file=${BREW_PKG}) ]]; then
+        if [[ "$(brew bundle cleanup --file=${BREW_PKG})" ]]; then
 
             bdb_run "Do you want to uninstall extra formulae? [y|n] "
             read -r -n 1 response
-            if [[ ${response} =~ (y|Y) ]]; then
+            if [[ "${response}" =~ (y|Y) ]]; then
 
                 # Delete extra packages
                 bdb_command "Removing extra formulae"
@@ -278,7 +278,7 @@ bdb_do_apps() {
         brew doctor
         bdb_exit_status "verifying Homebrew"
 
-    elif [[ ${DISTRO} == "debian" ]]; then
+    elif [[ "${DISTRO}" == "debian" ]]; then
 
         # System is debian
 
@@ -294,7 +294,7 @@ bdb_do_apps() {
         sudo apt autoclean
         bdb_exit_status "cleaning APT"
 
-    elif [[ ${DISTRO} == "arch" ]]; then
+    elif [[ "${DISTRO}" == "arch" ]]; then
 
         # System is arch
 
@@ -325,7 +325,7 @@ bdb_do_cli() {
     bdb_run "Configuring ZSH as your login shell"
     ZSH_PATH=$(which zsh)
     # If current shell is not zsh
-    if [[ ${SHELL} != ${ZSH_PATH} ]]; then
+    if [[ "${SHELL}" != "${ZSH_PATH}" ]]; then
 
         # Set ZSH as login shell
         bdb_command "Switching to ZSH"
@@ -338,7 +338,7 @@ bdb_do_cli() {
         bdb_outcome "done"
 
         # Delete antigen dir to force cloning
-        if [[ -d ${HOME}/.antigen ]]; then
+        if [[ -d "${HOME}/.antigen" ]]; then
 
             bdb_command "Updating Antigen"
             rm -rf ${HOME}/.antigen
@@ -351,7 +351,7 @@ bdb_do_cli() {
     # Install or update Vundle and required plugins
     VNDL_DIR="${HOME}/.vim/bundle"
     bdb_run "Configuring VIM as your text editor"
-    if [[ ! -d ${VNDL_DIR}/Vundle.vim ]]; then
+    if [[ ! -d "${VNDL_DIR}/Vundle.vim" ]]; then
 
         # Install Vundle
         VNDL_URL="https://github.com/VundleVim/Vundle.vim.git"
@@ -369,13 +369,13 @@ bdb_do_cli() {
     bdb_info "Restore user preferences"
 
     # Detect system
-    if [[ ${DISTRO} == "arch" ]]; then
+    if [[ "${DISTRO}" == "arch" ]]; then
 
         bdb_run "Restoring Terminal preferences"
 
         # Install right fonts for p10k if missing
         FONT_DIR="${HOME}/.local/share/fonts"
-        if [[ ! -f ${FONT_DIR}/meslo_regular.ttf ]]; then
+        if [[ ! -f "${FONT_DIR}/meslo_regular.ttf" ]]; then
 
             FNT1_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Regular.ttf"
             FNT2_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Bold.ttf"
@@ -397,7 +397,7 @@ bdb_do_cli() {
         fi
 
         # Set up tilix
-        if [[ ! -f /usr/share/tilix/schemes/gruvbox-dark.json ]]; then
+        if [[ ! -f "/usr/share/tilix/schemes/gruvbox-dark.json" ]]; then
 
             bdb_command "Installing Gruvbox theme for Tilix"
             git clone https://github.com/MichaelThessel/tilix-gruvbox.git
