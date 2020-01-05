@@ -31,6 +31,9 @@ Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 """ End plugin list
 
+""" Last plugin to load
+Plugin 'ryanoasis/vim-devicons'
+
 """ Install plugins if needed
 if g:vundle_plug_install == 1
     :PluginInstall

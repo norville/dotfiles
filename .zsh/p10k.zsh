@@ -111,14 +111,14 @@
     #
     # Note: Many default icons cannot be displayed with system fonts. You'll need to install a
     # capable font to use them. See POWERLEVEL9K_MODE below.
-    case "${OSTYPE}" in
-        darwin*)
+    #case "${OSTYPE}" in
+    #    darwin*)
             typeset -g POWERLEVEL9K_VISUAL_IDENTIFIER_EXPANSION='${P9K_VISUAL_IDENTIFIER}'
-        ;;
-        *)
-            typeset -g POWERLEVEL9K_VISUAL_IDENTIFIER_EXPANSION='${P9K_VISUAL_IDENTIFIER//}'
-        ;;
-    esac
+    #    ;;
+    #    *)
+    #        typeset -g POWERLEVEL9K_VISUAL_IDENTIFIER_EXPANSION='${P9K_VISUAL_IDENTIFIER//}'
+    #    ;;
+    #esac
 
     # This option makes a difference only when default icons are enabled for all or some prompt
     # segments (see POWERLEVEL9K_VISUAL_IDENTIFIER_EXPANSION above). LOCK_ICON can be printed as
@@ -184,8 +184,8 @@
         typeset -g POWERLEVEL9K_EMPTY_LINE_RIGHT_PROMPT_FIRST_SEGMENT_START_SYMBOL='%{%}'
     fi
 
-    case "${OSTYPE}" in
-        darwin*)
+    #case "${OSTYPE}" in
+    #    darwin*)
             # Separator between same-color segments on the left.
             typeset -g POWERLEVEL9K_LEFT_SUBSEGMENT_SEPARATOR='\uE0B1'
             # Separator between same-color segments on the right.
@@ -204,42 +204,42 @@
             typeset -g POWERLEVEL9K_RIGHT_PROMPT_LAST_SEGMENT_END_SYMBOL=''
             # Left prompt terminator for lines without any segments.
             typeset -g POWERLEVEL9K_EMPTY_LINE_LEFT_PROMPT_LAST_SEGMENT_END_SYMBOL=
-        ;;
-        *)
+    #    ;;
+    #    *)
             # Separator between same-color segments on the left.
-            typeset -g POWERLEVEL9K_LEFT_SUBSEGMENT_SEPARATOR='\uE0BD'
+    #        typeset -g POWERLEVEL9K_LEFT_SUBSEGMENT_SEPARATOR='\uE0BD'
             # Separator between same-color segments on the right.
-            typeset -g POWERLEVEL9K_RIGHT_SUBSEGMENT_SEPARATOR='\uE0BD'
+    #        typeset -g POWERLEVEL9K_RIGHT_SUBSEGMENT_SEPARATOR='\uE0BD'
             # Separator between different-color segments on the left.
-            typeset -g POWERLEVEL9K_LEFT_SEGMENT_SEPARATOR='\uE0BC'
+    #        typeset -g POWERLEVEL9K_LEFT_SEGMENT_SEPARATOR='\uE0BC'
             # Separator between different-color segments on the right.
-            typeset -g POWERLEVEL9K_RIGHT_SEGMENT_SEPARATOR='\uE0BA'
+    #        typeset -g POWERLEVEL9K_RIGHT_SEGMENT_SEPARATOR='\uE0BA'
             # The right end of left prompt.
-            typeset -g POWERLEVEL9K_LEFT_PROMPT_LAST_SEGMENT_END_SYMBOL='\uE0BC'
+    #        typeset -g POWERLEVEL9K_LEFT_PROMPT_LAST_SEGMENT_END_SYMBOL='\uE0BC'
             # The left end of right prompt.
-            typeset -g POWERLEVEL9K_RIGHT_PROMPT_FIRST_SEGMENT_START_SYMBOL='\uE0BA'
+    #        typeset -g POWERLEVEL9K_RIGHT_PROMPT_FIRST_SEGMENT_START_SYMBOL='\uE0BA'
             # The left end of left prompt.
-            typeset -g POWERLEVEL9K_LEFT_PROMPT_FIRST_SEGMENT_START_SYMBOL='\uE0BA'
+    #        typeset -g POWERLEVEL9K_LEFT_PROMPT_FIRST_SEGMENT_START_SYMBOL='\uE0BA'
             # The right end of right prompt.
-            typeset -g POWERLEVEL9K_RIGHT_PROMPT_LAST_SEGMENT_END_SYMBOL='\uE0BC'
+    #        typeset -g POWERLEVEL9K_RIGHT_PROMPT_LAST_SEGMENT_END_SYMBOL='\uE0BC'
             # Left prompt terminator for lines without any segments.
-            typeset -g POWERLEVEL9K_EMPTY_LINE_LEFT_PROMPT_LAST_SEGMENT_END_SYMBOL=
-        ;;
-    esac
+    #        typeset -g POWERLEVEL9K_EMPTY_LINE_LEFT_PROMPT_LAST_SEGMENT_END_SYMBOL=
+    #    ;;
+    #esac
 
     #################################[ os_icon: os identifier ]##################################
     # OS identifier color.
     typeset -g POWERLEVEL9K_OS_ICON_FOREGROUND=245
     typeset -g POWERLEVEL9K_OS_ICON_BACKGROUND=235
     # Make the icon bold.
-    case ${OSTYPE} in
-        darwin*)
+    #case ${OSTYPE} in
+    #    darwin*)
             typeset -g POWERLEVEL9K_OS_ICON_CONTENT_EXPANSION='%B${P9K_CONTENT}'
-        ;;
-        *)
-            typeset -g POWERLEVEL9K_OS_ICON_CONTENT_EXPANSION='%B${P9K_CONTENT//}'
-        ;;
-    esac
+    #    ;;
+    #    *)
+    #        typeset -g POWERLEVEL9K_OS_ICON_CONTENT_EXPANSION='%B${P9K_CONTENT//}'
+    #    ;;
+    #esac
 
     ################################[ prompt_char: prompt symbol ]################################
     # Transparent background.
@@ -539,14 +539,14 @@
     # Don't show the number of background jobs.
     typeset -g POWERLEVEL9K_BACKGROUND_JOBS_VERBOSE=false
     # Icon to show when there are background jobs.
-    case ${OSTYPE} in
-        darwin*)
+    #case ${OSTYPE} in
+    #    darwin*)
             typeset -g POWERLEVEL9K_BACKGROUND_JOBS_VISUAL_IDENTIFIER_EXPANSION='${P9K_VISUAL_IDENTIFIER}'
-        ;;
-        *)
-            typeset -g POWERLEVEL9K_BACKGROUND_JOBS_VISUAL_IDENTIFIER_EXPANSION='${P9K_VISUAL_IDENTIFIER//}'
-        ;;
-    esac
+    #    ;;
+    #    *)
+    #        typeset -g POWERLEVEL9K_BACKGROUND_JOBS_VISUAL_IDENTIFIER_EXPANSION='${P9K_VISUAL_IDENTIFIER//}'
+    #    ;;
+    #esac
 
     #######################[ direnv: direnv status (https://direnv.net/) ]########################
     # Direnv color.
@@ -991,14 +991,14 @@
     # name of the interface.
     typeset -g POWERLEVEL9K_VPN_IP_INTERFACE='(wg|(.*tun))[0-9]*'
     # Icon to show when on VPN.
-    case ${OSTYPE} in
-        darwin*)
+    #case ${OSTYPE} in
+    #    darwin*)
             typeset -g POWERLEVEL9K_VPN_IP_VISUAL_IDENTIFIER_EXPANSION='${P9K_VISUAL_IDENTIFIER}'
-        ;;
-        *)
-            typeset -g POWERLEVEL9K_VPN_IP_VISUAL_IDENTIFIER_EXPANSION='${P9K_VISUAL_IDENTIFIER//}'
-        ;;
-    esac
+    #    ;;
+    #    *)
+    #        typeset -g POWERLEVEL9K_VPN_IP_VISUAL_IDENTIFIER_EXPANSION='${P9K_VISUAL_IDENTIFIER//}'
+    #    ;;
+    #esac
 
     #########################[ proxy: system-wide http/https/ftp proxy ]##########################
     # Proxy color.
