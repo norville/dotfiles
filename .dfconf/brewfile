@@ -10,6 +10,7 @@ brew "git"
 brew "wget"
 brew "curl"
 brew "zsh"
+brew "shfmt"
 
 # GNU core utilities (those that come with macOS are outdated)
 brew "coreutils"
@@ -30,6 +31,7 @@ brew "mackup"
 brew "mas"
 
 # Apps not on Mac App Store
+#cask "anaconda"
 cask "docker"
 #cask "dropbox"
 cask "firefox"
@@ -42,7 +44,7 @@ cask "skype"
 cask "spectacle"
 cask "spotify"
 cask "teamviewer"
-#cask "tor-browser"
+cask "tor-browser"
 cask "transmission"
 cask "visual-studio-code"
 cask "vlc"
@@ -67,11 +69,12 @@ mas "Pixelmator", id: 407963104
 mas "Spark", id: 1176895641
 mas "Sweet Home 3D", id: 669289700
 mas "The Unarchiver", id: 425424353
-mas "WhatsApp", id: 1147396723
+mas "Telegram", id: 747648890
 mas "WiFi Explorer", id: 494803304
 #mas "Xcode", id: 497799835
 
 # Fonts
+cask "font-fira-mono"
+cask "font-firamono-nerd-font"
 cask "font-meslo-lg"
 cask "font-meslo-nerd-font"
-cask "font-meslo-nerd-font-mono"
