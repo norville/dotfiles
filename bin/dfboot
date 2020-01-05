@@ -11,7 +11,7 @@
 ### Prepare for execution
 
 # Force exit in case of error
-set -e
+#set -e
 
 # Call error handler before exiting
 #trap "bdb_handle_error" EXIT
@@ -36,22 +36,20 @@ WHT_COL="${ESC_SEQ}97;01m"      # white
 
 DISTRO=""                       # local os
 BARE_DIR="${HOME}/.dfbare"      # git bare repo dir
-CURR_CMD=$(basename $0)         # current running command
+#CURR_CMD=$(basename $0)         # current running command
 
 ### Define functions
 
+# Handle exit codes, print messages and clean up
 bdb_handle_error() {
 
     ERR_CODE=$?
-    if [[ "${ERR_CODE}" != 0 ]]; then
 
-        # TODO - handle exit codes and cleanup (MENU)
+    # TODO - handle exit codes and cleanup (MENU)
 
-        printf -- "Error ${ERR_CODE} has occurred."
-        printf -- "\nExiting with error code ${ERR_CODE}.\n"
-        exit ${ERR_CODE}
-
-    fi
+    printf -- "Error ${ERR_CODE} has occurred."
+    printf -- "\nExiting with error code ${ERR_CODE}.\n"
+    exit ${ERR_CODE}
 
 }
 
@@ -60,10 +58,11 @@ bdb_exit_status() {
 
     if [[ "$?" != 0 ]]; then
         # Print error message
-        echo -e "\n${RED_COL}|xxx| ${CURR_CMD}: ${1:-"ERROR"} ${RST_COL}"
+        echo -e "\n${RED_COL}|xxx| ERROR: ${1:-"UNKNOWN"} ${RST_COL}"
+        bdb_handle_error
     else
         # Print success message
-        echo -en "${GRN_COL}|+++| ${CURR_CMD}: ${1:-"DONE"} ${RST_COL}"
+        echo -en "${GRN_COL}|+++| OK: ${1:-"UNKNOWN"} ${RST_COL}"
     fi
 
 }
