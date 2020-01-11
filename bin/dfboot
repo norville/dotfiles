@@ -58,39 +58,45 @@ bdb_handle_error() {
 # Check last exit status and print outcome message
 bdb_exit_status() {
 
+    # If last command exit status is not 0
     if [[ "$?" != 0 ]]; then
+
         # Print error message
         echo -e "\n${RED_COL}|xxx| ERROR: ${1:-"UNKNOWN"} ${RST_COL}"
+        # Handle error
         bdb_handle_error
+
     else
+
         # Print success message
         echo -en "${GRN_COL}|+++| OK: ${1:-"UNKNOWN"} ${RST_COL}"
+
     fi
 
 }
 
-# Print info message - NEWLINE
+# Print info message
 bdb_info() {
 
     echo -en "\n${WHT_COL}|BDB| $1 ${RST_COL}"
 
 }
 
-# Print run message - NO NEWLINE
+# Print run message
 bdb_run() {
 
     echo -en "\n${BLU_COL}|***| $1 ... ${RST_COL}"
 
 }
 
-# Print outcome message - INLINE
+# Print outcome message
 bdb_outcome() {
 
     echo -en "${CYN_COL}$1${RST_COL}"
 
 }
 
-# Print message before command - NEWLINE
+# Print message before command
 bdb_command() {
 
     echo -e "\n${MGN_COL}|>>>| $1 ${RST_COL}"
@@ -109,9 +115,10 @@ bdb_do_sys() {
 
     bdb_run "Running BDB on a "
 
-    # Detect local system
+    ## Detect local system
 
-    if type apt-get &>/dev/null; then         # Test for debian-like distro
+    # Test for debian-like distro
+    if type apt-get &>/dev/null; then
 
         bdb_outcome "Debian system"
         DISTRO="debian"
@@ -128,7 +135,8 @@ bdb_do_sys() {
 
         fi
 
-    elif type pacman &>/dev/null; then        # Test for arch-like distro
+    # Test for arch-like distro
+    elif type pacman &>/dev/null; then
 
         bdb_outcome "ArchLinux system"
         DISTRO="arch"
@@ -136,14 +144,16 @@ bdb_do_sys() {
         sudo pacman -Syy
         bdb_exit_status "updating Pacman"
 
-    else                                    # Assume macos, install brew
+    # Assume macos
+    else
 
         bdb_outcome "macOS system"
         DISTRO="macos"
 
-        # Check for homebrew
+        # If brew is missing
         if ! type brew &>/dev/null; then
 
+            # Install homebrew
             BREW_URL="https://raw.githubusercontent.com/Homebrew/install/master/install"
             bdb_command "Installing Homebrew"
             /usr/bin/ruby -e "$(curl -fsSL ${BREW_URL})"
@@ -151,6 +161,7 @@ bdb_do_sys() {
 
         else
 
+            # Update homebrew
             bdb_command "Updating Homebrew"
             brew update
             bdb_exit_status "updating Homebrew"
@@ -181,7 +192,7 @@ bdb_do_repo() {
     # Set bare repo dir
     mkdir -p ${BARE_DIR}
 
-    # Check for local bare repo
+    # If bare repo is missing
     if [[ ! "$(git --git-dir=${BARE_DIR} rev-parse --is-bare-repository)" ]]; then
 
         bdb_outcome "none found. Let's clone remote repo!"
@@ -240,21 +251,20 @@ bdb_do_apps() {
 
         # System is macOS
 
-        # Install brew bundle
+        # Install brew bundles
         BREW_PKG="${HOME}/.dfconf/brewfile"
         bdb_command "Installing required formulae from <${BREW_PKG}>"
         brew bundle install --file=${BREW_PKG}
         bdb_exit_status "installing required formulae"
 
-        # Check extra formulae
-        bdb_run "Looking for extra formulae"
+        # If extra formulae are installed
         if [[ "$(brew bundle cleanup --file=${BREW_PKG})" ]]; then
 
             bdb_run "Do you want to uninstall extra formulae? [y|n] "
             read -r -n 1 response
             if [[ "${response}" =~ (y|Y) ]]; then
 
-                # Delete extra packages
+                # Delete extra formulae
                 bdb_command "Removing extra formulae"
                 brew bundle cleanup --file=${BREW_PKG} --force
                 bdb_exit_status "removing extra formulae"
@@ -311,7 +321,11 @@ bdb_do_apps() {
         bdb_exit_status "cleaning Pacman cache"
 
     else
-        bdb_outcome "package manager not found!"
+
+        # Distro not detected
+        bdb_info "Cannot detect your system! Exiting..."
+        bdb_handle_error 10
+
     fi
 
     bdb_info "Required packages ready"
@@ -323,12 +337,13 @@ bdb_do_cli() {
 
     bdb_info "Set up your command line interface"
 
+    # Configure login shell
     bdb_run "Configuring ZSH as your login shell"
     ZSH_PATH=$(which zsh)
-    # If current shell is not zsh
+    # If zsh is not the login shell
     if [[ "${SHELL}" != "${ZSH_PATH}" ]]; then
 
-        # Set ZSH as login shell
+        # Set zsh as login shell
         bdb_command "Switching to ZSH"
         echo ${ZSH_PATH} | sudo tee -a /etc/shells
         sudo chsh -s ${ZSH_PATH} ${USER}
@@ -336,6 +351,7 @@ bdb_do_cli() {
 
     else
 
+        # Zsh is the login shell
         bdb_outcome "done"
 
         # Delete antigen dir to force cloning
@@ -349,19 +365,20 @@ bdb_do_cli() {
 
     fi
 
-    # Install or update Vundle and required plugins
+    # Install or update vundle and required plugins
     VNDL_DIR="${HOME}/.vim/bundle"
     bdb_run "Configuring VIM as your text editor"
+    # If vundle is missing
     if [[ ! -d "${VNDL_DIR}/Vundle.vim" ]]; then
 
-        # Install Vundle
+        # Install vundle
         VNDL_URL="https://github.com/VundleVim/Vundle.vim.git"
         bdb_command "Installing Vundle - VIM plugin manager"
         git clone ${VNDL_URL} ${VNDL_DIR}/Vundle.vim
         bdb_exit_status "installing Vundle"
 
     fi
-    # Update Vundle and required plugins
+    # Update vundle and required plugins
     bdb_command "Updating VIM plugins via Vundle"
     vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
     bdb_exit_status "updating Vundle plugins"
