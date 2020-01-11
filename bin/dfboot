@@ -17,9 +17,11 @@
 #trap "bdb_handle_error" EXIT
 
 # Provide --help flag
-if [ "${#@}" -ne 0 ] && [ "${@#"--help"}" = "" ]; then
+if [[ "${#@}" -ne 0 && "${@#"--help"}" = "" ]]; then
+
     printf -- '...help...\n'
     exit 0
+
 fi
 
 ### Define variables
