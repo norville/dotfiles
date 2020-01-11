@@ -381,16 +381,7 @@ bdb_do_cli() {
         FURA_URL="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraMono/Regular/complete/Fura%20Mono%20Regular%20Nerd%20Font%20Complete.otf"
         MSLO_URL="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Meslo/S/Regular/complete/Meslo%20LG%20S%20Regular%20Nerd%20Font%20Complete.ttf"
 
-        #FNT1_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Regular.ttf"
-        #FNT2_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Bold.ttf"
-        #FNT3_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Italic.ttf"
-        #FNT4_URL="https://github.com/romkatv/dotfiles-public/raw/master/.local/share/fonts/NerdFonts/MesloLGS%20NF%20Bold%20Italic.ttf"
-
         mkdir -p ${FONT_DIR}
-        #curl -L ${FNT1_URL} -o ${FONT_DIR}/meslo_regular.ttf
-        #curl -L ${FNT2_URL} -o ${FONT_DIR}/meslo_bold.ttf
-        #curl -L ${FNT3_URL} -o ${FONT_DIR}/meslo_italic.ttf
-        #curl -L ${FNT4_URL} -o ${FONT_DIR}/meslo_bold_italic.ttf
         bdb_command "Installing Fura Mono"
         curl -fLo "${FONT_DIR}/${FURA_FNT}" "${FURA_URL}"
         bdb_exit_status "installing Fura Mono"
@@ -410,18 +401,29 @@ bdb_do_cli() {
         rm -rf tilix-gruvbox
         bdb_exit_status "installing Gruvbox theme for Tilix"
 
-        #TODO GNU Stow
+        #TODO GNU Stow or mackup
 
-    #else
+    elif [[ "${DISTRO}" == "macos" ]]; then
 
         #bdb_command "Restoring macOS preferences"
         #TODO Mathias
         #bdb_exit_status "restoring macOS preferences"
 
-        #bdb_command "Restoring App preferences"
+        bdb_command "Restoring App preferences"
         #TODO improve mackup
-        #mackup restore
-        #bdb_exit_status "restoring App preferences"
+        mackup restore
+        bdb_exit_status "restoring App preferences"
+
+        # Restore VSCode extensions
+        CODE_EXT="${HOME}/.dfocnf/vscode-ext"
+        # If no extensions installed and extensions file exists
+        if [[ ! $(code --list-extensions) && -f "${CODE_EXT}" ]]; then
+
+            bdb_command "Installing VSCode extensions"
+            xargs -L 1 -a "${CODE_EXT}" code --install-extension
+            bdb_exit_status "installing VSCode extensions"
+
+        fi
 
     fi
 
