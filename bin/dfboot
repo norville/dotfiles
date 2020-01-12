@@ -252,7 +252,7 @@ bdb_do_apps() {
         # System is macOS
 
         # Install brew bundles
-        BREW_PKG="${HOME}/.dfconf/brewfile"
+        BREW_PKG="${HOME}/.dfconf.d/brewfile"
         bdb_command "Installing required formulae from <${BREW_PKG}>"
         brew bundle install --file=${BREW_PKG}
         bdb_exit_status "installing required formulae"
@@ -432,7 +432,7 @@ bdb_do_cli() {
         bdb_exit_status "restoring App preferences"
 
         # Restore VSCode extensions
-        CODE_EXT="${HOME}/.dfocnf/vscode-ext"
+        CODE_EXT="${HOME}/.dfconf.d/vscode-ext"
         # If no extensions installed and extensions file exists
         if [[ ! $(code --list-extensions) && -f "${CODE_EXT}" ]]; then
 
