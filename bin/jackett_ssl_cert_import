@@ -1,0 +1,5 @@
+#!/bin/bash
+
+sudo -v
+
+sudo wget -O - https://curl.haxx.se/ca/cacert.pem | sudo cert-sync /dev/stdin
