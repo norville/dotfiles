@@ -3,3 +3,8 @@
 sudo -v
 
 sudo wget -O - https://curl.haxx.se/ca/cacert.pem | sudo cert-sync /dev/stdin
+
+sudo systemctl restart jackett.service
+sleep 30
+sudo systemctl restart radarr.service
+sudo systemctl restart sonarr.service
