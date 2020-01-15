@@ -36,6 +36,7 @@ MGN_COL="${ESC_SEQ}35;01m"      # magenta
 CYN_COL="${ESC_SEQ}36;01m"      # cyan
 WHT_COL="${ESC_SEQ}97;01m"      # white
 
+FRESH=""                        # true = fresh install
 DISTRO=""                       # local os
 BARE_DIR="${HOME}/.dfbare"      # git bare repo dir
 #CURR_CMD=$(basename $0)         # current running command
@@ -195,6 +196,9 @@ bdb_do_repo() {
     # If bare repo is missing
     if [[ ! "$(git --git-dir=${BARE_DIR} rev-parse --is-bare-repository)" ]]; then
 
+        # bare repo missing, doing fresh install
+        FRESH="true"
+
         bdb_outcome "none found. Let's clone remote repo!"
 
         # Clone remote repo into bare repo
@@ -284,10 +288,6 @@ bdb_do_apps() {
         bdb_command "Cleaning Homebrew"
         brew cleanup
         bdb_exit_status "cleaning Homebrew"
-
-        bdb_command "Verifying Homebrew"
-        brew doctor
-        bdb_exit_status "verifying Homebrew"
 
     elif [[ "${DISTRO}" == "debian" ]]; then
 
