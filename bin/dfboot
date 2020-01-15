@@ -437,7 +437,7 @@ bdb_do_cli() {
         if [[ ! $(code --list-extensions) && -f "${CODE_EXT}" ]]; then
 
             bdb_command "Installing VSCode extensions"
-            xargs -L 1 -a "${CODE_EXT}" code --install-extension
+            cat "${CODE_EXT}" | xargs -n 1 code --install-extension
             bdb_exit_status "installing VSCode extensions"
 
         fi
