@@ -386,7 +386,7 @@ bdb_do_cli() {
     bdb_info "CLI ready"
     bdb_info "Restore user preferences"
 
-    # Detect system
+    # If distro is arch
     if [[ "${DISTRO}" == "arch" ]]; then
 
         bdb_run "Installing Nerd fonts for p10k"
@@ -420,16 +420,24 @@ bdb_do_cli() {
 
         #TODO GNU Stow or mackup
 
+    # If distro is macos
     elif [[ "${DISTRO}" == "macos" ]]; then
 
-        #bdb_command "Restoring macOS preferences"
-        #TODO Mathias
-        #bdb_exit_status "restoring macOS preferences"
+        # If this is a fresh install
+        if [[ "${FRESH}" ]]; then
 
-        bdb_command "Restoring App preferences"
-        #TODO improve mackup
-        mackup restore
-        bdb_exit_status "restoring App preferences"
+            # Set macos defaults
+            bdb_command "Restoring macOS preferences"
+            MAC_DEF="${HOME}/bin/macos_defaults"
+            [[ "${MAC_DEF}" ]] && source "${MAC_DEF}"
+            bdb_exit_status "restoring macOS preferences"
+
+            # Run mackup
+            bdb_command "Restoring App preferences"
+            type mackup &>/dev/null && mackup restore
+            bdb_exit_status "restoring App preferences"
+
+        fi
 
         # Restore VSCode extensions
         CODE_EXT="${HOME}/.dfconf.d/vscode-ext"
