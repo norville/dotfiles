@@ -232,7 +232,7 @@ bdb_do_repo() {
         dfconf config status.showUntrackedFiles no
 
         # Set remote Github via ssh 
-        dfconf remote set-url origin git@github.com/norville/dotfiles.git
+        dfconf remote set-url origin git@github.com:norville/dotfiles.git
 
     else
 
