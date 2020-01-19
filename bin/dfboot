@@ -24,7 +24,7 @@ if [[ "${#@}" -ne 0 && "${@#"--help"}" = "" ]]; then
 
 fi
 
-### Define variables
+### Define constants
 
 ESC_SEQ="\x1b["
 RST_COL="${ESC_SEQ}39;49;00m"   # reset
@@ -37,7 +37,8 @@ CYN_COL="${ESC_SEQ}36;01m"      # cyan
 WHT_COL="${ESC_SEQ}97;01m"      # white
 
 FRESH=""                        # true = fresh install
-DISTRO=""                       # local os
+DISTRO=""                       # unix distro name
+SYSTEM=""                       # os name
 BARE_DIR="${HOME}/.dfbare"      # git bare repo dir
 #CURR_CMD=$(basename $0)         # current running command
 
@@ -109,67 +110,84 @@ bdb_do_sys() {
 
     bdb_info "Detect local system and check basic packages"
 
-    # Get admin privileges
+    ## Get admin privileges
     bdb_run "Getting admin privileges"
     #TODO no newline after password input
     sudo -v
 
-    bdb_run "Running BDB on a "
-
     ## Detect local system
-
-    # Test for debian-like distro
-    if type apt-get &>/dev/null; then
-
-        bdb_outcome "Debian system"
-        DISTRO="debian"
-        bdb_command "Updating APT"
-        sudo apt-get update
-        bdb_exit_status "updating APT"
-
-        # Check for git
-        if ! type git &>/dev/null; then
-
-            bdb_command "Installing git"
-            sudo apt-get install -y git
-            bdb_exit_status "installing git"
-
-        fi
-
-    # Test for arch-like distro
-    elif type pacman &>/dev/null; then
-
-        bdb_outcome "ArchLinux system"
-        DISTRO="arch"
-        bdb_command "Updating Pacman"
-        sudo pacman -Syy
-        bdb_exit_status "updating Pacman"
-
-    # Assume macos
+    bdb_run "Local system is "
+    LSB_NAME="/etc/os-release"
+    if [[ -f "${LSB_NAME}" ]]; then
+        SYSTEM="$(grep -e '^ID=' ${LSB_NAME} | cut -d '=' -f 2)"
     else
-
-        bdb_outcome "macOS system"
-        DISTRO="macos"
-
-        # If brew is missing
-        if ! type brew &>/dev/null; then
-
-            # Install homebrew
-            BREW_URL="https://raw.githubusercontent.com/Homebrew/install/master/install"
-            bdb_command "Installing Homebrew"
-            /usr/bin/ruby -e "$(curl -fsSL ${BREW_URL})"
-            bdb_exit_status "installing Homebrew"
-
-        else
-
-            # Update homebrew
-            bdb_command "Updating Homebrew"
-            brew update
-            bdb_exit_status "updating Homebrew"
-
-        fi
-
+        SYSTEM="macos"
     fi
+    case "${SYSTEM}" in
+        ubuntu|debian|raspbian)
+            DISTRO="debian"
+        ;;
+        manjaro*|arch)
+            DISTRO="arch"
+        ;;
+        macos)
+            DISTRO="darwin"
+        ;;
+        *)
+            DISTRO="unknown"
+        ;;
+    esac
+    bdb_outcome "${SYSTEM} (${DISTRO})"
+
+    ## Prepare local system
+    case "${DISTRO}" in
+
+        arch)
+            bdb_command "Updating Pacman"
+            sudo pacman -Syy
+            bdb_exit_status "updating Pacman"
+        ;;
+
+        darwin)
+            # If brew is missing
+            if ! type brew &>/dev/null; then
+
+                # Install homebrew
+                BREW_URL="https://raw.githubusercontent.com/Homebrew/install/master/install"
+                bdb_command "Installing Homebrew"
+                /usr/bin/ruby -e "$(curl -fsSL ${BREW_URL})"
+                bdb_exit_status "installing Homebrew"
+
+            else
+
+                # Update homebrew
+                bdb_command "Updating Homebrew"
+                brew update
+                bdb_exit_status "updating Homebrew"
+
+            fi
+        ;;
+
+        debian)
+            bdb_command "Updating APT"
+            sudo apt-get update
+            bdb_exit_status "updating APT"
+
+            # If git is missing
+            if ! type git &>/dev/null; then
+
+                #Install git
+                bdb_command "Installing git"
+                sudo apt-get install -y git
+                bdb_exit_status "installing git"
+
+            fi
+        ;;
+
+        *) bdb_exit_status "Cannot detect local system. Exiting..."
+            exit 1
+        ;;
+    esac
 
     bdb_info "System ready"
 
@@ -254,82 +272,83 @@ bdb_do_apps() {
     bdb_info "Install or update required packages"
 
     # Detect system
-    if [[ "${DISTRO}" == "macos" ]]; then
+    case "${DISTRO}" in
 
-        # System is macOS
+        macos)  # System is macOS
 
-        # Install brew bundles
-        BREW_PKG="${HOME}/.dfconf.d/brewfile"
-        bdb_command "Installing required formulae from <${BREW_PKG}>"
-        brew bundle install --file=${BREW_PKG}
-        bdb_exit_status "installing required formulae"
+            # Install brew bundles
+            BREW_PKG="${HOME}/.dfconf.d/brewfile"
+            bdb_command "Installing required formulae from <${BREW_PKG}>"
+            brew bundle install --file=${BREW_PKG}
+            bdb_exit_status "installing required formulae"
 
-        # If extra formulae are installed
-        if [[ "$(brew bundle cleanup --file=${BREW_PKG})" ]]; then
+            # If extra formulae are installed
+            if [[ "$(brew bundle cleanup --file=${BREW_PKG})" ]]; then
 
-            bdb_run "Do you want to uninstall extra formulae? [y|n] "
-            read -r -n 1 response
-            if [[ "${response}" =~ (y|Y) ]]; then
+                bdb_run "Do you want to uninstall extra formulae? [y|n] "
+                read -r -n 1 response
+                if [[ "${response}" =~ (y|Y) ]]; then
 
-                # Delete extra formulae
-                bdb_command "Removing extra formulae"
-                brew bundle cleanup --file=${BREW_PKG} --force
-                bdb_exit_status "removing extra formulae"
+                    # Delete extra formulae
+                    bdb_command "Removing extra formulae"
+                    brew bundle cleanup --file=${BREW_PKG} --force
+                    bdb_exit_status "removing extra formulae"
 
-            else
+                else
 
-                # Upgrade all formulae
-                bdb_command "Upgrading all formulae"
-                brew upgrade
-                bdb_exit_status "upgrading all formulae"
+                    # Upgrade all formulae
+                    bdb_command "Upgrading all formulae"
+                    brew upgrade
+                    bdb_exit_status "upgrading all formulae"
+
+                fi
 
             fi
 
-        fi
+            # Cleanup
+            bdb_command "Cleaning Homebrew"
+            brew cleanup
+            bdb_exit_status "cleaning Homebrew"
 
-        # Cleanup
-        bdb_command "Cleaning Homebrew"
-        brew cleanup
-        bdb_exit_status "cleaning Homebrew"
+        ;;
 
-    elif [[ "${DISTRO}" == "debian" ]]; then
+        debian) # System is debian
 
-        # System is debian
+            # Install or update required packages via APT
+            DEBN_PKG="vim git wget curl zsh"
+            bdb_command "Installing APT packages: <${DEBN_PKG}>"
+            sudo apt-get install -y ${DEBN_PKG}
+            bdb_exit_status "installing APT packages"
 
-        # Install or update required packages via APT
-        DEBN_PKG="vim git wget curl zsh"
-        bdb_command "Installing APT packages: <${DEBN_PKG}>"
-        sudo apt-get install -y ${DEBN_PKG}
-        bdb_exit_status "installing APT packages"
+            # Cleanup
+            bdb_command "Cleaning APT"
+            sudo apt autoremove
+            sudo apt autoclean
+            bdb_exit_status "cleaning APT"
 
-        # Cleanup
-        bdb_command "Cleaning APT"
-        sudo apt autoremove
-        sudo apt autoclean
-        bdb_exit_status "cleaning APT"
+        ;;
 
-    elif [[ "${DISTRO}" == "arch" ]]; then
+        arch) # System is arch
 
-        # System is arch
+            # Install or update required packages via Pacman
+            ARCH_PKG="vim git wget curl zsh tilix"
+            bdb_command "Installing Arch packages: <${ARCH_PKG}>"
+            sudo pacman --noconfirm --needed -S ${ARCH_PKG}
+            bdb_exit_status "installing Arch packages"
 
-        # Install or update required packages via Pacman
-        ARCH_PKG="vim git wget curl zsh tilix"
-        bdb_command "Installing Arch packages: <${ARCH_PKG}>"
-        sudo pacman --noconfirm --needed -S ${ARCH_PKG}
-        bdb_exit_status "installing Arch packages"
+            # Cleanup
+            bdb_command "Cleaning Pacman cache"
+            sudo pacman --noconfirm -Scc
+            bdb_exit_status "cleaning Pacman cache"
 
-        # Cleanup
-        bdb_command "Cleaning Pacman cache"
-        sudo pacman --noconfirm -Scc
-        bdb_exit_status "cleaning Pacman cache"
+        ;;
 
-    else
+        *) # Distro not detected
+            bdb_info "Cannot detect your system! Exiting..."
+            bdb_handle_error 10
+        ;;
 
-        # Distro not detected
-        bdb_info "Cannot detect your system! Exiting..."
-        bdb_handle_error 10
-
-    fi
+    esac
 
     bdb_info "Required packages ready"
 
@@ -389,71 +408,77 @@ bdb_do_cli() {
     bdb_info "CLI ready"
     bdb_info "Restore user preferences"
 
-    # If distro is arch
-    if [[ "${DISTRO}" == "arch" ]]; then
+    case "${DISTRO}" in
 
-        bdb_run "Installing Nerd fonts for p10k"
+        arch)
+            bdb_run "Installing Nerd fonts for p10k"
 
-        # Install nerd fonts for p10k
-        FONT_DIR="${HOME}/.local/share/fonts"
-        FURA_FNT="Fura Mono Regular Nerd Font.otf"
-        MSLO_FNT="Meslo LG S Regular Nerd Font.ttf"
-        FURA_URL="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraMono/Regular/complete/Fura%20Mono%20Regular%20Nerd%20Font%20Complete.otf"
-        MSLO_URL="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Meslo/S/Regular/complete/Meslo%20LG%20S%20Regular%20Nerd%20Font%20Complete.ttf"
+            # Install nerd fonts for p10k
+            FONT_DIR="${HOME}/.local/share/fonts"
+            FURA_FNT="Fura Mono Regular Nerd Font.otf"
+            MSLO_FNT="Meslo LG S Regular Nerd Font.ttf"
+            FURA_URL="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraMono/Regular/complete/Fura%20Mono%20Regular%20Nerd%20Font%20Complete.otf"
+            MSLO_URL="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Meslo/S/Regular/complete/Meslo%20LG%20S%20Regular%20Nerd%20Font%20Complete.ttf"
 
-        mkdir -p ${FONT_DIR}
-        bdb_command "Installing Fura Mono"
-        curl -fLo "${FONT_DIR}/${FURA_FNT}" "${FURA_URL}"
-        bdb_exit_status "installing Fura Mono"
-        bdb_command "Installing Meslo"
-        curl -fLo "${FONT_DIR}/${MSLO_FNT}" "${MSLO_URL}"
-        bdb_exit_status "installing Meslo"
-        bdb_command "Updating fonts"
-        fc-cache -f
-        bdb_exit_status "updating fonts"
+            mkdir -p ${FONT_DIR}
+            bdb_command "Installing Fura Mono"
+            curl -fLo "${FONT_DIR}/${FURA_FNT}" "${FURA_URL}"
+            bdb_exit_status "installing Fura Mono"
+            bdb_command "Installing Meslo"
+            curl -fLo "${FONT_DIR}/${MSLO_FNT}" "${MSLO_URL}"
+            bdb_exit_status "installing Meslo"
+            bdb_command "Updating fonts"
+            fc-cache -f
+            bdb_exit_status "updating fonts"
 
-        # Set up tilix
-        bdb_command "Installing Gruvbox theme for Tilix"
-        git clone https://github.com/MichaelThessel/tilix-gruvbox.git
-        cd tilix-gruvbox
-        sudo cp gruvbox-* /usr/share/tilix/schemes
-        cd ..
-        rm -rf tilix-gruvbox
-        bdb_exit_status "installing Gruvbox theme for Tilix"
+            # Set up tilix
+            bdb_command "Installing Gruvbox theme for Tilix"
+            git clone https://github.com/MichaelThessel/tilix-gruvbox.git
+            cd tilix-gruvbox
+            sudo cp gruvbox-* /usr/share/tilix/schemes
+            cd ..
+            rm -rf tilix-gruvbox
+            bdb_exit_status "installing Gruvbox theme for Tilix"
 
-        #TODO GNU Stow or mackup
+            #TODO GNU Stow or mackup
 
-    # If distro is macos
-    elif [[ "${DISTRO}" == "macos" ]]; then
+        ;;
 
-        # If this is a fresh install
-        if [[ "${FRESH}" ]]; then
+        macos)
 
-            # Set macos defaults
-            bdb_command "Restoring macOS preferences"
-            MAC_DEF="${HOME}/bin/macos_defaults"
-            [[ "${MAC_DEF}" ]] && source "${MAC_DEF}"
-            bdb_exit_status "restoring macOS preferences"
+            # If this is a fresh install
+            if [[ "${FRESH}" ]]; then
 
-            # Run mackup
-            bdb_command "Restoring App preferences"
-            type mackup &>/dev/null && mackup restore
-            bdb_exit_status "restoring App preferences"
+                # Set macos defaults
+                bdb_command "Restoring macOS preferences"
+                MAC_DEF="${HOME}/bin/macos_defaults"
+                [[ "${MAC_DEF}" ]] && source "${MAC_DEF}"
+                bdb_exit_status "restoring macOS preferences"
 
-        fi
+                # Run mackup
+                bdb_command "Restoring App preferences"
+                type mackup &>/dev/null && mackup restore
+                bdb_exit_status "restoring App preferences"
 
-        # Restore VSCode extensions
-        CODE_EXT="${HOME}/.dfconf.d/vscode-ext"
-        # If no extensions installed and extensions file exists
-        if [[ ! $(code --list-extensions) && -f "${CODE_EXT}" ]]; then
+            fi
 
-            bdb_command "Installing VSCode extensions"
-            cat "${CODE_EXT}" | xargs -n 1 code --install-extension
-            bdb_exit_status "installing VSCode extensions"
+            # Restore VSCode extensions
+            CODE_EXT="${HOME}/.dfconf.d/vscode-ext"
+            # If no extensions installed and extensions file exists
+            if [[ ! $(code --list-extensions) && -f "${CODE_EXT}" ]]; then
 
-        fi
+                bdb_command "Installing VSCode extensions"
+                cat "${CODE_EXT}" | xargs -n 1 code --install-extension
+                bdb_exit_status "installing VSCode extensions"
 
-    fi
+            fi
+
+        ;;
+
+        *) # Nothing to do
+        ;;
+
+    esac
 
     bdb_info "User prefs restored"
 
