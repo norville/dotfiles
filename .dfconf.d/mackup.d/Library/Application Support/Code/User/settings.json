@@ -1,7 +1,7 @@
 {
   "editor.fontFamily": "'Fira Mono', Meslo, Menlo, Monaco, 'Courier New', monospace",
   "editor.fontLigatures": true,
-  "workbench.colorTheme": "Gruvbox Dark (Medium)",
+  "workbench.colorTheme": "Material Theme Darker",
   "editor.renderWhitespace": "all",
   "editor.renderControlCharacters": true,
   "editor.fontSize": 14,
@@ -17,7 +17,9 @@
   "editor.detectIndentation": true,
   "terminal.integrated.cursorBlinking": true,
   "terminal.integrated.fontFamily": "'FuraMono Nerd Font', 'MesloLGL Nerd Font'",
-  "[shellscript]": {},
+  "[shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
