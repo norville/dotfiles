@@ -288,7 +288,7 @@ bdb_do_apps() {
     # Detect system
     case "${DISTRO}" in
 
-    macos) # System is macOS
+    darwin) # System is macOS
 
         # Install brew bundles
         BREW_PKG="${HOME}/.dfconf.d/brewfile"

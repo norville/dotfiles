@@ -33,7 +33,7 @@ brew "mas"
 # Apps not on Mac App Store
 #cask "anaconda"
 cask "docker"
-#cask "dropbox"
+cask "dropbox"
 cask "firefox"
 cask "forklift"
 cask "google-chat"
