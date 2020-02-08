@@ -1,9 +1,7 @@
 #!/bin/bash
 
 # TODO
-# - .ssh/{config,known_hosts}
-# - SSH Keys generation and copy
-# - /etc/hosts
+# - SSH Keys generation and copy: centic9/generate-and-send-ssh-key
 # - colorize bdb_exit_status
 # - user interaction
 # - --silent / --verbose flags
