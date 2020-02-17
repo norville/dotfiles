@@ -38,14 +38,18 @@ path=(~/bin /usr/local/sbin $path[@])
 ### COMPLETIONS ###############################################################
 
 # Enable Homebrew Completion
-[[ $(type brew &>/dev/null) ]] && FPATH=$(brew --prefix)/share/zsh/site-functions:${FPATH}
+if type brew &>/dev/null; then
+    FPATH=$(brew --prefix)/share/zsh/site-functions:${FPATH}
+fi
 
 ##############################################################################
 
 ### SERVICES ##################################################################
 
 # Start keychain ssh-agent
-[[ $(type keychain &>/dev/null) ]] && eval $(keychain --eval --quiet)
+if type keychain &>/dev/null; then
+    eval "$(keychain --eval --quiet bassa_key)"
+fi
 
 ###############################################################################
 

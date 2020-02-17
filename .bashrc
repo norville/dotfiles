@@ -3,7 +3,7 @@
 #
 
 # On linux
-if [[ $(uname -s) == 'Linux' ]]; then
+if [[ "$(uname -s)" == "Linux" ]]; then
 
     # If not running interactively, don't do anything
     [[ $- != *i* ]] && return
@@ -14,7 +14,9 @@ if [[ $(uname -s) == 'Linux' ]]; then
 fi
 
 # Start keychain ssh-agent
-[[ type keychain &>/dev/null ]] && eval $(keychain --eval --quiet)
+if type keychain &>/dev/null; then
+    eval "$(keychain --eval --quiet bassa_key)"
+fi
 
 ### DO NOT DELETE ###
 # Alias for dfbare repo management
