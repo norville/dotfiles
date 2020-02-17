@@ -209,7 +209,7 @@ bdb_do_sys() {
 dfconf() {
 
     # /usr/bin/git --git-dir=<git-bare-dir> --work-tree=<dotfiles-dir>
-    /usr/bin/git --git-dir=${BARE_DIR} --work-tree=${HOME} $@
+    /usr/bin/git --git-dir="${BARE_DIR}" --work-tree="${HOME}" $@
 
 }
 
@@ -221,7 +221,7 @@ bdb_do_repo() {
     bdb_run "Looking for dotfiles"
 
     # Set bare repo dir
-    mkdir -p ${BARE_DIR}
+    mkdir -p "${BARE_DIR}"
 
     # If bare repo is missing
     if [[ ! "$(git --git-dir=${BARE_DIR} rev-parse --is-bare-repository)" ]]; then
@@ -234,7 +234,7 @@ bdb_do_repo() {
         # Clone remote repo into bare repo
         REPO_URL="https://github.com/norville/dotfiles.git"
         bdb_command "Cloning dotfiles into a bare repo"
-        git clone --bare ${REPO_URL} ${BARE_DIR} # Clone master branch
+        git clone --bare "${REPO_URL}" "${BARE_DIR}" # Clone master branch
         #git clone --bare -b <git-branch> ${REPO_URL} ${BARE_DIR}   # Clone specifc branch
         bdb_exit_status "cloning dotfiles into <${BARE_DIR}>"
 
@@ -249,9 +249,9 @@ bdb_do_repo() {
             # Create backup dir
             BAKP_DIR="${HOME}/.dfbackup"
             bdb_command "Backing up overlapping dotfiles"
-            mkdir -p ${BAKP_DIR}
+            mkdir -p "${BAKP_DIR}"
             # Move pre-existing dotfiles to ${BAKP_DIR}
-            dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} ${BAKP_DIR}/{}
+            dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} "${BAKP_DIR}"/{}
             dfconf checkout
 
         fi
@@ -291,7 +291,7 @@ bdb_do_apps() {
         # Install brew bundles
         BREW_PKG="${HOME}/.dfconf.d/brewfile"
         bdb_command "Installing required formulae from <${BREW_PKG}>"
-        brew bundle install --file=${BREW_PKG}
+        brew bundle install --file="${BREW_PKG}"
         bdb_exit_status "installing required formulae"
 
         # If extra formulae are installed
@@ -303,7 +303,7 @@ bdb_do_apps() {
 
                 # Delete extra formulae
                 bdb_command "Removing extra formulae"
-                brew bundle cleanup --file=${BREW_PKG} --force
+                brew bundle cleanup --file="${BREW_PKG}" --force
                 bdb_exit_status "removing extra formulae"
 
             else
@@ -329,7 +329,7 @@ bdb_do_apps() {
         # Install or update required packages via APT
         DEBN_PKG="vim git wget curl zsh"
         bdb_command "Installing APT packages: <${DEBN_PKG}>"
-        sudo apt-get install -y ${DEBN_PKG}
+        sudo apt-get install -y "${DEBN_PKG}"
         bdb_exit_status "installing APT packages"
 
         # Cleanup
@@ -345,7 +345,7 @@ bdb_do_apps() {
         # Install or update required packages via Pacman
         ARCH_PKG="vim git wget curl zsh tilix"
         bdb_command "Installing Arch packages: <${ARCH_PKG}>"
-        sudo pacman --noconfirm --needed -S ${ARCH_PKG}
+        sudo pacman --noconfirm --needed -S "${ARCH_PKG}"
         bdb_exit_status "installing Arch packages"
 
         # Cleanup
@@ -374,14 +374,14 @@ bdb_do_cli() {
 
     # Configure login shell
     bdb_run "Configuring ZSH as your login shell"
-    ZSH_PATH=$(which zsh)
+    ZSH_PATH="$(which zsh)"
     # If zsh is not the login shell
     if [[ "${SHELL}" != "${ZSH_PATH}" ]]; then
 
         # Set zsh as login shell
         bdb_command "Switching to ZSH"
-        echo ${ZSH_PATH} | sudo tee -a /etc/shells
-        sudo chsh -s ${ZSH_PATH} ${USER}
+        echo "${ZSH_PATH}" | sudo tee -a /etc/shells
+        sudo chsh -s "${ZSH_PATH}" "${USER}"
         bdb_exit_status "switching to ZSH"
 
     else
@@ -393,7 +393,7 @@ bdb_do_cli() {
         if [[ -d "${HOME}/.antigen" ]]; then
 
             bdb_command "Updating Antigen"
-            rm -rf ${HOME}/.antigen
+            rm -rf "${HOME}"/.antigen
             bdb_exit_status "updating Antigen"
 
         fi
@@ -409,7 +409,7 @@ bdb_do_cli() {
         # Install vundle
         VNDL_URL="https://github.com/VundleVim/Vundle.vim.git"
         bdb_command "Installing Vundle - VIM plugin manager"
-        git clone ${VNDL_URL} ${VNDL_DIR}/Vundle.vim
+        git clone "${VNDL_URL}" "${VNDL_DIR}"/Vundle.vim
         bdb_exit_status "installing Vundle"
 
     fi
@@ -433,7 +433,7 @@ bdb_do_cli() {
         FURA_URL="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraMono/Regular/complete/Fura%20Mono%20Regular%20Nerd%20Font%20Complete.otf"
         MSLO_URL="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Meslo/S/Regular/complete/Meslo%20LG%20S%20Regular%20Nerd%20Font%20Complete.ttf"
 
-        mkdir -p ${FONT_DIR}
+        mkdir -p "${FONT_DIR}"
         bdb_command "Installing Fura Mono"
         curl -fLo "${FONT_DIR}/${FURA_FNT}" "${FURA_URL}"
         bdb_exit_status "installing Fura Mono"
@@ -478,7 +478,7 @@ bdb_do_cli() {
         # Restore VSCode extensions
         CODE_EXT="${HOME}/.dfconf.d/vscode-ext"
         # If no extensions installed and extensions file exists
-        if [[ ! $(code --list-extensions) && -f "${CODE_EXT}" ]]; then
+        if [[ ! "$(code --list-extensions)" && -f "${CODE_EXT}" ]]; then
 
             bdb_command "Installing VSCode extensions"
             cat "${CODE_EXT}" | xargs -n 1 code --install-extension
