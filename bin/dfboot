@@ -1,27 +1,5 @@
 #!/bin/bash
 
-# TODO
-# - SSH Keys generation and copy: centic9/generate-and-send-ssh-key
-# - colorize bdb_exit_status
-# - user interaction
-# - --silent / --verbose flags
-
-### Prepare for execution
-
-# Force exit in case of error
-#set -e
-
-# Call error handler before exiting
-#trap "bdb_handle_error" EXIT
-
-# Provide --help flag
-if [[ "${#@}" -ne 0 && "${@#"--help"}" = "" ]]; then
-
-    printf -- '...help...\n'
-    exit 0
-
-fi
-
 ### Define constants
 
 ESC_SEQ="\x1b["
@@ -34,13 +12,21 @@ MGN_COL="${ESC_SEQ}35;01m"    # magenta
 CYN_COL="${ESC_SEQ}36;01m"    # cyan
 WHT_COL="${ESC_SEQ}97;01m"    # white
 
-FRESH=""                   # true = fresh install
-DISTRO=""                  # unix distro name
-SYSTEM=""                  # os name
-BARE_DIR="${HOME}/.dfbare" # git bare repo dir
-#CURR_CMD=$(basename $0)         # current running command
+FRESH=""                    # true = fresh install
+DISTRO=""                   # unix distro name
+SYSTEM=""                   # os name
+BARE_DIR="${HOME}/.dfbare"  # git bare repo dir
+PROGNAME="$(basename "$0")" # current running command
 
 ### Define functions
+
+# Automatically run git against the bare repo in ${HOME}
+dfconf() {
+
+    # /usr/bin/git --git-dir=<git-bare-dir> --work-tree=<dotfiles-dir>
+    /usr/bin/git --git-dir="${BARE_DIR}" --work-tree="${HOME}" $@
+
+}
 
 # Handle exit codes, print messages and clean up
 bdb_handle_error() {
@@ -202,14 +188,6 @@ bdb_do_sys() {
     esac
 
     bdb_info "System ready"
-
-}
-
-# Automatically run git against the bare repo in ${HOME}
-dfconf() {
-
-    # /usr/bin/git --git-dir=<git-bare-dir> --work-tree=<dotfiles-dir>
-    /usr/bin/git --git-dir="${BARE_DIR}" --work-tree="${HOME}" $@
 
 }
 
@@ -497,16 +475,85 @@ bdb_do_cli() {
 
 }
 
-### Bootstrap begin
+bdb_usage() {
+    echo "$PROGNAME: usage: $PROGNAME [-f file | -i]"
+    return
+}
+
+# TODO
+# - SSH Keys generation and copy: centic9/generate-and-send-ssh-key
+# - colorize bdb_exit_status
+# - user interaction
+
+### Bootstrap preparation
+
+# Force exit in case of error
+#set -e
+
+# Call error handler before exiting
+#trap "bdb_handle_error" EXIT
+
+# Welcome message
 bdb_info "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
 
+# Prepare system
 bdb_do_sys
 
-bdb_do_repo
+### Bootstrap begin
 
-bdb_do_apps
-
-bdb_do_cli
+# Process command-line options
+interactive=
+filename=
+while [[ -n "$1" ]]; do
+    case "$1" in
+    -a | --apps)
+        bdb_do_repo
+        bdb_do_apps
+        ;;
+    -f | --full)
+        bdb_do_repo
+        bdb_do_apps
+        bdb_do_cli
+        ;;
+        #-f | --file)
+        #shift
+        #filename="$1"
+        #;;
+    -i | --interactive)
+        interactive=1
+        ;;
+    -h | --help)
+        # TODO:
+        # - exit properly
+        bdb_usage
+        exit 0
+        ;;
+    -r | --repo)
+        bdb_do_repo
+        ;;
+    -s | --silent)
+        # TODO:
+        # - suppress all commands output
+        # - exit properly
+        bdb_usage
+        exit 0
+        ;;
+    -v | --verbose)
+        # TODO:
+        # - print all commands output
+        # - exit properly
+        bdb_usage
+        exit 0
+        ;;
+    *)
+        # TODO:
+        # - exit properly
+        bdb_usage >&2
+        exit 1
+        ;;
+    esac
+    shift
+done
 
 ### Bootstrap end
 bdb_info "All done!"
