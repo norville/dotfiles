@@ -507,54 +507,54 @@ if [ $# -gt 0 ]; then
     #interactive=
     while [[ -n "$1" ]]; do
         case "$1" in
-        -a | --apps)
-            bdb_do_sys
-            bdb_do_repo
-            bdb_do_apps
-            ;;
-        -f | --full)
-            bdb_do_sys
-            bdb_do_repo
-            bdb_do_apps
-            bdb_do_cli
-            ;;
+            -a | --apps)
+                bdb_do_sys
+                bdb_do_repo
+                bdb_do_apps
+                ;;
+            -f | --full)
+                bdb_do_sys
+                bdb_do_repo
+                bdb_do_apps
+                bdb_do_cli
+                ;;
+            -i | --interactive)
+                #interactive=1
+                ;;
+            -h | --help)
+                # TODO:
+                # - exit properly
+                bdb_usage
+                exit 0
+                ;;
+            -r | --repo)
+                bdb_do_sys
+                bdb_do_repo
+                ;;
+            -s | --silent)
+                # TODO:
+                # - suppress all commands output
+                # - exit properly
+                bdb_usage
+                exit 0
+                ;;
+            -v | --verbose)
+                # TODO:
+                # - print all commands output
+                # - exit properly
+                bdb_usage
+                exit 0
+                ;;
             #-f | --file)
-            #shift
-            #filename="$1"
-            #;;
-        -i | --interactive)
-            interactive=1
-            ;;
-        -h | --help)
-            # TODO:
-            # - exit properly
-            bdb_usage
-            exit 0
-            ;;
-        -r | --repo)
-            bdb_do_sys
-            bdb_do_repo
-            ;;
-        -s | --silent)
-            # TODO:
-            # - suppress all commands output
-            # - exit properly
-            bdb_usage
-            exit 0
-            ;;
-        -v | --verbose)
-            # TODO:
-            # - print all commands output
-            # - exit properly
-            bdb_usage
-            exit 0
-            ;;
-        *)
-            # TODO:
-            # - exit properly
-            bdb_usage
-            exit 1
-            ;;
+                #shift
+                #filename="$1"
+                #;;
+            *)
+                # TODO:
+                # - exit properly
+                bdb_usage
+                exit 1
+                ;;
         esac
         shift
     done
