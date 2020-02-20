@@ -476,8 +476,10 @@ bdb_do_cli() {
 }
 
 bdb_usage() {
-    echo "$PROGNAME: usage: $PROGNAME [-f file | -i]"
+
+    bdb_info "$PROGNAME: usage: $PROGNAME [-f | -i]"
     return
+
 }
 
 # TODO
@@ -493,70 +495,84 @@ bdb_usage() {
 # Call error handler before exiting
 #trap "bdb_handle_error" EXIT
 
-# Welcome message
-bdb_info "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
+# Detect arguments
+if [ $# -gt 0 ]; then
 
-# Prepare system
-bdb_do_sys
+    # Arguments passed
 
-### Bootstrap begin
+    ### Bootstrap begin
+    bdb_info "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
 
-# Process command-line options
-interactive=
-filename=
-while [[ -n "$1" ]]; do
-    case "$1" in
-    -a | --apps)
-        bdb_do_repo
-        bdb_do_apps
-        ;;
-    -f | --full)
-        bdb_do_repo
-        bdb_do_apps
-        bdb_do_cli
-        ;;
-        #-f | --file)
-        #shift
-        #filename="$1"
-        #;;
-    -i | --interactive)
-        interactive=1
-        ;;
-    -h | --help)
-        # TODO:
-        # - exit properly
-        bdb_usage
-        exit 0
-        ;;
-    -r | --repo)
-        bdb_do_repo
-        ;;
-    -s | --silent)
-        # TODO:
-        # - suppress all commands output
-        # - exit properly
-        bdb_usage
-        exit 0
-        ;;
-    -v | --verbose)
-        # TODO:
-        # - print all commands output
-        # - exit properly
-        bdb_usage
-        exit 0
-        ;;
-    *)
-        # TODO:
-        # - exit properly
-        bdb_usage >&2
-        exit 1
-        ;;
-    esac
-    shift
-done
+    # Process command-line options
+    #interactive=
+    while [[ -n "$1" ]]; do
+        case "$1" in
+        -a | --apps)
+            bdb_do_sys
+            bdb_do_repo
+            bdb_do_apps
+            ;;
+        -f | --full)
+            bdb_do_sys
+            bdb_do_repo
+            bdb_do_apps
+            bdb_do_cli
+            ;;
+            #-f | --file)
+            #shift
+            #filename="$1"
+            #;;
+        -i | --interactive)
+            interactive=1
+            ;;
+        -h | --help)
+            # TODO:
+            # - exit properly
+            bdb_usage
+            exit 0
+            ;;
+        -r | --repo)
+            bdb_do_sys
+            bdb_do_repo
+            ;;
+        -s | --silent)
+            # TODO:
+            # - suppress all commands output
+            # - exit properly
+            bdb_usage
+            exit 0
+            ;;
+        -v | --verbose)
+            # TODO:
+            # - print all commands output
+            # - exit properly
+            bdb_usage
+            exit 0
+            ;;
+        *)
+            # TODO:
+            # - exit properly
+            bdb_usage
+            exit 1
+            ;;
+        esac
+        shift
+    done
 
-### Bootstrap end
-bdb_info "All done!"
+    ### Bootstrap done
+    bdb_info "All done!"
+
+else
+
+    # No arguments
+
+    ### Bootstrap exit
+    # TODO:
+    # - exit properly
+    bdb_usage
+    exit 1
+
+fi
 
 # Exit in style
 printf -- '\n'
