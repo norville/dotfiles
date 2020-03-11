@@ -100,7 +100,7 @@ bdb_do_sys() {
     sudo -v
 
     ## Detect local system
-    bdb_run "Local system is "
+    bdb_run "Local system is"
     LSB_NAME="/etc/os-release"
     # If /etc/os-release exists
     if [[ -f "${LSB_NAME}" ]]; then
@@ -307,7 +307,7 @@ bdb_do_apps() {
         # Install or update required packages via APT
         DEBN_PKG="vim git wget curl zsh"
         bdb_command "Installing APT packages: <${DEBN_PKG}>"
-        sudo apt-get install -y "${DEBN_PKG}"
+        sudo apt-get install -y $DEBN_PKG
         bdb_exit_status "installing APT packages"
 
         # Cleanup
