@@ -61,7 +61,7 @@ fi
 
 ### ALIASES (last) ############################################################
 
-#alias ls='ls --color=auto'
+[[ -f /etc/os-release ]] && alias ls='ls -v --color=auto'
 alias la='ls -halF'
 alias ll='ls -hAlF'
 alias lr='ls -hAlFR'
