@@ -48,7 +48,7 @@ fi
 
 # Start keychain ssh-agent
 if type keychain &>/dev/null; then
-    eval "$(keychain --eval --quiet bassa_key)"
+    eval `keychain --eval --nogui -Q -q bassa_key`
 fi
 
 ###############################################################################
