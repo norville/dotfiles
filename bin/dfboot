@@ -319,8 +319,8 @@ bdb_do_apps() {
 
         # Install or update required packages via Pacman
         ARCH_PKG="vim git wget curl zsh tilix"
-        bdb_command "Installing Arch packages: <${ARCH_PKG}>"
-        sudo pacman --noconfirm --needed -S $ARCH_PKG   # NO QUOTES PLEASE - ensure variable expasnsion
+        bdb_command "Installing Arch packages: <${ARCH_PKG} keychain>"
+        sudo pacman --noconfirm --needed -S $ARCH_PKG keychain  # NO QUOTES PLEASE - ensure variable expasnsion
         bdb_exit_status "installing Arch packages"
 
         # Cleanup
