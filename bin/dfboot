@@ -236,9 +236,6 @@ bdb_do_repo() {
 
         bdb_exit_status "checking out bare repo"
 
-        # Config bare repo to ignore untracked files
-        dfconf config status.showUntrackedFiles no
-
         # Set remote Github via ssh
         dfconf remote set-url origin git@github.com:norville/dotfiles.git
 
