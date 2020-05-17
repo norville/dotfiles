@@ -74,11 +74,26 @@ fi
 
 ### ALIASES (last) ############################################################
 
-[[ -f /etc/os-release ]] && alias ls='ls -v --color=auto'
-alias la='ls -halF'
-alias ll='ls -hAlF'
-alias lr='ls -hAlFR'
-alias lt='ls -hAlFt'
+# set time format when listing
+timestyle='--time-style="+%Y-%m-%d %H:%M:%S"'
+
+# detect OS
+if [[ -f /etc/os-release ]]; then
+
+    # OS is linux
+    alias ls='ls -v --color=auto'
+
+else
+
+    # OS is macOS
+    alias ls='gls -v --color=auto'
+
+fi
+
+alias la="ls -halF ${timestyle}"
+alias ll="ls -hAlF ${timestyle}"
+alias lr="ls -hAlFR ${timestyle}"
+alias lt="ls -hAlFt ${timestyle}"
 
 ### DO NOT DELETE ###
 # automatically run git against dotfiles bare repo
