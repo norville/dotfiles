@@ -15,10 +15,8 @@
 !.vimrc
 !.zsh
 !.zshrc
-!README.md
 !bin
-!code
+!code/README.md
 
 # Ignore specific items inside repo
 .vim/bundle/*
-code/*
