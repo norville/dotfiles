@@ -3,23 +3,22 @@
 
 # Ignore everything in repo's root
 /*
+
 # Un-ignore repo's content
 !.bashrc
+!.dfconf.d
 !.gitconfig
 !.gitignore
 !.mackup.cfg
+!.ssh/config
+!.vim
 !.vimrc
+!.zsh
 !.zshrc
 !README.md
-!/.dfconf.d
-!/.ssh
-!/.vim
-!/.zsh
-!/bin
-!/code
+!bin
+!code
 
-# Ignore Vundle and its plugins
+# Ignore specific items inside repo
 .vim/bundle/*
-
-# Ignore code dir content
-/code/*
+code/*

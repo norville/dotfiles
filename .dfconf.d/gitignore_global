@@ -1,11 +1,11 @@
 # Compiled source #
-*.com
 *.class
+*.com
 *.dll
 *.exe
 *.o
-*.so
 *.pyc
+*.so
 *.zwc
 
 # Packages #
@@ -24,33 +24,22 @@
 *.sqlite
 
 # OS generated files #
-._*
-*~
 *.cache
-.idea/
-.vagrant/
-.Spotlight-V100
-.Trashes
+*~
 .DS_Store
 .DS_Store?
-Icon
-ehthumbs.db
-Thumbs.db
 .ICEauthority
+.Spotlight-V100
+.Trashes
 .Xauthority
-.bash_history
-.bash_logout
-.bash_profile
-.config/
-.dmrc
-.local/
-.mozilla/
-.pki/
-.viminfo
-.xsession-errors
+._*
+Icon
+Thumbs.db
+ehthumbs.db
 
 # App related files #
 *.swp
 .netrwhist
 bower_components
+brewfile.lock.json
 node_modules
