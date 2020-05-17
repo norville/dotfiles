@@ -22,6 +22,7 @@ HIST_STAMPS="dd/mm/yyyy"
 
 # Set default editor
 export EDITOR='vim'
+export VISUAL='vim'
 
 # Set AUTO_CD
 setopt AUTO_CD
@@ -48,7 +49,19 @@ fi
 
 # Start keychain ssh-agent
 if type keychain &>/dev/null; then
+
     eval `keychain --eval --nogui -Q -q bassa_key`
+
+fi
+
+# Enable VTE for Tilix
+if [[ -f /etc/profile.d/vte.sh ]]; then
+
+    if [[ ${TILIX_ID} || ${VTE_VERSION} ]]; then
+
+        source /etc/profile.d/vte.sh
+
+    fi
 fi
 
 ###############################################################################
