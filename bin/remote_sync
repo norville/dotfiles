@@ -1,0 +1,129 @@
+#!/bin/bash
+
+#
+# Sync local folder to remote host via rsync
+#
+
+# Set default values
+PROGNAME="$(basename $0)"
+LOCAL_HOST="$(hostname)"
+LOCAL_DIR=""
+IDENTITY="~/.ssh/${LOCAL_HOST}_key"
+REMOTE_PORT="212"
+REMOTE_USER="rsync"
+REMOTE_HOST="basnas"
+REMOTE_BASEDIR="/volume1/backup"
+REMOTE_DIR="${REMOTE_BASEDIR}/${LOCAL_HOST}/"
+REMOTE_SYNC="--delete"
+VERBOSE=""
+
+# print script usage
+function usage() {
+
+    echo -e "${PROGNAME}: backup local directory to remote host via rsync."
+    echo -e "${PROGNAME} [options] <local directory>"
+    echo -e "${PROGNAME} options:\t[--help]\t\t\t\t# print this message."
+    echo -e "\t\t\t[-v | --verbose]\t\t\t# list synced file."
+    echo -e "\t\t\t[-k | --keep]\t\t\t\t# keep deleted files on remote host (Default: delete)."
+    echo -e "\t\t\t[-i | --identity <identity file>]\t# specify identity file for SSH authentication (Default: ${IDENTITY})."
+    echo -e "\t\t\t[-p | --port <ssh port>]\t\t# specify SSH port on remote host (Default: ${REMOTE_PORT})."
+    echo -e "\t\t\t[-u | --user <remote user>]\t\t# specify remote user (Default: ${REMOTE_USER})."
+    echo -e "\t\t\t[-h | --host <remote host>]\t\t# specify remote host (Default: ${REMOTE_HOST})."
+    echo -e "\t\t\t[-d | --destination <remote dir>]\t# specify remote directory (Default: ${REMOTE_DIR})."
+
+}
+
+# require at leat one argument
+if [ $# -gt 0 ]; then
+
+    # loop through flags
+    while [[ "$1" == -* ]]; do
+
+        case "$1" in
+
+            -v | --verbose)
+                VERBOSE="-v"
+                ;;
+
+            -k | --keep)
+                REMOTE_SYNC=""
+                ;;
+
+            -i | --identity)
+                shift
+                IDENTITY="$1"
+                ;;
+
+            -p | --port)
+                shift
+                REMOTE_PORT="$1"
+                ;;
+
+            -h | --host)
+                shift
+                REMOTE_HOST="$1"
+                ;;
+
+            -u | --user)
+                shift
+                REMOTE_USER="$1"
+                ;;
+
+            -d | --destination)
+                shift
+                REMOTE_DIR="$1"
+                ;;
+
+            --help)
+                usage
+                exit 0
+                ;;
+
+            --)
+                shift
+                break
+                ;;
+
+            *)
+                usage
+                exit 1
+                ;;
+
+        esac
+
+        shift
+
+    done
+
+    # next (and last) argument should be local dir to sync
+    LOCAL_DIR="$1"
+
+else
+
+    # no arguments passed
+    usage
+    exit 1
+
+fi
+
+# validate local dir
+if [[ ! -d "${LOCAL_DIR}" ]]; then
+
+    echo -e "\n<${LOCAL_DIR}> is not a valid directory.\n"
+    usage
+    exit 1
+
+fi
+
+# validate identity file
+if [[ ! -f "${IDENTITY}" ]]; then
+
+    echo -e "\n<${IDENTITY}> is not a valid SSH identity file.\n"
+    usage
+    exit 1
+
+fi
+
+echo "Running: rsync -auz ${VERBOSE} ${REMOTE_SYNC} -e \"ssh -i ${IDENTITY} -p ${REMOTE_PORT}\" ${LOCAL_DIR} ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR} ..."
+rsync -auz "${VERBOSE}" "${REMOTE_SYNC}" -e "ssh -i ${IDENTITY} -p ${REMOTE_PORT}" "${LOCAL_DIR}" "${REMOTE_USER}"@"${REMOTE_HOST}":"${REMOTE_DIR}"
+exit 0
