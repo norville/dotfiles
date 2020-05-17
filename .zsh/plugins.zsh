@@ -18,8 +18,19 @@ source ${ATGN_DIR}/antigen.zsh
 # Load Oh-My-ZSH
 antigen use oh-my-zsh
 
-# Load ZSH theme if config file ready
-[[ ! -f ${HOME}/.zsh/p10k.zsh ]] || source ${HOME}/.zsh/p10k.zsh
+# Check termcolors and load p10k config
+if [[ ${TERM} != 'xterm-256color' ]]; then
+
+    # load basic prompt
+    [[ ! -f ${HOME}/.zsh/p10k_lean.zsh ]] || source ${HOME}/.zsh/p10k_lean.zsh
+
+else
+
+    # load powerline prompt
+    [[ ! -f ${HOME}/.zsh/p10k_powerline.zsh ]] || source ${HOME}/.zsh/p10k_powerline.zsh
+
+fi
+
 # Load theme plugin
 antigen theme romkatv/powerlevel10k powerlevel10k
 
