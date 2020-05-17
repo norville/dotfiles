@@ -1,5 +1,25 @@
 # Ignore git bare dir
-.dfbare
+#.dfbare
+
+# Ignore everything in repo's root
+/*
+# Un-ignore repo's content
+!.bashrc
+!.gitconfig
+!.gitignore
+!.mackup.cfg
+!.vimrc
+!.zshrc
+!README.md
+!/.dfconf.d
+!/.ssh
+!/.vim
+!/.zsh
+!/bin
+!/code
 
 # Ignore Vundle and its plugins
 .vim/bundle/*
+
+# Ignore code dir content
+/code/*
