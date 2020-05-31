@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# TODO
+# - SSH Keys generation and copy: centic9/generate-and-send-ssh-key
+# - colorize bdb_exit_status
+# - user interaction
+
 { # ensure download of entire script
 
     ### Define constants
@@ -14,12 +19,12 @@
     CYN_COL="${ESC_SEQ}36;01m"    # cyan
     WHT_COL="${ESC_SEQ}97;01m"    # white
 
-    FRESH=""                    # true = fresh install
-    DISTRO=""                   # unix distro name
-    SYSTEM=""                   # os name
-    BARE_DIR="${HOME}/.dfbare"  # git bare repo dir
-    CONF_DIR="${HOME}/.dfconf.d"  # config files dir
-    PROGNAME="$(basename "$0")" # current running command
+    FRESH=""                     # true = fresh install
+    DISTRO=""                    # unix distro name
+    SYSTEM=""                    # os name
+    BARE_DIR="${HOME}/.dfbare"   # git bare repo dir
+    CONF_DIR="${HOME}/.dfconf.d" # config files dir
+    PROGNAME="$(basename "$0")"  # current running command
 
     ### Define functions
 
@@ -95,7 +100,9 @@
     # Check the system and prepare for bootstrap
     bdb_do_sys() {
 
-        bdb_info "Detect local system and check basic packages"
+        bdb_info ""
+        bdb_info "Detect local system and prepare it for bootstrap"
+        bdb_info ""
 
         ## Get admin privileges
         bdb_run "Getting admin privileges"
@@ -119,10 +126,10 @@
         fi
         case "${SYSTEM}" in
 
-            ubuntu | debian | raspbian) DISTRO="debian";;
-            manjaro* | arch) DISTRO="arch";;
-            macos) DISTRO="darwin";;
-            *) DISTRO="unknown";;
+        ubuntu | debian | raspbian) DISTRO="debian" ;;
+        manjaro* | arch) DISTRO="arch" ;;
+        macos) DISTRO="darwin" ;;
+        *) DISTRO="unknown" ;;
 
         esac
         bdb_outcome "${SYSTEM} (${DISTRO})"
@@ -209,22 +216,25 @@
             #TODO improve error handling
             exit 1
             ;;
+
         esac
 
+        bdb_info ""
         bdb_info "System ready"
+        bdb_info ""
 
     }
 
     # Check dotfiles repo
     bdb_do_repo() {
 
+        bdb_info ""
         bdb_info "Detect dotfiles or clone remote repo"
+        bdb_info ""
 
         bdb_run "Looking for dotfiles"
-
         # Set bare repo dir
         mkdir -p "${BARE_DIR}"
-
         # If bare repo is missing
         if [[ ! "$(git --git-dir=${BARE_DIR} rev-parse --is-bare-repository)" ]]; then
 
@@ -243,7 +253,6 @@
             # Checkout bare repo
             bdb_command "Checking out dotfiles repo"
             dfconf checkout
-
             # If checkout fails
             # TODO prevent checkout from exiting before doing a backup
             if [[ "$?" != 0 ]]; then
@@ -257,7 +266,6 @@
                 dfconf checkout
 
             fi
-
             bdb_exit_status "checking out bare repo"
 
             # Set remote Github via ssh
@@ -270,19 +278,23 @@
             # repo ok, run git status
             bdb_outcome "local bare repo ok"
             bdb_command "Showing repo status"
-            dfconf status
+            dfconf status -u
             bdb_exit_status "showing repo status"
 
         fi
 
+        bdb_info ""
         bdb_info "Dotfiles ready"
+        bdb_info ""
 
     }
 
     # Install or update packages
     bdb_do_apps() {
 
+        bdb_info ""
         bdb_info "Install or update required packages"
+        bdb_info ""
 
         # Detect system
         case "${DISTRO}" in
@@ -364,14 +376,18 @@
 
         esac
 
+        bdb_info ""
         bdb_info "Required packages ready"
+        bdb_info ""
 
     }
 
     # Configure the command line interface
     bdb_do_cli() {
 
+        bdb_info ""
         bdb_info "Set up your command line interface"
+        bdb_info ""
 
         # Configure login shell
         bdb_run "Configuring ZSH as your login shell"
@@ -419,8 +435,11 @@
         vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
         bdb_exit_status "updating Vundle plugins"
 
+        bdb_info ""
         bdb_info "CLI ready"
+        bdb_info ""
         bdb_info "Restore user preferences"
+        bdb_info ""
 
         case "${DISTRO}" in
 
@@ -463,7 +482,7 @@
             if [[ -f "${TILIX_CFG}" ]]; then
 
                 bdb_commad "Loading dconf profile"
-                dconf load /com/gexperts/Tilix/ < "${TILIX_CFG}"
+                dconf load /com/gexperts/Tilix/ <"${TILIX_CFG}"
                 bdb_exit_status "loading dconf profile"
 
             else
@@ -512,21 +531,18 @@
 
         esac
 
-        bdb_info "User prefs restored"
+        bdb_info ""
+        bdb_info "User preferences restored"
+        bdb_info ""
 
     }
 
     bdb_usage() {
 
-        bdb_info "$PROGNAME: usage: $PROGNAME [-f | -i]"
+        bdb_info "$PROGNAME - usage: $PROGNAME [-f | -i]"
         return
 
     }
-
-    # TODO
-    # - SSH Keys generation and copy: centic9/generate-and-send-ssh-key
-    # - colorize bdb_exit_status
-    # - user interaction
 
     ### Bootstrap preparation
 
@@ -536,84 +552,96 @@
     # Call error handler before exiting
     #trap "bdb_handle_error" EXIT
 
+    ### Bootstrap begin
+    bdb_info ""
+    bdb_info "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
+    bdb_info ""
+    bdb_info ""
+    bdb_info "...let's begin..."
+    bdb_info ""
+
+    bdb_do_sys
+    bdb_do_repo
+    bdb_do_apps
+    bdb_do_cli
+
     # Detect arguments
-    if [ $# -gt 0 ]; then
+    # if [ $# -gt 0 ]; then
 
-        # Arguments passed
+    #     # Arguments passed
 
-        ### Bootstrap begin
-        bdb_info "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
+    #     # Process command-line options
+    #     #interactive=
+    #     while [[ -n "$1" ]]; do
+    #         case "$1" in
+    #         -a | --apps)
+    #             bdb_do_sys
+    #             bdb_do_repo
+    #             bdb_do_apps
+    #             ;;
+    #         -f | --full)
+    #             bdb_do_sys
+    #             bdb_do_repo
+    #             bdb_do_apps
+    #             bdb_do_cli
+    #             ;;
+    #         -i | --interactive)
+    #             #interactive=1
+    #             ;;
+    #         -h | --help)
+    #             # TODO:
+    #             # - exit properly
+    #             bdb_usage
+    #             exit 0
+    #             ;;
+    #         -r | --repo)
+    #             bdb_do_sys
+    #             bdb_do_repo
+    #             ;;
+    #         -s | --silent)
+    #             # TODO:
+    #             # - suppress all commands output
+    #             # - exit properly
+    #             bdb_usage
+    #             exit 0
+    #             ;;
+    #         -v | --verbose)
+    #             # TODO:
+    #             # - print all commands output
+    #             # - exit properly
+    #             bdb_usage
+    #             exit 0
+    #             ;;
+    #             #-f | --file)
+    #             #shift
+    #             #filename="$1"
+    #             #;;
+    #         *)
+    #             # TODO:
+    #             # - exit properly
+    #             bdb_usage
+    #             exit 1
+    #             ;;
+    #         esac
+    #         shift
+    #     done
 
-        # Process command-line options
-        #interactive=
-        while [[ -n "$1" ]]; do
-            case "$1" in
-            -a | --apps)
-                bdb_do_sys
-                bdb_do_repo
-                bdb_do_apps
-                ;;
-            -f | --full)
-                bdb_do_sys
-                bdb_do_repo
-                bdb_do_apps
-                bdb_do_cli
-                ;;
-            -i | --interactive)
-                #interactive=1
-                ;;
-            -h | --help)
-                # TODO:
-                # - exit properly
-                bdb_usage
-                exit 0
-                ;;
-            -r | --repo)
-                bdb_do_sys
-                bdb_do_repo
-                ;;
-            -s | --silent)
-                # TODO:
-                # - suppress all commands output
-                # - exit properly
-                bdb_usage
-                exit 0
-                ;;
-            -v | --verbose)
-                # TODO:
-                # - print all commands output
-                # - exit properly
-                bdb_usage
-                exit 0
-                ;;
-                #-f | --file)
-                #shift
-                #filename="$1"
-                #;;
-            *)
-                # TODO:
-                # - exit properly
-                bdb_usage
-                exit 1
-                ;;
-            esac
-            shift
-        done
+    # else
 
-        ### Bootstrap done
-        bdb_info "All done!"
+    #     # No arguments
 
-    else
+    #     ### Bootstrap exit
+    #     # TODO:
+    #     # - exit properly
+    #     bdb_usage
+    #     exit 1
 
-        # No arguments
+    # fi
 
-        ### Bootstrap exit
-        # TODO:
-        # - exit properly
-        bdb_usage
-        exit 1
-
-    fi
+    ### Bootstrap done
+    bdb_info ""
+    bdb_info "All done!"
+    bdb_info ""
 
     # Exit in style
     printf -- '\n'
