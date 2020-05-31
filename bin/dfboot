@@ -119,21 +119,10 @@
         fi
         case "${SYSTEM}" in
 
-        ubuntu | debian | raspbian)
-            DISTRO="debian"
-            ;;
-
-        manjaro* | arch)
-            DISTRO="arch"
-            ;;
-
-        macos)
-            DISTRO="darwin"
-            ;;
-
-        *)
-            DISTRO="unknown"
-            ;;
+            ubuntu | debian | raspbian) DISTRO="debian";;
+            manjaro* | arch) DISTRO="arch";;
+            macos) DISTRO="darwin";;
+            *) DISTRO="unknown";;
 
         esac
         bdb_outcome "${SYSTEM} (${DISTRO})"
