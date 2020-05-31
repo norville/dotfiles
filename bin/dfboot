@@ -18,6 +18,7 @@
     DISTRO=""                   # unix distro name
     SYSTEM=""                   # os name
     BARE_DIR="${HOME}/.dfbare"  # git bare repo dir
+    CONF_DIR="${HOME}/.dfconf.d"  # config files dir
     PROGNAME="$(basename "$0")" # current running command
 
     ### Define functions
@@ -298,7 +299,7 @@
         darwin) # System is macOS
 
             # Install brew bundles
-            BREW_PKG="${HOME}/.dfconf.d/brewfile"
+            BREW_PKG="${CONF_DIR}/brewfile"
             bdb_command "Installing required formulae from <${BREW_PKG}>"
             brew bundle install --file="${BREW_PKG}"
             bdb_exit_status "installing required formulae"
@@ -433,7 +434,7 @@
         case "${DISTRO}" in
 
         arch)
-            bdb_run "Installing Nerd fonts for p10k"
+            bdb_run "Restoring Tilix fonts"
 
             # Install nerd fonts for p10k
             FONT_DIR="${HOME}/.local/share/fonts"
@@ -449,18 +450,36 @@
             bdb_command "Installing Meslo"
             curl -fLo "${FONT_DIR}/${MSLO_FNT}" "${MSLO_URL}"
             bdb_exit_status "installing Meslo"
-            bdb_command "Updating fonts"
+            bdb_command "Updating fonts cache"
             fc-cache -f
-            bdb_exit_status "updating fonts"
+            bdb_exit_status "updating fonts cache"
 
-            # Set up tilix
-            bdb_command "Installing Gruvbox theme for Tilix"
+            bdb_run "Restoring Tilix colorscheme"
+
+            # Install Gruvbox theme for Tilix
+            bdb_command "Installing Gruvbox theme"
             git clone https://github.com/MichaelThessel/tilix-gruvbox.git
             cd tilix-gruvbox
             sudo cp gruvbox-* /usr/share/tilix/schemes
             cd ..
             rm -rf tilix-gruvbox
-            bdb_exit_status "installing Gruvbox theme for Tilix"
+            bdb_exit_status "installing Gruvbox theme"
+
+            bdb_run "Restoring Tilix configuration"
+
+            # Check config file
+            TILIX_CFG="${CONF_DIR}/tilix.dconf"
+            if [[ -f "${TILIX_CFG}" ]]; then
+
+                bdb_commad "Loading dconf profile"
+                dconf load /com/gexperts/Tilix/ < "${TILIX_CFG}"
+                bdb_exit_status "loading dconf profile"
+
+            else
+
+                bdb_outcome "FAILED"
+
+            fi
 
             #TODO GNU Stow or mackup
 
@@ -485,7 +504,7 @@
             fi
 
             # Restore VSCode extensions
-            CODE_EXT="${HOME}/.dfconf.d/vscode-ext"
+            CODE_EXT="${CONF_DIR}/vscode-ext"
             # If no extensions installed and extensions file exists
             if [[ ! "$(code --list-extensions)" && -f "${CODE_EXT}" ]]; then
 
