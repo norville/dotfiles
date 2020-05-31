@@ -22,6 +22,7 @@
     FRESH=""                     # true = fresh install
     DISTRO=""                    # unix distro name
     SYSTEM=""                    # os name
+    REBOOT_SYS=""                # reboot flag
     BARE_DIR="${HOME}/.dfbare"   # git bare repo dir
     CONF_DIR="${HOME}/.dfconf.d" # config files dir
     PROGNAME="$(basename "$0")"  # current running command
@@ -144,11 +145,6 @@
             ;;
 
         darwin)
-            # update macOS
-            bdb_command "Updating macOS system"
-            softwareupdate -ia
-            bdb_exit_status "updating macOS system"
-
             # CLT check
             bdb_run "Checking Xcode Command Line Tools..."
             if type xcode-select >&- &&
@@ -311,8 +307,8 @@
             if [[ "$(brew bundle cleanup --file=${BREW_PKG})" ]]; then
 
                 bdb_run "Do you want to uninstall extra formulae? [y|n] "
-                read -r -n 1 response
-                if [[ "${response}" =~ (y|Y) ]]; then
+                read -r -n 1 BREW_EXTRA
+                if [[ "${BREW_EXTRA}" =~ (y|Y) ]]; then
 
                     # Delete extra formulae
                     bdb_command "Removing extra formulae"
@@ -379,6 +375,42 @@
         bdb_info ""
         bdb_info "Required packages ready"
         bdb_info ""
+
+    }
+
+    # Upgrade local system
+    bdb_do_upgrade() {
+
+        bdb_info ""
+        bdb_info "Upgrade system packages"
+        bdb_info ""
+
+        case "${DISTRO}" in
+
+        arch)
+            bdb_command "Upgrading Arch system"
+            sudo pacman --noconfirm -Syu
+            bdb_exit_status "upgrading Arch system"
+            ;;
+        darwin)
+            bdb_command "Upgrading macOS system"
+            sudo softwareupdate -ia
+            bdb_exit_status "upgrading macOS system"
+            ;;
+        debian)
+            bdb_command "Upgrading Debian system"
+            sudo apt upgrade -y
+            bdb_exit_status "upgrading Debian system"
+            ;;
+
+        esac
+
+        bdb_info ""
+        bdb_info "System upgraded."
+        bdb_info ""
+
+        bdb_run "Do you want to reboot the system? [y|n] "
+        read -r -n 1 REBOOT_SYS
 
     }
 
@@ -642,6 +674,11 @@
     bdb_info ""
     bdb_info "All done!"
     bdb_info ""
+
+    ### Ask for reboot
+    if [[ "${REBOOT_SYS}" =~ (y|Y) ]]; then
+        sudo reboot
+    fi
 
     # Exit in style
     printf -- '\n'
