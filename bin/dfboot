@@ -146,7 +146,7 @@
 
         darwin)
             # CLT check
-            bdb_run "Checking Xcode Command Line Tools..."
+            bdb_run "Checking Xcode Command Line Tools"
             if type xcode-select >&- &&
                 CLT_DIR=$(xcode-select --print-path) &&
                 test -d "${CLT_DIR}" &&
@@ -571,7 +571,11 @@
 
     bdb_usage() {
 
-        bdb_info "$PROGNAME - usage: $PROGNAME [-f | -i]"
+        bdb_info ""
+        bdb_info "usage: $PROGNAME [<args> ...]"
+        bdb_info ""
+        bdb_info "\t\t-f | --full\t\t\tDo full bootstrap"
+        bdb_info "\t\t-a | --apps\t\t\tDo full bootstrap"
         return
 
     }
@@ -588,100 +592,109 @@
     bdb_info ""
     bdb_info "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
     bdb_info ""
-    bdb_info ""
     bdb_info "...let's begin..."
     bdb_info ""
 
-    bdb_do_sys
-    bdb_do_repo
-    bdb_do_apps
-    bdb_do_cli
-
     # Detect arguments
-    # if [ $# -gt 0 ]; then
+    if [ $# -eq 0 ]; then
 
-    #     # Arguments passed
+        # No arguments, interactive mode
+        bdb_usage
+        # exit 1
+        # TODO: exit properly
 
-    #     # Process command-line options
-    #     #interactive=
-    #     while [[ -n "$1" ]]; do
-    #         case "$1" in
-    #         -a | --apps)
-    #             bdb_do_sys
-    #             bdb_do_repo
-    #             bdb_do_apps
-    #             ;;
-    #         -f | --full)
-    #             bdb_do_sys
-    #             bdb_do_repo
-    #             bdb_do_apps
-    #             bdb_do_cli
-    #             ;;
-    #         -i | --interactive)
-    #             #interactive=1
-    #             ;;
-    #         -h | --help)
-    #             # TODO:
-    #             # - exit properly
-    #             bdb_usage
-    #             exit 0
-    #             ;;
-    #         -r | --repo)
-    #             bdb_do_sys
-    #             bdb_do_repo
-    #             ;;
-    #         -s | --silent)
-    #             # TODO:
-    #             # - suppress all commands output
-    #             # - exit properly
-    #             bdb_usage
-    #             exit 0
-    #             ;;
-    #         -v | --verbose)
-    #             # TODO:
-    #             # - print all commands output
-    #             # - exit properly
-    #             bdb_usage
-    #             exit 0
-    #             ;;
-    #             #-f | --file)
-    #             #shift
-    #             #filename="$1"
-    #             #;;
-    #         *)
-    #             # TODO:
-    #             # - exit properly
-    #             bdb_usage
-    #             exit 1
-    #             ;;
-    #         esac
-    #         shift
-    #     done
+    else
 
-    # else
+        # Process arguments
 
-    #     # No arguments
+        #options=$(getopt -o farulsvh --long full,apps,repo,upgrade,logfile,silent,verbose,help: -- "$@")
+        #eval set -- "options"
 
-    #     ### Bootstrap exit
-    #     # TODO:
-    #     # - exit properly
-    #     bdb_usage
-    #     exit 1
+        while [[ -n $1 ]]; do
+            case "$1" in
+            -f | --full)
+                bdb_do_sys
+                bdb_do_repo
+                bdb_do_apps
+                bdb_do_cli
+                bdb_do_upgrade
+                ;;
+            -a | --apps)
+                bdb_do_sys
+                bdb_do_repo
+                bdb_do_apps
+                ;;
+            -r | --repo)
+                bdb_do_sys
+                bdb_do_repo
+                ;;
+            -u | --upgrade)
+                bdb_do_sys
+                bdb_do_upgrade
+                ;;
+            -l | --logfile)
+                #shift
+                #filename="$1"
+                # TODO:
+                # - specify log file
+                # - exit properly
+                bdb_usage
+                exit 0
+                ;;
+            -s | --silent)
+                # TODO:
+                # - suppress all output
+                # - exit properly
+                bdb_usage
+                exit 0
+                ;;
+            -v | --verbose)
+                # TODO:
+                # - print all commands output
+                # - exit properly
+                bdb_usage
+                exit 0
+                ;;
+            -h | --help)
+                # TODO:
+                # - exit properly
+                bdb_usage
+                exit 0
+                ;;
+            # --)
+            #     shift
+            #     break
+            #     ;;
+            *)
+                # Invalid argument, print usage and exit with error
+                bdb_usage
+                exit 1
+                # TODO: exit properly
+                ;;
+            esac
+            shift
+        done
 
-    # fi
+    fi
 
     ### Bootstrap done
     bdb_info ""
-    bdb_info "All done!"
+    bdb_info "Bootstrap complete!"
     bdb_info ""
 
-    ### Ask for reboot
+    ### Exit properly
     if [[ "${REBOOT_SYS}" =~ (y|Y) ]]; then
-        sudo reboot
-    fi
 
-    # Exit in style
-    printf -- '\n'
-    exit 0
+        bdb_run "Rebooting local system"
+        printf -- '\n'
+        sudo reboot
+
+    else
+
+        bdb_run "Exiting"
+        printf -- '\n'
+        exit 0
+
+    fi
 
 } # ensure download of entire script
