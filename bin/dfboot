@@ -1,509 +1,543 @@
 #!/bin/bash
 
-### Define constants
+{ # ensure download of entire script
 
-ESC_SEQ="\x1b["
-RST_COL="${ESC_SEQ}39;49;00m" # reset
-RED_COL="${ESC_SEQ}31;01m"    # red
-GRN_COL="${ESC_SEQ}32;01m"    # green
-YLW_COL="${ESC_SEQ}33;01m"    # yellow
-BLU_COL="${ESC_SEQ}34;01m"    # blue
-MGN_COL="${ESC_SEQ}35;01m"    # magenta
-CYN_COL="${ESC_SEQ}36;01m"    # cyan
-WHT_COL="${ESC_SEQ}97;01m"    # white
+    ### Define constants
 
-FRESH=""                    # true = fresh install
-DISTRO=""                   # unix distro name
-SYSTEM=""                   # os name
-BARE_DIR="${HOME}/.dfbare"  # git bare repo dir
-PROGNAME="$(basename "$0")" # current running command
+    ESC_SEQ="\x1b["
+    RST_COL="${ESC_SEQ}39;49;00m" # reset
+    RED_COL="${ESC_SEQ}31;01m"    # red
+    GRN_COL="${ESC_SEQ}32;01m"    # green
+    YLW_COL="${ESC_SEQ}33;01m"    # yellow
+    BLU_COL="${ESC_SEQ}34;01m"    # blue
+    MGN_COL="${ESC_SEQ}35;01m"    # magenta
+    CYN_COL="${ESC_SEQ}36;01m"    # cyan
+    WHT_COL="${ESC_SEQ}97;01m"    # white
 
-### Define functions
+    FRESH=""                    # true = fresh install
+    DISTRO=""                   # unix distro name
+    SYSTEM=""                   # os name
+    BARE_DIR="${HOME}/.dfbare"  # git bare repo dir
+    PROGNAME="$(basename "$0")" # current running command
 
-# Automatically run git against the bare repo in ${HOME}
-dfconf() {
+    ### Define functions
 
-    # /usr/bin/git --git-dir=<git-bare-dir> --work-tree=<dotfiles-dir>
-    /usr/bin/git --git-dir="${BARE_DIR}" --work-tree="${HOME}" $@
+    # Automatically run git against the bare repo in ${HOME}
+    dfconf() {
 
-}
+        # /usr/bin/git --git-dir=<git-bare-dir> --work-tree=<dotfiles-dir>
+        /usr/bin/git --git-dir="${BARE_DIR}" --work-tree="${HOME}" $@
 
-# Handle exit codes, print messages and clean up
-bdb_handle_error() {
+    }
 
-    ERR_CODE=$?
+    # Handle exit codes, print messages and clean up
+    bdb_handle_error() {
 
-    # TODO - handle exit codes and cleanup (MENU)
+        ERR_CODE=$?
 
-    printf -- "Error ${ERR_CODE} has occurred."
-    printf -- "\nExiting with error code ${ERR_CODE}.\n"
-    exit ${ERR_CODE}
+        # TODO - handle exit codes and cleanup (MENU)
 
-}
+        printf -- "Error ${ERR_CODE} has occurred."
+        printf -- "\nExiting with error code ${ERR_CODE}.\n"
+        exit ${ERR_CODE}
 
-# Check last exit status and print outcome message
-bdb_exit_status() {
+    }
 
-    # If last command exit status is not 0
-    if [[ "$?" != 0 ]]; then
+    # Check last exit status and print outcome message
+    bdb_exit_status() {
 
-        # Print error message
-        echo -e "\n${RED_COL}|xxx| ERROR: ${1:-"UNKNOWN"} ${RST_COL}"
-        # Handle error
-        bdb_handle_error
+        # If last command exit status is not 0
+        if [[ "$?" != 0 ]]; then
 
-    else
-
-        # Print success message
-        echo -en "${GRN_COL}|+++| OK: ${1:-"UNKNOWN"} ${RST_COL}"
-
-    fi
-
-}
-
-# Print info message
-bdb_info() {
-
-    echo -en "\n${WHT_COL}|BDB| $1 ${RST_COL}"
-
-}
-
-# Print run message
-bdb_run() {
-
-    echo -en "\n${BLU_COL}|***| $1 ... ${RST_COL}"
-
-}
-
-# Print outcome message
-bdb_outcome() {
-
-    echo -en "${CYN_COL}$1${RST_COL}"
-
-}
-
-# Print message before command
-bdb_command() {
-
-    echo -e "\n${MGN_COL}|>>>| $1 ${RST_COL}"
-
-}
-
-# Check the system and prepare for bootstrap
-bdb_do_sys() {
-
-    bdb_info "Detect local system and check basic packages"
-
-    ## Get admin privileges
-    bdb_run "Getting admin privileges"
-    #TODO no newline after password input
-    sudo -v
-
-    ## Detect local system
-    bdb_run "Local system is"
-    LSB_NAME="/etc/os-release"
-    # If /etc/os-release exists
-    if [[ -f "${LSB_NAME}" ]]; then
-
-        # System is Linux, then get os name
-        SYSTEM="$(grep -e '^ID=' ${LSB_NAME} | cut -d '=' -f 2)"
-
-    else
-
-        # /etc/os-release is missing, assume macos
-        SYSTEM="macos"
-
-    fi
-    case "${SYSTEM}" in
-
-    ubuntu | debian | raspbian)
-        DISTRO="debian"
-        ;;
-
-    manjaro* | arch)
-        DISTRO="arch"
-        ;;
-
-    macos)
-        DISTRO="darwin"
-        ;;
-
-    *)
-        DISTRO="unknown"
-        ;;
-
-    esac
-    bdb_outcome "${SYSTEM} (${DISTRO})"
-
-    ## Prepare local system: update packages cache and install requirements
-    case "${DISTRO}" in
-
-    arch)
-        bdb_command "Updating Pacman"
-        sudo pacman -Syy
-        bdb_exit_status "updating Pacman"
-        ;;
-
-    darwin)
-        # If brew is missing
-        if ! type brew &>/dev/null; then
-
-            # Install homebrew
-            BREW_URL="https://raw.githubusercontent.com/Homebrew/install/master/install"
-            bdb_command "Installing Homebrew"
-            /usr/bin/ruby -e "$(curl -fsSL ${BREW_URL})"
-            bdb_exit_status "installing Homebrew"
+            # Print error message
+            echo -e "\n${RED_COL}|xxx| ERROR: ${1:-"UNKNOWN"} ${RST_COL}"
+            # Handle error
+            bdb_handle_error
 
         else
 
-            # Update homebrew
-            bdb_command "Updating Homebrew"
-            brew update
-            bdb_exit_status "updating Homebrew"
-
-        fi
-        ;;
-
-    debian)
-        bdb_command "Updating APT"
-        sudo apt-get update
-        bdb_exit_status "updating APT"
-
-        # If git is missing
-        if ! type git &>/dev/null; then
-
-            #Install git
-            bdb_command "Installing git"
-            sudo apt-get install -y git
-            bdb_exit_status "installing git"
-
-        fi
-        ;;
-
-    *)
-        bdb_exit_status "Cannot detect local system. Exiting..."
-        #TODO improve error handling
-        exit 1
-        ;;
-    esac
-
-    bdb_info "System ready"
-
-}
-
-# Check dotfiles repo
-bdb_do_repo() {
-
-    bdb_info "Detect dotfiles or clone remote repo"
-
-    bdb_run "Looking for dotfiles"
-
-    # Set bare repo dir
-    mkdir -p "${BARE_DIR}"
-
-    # If bare repo is missing
-    if [[ ! "$(git --git-dir=${BARE_DIR} rev-parse --is-bare-repository)" ]]; then
-
-        # bare repo missing, doing fresh install
-        FRESH="true"
-
-        bdb_outcome "none found. Let's clone remote repo!"
-
-        # Clone remote repo into bare repo
-        REPO_URL="https://github.com/norville/dotfiles.git"
-        bdb_command "Cloning dotfiles into a bare repo"
-        git clone --bare "${REPO_URL}" "${BARE_DIR}" # Clone master branch
-        #git clone --bare -b <git-branch> ${REPO_URL} ${BARE_DIR}   # Clone specifc branch
-        bdb_exit_status "cloning dotfiles into <${BARE_DIR}>"
-
-        # Checkout bare repo
-        bdb_command "Checking out dotfiles repo"
-        dfconf checkout
-
-        # If checkout fails
-        # TODO prevent checkout from exiting before doing a backup
-        if [[ "$?" != 0 ]]; then
-
-            # Create backup dir
-            BAKP_DIR="${HOME}/.dfbackup"
-            bdb_command "Backing up overlapping dotfiles"
-            mkdir -p "${BAKP_DIR}"
-            # Move pre-existing dotfiles to ${BAKP_DIR}
-            dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} "${BAKP_DIR}"/{}
-            dfconf checkout
+            # Print success message
+            echo -en "${GRN_COL}|+++| OK: ${1:-"UNKNOWN"} ${RST_COL}"
 
         fi
 
-        bdb_exit_status "checking out bare repo"
+    }
 
-        # Set remote Github via ssh
-        dfconf remote set-url origin git@github.com:norville/dotfiles.git
+    # Print info message
+    bdb_info() {
 
-    else
+        echo -en "\n${WHT_COL}|BDB| $1 ${RST_COL}"
 
-        # repo ok, run git status
-        bdb_outcome "local bare repo ok"
-        bdb_command "Showing repo status"
-        dfconf status
-        bdb_exit_status "showing repo status"
+    }
 
-    fi
+    # Print run message
+    bdb_run() {
 
-    bdb_info "Dotfiles ready"
+        echo -en "\n${BLU_COL}|***| $1 ... ${RST_COL}"
 
-}
+    }
 
-# Install or update packages
-bdb_do_apps() {
+    # Print outcome message
+    bdb_outcome() {
 
-    bdb_info "Install or update required packages"
+        echo -en "${CYN_COL}$1${RST_COL}"
 
-    # Detect system
-    case "${DISTRO}" in
+    }
 
-    darwin) # System is macOS
+    # Print message before command
+    bdb_command() {
 
-        # Install brew bundles
-        BREW_PKG="${HOME}/.dfconf.d/brewfile"
-        bdb_command "Installing required formulae from <${BREW_PKG}>"
-        brew bundle install --file="${BREW_PKG}"
-        bdb_exit_status "installing required formulae"
+        echo -e "\n${MGN_COL}|>>>| $1 ${RST_COL}"
 
-        # If extra formulae are installed
-        if [[ "$(brew bundle cleanup --file=${BREW_PKG})" ]]; then
+    }
 
-            bdb_run "Do you want to uninstall extra formulae? [y|n] "
-            read -r -n 1 response
-            if [[ "${response}" =~ (y|Y) ]]; then
+    # Check the system and prepare for bootstrap
+    bdb_do_sys() {
 
-                # Delete extra formulae
-                bdb_command "Removing extra formulae"
-                brew bundle cleanup --file="${BREW_PKG}" --force
-                bdb_exit_status "removing extra formulae"
+        bdb_info "Detect local system and check basic packages"
+
+        ## Get admin privileges
+        bdb_run "Getting admin privileges"
+        #TODO no newline after password input
+        sudo -v
+
+        ## Detect local system
+        bdb_run "Local system is"
+        LSB_NAME="/etc/os-release"
+        # If /etc/os-release exists
+        if [[ -f "${LSB_NAME}" ]]; then
+
+            # System is Linux, then get os name
+            SYSTEM="$(grep -e '^ID=' ${LSB_NAME} | cut -d '=' -f 2)"
+
+        else
+
+            # /etc/os-release is missing, assume macos
+            SYSTEM="macos"
+
+        fi
+        case "${SYSTEM}" in
+
+        ubuntu | debian | raspbian)
+            DISTRO="debian"
+            ;;
+
+        manjaro* | arch)
+            DISTRO="arch"
+            ;;
+
+        macos)
+            DISTRO="darwin"
+            ;;
+
+        *)
+            DISTRO="unknown"
+            ;;
+
+        esac
+        bdb_outcome "${SYSTEM} (${DISTRO})"
+
+        ## Prepare local system: update packages cache and install requirements
+        case "${DISTRO}" in
+
+        arch)
+            bdb_command "Updating Pacman"
+            sudo pacman -Syy
+            bdb_exit_status "updating Pacman"
+            ;;
+
+        darwin)
+            # update macOS
+            bdb_command "Updating macOS system"
+            softwareupdate -ia
+            bdb_exit_status "updating macOS system"
+
+            # CLT check
+            bdb_run "Checking Xcode Command Line Tools..."
+            if type xcode-select >&- &&
+                CLT_DIR=$(xcode-select --print-path) &&
+                test -d "${CLT_DIR}" &&
+                test -x "${CLT_DIR}"; then
+
+                # CLT installed
+                bdb_outcome "OK."
 
             else
 
-                # Upgrade all formulae
-                bdb_command "Upgrading all formulae"
-                brew upgrade
-                bdb_exit_status "upgrading all formulae"
+                # CLT not installed
+                bdb_outcome "not found."
+                bdb_command "Installing CLT"
+                # on 10.9+, we can leverage SUS to get the latest CLI tools
+                # create the placeholder file that's checked by CLI updates' .dist code
+                # in Apple's SUS catalog
+                touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+                # find the CLI Tools update
+                PROD=$(softwareupdate -l | grep "\*.*Command Line" | head -n 1 | awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')
+                # install it
+                softwareupdate -i "$PROD" -v
+                bdb_exit_status "installing CLT"
+
+            fi
+
+            # If brew is missing
+            if ! type brew &>/dev/null; then
+
+                # Install homebrew
+                BREW_URL="https://raw.githubusercontent.com/Homebrew/install/master/install"
+                bdb_command "Installing Homebrew"
+                /usr/bin/ruby -e "$(curl -fsSL ${BREW_URL})"
+                bdb_exit_status "installing Homebrew"
+
+            else
+
+                # Update homebrew
+                bdb_command "Updating Homebrew"
+                brew update
+                bdb_exit_status "updating Homebrew"
+
+            fi
+            ;;
+
+        debian)
+            bdb_command "Updating APT"
+            sudo apt-get update
+            bdb_exit_status "updating APT"
+
+            # If git is missing
+            if ! type git &>/dev/null; then
+
+                #Install git
+                bdb_command "Installing git"
+                sudo apt-get install -y git
+                bdb_exit_status "installing git"
+
+            fi
+            ;;
+
+        *)
+            bdb_exit_status "Cannot detect local system. Exiting..."
+            #TODO improve error handling
+            exit 1
+            ;;
+        esac
+
+        bdb_info "System ready"
+
+    }
+
+    # Check dotfiles repo
+    bdb_do_repo() {
+
+        bdb_info "Detect dotfiles or clone remote repo"
+
+        bdb_run "Looking for dotfiles"
+
+        # Set bare repo dir
+        mkdir -p "${BARE_DIR}"
+
+        # If bare repo is missing
+        if [[ ! "$(git --git-dir=${BARE_DIR} rev-parse --is-bare-repository)" ]]; then
+
+            # bare repo missing, doing fresh install
+            FRESH="true"
+
+            bdb_outcome "none found. Let's clone remote repo!"
+
+            # Clone remote repo into bare repo
+            REPO_URL="https://github.com/norville/dotfiles.git"
+            bdb_command "Cloning dotfiles into a bare repo"
+            git clone --bare "${REPO_URL}" "${BARE_DIR}" # Clone master branch
+            #git clone --bare -b <git-branch> ${REPO_URL} ${BARE_DIR}   # Clone specifc branch
+            bdb_exit_status "cloning dotfiles into <${BARE_DIR}>"
+
+            # Checkout bare repo
+            bdb_command "Checking out dotfiles repo"
+            dfconf checkout
+
+            # If checkout fails
+            # TODO prevent checkout from exiting before doing a backup
+            if [[ "$?" != 0 ]]; then
+
+                # Create backup dir
+                BAKP_DIR="${HOME}/.dfbackup"
+                bdb_command "Backing up overlapping dotfiles"
+                mkdir -p "${BAKP_DIR}"
+                # Move pre-existing dotfiles to ${BAKP_DIR}
+                dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} "${BAKP_DIR}"/{}
+                dfconf checkout
+
+            fi
+
+            bdb_exit_status "checking out bare repo"
+
+            # Set remote Github via ssh
+            dfconf remote set-url origin git@github.com:norville/dotfiles.git
+
+        else
+
+            # repo ok, run git status
+            bdb_outcome "local bare repo ok"
+            bdb_command "Showing repo status"
+            dfconf status
+            bdb_exit_status "showing repo status"
+
+        fi
+
+        bdb_info "Dotfiles ready"
+
+    }
+
+    # Install or update packages
+    bdb_do_apps() {
+
+        bdb_info "Install or update required packages"
+
+        # Detect system
+        case "${DISTRO}" in
+
+        darwin) # System is macOS
+
+            # Install brew bundles
+            BREW_PKG="${HOME}/.dfconf.d/brewfile"
+            bdb_command "Installing required formulae from <${BREW_PKG}>"
+            brew bundle install --file="${BREW_PKG}"
+            bdb_exit_status "installing required formulae"
+
+            # If extra formulae are installed
+            if [[ "$(brew bundle cleanup --file=${BREW_PKG})" ]]; then
+
+                bdb_run "Do you want to uninstall extra formulae? [y|n] "
+                read -r -n 1 response
+                if [[ "${response}" =~ (y|Y) ]]; then
+
+                    # Delete extra formulae
+                    bdb_command "Removing extra formulae"
+                    brew bundle cleanup --file="${BREW_PKG}" --force
+                    bdb_exit_status "removing extra formulae"
+
+                else
+
+                    # Upgrade all formulae
+                    bdb_command "Upgrading all formulae"
+                    brew upgrade
+                    bdb_exit_status "upgrading all formulae"
+
+                fi
+
+            fi
+
+            # Cleanup
+            bdb_command "Cleaning Homebrew"
+            brew cleanup
+            bdb_exit_status "cleaning Homebrew"
+
+            ;;
+
+        debian) # System is debian
+
+            # Install or update required packages via APT
+            DEBN_PKG="vim git wget curl keychain zsh"
+            bdb_command "Installing APT packages: <${DEBN_PKG}>"
+            sudo apt-get install -y $DEBN_PKG # NO QUOTES PLEASE - ensure variable expasnsion
+            bdb_exit_status "installing APT packages"
+
+            # Cleanup
+            bdb_command "Cleaning APT"
+            sudo apt autoremove
+            sudo apt autoclean
+            bdb_exit_status "cleaning APT"
+
+            ;;
+
+        arch) # System is arch
+
+            # Install or update required packages via Pacman
+            ARCH_PKG="vim git wget curl keychain zsh tilix"
+            bdb_command "Installing Arch packages: <${ARCH_PKG}>"
+            sudo pacman --noconfirm --needed -S $ARCH_PKG # NO QUOTES PLEASE - ensure variable expasnsion
+            bdb_exit_status "installing Arch packages"
+
+            # Cleanup
+            bdb_command "Cleaning Pacman cache"
+            sudo pacman --noconfirm -Scc
+            bdb_exit_status "cleaning Pacman cache"
+
+            ;;
+
+        *) # Distro not detected
+            bdb_info "Unknown system: ${DISTRO}. Exiting..."
+            # TODO improve error handling
+            bdb_handle_error 10
+            ;;
+
+        esac
+
+        bdb_info "Required packages ready"
+
+    }
+
+    # Configure the command line interface
+    bdb_do_cli() {
+
+        bdb_info "Set up your command line interface"
+
+        # Configure login shell
+        bdb_run "Configuring ZSH as your login shell"
+        ZSH_PATH="$(which zsh)"
+        # If zsh is not the login shell
+        if [[ "${SHELL}" != "${ZSH_PATH}" ]]; then
+
+            # Set zsh as login shell
+            bdb_command "Switching to ZSH"
+            echo "${ZSH_PATH}" | sudo tee -a /etc/shells
+            sudo chsh -s "${ZSH_PATH}" "${USER}"
+            bdb_exit_status "switching to ZSH"
+
+        else
+
+            # Zsh is the login shell
+            bdb_outcome "done"
+
+            # Delete antigen dir to force cloning
+            if [[ -d "${HOME}/.antigen" ]]; then
+
+                bdb_command "Updating Antigen"
+                rm -rf "${HOME}"/.antigen
+                bdb_exit_status "updating Antigen"
 
             fi
 
         fi
 
-        # Cleanup
-        bdb_command "Cleaning Homebrew"
-        brew cleanup
-        bdb_exit_status "cleaning Homebrew"
+        # Install or update vundle and required plugins
+        VNDL_DIR="${HOME}/.vim/bundle"
+        bdb_run "Configuring VIM as your text editor"
+        # If vundle is missing
+        if [[ ! -d "${VNDL_DIR}/Vundle.vim" ]]; then
 
-        ;;
-
-    debian) # System is debian
-
-        # Install or update required packages via APT
-        DEBN_PKG="vim git wget curl keychain zsh"
-        bdb_command "Installing APT packages: <${DEBN_PKG}>"
-        sudo apt-get install -y $DEBN_PKG   # NO QUOTES PLEASE - ensure variable expasnsion
-        bdb_exit_status "installing APT packages"
-
-        # Cleanup
-        bdb_command "Cleaning APT"
-        sudo apt autoremove
-        sudo apt autoclean
-        bdb_exit_status "cleaning APT"
-
-        ;;
-
-    arch) # System is arch
-
-        # Install or update required packages via Pacman
-        ARCH_PKG="vim git wget curl keychain zsh tilix"
-        bdb_command "Installing Arch packages: <${ARCH_PKG}>"
-        sudo pacman --noconfirm --needed -S $ARCH_PKG   # NO QUOTES PLEASE - ensure variable expasnsion
-        bdb_exit_status "installing Arch packages"
-
-        # Cleanup
-        bdb_command "Cleaning Pacman cache"
-        sudo pacman --noconfirm -Scc
-        bdb_exit_status "cleaning Pacman cache"
-
-        ;;
-
-    *) # Distro not detected
-        bdb_info "Unknown system: ${DISTRO}. Exiting..."
-        # TODO improve error handling
-        bdb_handle_error 10
-        ;;
-
-    esac
-
-    bdb_info "Required packages ready"
-
-}
-
-# Configure the command line interface
-bdb_do_cli() {
-
-    bdb_info "Set up your command line interface"
-
-    # Configure login shell
-    bdb_run "Configuring ZSH as your login shell"
-    ZSH_PATH="$(which zsh)"
-    # If zsh is not the login shell
-    if [[ "${SHELL}" != "${ZSH_PATH}" ]]; then
-
-        # Set zsh as login shell
-        bdb_command "Switching to ZSH"
-        echo "${ZSH_PATH}" | sudo tee -a /etc/shells
-        sudo chsh -s "${ZSH_PATH}" "${USER}"
-        bdb_exit_status "switching to ZSH"
-
-    else
-
-        # Zsh is the login shell
-        bdb_outcome "done"
-
-        # Delete antigen dir to force cloning
-        if [[ -d "${HOME}/.antigen" ]]; then
-
-            bdb_command "Updating Antigen"
-            rm -rf "${HOME}"/.antigen
-            bdb_exit_status "updating Antigen"
+            # Install vundle
+            VNDL_URL="https://github.com/VundleVim/Vundle.vim.git"
+            bdb_command "Installing Vundle - VIM plugin manager"
+            git clone "${VNDL_URL}" "${VNDL_DIR}"/Vundle.vim
+            bdb_exit_status "installing Vundle"
 
         fi
+        # Update vundle and required plugins
+        bdb_command "Updating VIM plugins via Vundle"
+        vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
+        bdb_exit_status "updating Vundle plugins"
 
-    fi
+        bdb_info "CLI ready"
+        bdb_info "Restore user preferences"
 
-    # Install or update vundle and required plugins
-    VNDL_DIR="${HOME}/.vim/bundle"
-    bdb_run "Configuring VIM as your text editor"
-    # If vundle is missing
-    if [[ ! -d "${VNDL_DIR}/Vundle.vim" ]]; then
+        case "${DISTRO}" in
 
-        # Install vundle
-        VNDL_URL="https://github.com/VundleVim/Vundle.vim.git"
-        bdb_command "Installing Vundle - VIM plugin manager"
-        git clone "${VNDL_URL}" "${VNDL_DIR}"/Vundle.vim
-        bdb_exit_status "installing Vundle"
+        arch)
+            bdb_run "Installing Nerd fonts for p10k"
 
-    fi
-    # Update vundle and required plugins
-    bdb_command "Updating VIM plugins via Vundle"
-    vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
-    bdb_exit_status "updating Vundle plugins"
+            # Install nerd fonts for p10k
+            FONT_DIR="${HOME}/.local/share/fonts"
+            FURA_FNT="Fura Mono Regular Nerd Font.otf"
+            MSLO_FNT="Meslo LG S Regular Nerd Font.ttf"
+            FURA_URL="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraMono/Regular/complete/Fura%20Mono%20Regular%20Nerd%20Font%20Complete.otf"
+            MSLO_URL="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Meslo/S/Regular/complete/Meslo%20LG%20S%20Regular%20Nerd%20Font%20Complete.ttf"
 
-    bdb_info "CLI ready"
-    bdb_info "Restore user preferences"
+            mkdir -p "${FONT_DIR}"
+            bdb_command "Installing Fura Mono"
+            curl -fLo "${FONT_DIR}/${FURA_FNT}" "${FURA_URL}"
+            bdb_exit_status "installing Fura Mono"
+            bdb_command "Installing Meslo"
+            curl -fLo "${FONT_DIR}/${MSLO_FNT}" "${MSLO_URL}"
+            bdb_exit_status "installing Meslo"
+            bdb_command "Updating fonts"
+            fc-cache -f
+            bdb_exit_status "updating fonts"
 
-    case "${DISTRO}" in
+            # Set up tilix
+            bdb_command "Installing Gruvbox theme for Tilix"
+            git clone https://github.com/MichaelThessel/tilix-gruvbox.git
+            cd tilix-gruvbox
+            sudo cp gruvbox-* /usr/share/tilix/schemes
+            cd ..
+            rm -rf tilix-gruvbox
+            bdb_exit_status "installing Gruvbox theme for Tilix"
 
-    arch)
-        bdb_run "Installing Nerd fonts for p10k"
+            #TODO GNU Stow or mackup
 
-        # Install nerd fonts for p10k
-        FONT_DIR="${HOME}/.local/share/fonts"
-        FURA_FNT="Fura Mono Regular Nerd Font.otf"
-        MSLO_FNT="Meslo LG S Regular Nerd Font.ttf"
-        FURA_URL="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraMono/Regular/complete/Fura%20Mono%20Regular%20Nerd%20Font%20Complete.otf"
-        MSLO_URL="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Meslo/S/Regular/complete/Meslo%20LG%20S%20Regular%20Nerd%20Font%20Complete.ttf"
+            ;;
 
-        mkdir -p "${FONT_DIR}"
-        bdb_command "Installing Fura Mono"
-        curl -fLo "${FONT_DIR}/${FURA_FNT}" "${FURA_URL}"
-        bdb_exit_status "installing Fura Mono"
-        bdb_command "Installing Meslo"
-        curl -fLo "${FONT_DIR}/${MSLO_FNT}" "${MSLO_URL}"
-        bdb_exit_status "installing Meslo"
-        bdb_command "Updating fonts"
-        fc-cache -f
-        bdb_exit_status "updating fonts"
+        macos)
 
-        # Set up tilix
-        bdb_command "Installing Gruvbox theme for Tilix"
-        git clone https://github.com/MichaelThessel/tilix-gruvbox.git
-        cd tilix-gruvbox
-        sudo cp gruvbox-* /usr/share/tilix/schemes
-        cd ..
-        rm -rf tilix-gruvbox
-        bdb_exit_status "installing Gruvbox theme for Tilix"
+            # If this is a fresh install
+            if [[ "${FRESH}" ]]; then
 
-        #TODO GNU Stow or mackup
+                # Set macos defaults
+                bdb_command "Restoring macOS preferences"
+                MAC_DEF="${HOME}/bin/macos_defaults"
+                [[ "${MAC_DEF}" ]] && source "${MAC_DEF}"
+                bdb_exit_status "restoring macOS preferences"
 
-        ;;
+                # Run mackup
+                bdb_command "Restoring App preferences"
+                type mackup &>/dev/null && mackup restore
+                bdb_exit_status "restoring App preferences"
 
-    macos)
+            fi
 
-        # If this is a fresh install
-        if [[ "${FRESH}" ]]; then
+            # Restore VSCode extensions
+            CODE_EXT="${HOME}/.dfconf.d/vscode-ext"
+            # If no extensions installed and extensions file exists
+            if [[ ! "$(code --list-extensions)" && -f "${CODE_EXT}" ]]; then
 
-            # Set macos defaults
-            bdb_command "Restoring macOS preferences"
-            MAC_DEF="${HOME}/bin/macos_defaults"
-            [[ "${MAC_DEF}" ]] && source "${MAC_DEF}"
-            bdb_exit_status "restoring macOS preferences"
+                bdb_command "Installing VSCode extensions"
+                cat "${CODE_EXT}" | xargs -n 1 code --install-extension
+                bdb_exit_status "installing VSCode extensions"
 
-            # Run mackup
-            bdb_command "Restoring App preferences"
-            type mackup &>/dev/null && mackup restore
-            bdb_exit_status "restoring App preferences"
+            fi
 
-        fi
+            ;;
 
-        # Restore VSCode extensions
-        CODE_EXT="${HOME}/.dfconf.d/vscode-ext"
-        # If no extensions installed and extensions file exists
-        if [[ ! "$(code --list-extensions)" && -f "${CODE_EXT}" ]]; then
+        *) # Nothing to do
+            ;;
 
-            bdb_command "Installing VSCode extensions"
-            cat "${CODE_EXT}" | xargs -n 1 code --install-extension
-            bdb_exit_status "installing VSCode extensions"
+        esac
 
-        fi
+        bdb_info "User prefs restored"
 
-        ;;
+    }
 
-    *) # Nothing to do
-        ;;
+    bdb_usage() {
 
-    esac
+        bdb_info "$PROGNAME: usage: $PROGNAME [-f | -i]"
+        return
 
-    bdb_info "User prefs restored"
+    }
 
-}
+    # TODO
+    # - SSH Keys generation and copy: centic9/generate-and-send-ssh-key
+    # - colorize bdb_exit_status
+    # - user interaction
 
-bdb_usage() {
+    ### Bootstrap preparation
 
-    bdb_info "$PROGNAME: usage: $PROGNAME [-f | -i]"
-    return
+    # Force exit in case of error
+    #set -e
 
-}
+    # Call error handler before exiting
+    #trap "bdb_handle_error" EXIT
 
-# TODO
-# - SSH Keys generation and copy: centic9/generate-and-send-ssh-key
-# - colorize bdb_exit_status
-# - user interaction
+    # Detect arguments
+    if [ $# -gt 0 ]; then
 
-### Bootstrap preparation
+        # Arguments passed
 
-# Force exit in case of error
-#set -e
+        ### Bootstrap begin
+        bdb_info "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
 
-# Call error handler before exiting
-#trap "bdb_handle_error" EXIT
-
-# Detect arguments
-if [ $# -gt 0 ]; then
-
-    # Arguments passed
-
-    ### Bootstrap begin
-    bdb_info "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
-
-    # Process command-line options
-    #interactive=
-    while [[ -n "$1" ]]; do
-        case "$1" in
+        # Process command-line options
+        #interactive=
+        while [[ -n "$1" ]]; do
+            case "$1" in
             -a | --apps)
                 bdb_do_sys
                 bdb_do_repo
@@ -542,7 +576,7 @@ if [ $# -gt 0 ]; then
                 bdb_usage
                 exit 0
                 ;;
-            #-f | --file)
+                #-f | --file)
                 #shift
                 #filename="$1"
                 #;;
@@ -552,25 +586,27 @@ if [ $# -gt 0 ]; then
                 bdb_usage
                 exit 1
                 ;;
-        esac
-        shift
-    done
+            esac
+            shift
+        done
 
-    ### Bootstrap done
-    bdb_info "All done!"
+        ### Bootstrap done
+        bdb_info "All done!"
 
-else
+    else
 
-    # No arguments
+        # No arguments
 
-    ### Bootstrap exit
-    # TODO:
-    # - exit properly
-    bdb_usage
-    exit 1
+        ### Bootstrap exit
+        # TODO:
+        # - exit properly
+        bdb_usage
+        exit 1
 
-fi
+    fi
 
-# Exit in style
-printf -- '\n'
-exit 0
+    # Exit in style
+    printf -- '\n'
+    exit 0
+
+} # ensure download of entire script
