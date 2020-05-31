@@ -273,6 +273,8 @@
 
             # Set remote Github via ssh
             dfconf remote set-url origin git@github.com:norville/dotfiles.git
+            # Set Github as remote upstream
+            dfconf push --set-upstream origin master
 
         else
 
