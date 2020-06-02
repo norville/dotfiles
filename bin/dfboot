@@ -3,7 +3,6 @@
 # TODO
 # - SSH Keys generation and copy: centic9/generate-and-send-ssh-key
 # - colorize bdb_exit_status
-# - user interaction
 
 { # ensure download of entire script
 
@@ -13,18 +12,18 @@
     RST_COL="${ESC_SEQ}39;49;00m" # reset
     RED_COL="${ESC_SEQ}31;01m"    # red
     GRN_COL="${ESC_SEQ}32;01m"    # green
-    YLW_COL="${ESC_SEQ}33;01m"    # yellow
     BLU_COL="${ESC_SEQ}34;01m"    # blue
-    MGN_COL="${ESC_SEQ}35;01m"    # magenta
+    YLW_COL="${ESC_SEQ}33;01m"    # yellow
     CYN_COL="${ESC_SEQ}36;01m"    # cyan
+    MGN_COL="${ESC_SEQ}35;01m"    # magenta
     WHT_COL="${ESC_SEQ}97;01m"    # white
 
     FRESH=""                     # true = fresh install
     DISTRO=""                    # unix distro name
     SYSTEM=""                    # os name
-    REBOOT_SYS=""                # reboot flag
     BARE_DIR="${HOME}/.dfbare"   # git bare repo dir
     CONF_DIR="${HOME}/.dfconf.d" # config files dir
+    LOGFILE="${CONF_DIR}/dfboot.log" # dfboot log file
     PROGNAME="$(basename "$0")"  # current running command
 
     ### Define functions
@@ -57,30 +56,51 @@
         if [[ "$?" != 0 ]]; then
 
             # Print error message
-            echo -e "\n${RED_COL}|xxx| ERROR: ${1:-"UNKNOWN"} ${RST_COL}"
+            echo -e "\n${RED_COL}|xxx| ERROR ${1:-"UNKNOWN"} ${RST_COL}"
             # Handle error
             bdb_handle_error
 
         else
 
             # Print success message
-            echo -en "${GRN_COL}|+++| OK: ${1:-"UNKNOWN"} ${RST_COL}"
+            echo -en "${GRN_COL}|vvv| DONE ${1:-"UNKNOWN"} ${RST_COL}"
 
         fi
 
     }
 
-    # Print info message
-    bdb_info() {
+    # Print alert message
+    bdb_alert() {
 
-        echo -en "\n${WHT_COL}|BDB| $1 ${RST_COL}"
+        echo -en "\n${YLW_COL}|!!!| $1 ${RST_COL}"
+
+    }
+
+    # Print info message
+    bdb_begin_info() {
+
+        echo -en "\n|BDB| BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB |BDB|"
+        echo -en "\n|BDB| vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
+        echo -en "\n|BDB|"
+        echo -en "\n|BDB| $1"
+        echo -en "\n|BDB|"
+
+    }
+
+    # Print info message
+    bdb_end_info() {
+
+        echo -en "\n|BDB|"
+        echo -en "\n|BDB| $1"
+        echo -en "\n|BDB|"
+        echo -en "\n|BDB| ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
 
     }
 
     # Print run message
     bdb_run() {
 
-        echo -en "\n${BLU_COL}|***| $1 ... ${RST_COL}"
+        echo -en "\n${BLU_COL}|###| $1 ... ${RST_COL}"
 
     }
 
@@ -98,14 +118,32 @@
 
     }
 
+    # Ask user yes/no, return 0 for yes (default: no)
+    bdb_ask() {
+
+        # Print prompt
+        echo -en "\n${WHT_COL}|???| $1? [y|N] > ${RST_COL}"
+
+        # Read user input: suppress output, read 1 char
+        read -s -r -n 1 response
+
+        # If input = y/Y
+        if [[ $response =~ (y|Y) ]]; then
+
+            # Return success
+            return 0
+
+        fi
+
+        # Default: return error
+        return 1
+
+    }
+
     # Check the system and prepare for bootstrap
     bdb_do_sys() {
 
-        bdb_info ""
-        bdb_info "»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»"
-        bdb_info ""
-        bdb_info "Detect local system and prepare it for bootstrap"
-        bdb_info ""
+        bdb_begin_info "Prepare local system for bootstrap"
 
         ## Get admin privileges
         bdb_run "Getting admin privileges"
@@ -217,22 +255,14 @@
 
         esac
 
-        bdb_info ""
-        bdb_info "System ready"
-        bdb_info ""
-        bdb_info "««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««"
-        bdb_info ""
+        bdb_end_info "System ready"
 
     }
 
     # Check dotfiles repo
     bdb_do_repo() {
 
-        bdb_info ""
-        bdb_info "»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»"
-        bdb_info ""
-        bdb_info "Detect dotfiles or clone remote repo"
-        bdb_info ""
+        bdb_begin_info "Detect dotfiles or clone remote repository"
 
         bdb_run "Looking for dotfiles"
         # Set bare repo dir
@@ -240,7 +270,7 @@
         # If bare repo is missing
         if [[ ! "$(git --git-dir=${BARE_DIR} rev-parse --is-bare-repository)" ]]; then
 
-            # bare repo missing, doing fresh install
+            # Fresh system
             FRESH="true"
 
             bdb_outcome "none found. Let's clone remote repo!"
@@ -285,22 +315,14 @@
 
         fi
 
-        bdb_info ""
-        bdb_info "Dotfiles ready"
-        bdb_info ""
-        bdb_info "««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««"
-        bdb_info ""
+        bdb_end_info "Dotfiles ready"
 
     }
 
     # Install or update packages
     bdb_do_apps() {
 
-        bdb_info ""
-        bdb_info "»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»"
-        bdb_info ""
-        bdb_info "Install or update required packages"
-        bdb_info ""
+        bdb_begin_info "Bootstrap applications"
 
         # Detect system
         case "${DISTRO}" in
@@ -316,23 +338,22 @@
             # If extra formulae are installed
             if [[ "$(brew bundle cleanup --file=${BREW_PKG})" ]]; then
 
-                bdb_run "Do you want to uninstall extra formulae? [y|n] "
-                read -r -n 1 BREW_EXTRA
-                if [[ "${BREW_EXTRA}" =~ (y|Y) ]]; then
+                # If response is yes (true)
+                (bdb_ask "uninstall extra formulae" && {
 
                     # Delete extra formulae
                     bdb_command "Removing extra formulae"
                     brew bundle cleanup --file="${BREW_PKG}" --force
                     bdb_exit_status "removing extra formulae"
 
-                else
+                }) || { # Response is no (false)
 
                     # Upgrade all formulae
                     bdb_command "Upgrading all formulae"
                     brew upgrade
                     bdb_exit_status "upgrading all formulae"
 
-                fi
+                }
 
             fi
 
@@ -375,29 +396,21 @@
             ;;
 
         *) # Distro not detected
-            bdb_info "Unknown system: ${DISTRO}. Exiting..."
+            bdb_alert "Unknown system: ${DISTRO}. Exiting..."
             # TODO improve error handling
             bdb_handle_error 10
             ;;
 
         esac
 
-        bdb_info ""
-        bdb_info "Required packages ready"
-        bdb_info ""
-        bdb_info "««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««"
-        bdb_info ""
+        bdb_end_info "Applications ready"
 
     }
 
     # Upgrade local system
     bdb_do_upgrade() {
 
-        bdb_info ""
-        bdb_info "»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»"
-        bdb_info ""
-        bdb_info "Upgrade system packages"
-        bdb_info ""
+        bdb_begin_info "Upgrade local system"
 
         case "${DISTRO}" in
 
@@ -419,51 +432,42 @@
 
         esac
 
-        bdb_info ""
-        bdb_info "System upgraded."
-        bdb_info ""
-
-        bdb_run "Do you want to reboot the system? [y|n] "
-        read -r -n 1 REBOOT_SYS
-
-        bdb_info ""
-        bdb_info "««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««"
-        bdb_info ""
+        bdb_end_info "System upgraded."
 
     }
 
-    # Configure the command line interface
-    bdb_do_cli() {
+    # Configure user environment
+    bdb_do_env() {
 
-        bdb_info ""
-        bdb_info "»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»"
-        bdb_info ""
-        bdb_info "Set up your command line interface"
-        bdb_info ""
+        bdb_begin_info "Configure user environment"
 
-        # Configure login shell
-        bdb_run "Configuring ZSH as your login shell"
-        ZSH_PATH="$(which zsh)"
-        # If zsh is not the login shell
-        if [[ "${SHELL}" != "${ZSH_PATH}" ]]; then
+        # Configure login shell on linux
+        if [[ "${DISTRO}" != "darwin" ]]; then
 
-            # Set zsh as login shell
-            bdb_command "Switching to ZSH"
-            echo "${ZSH_PATH}" | sudo tee -a /etc/shells
-            sudo chsh -s "${ZSH_PATH}" "${USER}"
-            bdb_exit_status "switching to ZSH"
+            bdb_run "Configuring ZSH as your login shell"
+            ZSH_PATH="$(which zsh)"
+            # If zsh is not the login shell
+            if [[ "${SHELL}" != "${ZSH_PATH}" ]]; then
 
-        else
+                # Set zsh as login shell
+                bdb_command "Switching to ZSH"
+                echo "${ZSH_PATH}" | sudo tee -a /etc/shells
+                sudo chsh -s "${ZSH_PATH}" "${USER}"
+                bdb_exit_status "switching to ZSH"
 
-            # Zsh is the login shell
-            bdb_outcome "done"
+            else
 
-            # Delete antigen dir to force cloning
-            if [[ -d "${HOME}/.antigen" ]]; then
+                # Zsh is the login shell
+                bdb_outcome "done"
 
-                bdb_command "Updating Antigen"
-                rm -rf "${HOME}"/.antigen
-                bdb_exit_status "updating Antigen"
+                # Delete antigen dir to force cloning
+                if [[ -d "${HOME}/.antigen" ]]; then
+
+                    bdb_command "Updating Antigen"
+                    rm -rf "${HOME}"/.antigen
+                    bdb_exit_status "updating Antigen"
+
+                fi
 
             fi
 
@@ -482,17 +486,13 @@
             bdb_exit_status "installing Vundle"
 
         fi
+
         # Update vundle and required plugins
         bdb_command "Updating VIM plugins via Vundle"
         vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
         bdb_exit_status "updating Vundle plugins"
 
-        bdb_info ""
-        bdb_info "CLI ready"
-        bdb_info ""
-        bdb_info "Restore user preferences"
-        bdb_info ""
-
+        #Restore user preferences
         case "${DISTRO}" in
 
         arch)
@@ -533,7 +533,7 @@
             TILIX_CFG="${CONF_DIR}/tilix.dconf"
             if [[ -f "${TILIX_CFG}" ]]; then
 
-                bdb_commad "Loading dconf profile"
+                bdb_command "Loading dconf profile"
                 dconf load /com/gexperts/Tilix/ <"${TILIX_CFG}"
                 bdb_exit_status "loading dconf profile"
 
@@ -549,7 +549,7 @@
 
         macos)
 
-            # If this is a fresh install
+            # If this is a fresh system
             if [[ "${FRESH}" ]]; then
 
                 # Set macos defaults
@@ -583,32 +583,45 @@
 
         esac
 
-        bdb_info ""
-        bdb_info "User preferences restored"
-        bdb_info ""
-        bdb_info "««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««"
-        bdb_info ""
+        bdb_end_info "User environment ready"
 
     }
 
+    # Print help message and exit
     bdb_usage() {
 
-        bdb_info ""
-        bdb_info "usage: $PROGNAME [<args> ...]"
-        bdb_info ""
-        echo -en "\n\t\t-f | --full\t\tDo full bootstrap"
-        echo -en "\n\t\t-a | --apps\t\tBootstrap applications"
-        echo -en "\n\t\t-r | --repo\t\tBootstrap dotfiles repository"
-        echo -en "\n\t\t-u | --upgrade\t\tUpgrade system"
-        echo -en "\n\t\t-l <file> | --logfile <file>\t\tSpecify file to log all output (default: ${LOGFILE})"
-        echo -en "\n\t\t-s | --silent\t\tSilence all output, log only"
-        echo -en "\n\t\t-v | --verbose\t\tPrint all output"
-        echo -en "\n\t\t-h | --help\t\tPrint this message"
-        return
+        # Print error message if passed
+        [[ $2 ]] && {
+            bdb_alert "error: $2"
+            bdb_alert ""
+        }
+        bdb_alert "usage: $PROGNAME [<option> ...]"
+        bdb_alert ""
+        bdb_alert "       $PROGNAME [-h]"
+        bdb_alert "       $PROGNAME [-f] [-s|-v] [-l <logfile>]"
+        bdb_alert "       $PROGNAME [-r|-a|-e|-u] [-s|-v] [-l <logfile>]"
+        bdb_alert ""
+        bdb_alert "options: -h           : Print this message and exit"
+        bdb_alert "         -f           : Full bootstrap"
+        bdb_alert "         -r           : Bootstrap dotfiles repository"
+        bdb_alert "         -a           : Bootstrap required applications"
+        bdb_alert "         -e           : Bootstrap user environment"
+        bdb_alert "         -u           : Upgrade local system"
+        bdb_alert "         -s           : Silence all terminal output"
+        bdb_alert "         -v           : Send all output terminal"
+        bdb_alert "         -l <logfile> : Send all output to <logfile>"
+        bdb_alert "                        (default: ${LOGFILE})"
+
+        bdb_end_info ""
+        echo -en "\n|BDB| BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB |BDB|"
+
+        # Exit with passed value
+        exit $1
+        # TODO - exit properly
 
     }
 
-    ### Bootstrap preparation
+    ### Bootstrap begin
 
     # Force exit in case of error
     #set -e
@@ -616,111 +629,118 @@
     # Call error handler before exiting
     #trap "bdb_handle_error" EXIT
 
-    ### Bootstrap begin
-    bdb_info ""
-    bdb_info "»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»»"
-    bdb_info ""
-    bdb_info "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
-    bdb_info ""
-    bdb_info "...let's begin..."
-    bdb_info ""
+    bdb_begin_info "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
 
-    # Detect arguments
-    if [ $# -eq 0 ]; then
+    # Process command options
+    while getopts ":hfraeusvl:" opt; do
 
-        # No arguments, interactive mode
-        echo "TODO - INTERACTIVE MODE"
-
-    else
-
-        # Process arguments
-
-        #options=$(getopt -o farulsvh --long full,apps,repo,upgrade,logfile,silent,verbose,help: -- "$@")
-        #eval set -- "options"
-
-        while [[ -n $1 ]]; do
-            case "$1" in
-            -f | --full)
-                echo "TEST - full bootstrap"
-                # bdb_do_sys
-                # bdb_do_repo
-                # bdb_do_apps
-                # bdb_do_cli
-                # bdb_do_upgrade
-                ;;
-            -a | --apps)
-                echo "TEST - apps bootstrap"
-                # bdb_do_sys
-                # bdb_do_repo
-                # bdb_do_apps
-                ;;
-            -r | --repo)
-                echo "TEST - repo bootstrap"
-                # bdb_do_sys
-                # bdb_do_repo
-                ;;
-            -u | --upgrade)
-                echo "TEST - sys upgrade"
-                # bdb_do_sys
-                # bdb_do_upgrade
-                ;;
-            -l | --logfile)
-                echo "TEST - logfile"
-                #shift
-                #filename="$1"
-                # TODO - specify log file
-                ;;
-            -s | --silent)
-                echo "TEST - silent mode"
-                # TODO - suppress all output
-                ;;
-            -v | --verbose)
-                echo "TEST - verbose mode"
-                # TODO - print all commands output
-                ;;
-            -h | --help)
-                bdb_usage
-                exit 0
-                # TODO - exit properly
-                ;;
-            # --)
-            #     shift
-            #     break
-            #     ;;
-            *)
-                # Invalid argument, print usage and exit with error
-                bdb_usage
-                exit 1
-                # TODO - exit properly
-                ;;
-            esac
+        case $opt in
+        h) # Print help message
+            # TODO - fix combinations
+            bdb_alert "optind: $OPTIND"
+            if [[ ${OPTIND} -gt 2 ]]; then
+                # Exit with error if 'h' flag is not alone
+                bdb_usage 1 "invalid option: -h cannot be combined"
+            fi
+            bdb_usage 0
+            ;;
+        f) # Full bootstrap
+            repo=1
+            apps=1
+            env=1
+            upgrade=1
+            ;;
+        r) # Bootstrap repo
+            repo=1
+            ;;
+        a) # Bootstrap apps
+            repo=1
+            apps=1
+            ;;
+        p) # Bootstrap env
+            repo=1
+            apps=1
+            env=1
+            ;;
+        u) # Upgrade sys
+            upgrade=1
+            ;;
+        l) # Print to logfile
             shift
-        done
+            LOGFILE="$1"
+            bdb_alert "logfile: ${LOGFILE}"
+            ;;
+        s) # Silent mode
+            # TODO - suppress all output
+            silent=1
+            ;;
+        v) # Verbose mode
+            # TODO - print all commands output
+            verbose=1
+            ;;
+        :) # Missing option argument, print usage and exit with error
+            bdb_usage 1 "invalid option: -${OPTARG} requires an argument"
+            ;;
+        \?) # Invalid option, print usage and exit with error
+            bdb_usage 1 "invalid option: -${OPTARG}"
+            ;;
+        esac
+
+    done
+
+    # getopts finished, shift to args
+    shift $(( $OPTIND - 1 ))
+
+    # If command arguments are passed, exit with error
+    if [[ $# -gt 0 ]]; then
+
+        bdb_usage 1 "invalid argument: <$*>"
+
+    fi
+
+    # Always bootstrap system
+    bdb_do_sys
+
+    # If command options are passed
+    if [[ $OPTIND -gt 1 ]]; then
+
+        # Flag mode: bootstrap only flagged items
+        [[ -n $repo ]] && bdb_do_repo
+        [[ -n $apps ]] && bdb_do_apps
+        [[ -n $env ]] && bdb_do_env
+        [[ -n $upgrade ]] && bdb_do_upgrade
+
+    else # Options not passed
+
+        # Interactive mode: ask user what to bootstrap
+        (bdb_ask "Bootstrap dotfiles repository" && bdb_do_repo) || {
+            bdb_alert "Skipping repo bootstrap"
+        }
+        (bdb_ask "Bootstrap required applications" && bdb_do_apps) || {
+            bdb_alert "Skipping applications bootstrap"
+        }
+        (bdb_ask "Bootstrap user environment" && bdb_do_env) || {
+            bdb_alert "Skipping environment bootstrap"
+        }
+        (bdb_ask "Upgrade local system" && bdb_do_upgrade) || {
+            bdb_alert "Skipping system upgrade"
+        }
 
     fi
 
     ### Bootstrap done
-    bdb_info ""
-    bdb_info "Bootstrap complete!"
-    bdb_info ""
 
-    ### Exit properly
-    if [[ "${REBOOT_SYS}" =~ (y|Y) ]]; then
+    bdb_begin_info "Bootstrap done."
+    bdb_ask "Reboot local system" && {
 
-        bdb_run "Rebooting local system"
-        bdb_info ""
-        bdb_info "««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««"
-        bdb_info ""
+        bdb_end_info "Rebooting local system"
+        echo -en "\n|BDB| BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB |BDB|"
         sudo reboot
 
-    else
+    }
 
-        bdb_run "Exiting"
-        bdb_info ""
-        bdb_info "««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««««"
-        bdb_info ""
-        exit 0
-
-    fi
+    bdb_end_info "Logging out user '${USER}'"
+    echo -en "\n|BDB| BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB |BDB|"
+    exit 0
 
 } # ensure download of entire script
