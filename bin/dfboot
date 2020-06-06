@@ -18,13 +18,13 @@
     MGN_COL="${ESC_SEQ}35;01m"    # magenta
     WHT_COL="${ESC_SEQ}97;01m"    # white
 
-    FRESH=""                     # true = fresh install
-    DISTRO=""                    # unix distro name
-    SYSTEM=""                    # os name
-    BARE_DIR="${HOME}/.dfbare"   # git bare repo dir
-    CONF_DIR="${HOME}/.dfconf.d" # config files dir
+    FRESH=""                         # true = fresh install
+    DISTRO=""                        # unix distro name
+    SYSTEM=""                        # os name
+    BARE_DIR="${HOME}/.dfbare"       # git bare repo dir
+    CONF_DIR="${HOME}/.dfconf.d"     # config files dir
     LOGFILE="${CONF_DIR}/dfboot.log" # dfboot log file
-    PROGNAME="$(basename "$0")"  # current running command
+    PROGNAME="$(basename "$0")"      # current running command
 
     ### Define functions
 
@@ -689,7 +689,7 @@
     done
 
     # getopts finished, shift to args
-    shift $(( $OPTIND - 1 ))
+    shift $(($OPTIND - 1))
 
     # If command arguments are passed, exit with error
     if [[ $# -gt 0 ]]; then

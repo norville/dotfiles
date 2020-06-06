@@ -1,33 +1,29 @@
 # Bassa's Dotfiles
 
-## Why
-
-To quickly restore my computer environment: apps, tools, frameworks and preferences.
-
-## How
-
-With lots of cool ideas taken from [Github does dotfiles](https://dotfiles.github.io/)
-
-## TODO
-Clean install without xcode-select
-Check ZSH path
-Add mackup.cfg
-
 ## Install
-
-Optional
-```bash
-xcode-select --install
-sudo xcode-select -switch /Applications/Xcode.app
-```
 
 Before install sign in to iCloud and Mac App Store
 
 Then
+
 ```bash
-wget -O - https://raw.githubusercontent.com/norville/dotfiles/bare/bin/dfboot | bash
+wget -O - https://git.io/norville_dfboot | bash
 ```
+
 Or
+
 ```bash
-curl -L https://raw.githubusercontent.com/norville/dotfiles/bare/bin/dfboot | bash
+curl -L https://git.io/norville_dfboot | bash
+```
+
+## Credits
+
+With lots of cool ideas taken from [Github does dotfiles](https://dotfiles.github.io/)
+
+## Wiki
+
+To fix short URL:
+
+```bash
+curl -i https://git.io -F "url=https://raw.githubusercontent.com/norville/dotfiles/bare/bin/dfboot" -F "code=norville_dfboot"
 ```
