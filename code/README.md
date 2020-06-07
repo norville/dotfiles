@@ -27,3 +27,8 @@ To fix short URL:
 ```bash
 curl -i https://git.io -F "url=https://raw.githubusercontent.com/norville/dotfiles/master/bin/dfboot" -F "code=dfboot"
 ```
+
+## TODO
+
+- setup SSH keys
+- automatically set p10k theme for terminal and fonts

@@ -6,7 +6,7 @@
 
 { # ensure download of entire script
 
-    ### Define constants
+    ### Define global environment
 
     ESC_SEQ="\x1b["
     RST_COL="${ESC_SEQ}39;49;00m" # reset
@@ -28,7 +28,7 @@
 
     ### Define functions
 
-    # Automatically run git against the bare repo in ${HOME}
+    ## Automatically run git against the bare repo in ${HOME}
     dfconf() {
 
         # /usr/bin/git --git-dir=<git-bare-dir> --work-tree=<dotfiles-dir>
@@ -36,20 +36,18 @@
 
     }
 
-    # Handle exit codes, print messages and clean up
+    ## Handle exit codes, print messages and clean up
     bdb_handle_error() {
 
+        # TODO - handle exit codes and cleanup
         ERR_CODE=$?
-
-        # TODO - handle exit codes and cleanup (MENU)
-
         printf -- "Error ${ERR_CODE} has occurred."
         printf -- "\nExiting with error code ${ERR_CODE}.\n"
         exit ${ERR_CODE}
 
     }
 
-    # Check last exit status and print outcome message
+    ## Check last exit status and print outcome message
     bdb_exit_status() {
 
         # If last command exit status is not 0
@@ -69,17 +67,10 @@
 
     }
 
-    # Print alert message
-    bdb_alert() {
-
-        echo -en "\n${YLW_COL}|!!!| $1 ${RST_COL}"
-
-    }
-
-    # Print info message
+    ## Print info message
     bdb_begin_info() {
 
-        echo -en "\n|BDB| BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB |BDB|"
+        echo -en "\n|BDB| ---------------------------------------------------------------------------------"
         echo -en "\n|BDB| vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
         echo -en "\n|BDB|"
         echo -en "\n|BDB| $1"
@@ -87,7 +78,7 @@
 
     }
 
-    # Print info message
+    ## Print info message
     bdb_end_info() {
 
         echo -en "\n|BDB|"
@@ -97,37 +88,42 @@
 
     }
 
-    # Print run message
+    ## Print run message
     bdb_run() {
 
         echo -en "\n${BLU_COL}|###| $1 ... ${RST_COL}"
 
     }
 
-    # Print outcome message
+    ## Print outcome message
     bdb_outcome() {
 
         echo -en "${CYN_COL}$1${RST_COL}"
 
     }
 
-    # Print message before command
+    ## Print message before command
     bdb_command() {
 
         echo -e "\n${MGN_COL}|>>>| $1 ${RST_COL}"
 
     }
 
-    # Ask user yes/no, return 0 for yes (default: no)
+    ## Print alert message
+    bdb_alert() {
+
+        echo -en "\n${YLW_COL}|!!!| $1 ${RST_COL}"
+
+    }
+
+    ## Ask user yes/no, return 0 for yes (default: no)
     bdb_ask() {
 
         # Print prompt
         echo -en "\n${WHT_COL}|???| ---------------------------------------------------------------------------------"
         echo -en "\n${WHT_COL}|???|"
         echo -en "\n${WHT_COL}|???| $1? [y|N] > "
-        echo -en "\n${WHT_COL}|???|"
-        echo -en "\n${WHT_COL}|???| ---------------------------------------------------------------------------------"
-        echo -en "${RST_COL}"
+        echo -en "\n${WHT_COL}|???|${RST_COL}"
 
         # Read user input: suppress output, read 1 char
         read -s -r -n 1 response
@@ -145,7 +141,41 @@
 
     }
 
-    # Check the system and prepare for bootstrap
+    ## Print help message and exit
+    bdb_usage() {
+
+        # Print error message if passed
+        [[ $2 ]] && {
+            bdb_alert "error: $2"
+            bdb_alert ""
+        }
+        bdb_alert "usage: $PROGNAME [<option> ...]"
+        bdb_alert ""
+        bdb_alert "       $PROGNAME [-h]"
+        bdb_alert "       $PROGNAME [-f] [-s|-v] [-l <logfile>]"
+        bdb_alert "       $PROGNAME [-r|-a|-e|-u] [-s|-v] [-l <logfile>]"
+        bdb_alert ""
+        bdb_alert "options: -h           : Print this message and exit"
+        bdb_alert "         -f           : Full bootstrap"
+        bdb_alert "         -r           : Bootstrap dotfiles repository"
+        bdb_alert "         -a           : Bootstrap required applications"
+        bdb_alert "         -e           : Bootstrap user environment"
+        bdb_alert "         -u           : Upgrade local system"
+        bdb_alert "         -s           : Silence all terminal output"
+        bdb_alert "         -v           : Send all output terminal"
+        bdb_alert "         -l <logfile> : Send all output to <logfile>"
+        bdb_alert "                        (default: ${LOGFILE})"
+
+        bdb_end_info ""
+        echo -en "\n|BDB| BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB |BDB|"
+
+        # Exit with passed value
+        exit $1
+        # TODO - exit properly
+
+    }
+
+    ## Check the system and prepare for bootstrap
     bdb_do_sys() {
 
         bdb_begin_info "Prepare local system for bootstrap"
@@ -264,7 +294,7 @@
 
     }
 
-    # Check dotfiles repo
+    ## Check dotfiles repo
     bdb_do_repo() {
 
         bdb_begin_info "Detect dotfiles or clone remote repository"
@@ -301,6 +331,7 @@
                 # Move pre-existing dotfiles to ${BAKP_DIR}
                 dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} "${BAKP_DIR}"/{}
                 dfconf checkout
+                bdb_exit_status "backing up overlapping dotfiles"
 
             fi
             #bdb_exit_status "checking out bare repo"
@@ -326,7 +357,7 @@
 
     }
 
-    # Install or update packages
+    ## Install or update packages
     bdb_do_apps() {
 
         bdb_begin_info "Bootstrap applications"
@@ -414,7 +445,7 @@
 
     }
 
-    # Upgrade local system
+    ## Upgrade local system
     bdb_do_upgrade() {
 
         bdb_begin_info "Upgrade local system"
@@ -443,7 +474,7 @@
 
     }
 
-    # Configure user environment
+    ## Configure user environment
     bdb_do_env() {
 
         bdb_begin_info "Configure user environment"
@@ -594,51 +625,17 @@
 
     }
 
-    # Print help message and exit
-    bdb_usage() {
+    ### Define execution and error handling
 
-        # Print error message if passed
-        [[ $2 ]] && {
-            bdb_alert "error: $2"
-            bdb_alert ""
-        }
-        bdb_alert "usage: $PROGNAME [<option> ...]"
-        bdb_alert ""
-        bdb_alert "       $PROGNAME [-h]"
-        bdb_alert "       $PROGNAME [-f] [-s|-v] [-l <logfile>]"
-        bdb_alert "       $PROGNAME [-r|-a|-e|-u] [-s|-v] [-l <logfile>]"
-        bdb_alert ""
-        bdb_alert "options: -h           : Print this message and exit"
-        bdb_alert "         -f           : Full bootstrap"
-        bdb_alert "         -r           : Bootstrap dotfiles repository"
-        bdb_alert "         -a           : Bootstrap required applications"
-        bdb_alert "         -e           : Bootstrap user environment"
-        bdb_alert "         -u           : Upgrade local system"
-        bdb_alert "         -s           : Silence all terminal output"
-        bdb_alert "         -v           : Send all output terminal"
-        bdb_alert "         -l <logfile> : Send all output to <logfile>"
-        bdb_alert "                        (default: ${LOGFILE})"
-
-        bdb_end_info ""
-        echo -en "\n|BDB| BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB |BDB|"
-
-        # Exit with passed value
-        exit $1
-        # TODO - exit properly
-
-    }
-
-    ### Bootstrap begin
-
-    # Force exit in case of error
+    # Exit in case of error
     #set -e
 
-    # Call error handler before exiting
+    # Set trap and error handler
     #trap "bdb_handle_error" EXIT
 
-    bdb_begin_info "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
+    ### Parse command options and arguments
 
-    # Process command options
+    # Parse options
     while getopts ":hfraeusvl:" opt; do
 
         case $opt in
@@ -698,17 +695,22 @@
     # getopts finished, shift to args
     shift $(($OPTIND - 1))
 
-    # If command arguments are passed, exit with error
+    # Parse arguments
     if [[ $# -gt 0 ]]; then
 
+        # args not allowed, print usage
         bdb_usage 1 "invalid argument: <$*>"
 
     fi
 
+    ### Bootstrap begin
+
+    bdb_begin_info "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
+
     # Always bootstrap system
     bdb_do_sys
 
-    # If command options are passed
+    # If parsed options
     if [[ $OPTIND -gt 1 ]]; then
 
         # Flag mode: bootstrap only flagged items
@@ -717,7 +719,7 @@
         [[ -n $env ]] && bdb_do_env
         [[ -n $upgrade ]] && bdb_do_upgrade
 
-    else # Options not passed
+    else # No options parsed
 
         # Interactive mode: ask user what to bootstrap
         (bdb_ask "Bootstrap dotfiles repository" && bdb_do_repo) || {
@@ -738,17 +740,28 @@
     ### Bootstrap done
 
     bdb_begin_info "Bootstrap done."
+
+    ### Alert user for SSH setup
+
+    bdb_alert ""
+    bdb_alert "Remeber to setup SSH keys and identities:"
+    bdb_alert "1. upload/generate keys (e.g.: ssh-keygen -t rsa -b 4096 -f <key_file>)"
+    bdb_alert "2. copy identities (e.g.: ssh-copy-id [-p <port_num>] -i <id_file> [${USER}@]${HOST})"
+    bdb_alert ""
+
+    ### Reboot or exit
+
+    # Reboot sys?
     bdb_ask "Reboot local system" && {
 
         bdb_end_info "Rebooting local system"
-        echo -en "\n|BDB| BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB |BDB|"
         sudo reboot
 
     }
 
+    # Close this session
     bdb_end_info "Logging out user '${USER}'"
-    echo -en "\n|BDB| BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB |BDB|"
-    printf "\n"
+    printf -- "\n"
     exit 0
 
 } # ensure download of entire script
