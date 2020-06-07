@@ -122,8 +122,12 @@
     bdb_ask() {
 
         # Print prompt
+        echo -en "\n${WHT_COL}|???| ---------------------------------------------------------------------------------"
         echo -en "\n${WHT_COL}|???|"
-        echo -en "\n${WHT_COL}|???| $1? [y|N] > ${RST_COL}"
+        echo -en "\n${WHT_COL}|???| $1? [y|N] > "
+        echo -en "\n${WHT_COL}|???|"
+        echo -en "\n${WHT_COL}|???| ---------------------------------------------------------------------------------"
+        echo -en "${RST_COL}"
 
         # Read user input: suppress output, read 1 char
         read -s -r -n 1 response
@@ -274,6 +278,7 @@
             # Fresh system
             FRESH="true"
 
+            # TODO - pipe error output
             bdb_outcome "none found. Let's clone remote repo!"
 
             # Clone remote repo into bare repo
