@@ -289,10 +289,9 @@
             bdb_exit_status "cloning dotfiles into <${BARE_DIR}>"
 
             # Checkout bare repo
-            bdb_command "Checking out dotfiles repo"
+            bdb_run "Checking out dotfiles repo"
             dfconf checkout
             # If checkout fails
-            # TODO prevent checkout from exiting before doing a backup
             if [[ "$?" != 0 ]]; then
 
                 # Create backup dir
@@ -304,12 +303,14 @@
                 dfconf checkout
 
             fi
-            bdb_exit_status "checking out bare repo"
+            #bdb_exit_status "checking out bare repo"
+            # TODO - properly manage errors and output
 
+            # TODO - config remote repo and ask for ssh keys!
             # Set remote Github via ssh
-            dfconf remote set-url origin git@github.com:norville/dotfiles.git
+            #dfconf remote set-url origin git@github.com:norville/dotfiles.git
             # Set Github as remote upstream
-            dfconf push --set-upstream origin master
+            #dfconf push --set-upstream origin master
 
         else
 
