@@ -122,6 +122,7 @@
     bdb_ask() {
 
         # Print prompt
+        echo -en "\n${WHT_COL}|???|"
         echo -en "\n${WHT_COL}|???| $1? [y|N] > ${RST_COL}"
 
         # Read user input: suppress output, read 1 char
@@ -741,6 +742,7 @@
 
     bdb_end_info "Logging out user '${USER}'"
     echo -en "\n|BDB| BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB |BDB|"
+    printf "\n"
     exit 0
 
 } # ensure download of entire script

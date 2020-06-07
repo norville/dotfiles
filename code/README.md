@@ -7,13 +7,13 @@ Before install sign in to iCloud and Mac App Store
 Then
 
 ```bash
-wget -O - https://git.io/dfboot | bash
+bash -c "$(wget -O - https://git.io/dfboot)"
 ```
 
 Or
 
 ```bash
-curl -L https://git.io/dfboot | bash
+bash -c "$(curl -L https://git.io/dfboot)"
 ```
 
 ## Credits
