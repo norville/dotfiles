@@ -273,7 +273,7 @@
         # Set bare repo dir
         mkdir -p "${BARE_DIR}"
         # If bare repo is missing
-        if [[ ! "$(git --git-dir=${BARE_DIR} rev-parse --is-bare-repository)" ]]; then
+        if ! git --git-dir=${BARE_DIR} rev-parse --is-bare-repository &>/dev/null; then
 
             # Fresh system
             FRESH="true"
