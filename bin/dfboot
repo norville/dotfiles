@@ -337,18 +337,26 @@
             #bdb_exit_status "checking out bare repo"
             # TODO - properly manage errors and output
 
-            # TODO - config remote repo and ask for ssh keys!
-            # Set remote Github via ssh
+            ## Configure repo
+
             #dfconf remote set-url origin git@github.com:norville/dotfiles.git
             # Set Github as remote upstream
             #dfconf push --set-upstream origin master
+
+            # Set remote url
+            REMOTE_URL="git@github.com:norville/dotfiles.git"
+            dfconf config remote.origin.url "${REMOTE_URL}"
+            dfconf config remote.origin.pushurl "${REMOTE_URL}"
+
+            # Show all untracked files
+            dfconf config status.showUntrackedFiles all
 
         else
 
             # repo ok, run git status
             bdb_outcome "local bare repo ok"
             bdb_command "Showing repo status"
-            dfconf status -u
+            dfconf status
             bdb_exit_status "showing repo status"
 
         fi
@@ -737,7 +745,7 @@
 
     fi
 
-    ### Bootstrap done
+    ### Bootstrap end
 
     bdb_begin_info "Bootstrap done."
 

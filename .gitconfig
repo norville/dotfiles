@@ -1,14 +1,15 @@
-[filter "lfs"]
-    clean = git-lfs clean %f
-    smudge = git-lfs smudge %f
-    required = true
 [user]
     name = norville
     email = ing.norville@gmail.com
 [core]
     editor = vim
     excludesfile = ~/.dfconf.d/gitignore_global
-[color]
-    ui = auto
 [status]
     submoduleSummary = true
+    showUntrackedFiles = normal
+[color]
+    ui = auto
+[filter "lfs"]
+    clean = git-lfs clean %f
+    smudge = git-lfs smudge %f
+    required = true
