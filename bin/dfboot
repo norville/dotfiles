@@ -32,45 +32,24 @@
 
     }
 
-    ## Handle exit codes, print messages and clean up
-    bdb_handle_error() {
+    ## Print success message
+    bdb_success() {
 
-        # TODO - handle exit codes and cleanup
-        ERR_CODE=$1
-        printf -- "Error ${ERR_CODE} has occurred."
-        printf -- "\nExiting with error code ${ERR_CODE}.\n"
-        exit ${ERR_CODE}
+        echo -en "${GRN_COL}|vvv| DONE $1 ${RST_COL}"
 
     }
 
-    ## Print message before command
-    bdb_command_in() {
+    ## Print error message
+    bdb_error() {
 
-        echo -e "\n${MGN_COL}|>>>| $1 ${RST_COL}"
+        echo -e "\n${RED_COL}|xxx| ERROR ${1:-'UNKNOWN'} ${RST_COL}"
 
     }
 
-    ## Check last exit status and print outcome message
-    bdb_command_out() {
+    ## Print alert message
+    bdb_alert() {
 
-        # Save last exit status
-        EXIT_NUM=$?
-
-        # Check exit status
-        if [[ "${EXIT_NUM}" != 0 ]]; then
-
-            # Print error message
-            echo -e "\n${RED_COL}|xxx| ERROR ${1:-"UNKNOWN"} ${RST_COL}"
-
-        else
-
-            # Print success message
-            echo -en "${GRN_COL}|vvv| DONE ${1:-"UNKNOWN"} ${RST_COL}"
-
-        fi
-
-        # Return exit status
-        return ${EXIT_NUM}
+        echo -en "\n${YLW_COL}|!!!| $1 ${RST_COL}"
 
     }
 
@@ -109,10 +88,10 @@
 
     }
 
-    ## Print alert message
-    bdb_alert() {
+    ## Print message before command
+    bdb_command() {
 
-        echo -en "\n${YLW_COL}|!!!| $1 ${RST_COL}"
+        echo -e "\n${MGN_COL}|>>>| $1 ${RST_COL}"
 
     }
 
@@ -120,10 +99,12 @@
     bdb_ask() {
 
         # Print prompt
-        echo -en "\n${WHT_COL}|???| ---------------------------------------------------------------------------------"
-        echo -en "\n${WHT_COL}|???|"
-        echo -en "\n${WHT_COL}|???| $1? [y|N]"
-        echo -en "\n${WHT_COL}|???| > ${RST_COL}"
+        echo -en "${WHT_COL}"
+        echo -en "\n|???| ---------------------------------------------------------------------------------"
+        echo -en "\n|???|"
+        echo -en "\n|???| $1? [y|N]"
+        echo -en "\n|???| > "
+        echo -en "${RST_COL}"
 
         # Read user input: suppress output, read 1 char
         read -s -r -n 1 response
@@ -175,6 +156,32 @@
 
     }
 
+    ## Handle errors, clean up and exit
+    bdb_handle_error() {
+
+        ERR_CODE=$?                                   # Last command return value
+        LAST_CMD="${BASH_COMMAND:-'UNKNOWN COMMAND'}" # Last command string
+        ERR_MSG=$1                                    # Custom error message
+
+        if [[ -n "${ERR_MSG}" ]]; then                # Handle custom error
+
+            ERR_CODE=11
+            bdb_error "${ERR_MSG}"
+
+        else {                                        # Handle command error
+
+            bdb_error "<${LAST_CMD}> returned error [${ERR_CODE}]"
+
+        }
+
+        # TODO - cleanup
+
+        # Print error message and exit
+        bdb_error "Exiting with error [${ERR_CODE}]."
+        exit ${ERR_CODE}
+
+    }
+
     ## Check the system and prepare for bootstrap
     bdb_do_sys() {
 
@@ -213,13 +220,13 @@
         ## Prepare local system: update packages cache and install requirements
         case "${DISTRO}" in
 
-        arch)
-            bdb_command_in "Updating Pacman"
+        arch)   # System is Arch
+            bdb_command "Updating Pacman"
             sudo pacman -Syy
-            bdb_command_out "updating Pacman" || bdb_handle_error
+            bdb_success "updating Pacman"
             ;;
 
-        darwin)
+        darwin) # System is macOS
             # CLT check
             bdb_run "Checking Xcode Command Line Tools"
             if type xcode-select >&- &&
@@ -234,7 +241,7 @@
 
                 # CLT not installed
                 bdb_outcome "not found."
-                bdb_command_in "Installing CLT"
+                bdb_command "Installing CLT"
                 # on 10.9+, we can leverage SUS to get the latest CLI tools
                 # create the placeholder file that's checked by CLI updates' .dist code
                 # in Apple's SUS catalog
@@ -243,7 +250,7 @@
                 PROD=$(softwareupdate -l | grep "\*.*Command Line" | head -n 1 | awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')
                 # install it
                 softwareupdate -i "$PROD" -v
-                bdb_command_out "installing CLT"
+                bdb_success "installing CLT"
 
             fi
 
@@ -252,40 +259,38 @@
 
                 # Install homebrew
                 BREW_URL="https://raw.githubusercontent.com/Homebrew/install/master/install"
-                bdb_command_in "Installing Homebrew"
+                bdb_command "Installing Homebrew"
                 /usr/bin/ruby -e "$(curl -fsSL ${BREW_URL})"
-                bdb_command_out "installing Homebrew"
+                bdb_success "installing Homebrew"
 
             else
 
                 # Update homebrew
-                bdb_command_in "Updating Homebrew"
+                bdb_command "Updating Homebrew"
                 brew update
-                bdb_command_out "updating Homebrew"
+                bdb_success "updating Homebrew"
 
             fi
             ;;
 
-        debian)
-            bdb_command_in "Updating APT"
+        debian) # System is Debian
+            bdb_command "Updating APT"
             sudo apt-get update
-            bdb_command_out "updating APT"
+            bdb_success "updating APT"
 
             # If git is missing
             if ! type git &>/dev/null; then
 
                 #Install git
-                bdb_command_in "Installing git"
+                bdb_command "Installing git"
                 sudo apt-get install -y git
-                bdb_command_out "installing git"
+                bdb_success "installing git"
 
             fi
             ;;
 
-        *)
-            bdb_command_out "Cannot detect local system. Exiting..."
-            #TODO improve error handling
-            exit 1
+        *)      # System is UNKNOWN
+            bdb_handle_error "[SYS] Cannot detect local system"
             ;;
 
         esac
@@ -313,37 +318,29 @@
 
             # Clone remote repo into bare repo
             REPO_URL="https://github.com/norville/dotfiles.git"
-            bdb_command_in "Cloning dotfiles into a bare repo"
+            bdb_command "Cloning dotfiles into a bare repo"
             git clone --bare "${REPO_URL}" "${BARE_DIR}" # Clone master branch
             #git clone --bare -b <git-branch> ${REPO_URL} ${BARE_DIR}   # Clone specifc branch
-            bdb_command_out "cloning dotfiles into <${BARE_DIR}>"
+            bdb_success "cloning dotfiles into <${BARE_DIR}>"
 
             # Checkout bare repo
-            bdb_command_in "Checking out repository"
-            dfconf checkout
-            bdb_command_out "checking out repository"
-
-            # If checkout fails
-            if [[ "$?" != 0 ]]; then
+            bdb_command "Checking out repository"
+            dfconf checkout || { # If checkout fails
 
                 # Create backup dir
                 BAKP_DIR="${HOME}/.dfbackup"
-                bdb_command_in "Backing up overlapping dotfiles"
+                bdb_command "Backing up overlapping dotfiles"
                 mkdir -p "${BAKP_DIR}"
                 # Move pre-existing dotfiles to ${BAKP_DIR}
                 dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} "${BAKP_DIR}"/{}
                 dfconf checkout
-                bdb_command_out "backing up overlapping dotfiles"
+                bdb_success "backing up overlapping dotfiles"
 
-            fi
-            #bdb_command_out "checking out bare repo"
-            # TODO - properly manage errors and output
+            }
+            bdb_success "checking out repository"
 
-            ## Configure repo
-
-            #dfconf remote set-url origin git@github.com:norville/dotfiles.git
-            # Set Github as remote upstream
-            #dfconf push --set-upstream origin master
+            # Configure repo
+            bdb_run "Configuring repository"
 
             # Set remote url
             REMOTE_URL="git@github.com:norville/dotfiles.git"
@@ -353,13 +350,12 @@
             # Show all untracked files
             dfconf config status.showUntrackedFiles all
 
+            bdb_outcome "done"
+
         else
 
-            # repo ok, run git status
-            bdb_outcome "local bare repo ok"
-            bdb_command_in "Showing repo status"
-            dfconf status
-            bdb_command_out "showing repo status"
+            # Repo ok
+            bdb_outcome "repository found"
 
         fi
 
@@ -375,78 +371,75 @@
         # Detect system
         case "${DISTRO}" in
 
+        arch)   # System is Arch
+
+            # Install or update required packages via Pacman
+            ARCH_PKG="vim git wget curl keychain zsh tilix"
+            bdb_command "Installing Arch packages: <${ARCH_PKG}>"
+            sudo pacman --noconfirm --needed -S $ARCH_PKG # NO QUOTES PLEASE - ensure variable expasnsion
+            bdb_success "installing Arch packages"
+
+            # Cleanup
+            bdb_command "Cleaning Pacman cache"
+            sudo pacman --noconfirm -Scc
+            bdb_success "cleaning Pacman cache"
+
+            ;;
+
         darwin) # System is macOS
 
             # Install brew bundles
             BREW_PKG="${CONF_DIR}/brewfile"
-            bdb_command_in "Installing required formulae from <${BREW_PKG}>"
+            bdb_command "Installing required formulae from <${BREW_PKG}>"
             brew bundle install --file="${BREW_PKG}"
-            bdb_command_out "installing required formulae"
+            bdb_success "installing required formulae"
 
             # If extra formulae are installed
             if [[ "$(brew bundle cleanup --file=${BREW_PKG})" ]]; then
 
-                # If response is yes (true)
-                (bdb_ask "uninstall extra formulae" && {
+                (bdb_ask "uninstall extra formulae" && {    # Yes (true)
 
                     # Delete extra formulae
-                    bdb_command_in "Removing extra formulae"
+                    bdb_command "Removing extra formulae"
                     brew bundle cleanup --file="${BREW_PKG}" --force
-                    bdb_command_out "removing extra formulae"
+                    bdb_success "removing extra formulae"
 
-                }) || { # Response is no (false)
+                }) || {                                     # No (false)
 
                     # Upgrade all formulae
-                    bdb_command_in "Upgrading all formulae"
+                    bdb_command "Upgrading all formulae"
                     brew upgrade
-                    bdb_command_out "upgrading all formulae"
+                    bdb_success "upgrading all formulae"
 
                 }
 
             fi
 
             # Cleanup
-            bdb_command_in "Cleaning Homebrew"
+            bdb_command "Cleaning Homebrew"
             brew cleanup
-            bdb_command_out "cleaning Homebrew"
+            bdb_success "cleaning Homebrew"
 
             ;;
 
-        debian) # System is debian
+        debian) # System is Debian
 
             # Install or update required packages via APT
             DEBN_PKG="vim git wget curl keychain zsh"
-            bdb_command_in "Installing APT packages: <${DEBN_PKG}>"
+            bdb_command "Installing APT packages: <${DEBN_PKG}>"
             sudo apt-get install -y $DEBN_PKG # NO QUOTES PLEASE - ensure variable expasnsion
-            bdb_command_out "installing APT packages"
+            bdb_success "installing APT packages"
 
             # Cleanup
-            bdb_command_in "Cleaning APT"
+            bdb_run "Cleaning APT"
             sudo apt autoremove
             sudo apt autoclean
-            bdb_command_out "cleaning APT"
+            bdb_outcome "done"
 
             ;;
 
-        arch) # System is arch
-
-            # Install or update required packages via Pacman
-            ARCH_PKG="vim git wget curl keychain zsh tilix"
-            bdb_command_in "Installing Arch packages: <${ARCH_PKG}>"
-            sudo pacman --noconfirm --needed -S $ARCH_PKG # NO QUOTES PLEASE - ensure variable expasnsion
-            bdb_command_out "installing Arch packages"
-
-            # Cleanup
-            bdb_command_in "Cleaning Pacman cache"
-            sudo pacman --noconfirm -Scc
-            bdb_command_out "cleaning Pacman cache"
-
-            ;;
-
-        *) # Distro not detected
-            bdb_alert "Unknown system: ${DISTRO}. Exiting..."
-            # TODO improve error handling
-            bdb_handle_error 10
+        *)      # System is UNKNOWN
+            bdb_handle_error "[APPS] Unknown system <${DISTRO}>"
             ;;
 
         esac
@@ -462,20 +455,24 @@
 
         case "${DISTRO}" in
 
-        arch)
-            bdb_command_in "Upgrading Arch system"
+        arch) # System is Arch
+            bdb_command "Upgrading Arch system"
             sudo pacman --noconfirm -Syu
-            bdb_command_out "upgrading Arch system"
+            bdb_success "upgrading Arch system"
             ;;
-        darwin)
-            bdb_command_in "Upgrading macOS system"
+        darwin) # System is macOS
+            bdb_command "Upgrading macOS system"
             sudo softwareupdate -ia
-            bdb_command_out "upgrading macOS system"
+            bdb_success "upgrading macOS system"
             ;;
-        debian)
-            bdb_command_in "Upgrading Debian system"
+        debian) # System is Debian
+            bdb_command "Upgrading Debian system"
             sudo apt upgrade -y
-            bdb_command_out "upgrading Debian system"
+            bdb_success "upgrading Debian system"
+            ;;
+
+        *)      # System is UNKNOWN
+            bdb_handle_error "[UPGRADE] Unknown system <${DISTRO}>"
             ;;
 
         esac
@@ -498,10 +495,10 @@
             if [[ "${SHELL}" != "${ZSH_PATH}" ]]; then
 
                 # Set zsh as login shell
-                bdb_command_in "Switching to ZSH"
+                bdb_run "Switching to ZSH"
                 echo "${ZSH_PATH}" | sudo tee -a /etc/shells
                 sudo chsh -s "${ZSH_PATH}" "${USER}"
-                bdb_command_out "switching to ZSH"
+                bdb_outcome "done"
 
             else
 
@@ -511,9 +508,9 @@
                 # Delete antigen dir to force cloning
                 if [[ -d "${HOME}/.antigen" ]]; then
 
-                    bdb_command_in "Updating Antigen"
+                    bdb_command "Updating Antigen"
                     rm -rf "${HOME}"/.antigen
-                    bdb_command_out "updating Antigen"
+                    bdb_success "updating Antigen"
 
                 fi
 
@@ -529,21 +526,21 @@
 
             # Install vundle
             VNDL_URL="https://github.com/VundleVim/Vundle.vim.git"
-            bdb_command_in "Installing Vundle - VIM plugin manager"
+            bdb_command "Installing Vundle - VIM plugin manager"
             git clone "${VNDL_URL}" "${VNDL_DIR}"/Vundle.vim
-            bdb_command_out "installing Vundle"
+            bdb_success "installing Vundle"
 
         fi
 
         # Update vundle and required plugins
-        bdb_command_in "Updating VIM plugins via Vundle"
+        bdb_command "Updating VIM plugins via Vundle"
         vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
-        bdb_command_out "updating Vundle plugins"
+        bdb_success "updating Vundle plugins"
 
         #Restore user preferences
         case "${DISTRO}" in
 
-        arch)
+        arch)  # System is Arch
             bdb_run "Restoring Tilix fonts"
 
             # Install nerd fonts for p10k
@@ -554,26 +551,26 @@
             MSLO_URL="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Meslo/S/Regular/complete/Meslo%20LG%20S%20Regular%20Nerd%20Font%20Complete.ttf"
 
             mkdir -p "${FONT_DIR}"
-            bdb_command_in "Installing Fura Mono"
+            bdb_command "Installing Fura Mono"
             curl -fLo "${FONT_DIR}/${FURA_FNT}" "${FURA_URL}"
-            bdb_command_out "installing Fura Mono"
-            bdb_command_in "Installing Meslo"
+            bdb_success "installing Fura Mono"
+            bdb_command "Installing Meslo"
             curl -fLo "${FONT_DIR}/${MSLO_FNT}" "${MSLO_URL}"
-            bdb_command_out "installing Meslo"
-            bdb_command_in "Updating fonts cache"
+            bdb_success "installing Meslo"
+            bdb_command "Updating fonts cache"
             fc-cache -f
-            bdb_command_out "updating fonts cache"
+            bdb_success "updating fonts cache"
 
             bdb_run "Restoring Tilix colorscheme"
 
             # Install Gruvbox theme for Tilix
-            bdb_command_in "Installing Gruvbox theme"
+            bdb_command "Installing Gruvbox theme"
             git clone https://github.com/MichaelThessel/tilix-gruvbox.git
             cd tilix-gruvbox
             sudo cp gruvbox-* /usr/share/tilix/schemes
             cd ..
             rm -rf tilix-gruvbox
-            bdb_command_out "installing Gruvbox theme"
+            bdb_success "installing Gruvbox theme"
 
             bdb_run "Restoring Tilix configuration"
 
@@ -581,9 +578,9 @@
             TILIX_CFG="${CONF_DIR}/tilix.dconf"
             if [[ -f "${TILIX_CFG}" ]]; then
 
-                bdb_command_in "Loading dconf profile"
+                bdb_command "Loading dconf profile"
                 dconf load /com/gexperts/Tilix/ <"${TILIX_CFG}"
-                bdb_command_out "loading dconf profile"
+                bdb_success "loading dconf profile"
 
             else
 
@@ -595,21 +592,21 @@
 
             ;;
 
-        macos)
+        macos) # System is macOS
 
             # If this is a fresh system
             if [[ "${FRESH}" ]]; then
 
                 # Set macos defaults
-                bdb_command_in "Restoring macOS preferences"
+                bdb_command "Restoring macOS preferences"
                 MAC_DEF="${HOME}/bin/macos_defaults"
                 [[ "${MAC_DEF}" ]] && source "${MAC_DEF}"
-                bdb_command_out "restoring macOS preferences"
+                bdb_success "restoring macOS preferences"
 
                 # Run mackup
-                bdb_command_in "Restoring App preferences"
+                bdb_command "Restoring App preferences"
                 type mackup &>/dev/null && mackup restore
-                bdb_command_out "restoring App preferences"
+                bdb_success "restoring App preferences"
 
             fi
 
@@ -618,15 +615,15 @@
             # If no extensions installed and extensions file exists
             if [[ ! "$(code --list-extensions)" && -f "${CODE_EXT}" ]]; then
 
-                bdb_command_in "Installing VSCode extensions"
+                bdb_command "Installing VSCode extensions"
                 cat "${CODE_EXT}" | xargs -n 1 code --install-extension
-                bdb_command_out "installing VSCode extensions"
+                bdb_success "installing VSCode extensions"
 
             fi
 
             ;;
 
-        *) # Nothing to do
+        *)     # System is UNKNOWN
             ;;
 
         esac
@@ -635,13 +632,15 @@
 
     }
 
-    ### Define execution and error handling
+    ### Define set builtins and signals to trap
 
-    # Exit in case of error
-    #set -e
+    set -o errtrace # (-E) Catch any ERR trap
+    set -o errexit  # (-e) Exit immediatly if last command returns non-zero
+    set -o nounset  # (-u) Exit immediatly if expanding unset variable
+    set -o pipefail # Exit if a pipeline's commands returns non-zero
 
-    # Set trap and error handler
-    #trap "bdb_handle_error" EXIT
+    # Catch error and exit signals
+    trap "bdb_handle_error" ERR EXIT
 
     ### Parse command options and arguments
 
@@ -773,6 +772,7 @@
 
     # Close this session
     bdb_info_out "Logging out user '${USER}'"
+    # TODO - run command to close session
     printf -- "\n"
     exit 0
 
