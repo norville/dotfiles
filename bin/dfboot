@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# TODO
-# - SSH Keys generation and copy: centic9/generate-and-send-ssh-key
-# - colorize bdb_exit_status
-
 { # ensure download of entire script
 
     ### Define global environment
@@ -40,23 +36,31 @@
     bdb_handle_error() {
 
         # TODO - handle exit codes and cleanup
-        ERR_CODE=$?
+        ERR_CODE=$1
         printf -- "Error ${ERR_CODE} has occurred."
         printf -- "\nExiting with error code ${ERR_CODE}.\n"
         exit ${ERR_CODE}
 
     }
 
-    ## Check last exit status and print outcome message
-    bdb_exit_status() {
+    ## Print message before command
+    bdb_command_in() {
 
-        # If last command exit status is not 0
-        if [[ "$?" != 0 ]]; then
+        echo -e "\n${MGN_COL}|>>>| $1 ${RST_COL}"
+
+    }
+
+    ## Check last exit status and print outcome message
+    bdb_command_out() {
+
+        # Save last exit status
+        EXIT_NUM=$?
+
+        # Check exit status
+        if [[ "${EXIT_NUM}" != 0 ]]; then
 
             # Print error message
             echo -e "\n${RED_COL}|xxx| ERROR ${1:-"UNKNOWN"} ${RST_COL}"
-            # Handle error
-            bdb_handle_error
 
         else
 
@@ -65,10 +69,13 @@
 
         fi
 
+        # Return exit status
+        return ${EXIT_NUM}
+
     }
 
-    ## Print info message
-    bdb_begin_info() {
+    ## Print info message - begin
+    bdb_info_in() {
 
         echo -en "\n|BDB| ---------------------------------------------------------------------------------"
         echo -en "\n|BDB| vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
@@ -78,8 +85,8 @@
 
     }
 
-    ## Print info message
-    bdb_end_info() {
+    ## Print info message - end
+    bdb_info_out() {
 
         echo -en "\n|BDB|"
         echo -en "\n|BDB| $1"
@@ -102,13 +109,6 @@
 
     }
 
-    ## Print message before command
-    bdb_command() {
-
-        echo -e "\n${MGN_COL}|>>>| $1 ${RST_COL}"
-
-    }
-
     ## Print alert message
     bdb_alert() {
 
@@ -122,8 +122,8 @@
         # Print prompt
         echo -en "\n${WHT_COL}|???| ---------------------------------------------------------------------------------"
         echo -en "\n${WHT_COL}|???|"
-        echo -en "\n${WHT_COL}|???| $1? [y|N] > "
-        echo -en "\n${WHT_COL}|???|${RST_COL}"
+        echo -en "\n${WHT_COL}|???| $1? [y|N]"
+        echo -en "\n${WHT_COL}|???| > ${RST_COL}"
 
         # Read user input: suppress output, read 1 char
         read -s -r -n 1 response
@@ -166,7 +166,7 @@
         bdb_alert "         -l <logfile> : Send all output to <logfile>"
         bdb_alert "                        (default: ${LOGFILE})"
 
-        bdb_end_info ""
+        bdb_info_out ""
         echo -en "\n|BDB| BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB |BDB|"
 
         # Exit with passed value
@@ -178,7 +178,7 @@
     ## Check the system and prepare for bootstrap
     bdb_do_sys() {
 
-        bdb_begin_info "Prepare local system for bootstrap"
+        bdb_info_in "Prepare local system for bootstrap"
 
         ## Get admin privileges
         bdb_run "Getting admin privileges"
@@ -214,9 +214,9 @@
         case "${DISTRO}" in
 
         arch)
-            bdb_command "Updating Pacman"
+            bdb_command_in "Updating Pacman"
             sudo pacman -Syy
-            bdb_exit_status "updating Pacman"
+            bdb_command_out "updating Pacman" || bdb_handle_error
             ;;
 
         darwin)
@@ -234,7 +234,7 @@
 
                 # CLT not installed
                 bdb_outcome "not found."
-                bdb_command "Installing CLT"
+                bdb_command_in "Installing CLT"
                 # on 10.9+, we can leverage SUS to get the latest CLI tools
                 # create the placeholder file that's checked by CLI updates' .dist code
                 # in Apple's SUS catalog
@@ -243,7 +243,7 @@
                 PROD=$(softwareupdate -l | grep "\*.*Command Line" | head -n 1 | awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')
                 # install it
                 softwareupdate -i "$PROD" -v
-                bdb_exit_status "installing CLT"
+                bdb_command_out "installing CLT"
 
             fi
 
@@ -252,52 +252,52 @@
 
                 # Install homebrew
                 BREW_URL="https://raw.githubusercontent.com/Homebrew/install/master/install"
-                bdb_command "Installing Homebrew"
+                bdb_command_in "Installing Homebrew"
                 /usr/bin/ruby -e "$(curl -fsSL ${BREW_URL})"
-                bdb_exit_status "installing Homebrew"
+                bdb_command_out "installing Homebrew"
 
             else
 
                 # Update homebrew
-                bdb_command "Updating Homebrew"
+                bdb_command_in "Updating Homebrew"
                 brew update
-                bdb_exit_status "updating Homebrew"
+                bdb_command_out "updating Homebrew"
 
             fi
             ;;
 
         debian)
-            bdb_command "Updating APT"
+            bdb_command_in "Updating APT"
             sudo apt-get update
-            bdb_exit_status "updating APT"
+            bdb_command_out "updating APT"
 
             # If git is missing
             if ! type git &>/dev/null; then
 
                 #Install git
-                bdb_command "Installing git"
+                bdb_command_in "Installing git"
                 sudo apt-get install -y git
-                bdb_exit_status "installing git"
+                bdb_command_out "installing git"
 
             fi
             ;;
 
         *)
-            bdb_exit_status "Cannot detect local system. Exiting..."
+            bdb_command_out "Cannot detect local system. Exiting..."
             #TODO improve error handling
             exit 1
             ;;
 
         esac
 
-        bdb_end_info "System ready"
+        bdb_info_out "System ready"
 
     }
 
     ## Check dotfiles repo
     bdb_do_repo() {
 
-        bdb_begin_info "Detect dotfiles or clone remote repository"
+        bdb_info_in "Detect dotfiles or clone remote repository"
 
         bdb_run "Looking for dotfiles"
         # Set bare repo dir
@@ -313,28 +313,30 @@
 
             # Clone remote repo into bare repo
             REPO_URL="https://github.com/norville/dotfiles.git"
-            bdb_command "Cloning dotfiles into a bare repo"
+            bdb_command_in "Cloning dotfiles into a bare repo"
             git clone --bare "${REPO_URL}" "${BARE_DIR}" # Clone master branch
             #git clone --bare -b <git-branch> ${REPO_URL} ${BARE_DIR}   # Clone specifc branch
-            bdb_exit_status "cloning dotfiles into <${BARE_DIR}>"
+            bdb_command_out "cloning dotfiles into <${BARE_DIR}>"
 
             # Checkout bare repo
-            bdb_run "Checking out dotfiles repo"
+            bdb_command_in "Checking out repository"
             dfconf checkout
+            bdb_command_out "checking out repository"
+
             # If checkout fails
             if [[ "$?" != 0 ]]; then
 
                 # Create backup dir
                 BAKP_DIR="${HOME}/.dfbackup"
-                bdb_command "Backing up overlapping dotfiles"
+                bdb_command_in "Backing up overlapping dotfiles"
                 mkdir -p "${BAKP_DIR}"
                 # Move pre-existing dotfiles to ${BAKP_DIR}
                 dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} "${BAKP_DIR}"/{}
                 dfconf checkout
-                bdb_exit_status "backing up overlapping dotfiles"
+                bdb_command_out "backing up overlapping dotfiles"
 
             fi
-            #bdb_exit_status "checking out bare repo"
+            #bdb_command_out "checking out bare repo"
             # TODO - properly manage errors and output
 
             ## Configure repo
@@ -355,20 +357,20 @@
 
             # repo ok, run git status
             bdb_outcome "local bare repo ok"
-            bdb_command "Showing repo status"
+            bdb_command_in "Showing repo status"
             dfconf status
-            bdb_exit_status "showing repo status"
+            bdb_command_out "showing repo status"
 
         fi
 
-        bdb_end_info "Dotfiles ready"
+        bdb_info_out "Dotfiles ready"
 
     }
 
     ## Install or update packages
     bdb_do_apps() {
 
-        bdb_begin_info "Bootstrap applications"
+        bdb_info_in "Bootstrap applications"
 
         # Detect system
         case "${DISTRO}" in
@@ -377,9 +379,9 @@
 
             # Install brew bundles
             BREW_PKG="${CONF_DIR}/brewfile"
-            bdb_command "Installing required formulae from <${BREW_PKG}>"
+            bdb_command_in "Installing required formulae from <${BREW_PKG}>"
             brew bundle install --file="${BREW_PKG}"
-            bdb_exit_status "installing required formulae"
+            bdb_command_out "installing required formulae"
 
             # If extra formulae are installed
             if [[ "$(brew bundle cleanup --file=${BREW_PKG})" ]]; then
@@ -388,25 +390,25 @@
                 (bdb_ask "uninstall extra formulae" && {
 
                     # Delete extra formulae
-                    bdb_command "Removing extra formulae"
+                    bdb_command_in "Removing extra formulae"
                     brew bundle cleanup --file="${BREW_PKG}" --force
-                    bdb_exit_status "removing extra formulae"
+                    bdb_command_out "removing extra formulae"
 
                 }) || { # Response is no (false)
 
                     # Upgrade all formulae
-                    bdb_command "Upgrading all formulae"
+                    bdb_command_in "Upgrading all formulae"
                     brew upgrade
-                    bdb_exit_status "upgrading all formulae"
+                    bdb_command_out "upgrading all formulae"
 
                 }
 
             fi
 
             # Cleanup
-            bdb_command "Cleaning Homebrew"
+            bdb_command_in "Cleaning Homebrew"
             brew cleanup
-            bdb_exit_status "cleaning Homebrew"
+            bdb_command_out "cleaning Homebrew"
 
             ;;
 
@@ -414,15 +416,15 @@
 
             # Install or update required packages via APT
             DEBN_PKG="vim git wget curl keychain zsh"
-            bdb_command "Installing APT packages: <${DEBN_PKG}>"
+            bdb_command_in "Installing APT packages: <${DEBN_PKG}>"
             sudo apt-get install -y $DEBN_PKG # NO QUOTES PLEASE - ensure variable expasnsion
-            bdb_exit_status "installing APT packages"
+            bdb_command_out "installing APT packages"
 
             # Cleanup
-            bdb_command "Cleaning APT"
+            bdb_command_in "Cleaning APT"
             sudo apt autoremove
             sudo apt autoclean
-            bdb_exit_status "cleaning APT"
+            bdb_command_out "cleaning APT"
 
             ;;
 
@@ -430,14 +432,14 @@
 
             # Install or update required packages via Pacman
             ARCH_PKG="vim git wget curl keychain zsh tilix"
-            bdb_command "Installing Arch packages: <${ARCH_PKG}>"
+            bdb_command_in "Installing Arch packages: <${ARCH_PKG}>"
             sudo pacman --noconfirm --needed -S $ARCH_PKG # NO QUOTES PLEASE - ensure variable expasnsion
-            bdb_exit_status "installing Arch packages"
+            bdb_command_out "installing Arch packages"
 
             # Cleanup
-            bdb_command "Cleaning Pacman cache"
+            bdb_command_in "Cleaning Pacman cache"
             sudo pacman --noconfirm -Scc
-            bdb_exit_status "cleaning Pacman cache"
+            bdb_command_out "cleaning Pacman cache"
 
             ;;
 
@@ -449,43 +451,43 @@
 
         esac
 
-        bdb_end_info "Applications ready"
+        bdb_info_out "Applications ready"
 
     }
 
     ## Upgrade local system
     bdb_do_upgrade() {
 
-        bdb_begin_info "Upgrade local system"
+        bdb_info_in "Upgrade local system"
 
         case "${DISTRO}" in
 
         arch)
-            bdb_command "Upgrading Arch system"
+            bdb_command_in "Upgrading Arch system"
             sudo pacman --noconfirm -Syu
-            bdb_exit_status "upgrading Arch system"
+            bdb_command_out "upgrading Arch system"
             ;;
         darwin)
-            bdb_command "Upgrading macOS system"
+            bdb_command_in "Upgrading macOS system"
             sudo softwareupdate -ia
-            bdb_exit_status "upgrading macOS system"
+            bdb_command_out "upgrading macOS system"
             ;;
         debian)
-            bdb_command "Upgrading Debian system"
+            bdb_command_in "Upgrading Debian system"
             sudo apt upgrade -y
-            bdb_exit_status "upgrading Debian system"
+            bdb_command_out "upgrading Debian system"
             ;;
 
         esac
 
-        bdb_end_info "System upgraded."
+        bdb_info_out "System upgraded."
 
     }
 
     ## Configure user environment
     bdb_do_env() {
 
-        bdb_begin_info "Configure user environment"
+        bdb_info_in "Configure user environment"
 
         # Configure login shell on linux
         if [[ "${DISTRO}" != "darwin" ]]; then
@@ -496,10 +498,10 @@
             if [[ "${SHELL}" != "${ZSH_PATH}" ]]; then
 
                 # Set zsh as login shell
-                bdb_command "Switching to ZSH"
+                bdb_command_in "Switching to ZSH"
                 echo "${ZSH_PATH}" | sudo tee -a /etc/shells
                 sudo chsh -s "${ZSH_PATH}" "${USER}"
-                bdb_exit_status "switching to ZSH"
+                bdb_command_out "switching to ZSH"
 
             else
 
@@ -509,9 +511,9 @@
                 # Delete antigen dir to force cloning
                 if [[ -d "${HOME}/.antigen" ]]; then
 
-                    bdb_command "Updating Antigen"
+                    bdb_command_in "Updating Antigen"
                     rm -rf "${HOME}"/.antigen
-                    bdb_exit_status "updating Antigen"
+                    bdb_command_out "updating Antigen"
 
                 fi
 
@@ -527,16 +529,16 @@
 
             # Install vundle
             VNDL_URL="https://github.com/VundleVim/Vundle.vim.git"
-            bdb_command "Installing Vundle - VIM plugin manager"
+            bdb_command_in "Installing Vundle - VIM plugin manager"
             git clone "${VNDL_URL}" "${VNDL_DIR}"/Vundle.vim
-            bdb_exit_status "installing Vundle"
+            bdb_command_out "installing Vundle"
 
         fi
 
         # Update vundle and required plugins
-        bdb_command "Updating VIM plugins via Vundle"
+        bdb_command_in "Updating VIM plugins via Vundle"
         vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
-        bdb_exit_status "updating Vundle plugins"
+        bdb_command_out "updating Vundle plugins"
 
         #Restore user preferences
         case "${DISTRO}" in
@@ -552,26 +554,26 @@
             MSLO_URL="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Meslo/S/Regular/complete/Meslo%20LG%20S%20Regular%20Nerd%20Font%20Complete.ttf"
 
             mkdir -p "${FONT_DIR}"
-            bdb_command "Installing Fura Mono"
+            bdb_command_in "Installing Fura Mono"
             curl -fLo "${FONT_DIR}/${FURA_FNT}" "${FURA_URL}"
-            bdb_exit_status "installing Fura Mono"
-            bdb_command "Installing Meslo"
+            bdb_command_out "installing Fura Mono"
+            bdb_command_in "Installing Meslo"
             curl -fLo "${FONT_DIR}/${MSLO_FNT}" "${MSLO_URL}"
-            bdb_exit_status "installing Meslo"
-            bdb_command "Updating fonts cache"
+            bdb_command_out "installing Meslo"
+            bdb_command_in "Updating fonts cache"
             fc-cache -f
-            bdb_exit_status "updating fonts cache"
+            bdb_command_out "updating fonts cache"
 
             bdb_run "Restoring Tilix colorscheme"
 
             # Install Gruvbox theme for Tilix
-            bdb_command "Installing Gruvbox theme"
+            bdb_command_in "Installing Gruvbox theme"
             git clone https://github.com/MichaelThessel/tilix-gruvbox.git
             cd tilix-gruvbox
             sudo cp gruvbox-* /usr/share/tilix/schemes
             cd ..
             rm -rf tilix-gruvbox
-            bdb_exit_status "installing Gruvbox theme"
+            bdb_command_out "installing Gruvbox theme"
 
             bdb_run "Restoring Tilix configuration"
 
@@ -579,9 +581,9 @@
             TILIX_CFG="${CONF_DIR}/tilix.dconf"
             if [[ -f "${TILIX_CFG}" ]]; then
 
-                bdb_command "Loading dconf profile"
+                bdb_command_in "Loading dconf profile"
                 dconf load /com/gexperts/Tilix/ <"${TILIX_CFG}"
-                bdb_exit_status "loading dconf profile"
+                bdb_command_out "loading dconf profile"
 
             else
 
@@ -599,15 +601,15 @@
             if [[ "${FRESH}" ]]; then
 
                 # Set macos defaults
-                bdb_command "Restoring macOS preferences"
+                bdb_command_in "Restoring macOS preferences"
                 MAC_DEF="${HOME}/bin/macos_defaults"
                 [[ "${MAC_DEF}" ]] && source "${MAC_DEF}"
-                bdb_exit_status "restoring macOS preferences"
+                bdb_command_out "restoring macOS preferences"
 
                 # Run mackup
-                bdb_command "Restoring App preferences"
+                bdb_command_in "Restoring App preferences"
                 type mackup &>/dev/null && mackup restore
-                bdb_exit_status "restoring App preferences"
+                bdb_command_out "restoring App preferences"
 
             fi
 
@@ -616,9 +618,9 @@
             # If no extensions installed and extensions file exists
             if [[ ! "$(code --list-extensions)" && -f "${CODE_EXT}" ]]; then
 
-                bdb_command "Installing VSCode extensions"
+                bdb_command_in "Installing VSCode extensions"
                 cat "${CODE_EXT}" | xargs -n 1 code --install-extension
-                bdb_exit_status "installing VSCode extensions"
+                bdb_command_out "installing VSCode extensions"
 
             fi
 
@@ -629,7 +631,7 @@
 
         esac
 
-        bdb_end_info "User environment ready"
+        bdb_info_out "User environment ready"
 
     }
 
@@ -713,7 +715,7 @@
 
     ### Bootstrap begin
 
-    bdb_begin_info "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
+    bdb_info_in "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
 
     # Always bootstrap system
     bdb_do_sys
@@ -747,28 +749,30 @@
 
     ### Bootstrap end
 
-    bdb_begin_info "Bootstrap done."
-
-    ### Alert user for SSH setup
-
-    bdb_alert ""
-    bdb_alert "Remeber to setup SSH keys and identities:"
-    bdb_alert "1. upload/generate keys (e.g.: ssh-keygen -t rsa -b 4096 -f <key_file>)"
-    bdb_alert "2. copy identities (e.g.: ssh-copy-id [-p <port_num>] -i <id_file> [${USER}@]${HOST})"
-    bdb_alert ""
+    bdb_info_in "Bootstrap done."
 
     ### Reboot or exit
 
-    # Reboot sys?
-    bdb_ask "Reboot local system" && {
+    # If system is fresh, ask user to reboot
+    if [[ -n $FRESH ]]; then
 
-        bdb_end_info "Rebooting local system"
-        sudo reboot
+        bdb_alert ""
+        bdb_alert "Remeber to setup SSH keys and identities:"
+        bdb_alert "1. upload/generate keys (e.g.: ssh-keygen -t rsa -b 4096 -f <key_file>)"
+        bdb_alert "2. copy identities (e.g.: ssh-copy-id [-p <port_num>] -i <id_file> [user@]host)"
+        bdb_alert ""
+        bdb_alert "System needs to be rebooted!"
+        bdb_ask "Type 'y' when ready" && {
 
-    }
+            bdb_info_out "Rebooting local system"
+            sudo reboot
+
+        }
+
+    fi
 
     # Close this session
-    bdb_end_info "Logging out user '${USER}'"
+    bdb_info_out "Logging out user '${USER}'"
     printf -- "\n"
     exit 0
 
