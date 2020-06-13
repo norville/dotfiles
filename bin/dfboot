@@ -42,7 +42,7 @@
     ## Print error message
     bdb_error() {
 
-        echo -e "\n${RED_COL}|xxx| ERROR ${1:-'UNKNOWN'} ${RST_COL}"
+        echo -e "\n${RED_COL}|xxx| ERROR ${1:-"UNKNOWN"} ${RST_COL}"
 
     }
 
@@ -160,7 +160,7 @@
     bdb_handle_error() {
 
         ERR_CODE=$?                                   # Last command return value
-        LAST_CMD="${BASH_COMMAND:-'UNKNOWN COMMAND'}" # Last command string
+        LAST_CMD="${BASH_COMMAND:-"UNKNOWN COMMAND"}" # Last command string
         ERR_MSG=$1                                    # Custom error message
 
         if [[ -n "${ERR_MSG}" ]]; then                # Handle custom error
@@ -177,7 +177,7 @@
         # TODO - cleanup
 
         # Print error message and exit
-        bdb_error "Exiting with error [${ERR_CODE}]."
+        bdb_error "Exiting with error [${ERR_CODE}]"
         exit ${ERR_CODE}
 
     }
