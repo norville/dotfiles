@@ -14,6 +14,7 @@
     MGN_COL="${ESC_SEQ}35;01m"    # magenta
     WHT_COL="${ESC_SEQ}97;01m"    # white
 
+    # TODO - separate flags
     FRESH=""                         # true = fresh install
     DISTRO=""                        # unix distro name
     SYSTEM=""                        # os name
@@ -28,28 +29,28 @@
     dfconf() {
 
         # /usr/bin/git --git-dir=<git-bare-dir> --work-tree=<dotfiles-dir>
-        /usr/bin/git --git-dir="${BARE_DIR}" --work-tree="${HOME}" $@
+        /usr/bin/git --git-dir="${BARE_DIR}" --work-tree="${HOME}" "$@"
 
     }
 
     ## Print success message
     bdb_success() {
 
-        echo -en "${GRN_COL}|vvv| DONE $1 ${RST_COL}"
+        echo -en "${GRN_COL}|vvv| DONE ${1:-"*** UNKNOWN ***"} ${RST_COL}"
 
     }
 
     ## Print error message
     bdb_error() {
 
-        echo -e "\n${RED_COL}|xxx| ERROR ${1:-"UNKNOWN"} ${RST_COL}"
+        echo -e "\n${RED_COL}|xxx| ERROR ${1:-"*** UNKNOWN ***"} ${RST_COL}"
 
     }
 
     ## Print alert message
     bdb_alert() {
 
-        echo -en "\n${YLW_COL}|!!!| $1 ${RST_COL}"
+        echo -en "\n${YLW_COL}|!!!| ${1:-"*** UNKNOWN ***"} ${RST_COL}"
 
     }
 
@@ -59,7 +60,7 @@
         echo -en "\n|BDB| ---------------------------------------------------------------------------------"
         echo -en "\n|BDB| vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
         echo -en "\n|BDB|"
-        echo -en "\n|BDB| $1"
+        echo -en "\n|BDB| ${1:-"*** UNKNOWN ***"}"
         echo -en "\n|BDB|"
 
     }
@@ -68,7 +69,7 @@
     bdb_info_out() {
 
         echo -en "\n|BDB|"
-        echo -en "\n|BDB| $1"
+        echo -en "\n|BDB| ${1:-"*** UNKNOWN ***"}"
         echo -en "\n|BDB|"
         echo -en "\n|BDB| ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
 
@@ -77,21 +78,21 @@
     ## Print run message
     bdb_run() {
 
-        echo -en "\n${BLU_COL}|###| $1 ... ${RST_COL}"
+        echo -en "\n${BLU_COL}|###| ${1:-"*** UNKNOWN ***"} ...${RST_COL}"
 
     }
 
     ## Print outcome message
     bdb_outcome() {
 
-        echo -en "${CYN_COL}$1${RST_COL}"
+        echo -en "${CYN_COL} ${1:-"*** UNKNOWN ***"} ${RST_COL}"
 
     }
 
     ## Print message before command
     bdb_command() {
 
-        echo -e "\n${MGN_COL}|>>>| $1 ${RST_COL}"
+        echo -e "\n${MGN_COL}|>>>| ${1:-"*** UNKNOWN ***"} ${RST_COL}"
 
     }
 
@@ -102,7 +103,7 @@
         echo -en "${WHT_COL}"
         echo -en "\n|???| ---------------------------------------------------------------------------------"
         echo -en "\n|???|"
-        echo -en "\n|???| $1? [y|N]"
+        echo -en "\n|???| ${1:-"*** UNKNOWN ***"}? [y|N]"
         echo -en "\n|???| > "
         echo -en "${RST_COL}"
 
@@ -110,7 +111,7 @@
         read -s -r -n 1 response
 
         # If input = y/Y
-        if [[ $response =~ (y|Y) ]]; then
+        if [[ ${response} =~ (y|Y) ]]; then
 
             # Return success
             return 0
@@ -126,15 +127,15 @@
     bdb_usage() {
 
         # Print error message if passed
-        [[ $2 ]] && {
+        [[ "$2" ]] && {
             bdb_alert "error: $2"
             bdb_alert ""
         }
-        bdb_alert "usage: $PROGNAME [<option> ...]"
+        bdb_alert "usage: ${PROGNAME} [<option> ...]"
         bdb_alert ""
-        bdb_alert "       $PROGNAME [-h]"
-        bdb_alert "       $PROGNAME [-f] [-s|-v] [-l <logfile>]"
-        bdb_alert "       $PROGNAME [-r|-a|-e|-u] [-s|-v] [-l <logfile>]"
+        bdb_alert "       ${PROGNAME} [-h]"
+        bdb_alert "       ${PROGNAME} [-f] [-s|-v] [-l <logfile>]"
+        bdb_alert "       ${PROGNAME} [-r|-a|-e|-u] [-s|-v] [-l <logfile>]"
         bdb_alert ""
         bdb_alert "options: -h           : Print this message and exit"
         bdb_alert "         -f           : Full bootstrap"
@@ -151,34 +152,37 @@
         echo -en "\n|BDB| BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB |BDB|"
 
         # Exit with passed value
-        exit $1
-        # TODO - exit properly
+        exit "$1"
 
     }
 
     ## Handle errors, clean up and exit
+    # TODO - simplify error message
     bdb_handle_error() {
 
-        ERR_CODE=$?                                   # Last command return value
-        LAST_CMD="${BASH_COMMAND:-"UNKNOWN COMMAND"}" # Last command string
-        ERR_MSG=$1                                    # Custom error message
+        ERR_CODE="$?"                                 # Last command return value
+        LAST_CMD="${BASH_COMMAND:-"*** UNKNOWN ***"}" # Last command string
+        ERR_MSG="$1"                                  # Custom error message
 
-        if [[ -n "${ERR_MSG}" ]]; then                # Handle custom error
+        # Check for passed arguments
+        if [[ -n "${ERR_MSG}" ]]; then
 
+            # Handle custom error
             ERR_CODE=11
             bdb_error "${ERR_MSG}"
 
-        else {                                        # Handle command error
+        else
 
+            # Handle command error
             bdb_error "<${LAST_CMD}> returned error [${ERR_CODE}]"
 
-        }
+        fi
 
         # TODO - cleanup
 
         # Print error message and exit
         bdb_error "Exiting with error [${ERR_CODE}]"
-        exit ${ERR_CODE}
+        exit "${ERR_CODE}"
 
     }
 
@@ -187,27 +191,30 @@
 
         bdb_info_in "Prepare local system for bootstrap"
 
-        ## Get admin privileges
+        # Get admin privileges
         bdb_run "Getting admin privileges"
         #TODO no newline after password input
         sudo -v
 
-        ## Detect local system
+        # Detect local system
         bdb_run "Local system is"
-        LSB_NAME="/etc/os-release"
-        # If /etc/os-release exists
-        if [[ -f "${LSB_NAME}" ]]; then
 
-            # System is Linux, then get os name
-            SYSTEM="$(grep -e '^ID=' ${LSB_NAME} | cut -d '=' -f 2)"
+        # Path to Linux Standard Base infos
+        lsb_path="/etc/os-release"
+
+        # If LSB file exists
+        if [[ -f "${lsb_path}" ]]; then
+
+            # LSB found, get Linux name
+            system="$(grep -e '^ID=' ${lsb_path} | cut -d '=' -f 2)"
 
         else
 
-            # /etc/os-release is missing, assume macos
-            SYSTEM="macos"
+            # LSB not found, assume macOS
+            system="macos"
 
         fi
-        case "${SYSTEM}" in
+        case "${system}" in
 
         ubuntu | debian | raspbian) DISTRO="debian" ;;
         manjaro* | arch) DISTRO="arch" ;;
@@ -215,12 +222,12 @@
         *) DISTRO="unknown" ;;
 
         esac
-        bdb_outcome "${SYSTEM} (${DISTRO})"
+        bdb_outcome "${system} (${DISTRO})"
 
         ## Prepare local system: update packages cache and install requirements
         case "${DISTRO}" in
 
-        arch)   # System is Arch
+        arch) # System is Arch
             bdb_command "Updating Pacman"
             sudo pacman -Syy
             bdb_success "updating Pacman"
@@ -230,9 +237,9 @@
             # CLT check
             bdb_run "Checking Xcode Command Line Tools"
             if type xcode-select >&- &&
-                CLT_DIR=$(xcode-select --print-path) &&
-                test -d "${CLT_DIR}" &&
-                test -x "${CLT_DIR}"; then
+                clt_path=$(xcode-select --print-path) &&
+                test -d "${clt_path}" &&
+                test -x "${clt_path}"; then
 
                 # CLT installed
                 bdb_outcome "OK."
@@ -247,9 +254,9 @@
                 # in Apple's SUS catalog
                 touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
                 # find the CLI Tools update
-                PROD=$(softwareupdate -l | grep "\*.*Command Line" | head -n 1 | awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')
+                clt_package=$(softwareupdate -l | grep "\*.*Command Line" | head -n 1 | awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')
                 # install it
-                softwareupdate -i "$PROD" -v
+                softwareupdate -i "${clt_package}" -v
                 bdb_success "installing CLT"
 
             fi
@@ -258,9 +265,9 @@
             if ! type brew &>/dev/null; then
 
                 # Install homebrew
-                BREW_URL="https://raw.githubusercontent.com/Homebrew/install/master/install"
+                brew_url="https://raw.githubusercontent.com/Homebrew/install/master/install"
                 bdb_command "Installing Homebrew"
-                /usr/bin/ruby -e "$(curl -fsSL ${BREW_URL})"
+                /usr/bin/ruby -e "$(curl -fsSL ${brew_url})"
                 bdb_success "installing Homebrew"
 
             else
@@ -289,7 +296,7 @@
             fi
             ;;
 
-        *)      # System is UNKNOWN
+        *) # System is UNKNOWN
             bdb_handle_error "[SYS] Cannot detect local system"
             ;;
 
@@ -317,10 +324,10 @@
             bdb_outcome "none found. Let's clone remote repo!"
 
             # Clone remote repo into bare repo
-            REPO_URL="https://github.com/norville/dotfiles.git"
+            repo_url="https://github.com/norville/dotfiles.git"
             bdb_command "Cloning dotfiles into a bare repo"
-            git clone --bare "${REPO_URL}" "${BARE_DIR}" # Clone master branch
-            #git clone --bare -b <git-branch> ${REPO_URL} ${BARE_DIR}   # Clone specifc branch
+            git clone --bare "${repo_url}" "${BARE_DIR}" # Clone master branch
+            #git clone --bare -b <git-branch> ${repo_url} ${BARE_DIR}   # Clone specifc branch
             bdb_success "cloning dotfiles into <${BARE_DIR}>"
 
             # Checkout bare repo
@@ -328,11 +335,11 @@
             dfconf checkout || { # If checkout fails
 
                 # Create backup dir
-                BAKP_DIR="${HOME}/.dfbackup"
+                backup_path="${HOME}/.dfbackup"
                 bdb_command "Backing up overlapping dotfiles"
-                mkdir -p "${BAKP_DIR}"
-                # Move pre-existing dotfiles to ${BAKP_DIR}
-                dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} "${BAKP_DIR}"/{}
+                mkdir -p "${backup_path}"
+                # Move pre-existing dotfiles to ${backup_path}
+                dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} "${backup_path}"/{}
                 dfconf checkout
                 bdb_success "backing up overlapping dotfiles"
 
@@ -343,9 +350,9 @@
             bdb_run "Configuring repository"
 
             # Set remote url
-            REMOTE_URL="git@github.com:norville/dotfiles.git"
-            dfconf config remote.origin.url "${REMOTE_URL}"
-            dfconf config remote.origin.pushurl "${REMOTE_URL}"
+            remote_url="git@github.com:norville/dotfiles.git"
+            dfconf config remote.origin.url "${remote_url}"
+            dfconf config remote.origin.pushurl "${remote_url}"
 
             # Show all untracked files
             dfconf config status.showUntrackedFiles all
@@ -371,12 +378,12 @@
         # Detect system
         case "${DISTRO}" in
 
-        arch)   # System is Arch
+        arch) # System is Arch
 
             # Install or update required packages via Pacman
-            ARCH_PKG="vim git wget curl keychain zsh tilix"
-            bdb_command "Installing Arch packages: <${ARCH_PKG}>"
-            sudo pacman --noconfirm --needed -S $ARCH_PKG # NO QUOTES PLEASE - ensure variable expasnsion
+            arch_pkgs="vim git wget curl keychain zsh tilix"
+            bdb_command "Installing Arch packages: <${arch_pkgs}>"
+            sudo pacman --noconfirm --needed -S ${arch_pkgs} # NO QUOTES PLEASE - ensure variable expasnsion
             bdb_success "installing Arch packages"
 
             # Cleanup
@@ -389,22 +396,22 @@
         darwin) # System is macOS
 
             # Install brew bundles
-            BREW_PKG="${CONF_DIR}/brewfile"
-            bdb_command "Installing required formulae from <${BREW_PKG}>"
-            brew bundle install --file="${BREW_PKG}"
+            brewfile_path="${CONF_DIR}/brewfile"
+            bdb_command "Installing required formulae from <${brewfile_path}>"
+            brew bundle install --file="${brewfile_path}"
             bdb_success "installing required formulae"
 
             # If extra formulae are installed
-            if [[ "$(brew bundle cleanup --file=${BREW_PKG})" ]]; then
+            if [[ "$(brew bundle cleanup --file=${brewfile_path})" ]]; then
 
-                (bdb_ask "uninstall extra formulae" && {    # Yes (true)
+                (bdb_ask "uninstall extra formulae" && { # Yes (true)
 
                     # Delete extra formulae
                     bdb_command "Removing extra formulae"
-                    brew bundle cleanup --file="${BREW_PKG}" --force
+                    brew bundle cleanup --file="${brewfile_path}" --force
                     bdb_success "removing extra formulae"
 
-                }) || {                                     # No (false)
+                }) || { # No (false)
 
                     # Upgrade all formulae
                     bdb_command "Upgrading all formulae"
@@ -425,9 +432,9 @@
         debian) # System is Debian
 
             # Install or update required packages via APT
-            DEBN_PKG="vim git wget curl keychain zsh"
-            bdb_command "Installing APT packages: <${DEBN_PKG}>"
-            sudo apt-get install -y $DEBN_PKG # NO QUOTES PLEASE - ensure variable expasnsion
+            debian_pkgs="vim git wget curl keychain zsh"
+            bdb_command "Installing APT packages: <${debian_pkgs}>"
+            sudo apt-get install -y ${debian_pkgs} # NO QUOTES PLEASE - ensure variable expasnsion
             bdb_success "installing APT packages"
 
             # Cleanup
@@ -438,7 +445,7 @@
 
             ;;
 
-        *)      # System is UNKNOWN
+        *) # System is UNKNOWN
             bdb_handle_error "[APPS] Unknown system <${DISTRO}>"
             ;;
 
@@ -471,7 +478,7 @@
             bdb_success "upgrading Debian system"
             ;;
 
-        *)      # System is UNKNOWN
+        *) # System is UNKNOWN
             bdb_handle_error "[UPGRADE] Unknown system <${DISTRO}>"
             ;;
 
@@ -490,14 +497,14 @@
         if [[ "${DISTRO}" != "darwin" ]]; then
 
             bdb_run "Configuring ZSH as your login shell"
-            ZSH_PATH="$(which zsh)"
+            zsh_path="$(which zsh)"
             # If zsh is not the login shell
-            if [[ "${SHELL}" != "${ZSH_PATH}" ]]; then
+            if [[ "${SHELL}" != "${zsh_path}" ]]; then
 
                 # Set zsh as login shell
                 bdb_run "Switching to ZSH"
-                echo "${ZSH_PATH}" | sudo tee -a /etc/shells
-                sudo chsh -s "${ZSH_PATH}" "${USER}"
+                echo "${zsh_path}" | sudo tee -a /etc/shells
+                sudo chsh -s "${zsh_path}" "${USER}"
                 bdb_outcome "done"
 
             else
@@ -506,28 +513,28 @@
                 bdb_outcome "done"
 
                 # Delete antigen dir to force cloning
-                if [[ -d "${HOME}/.antigen" ]]; then
+                [[ -d "${HOME}/.antigen" ]] && {
 
                     bdb_command "Updating Antigen"
                     rm -rf "${HOME}"/.antigen
                     bdb_success "updating Antigen"
 
-                fi
+                }
 
             fi
 
         fi
 
         # Install or update vundle and required plugins
-        VNDL_DIR="${HOME}/.vim/bundle"
+        vundle_path="${HOME}/.vim/bundle"
         bdb_run "Configuring VIM as your text editor"
         # If vundle is missing
-        if [[ ! -d "${VNDL_DIR}/Vundle.vim" ]]; then
+        if [[ ! -d "${vundle_path}/Vundle.vim" ]]; then
 
             # Install vundle
-            VNDL_URL="https://github.com/VundleVim/Vundle.vim.git"
+            vundle_url="https://github.com/VundleVim/Vundle.vim.git"
             bdb_command "Installing Vundle - VIM plugin manager"
-            git clone "${VNDL_URL}" "${VNDL_DIR}"/Vundle.vim
+            git clone "${vundle_url}" "${vundle_path}"/Vundle.vim
             bdb_success "installing Vundle"
 
         fi
@@ -535,36 +542,42 @@
         # Update vundle and required plugins
         bdb_command "Updating VIM plugins via Vundle"
         vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
+        # TODO - improve vundle progress output
         bdb_success "updating Vundle plugins"
 
         #Restore user preferences
         case "${DISTRO}" in
 
-        arch)  # System is Arch
-            bdb_run "Restoring Tilix fonts"
+        arch) # System is Arch
 
             # Install nerd fonts for p10k
-            FONT_DIR="${HOME}/.local/share/fonts"
-            FURA_FNT="Fura Mono Regular Nerd Font.otf"
-            MSLO_FNT="Meslo LG S Regular Nerd Font.ttf"
-            FURA_URL="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraMono/Regular/complete/Fura%20Mono%20Regular%20Nerd%20Font%20Complete.otf"
-            MSLO_URL="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Meslo/S/Regular/complete/Meslo%20LG%20S%20Regular%20Nerd%20Font%20Complete.ttf"
+            bdb_run "Restoring Tilix fonts"
 
-            mkdir -p "${FONT_DIR}"
-            bdb_command "Installing Fura Mono"
-            curl -fLo "${FONT_DIR}/${FURA_FNT}" "${FURA_URL}"
-            bdb_success "installing Fura Mono"
-            bdb_command "Installing Meslo"
-            curl -fLo "${FONT_DIR}/${MSLO_FNT}" "${MSLO_URL}"
-            bdb_success "installing Meslo"
+            # Set variables
+            font_path="${HOME}/.local/share/fonts"
+            fura_name="Fura Mono Regular Nerd Font.otf"
+            meslo_name="Meslo LG S Regular Nerd Font.ttf"
+            fura_url="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraMono/Regular/complete/Fura%20Mono%20Regular%20Nerd%20Font%20Complete.otf"
+            fura_url="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Meslo/S/Regular/complete/Meslo%20LG%20S%20Regular%20Nerd%20Font%20Complete.ttf"
+
+            # Download fonts
+            mkdir -p "${font_path}"
+            bdb_command "Installing ${fura_name}"
+            curl -fLo "${font_path}/${fura_name}" "${fura_url}"
+            bdb_success "installing ${fura_name}"
+            bdb_command "Installing ${meslo_name}"
+            curl -fLo "${font_path}/${meslo_name}" "${fura_url}"
+            bdb_success "installing ${meslo_name}"
+
+            # Update fonts cach
             bdb_command "Updating fonts cache"
             fc-cache -f
             bdb_success "updating fonts cache"
 
-            bdb_run "Restoring Tilix colorscheme"
-
             # Install Gruvbox theme for Tilix
+            bdb_run "Restoring Tilix colorscheme"
             bdb_command "Installing Gruvbox theme"
+            # Clone custom tilix-gruvbox repo
             git clone https://github.com/MichaelThessel/tilix-gruvbox.git
             cd tilix-gruvbox
             sudo cp gruvbox-* /usr/share/tilix/schemes
@@ -572,22 +585,21 @@
             rm -rf tilix-gruvbox
             bdb_success "installing Gruvbox theme"
 
+            # Restore Tilix preferences
             bdb_run "Restoring Tilix configuration"
-
             # Check config file
-            TILIX_CFG="${CONF_DIR}/tilix.dconf"
-            if [[ -f "${TILIX_CFG}" ]]; then
+            tilix_cfg="${CONF_DIR}/tilix.dconf"
+            if [[ -f "${tilix_cfg}" ]]; then
 
                 bdb_command "Loading dconf profile"
-                dconf load /com/gexperts/Tilix/ <"${TILIX_CFG}"
+                dconf load /com/gexperts/Tilix/ <"${tilix_cfg}"
                 bdb_success "loading dconf profile"
 
             else
 
-                bdb_outcome "FAILED"
+                bdb_handle_error "Invalid file: ${tilix_cfg}"
 
             fi
-
             #TODO GNU Stow or mackup
 
             ;;
@@ -595,35 +607,39 @@
         macos) # System is macOS
 
             # If this is a fresh system
-            if [[ "${FRESH}" ]]; then
+            if [[ -n "${FRESH}" ]]; then
 
                 # Set macos defaults
                 bdb_command "Restoring macOS preferences"
-                MAC_DEF="${HOME}/bin/macos_defaults"
-                [[ "${MAC_DEF}" ]] && source "${MAC_DEF}"
+                #macos_prefs="${HOME}/bin/macos_defaults"
+                #[[ -f "${macos_prefs}" ]] || bdb_handle_error "Invalid file: ${macos_prefs}"
+                source "${HOME}/bin/macos_defaults"
                 bdb_success "restoring macOS preferences"
 
-                # Run mackup
+                # Restore preferences via mackup
                 bdb_command "Restoring App preferences"
-                type mackup &>/dev/null && mackup restore
+                #type mackup &>/dev/null || bdb_handle_error "Invalid command: <mackup>"
+                mackup restore
                 bdb_success "restoring App preferences"
 
             fi
 
             # Restore VSCode extensions
-            CODE_EXT="${CONF_DIR}/vscode-ext"
+            ext_path="${CONF_DIR}/vscode-ext"
             # If no extensions installed and extensions file exists
-            if [[ ! "$(code --list-extensions)" && -f "${CODE_EXT}" ]]; then
+            if [[ ! "$(code --list-extensions)" && -f "${ext_path}" ]]; then
 
                 bdb_command "Installing VSCode extensions"
-                cat "${CODE_EXT}" | xargs -n 1 code --install-extension
+                cat "${ext_path}" | xargs -n 1 code --install-extension
                 bdb_success "installing VSCode extensions"
 
             fi
 
             ;;
 
-        *)     # System is UNKNOWN
+        *) # System is UNKNOWN
+
+            bdb_handle_error "[ENV] Unknown system <${DISTRO}>"
             ;;
 
         esac
@@ -647,15 +663,18 @@
     # Parse options
     while getopts ":hfraeusvl:" opt; do
 
-        case $opt in
+        case ${opt} in
+
+        # TODO - fix combinations
         h) # Print help message
-            # TODO - fix combinations
-            bdb_alert "optind: $OPTIND"
-            if [[ ${OPTIND} -gt 2 ]]; then
+
+            bdb_alert "optind: ${OPTIND}"
+            if [[ "${OPTIND}" -gt 2 ]]; then
                 # Exit with error if 'h' flag is not alone
                 bdb_usage 1 "invalid option: -h cannot be combined"
             fi
             bdb_usage 0
+
             ;;
         f) # Full bootstrap
             repo=1
@@ -663,49 +682,48 @@
             env=1
             upgrade=1
             ;;
-        r) # Bootstrap repo
-            repo=1
-            ;;
-        a) # Bootstrap apps
+        r) repo=1 ;; # Bootstrap repo
+        a)           # Bootstrap apps
             repo=1
             apps=1
             ;;
-        p) # Bootstrap env
+        e) # Bootstrap env
             repo=1
             apps=1
             env=1
             ;;
-        u) # Upgrade sys
-            upgrade=1
-            ;;
-        l) # Print to logfile
+        u) upgrade=1 ;; # Upgrade sys
+        l)              # Print to logfile
+
             shift
             LOGFILE="$1"
             bdb_alert "logfile: ${LOGFILE}"
+
             ;;
-        s) # Silent mode
-            # TODO - suppress all output
-            silent=1
-            ;;
-        v) # Verbose mode
-            # TODO - print all commands output
-            verbose=1
-            ;;
-        :) # Missing option argument, print usage and exit with error
+        # TODO - suppress all output
+        s) silent=1 ;; # Silent mode
+        # TODO - print all commands output
+        v) verbose=1 ;; # Verbose mode
+        :)              # Missing option argument, print usage and exit with error
+
             bdb_usage 1 "invalid option: -${OPTARG} requires an argument"
+
             ;;
         \?) # Invalid option, print usage and exit with error
+
             bdb_usage 1 "invalid option: -${OPTARG}"
+
             ;;
+
         esac
 
     done
 
     # getopts finished, shift to args
-    shift $(($OPTIND - 1))
+    shift "$((${OPTIND} - 1))"
 
     # Parse arguments
-    if [[ $# -gt 0 ]]; then
+    if [[ "$#" -gt 0 ]]; then
 
         # args not allowed, print usage
         bdb_usage 1 "invalid argument: <$*>"
@@ -720,29 +738,21 @@
     bdb_do_sys
 
     # If parsed options
-    if [[ $OPTIND -gt 1 ]]; then
+    if [[ "${OPTIND}" -gt 1 ]]; then
 
         # Flag mode: bootstrap only flagged items
-        [[ -n $repo ]] && bdb_do_repo
-        [[ -n $apps ]] && bdb_do_apps
-        [[ -n $env ]] && bdb_do_env
-        [[ -n $upgrade ]] && bdb_do_upgrade
+        [[ -n "${repo}" ]] && bdb_do_repo
+        [[ -n "${apps}" ]] && bdb_do_apps
+        [[ -n "${env}" ]] && bdb_do_env
+        [[ -n "${upgrade}" ]] && bdb_do_upgrade
 
     else # No options parsed
 
         # Interactive mode: ask user what to bootstrap
-        (bdb_ask "Bootstrap dotfiles repository" && bdb_do_repo) || {
-            bdb_alert "Skipping repo bootstrap"
-        }
-        (bdb_ask "Bootstrap required applications" && bdb_do_apps) || {
-            bdb_alert "Skipping applications bootstrap"
-        }
-        (bdb_ask "Bootstrap user environment" && bdb_do_env) || {
-            bdb_alert "Skipping environment bootstrap"
-        }
-        (bdb_ask "Upgrade local system" && bdb_do_upgrade) || {
-            bdb_alert "Skipping system upgrade"
-        }
+        (bdb_ask "Bootstrap dotfiles repository" && bdb_do_repo) || bdb_alert "Skipping repo bootstrap"
+        (bdb_ask "Bootstrap required applications" && bdb_do_apps) || bdb_alert "Skipping applications bootstrap"
+        (bdb_ask "Bootstrap user environment" && bdb_do_env) || bdb_alert "Skipping environment bootstrap"
+        (bdb_ask "Upgrade local system" && bdb_do_upgrade) || bdb_alert "Skipping system upgrade"
 
     fi
 
@@ -753,7 +763,7 @@
     ### Reboot or exit
 
     # If system is fresh, ask user to reboot
-    if [[ -n $FRESH ]]; then
+    if [[ -n "${FRESH}" ]]; then
 
         bdb_alert ""
         bdb_alert "Remeber to setup SSH keys and identities:"
