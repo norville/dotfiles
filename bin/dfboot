@@ -4,6 +4,7 @@
 
     ### Define global environment
 
+    ## Escape sequences for colored output
     ESC_SEQ="\x1b["
     RST_COL="${ESC_SEQ}39;49;00m" # reset
     RED_COL="${ESC_SEQ}31;01m"    # red
@@ -14,24 +15,22 @@
     MGN_COL="${ESC_SEQ}35;01m"    # magenta
     WHT_COL="${ESC_SEQ}97;01m"    # white
 
-    # TODO - separate flags
-    FRESH=""                         # true = fresh install
+    ## Global variables
     DISTRO=""                        # unix distro name
-    SYSTEM=""                        # os name
-    BARE_DIR="${HOME}/.dfbare"       # git bare repo dir
     CONF_DIR="${HOME}/.dfconf.d"     # config files dir
     LOGFILE="${CONF_DIR}/dfboot.log" # dfboot log file
     PROGNAME="$(basename "$0")"      # current running command
 
+    ## Flags
+    _FRESH_=""   # fresh install
+    _REPO_=""    # repo bstrap
+    _APPS_=""    # apps bstrap
+    _ENV_=""     # env bstrap
+    _UPGD_=""    # upgrade bstrap
+    _SILENT_=""  # silent mode
+    _VERBOSE_="" # verbose mode
+
     ### Define functions
-
-    ## Automatically run git against the bare repo in ${HOME}
-    dfconf() {
-
-        # /usr/bin/git --git-dir=<git-bare-dir> --work-tree=<dotfiles-dir>
-        /usr/bin/git --git-dir="${BARE_DIR}" --work-tree="${HOME}" "$@"
-
-    }
 
     ## Print success message
     bdb_success() {
@@ -313,12 +312,13 @@
 
         bdb_run "Looking for dotfiles"
         # Set bare repo dir
-        mkdir -p "${BARE_DIR}"
+        repo_path="${HOME}/.dfbare"
+        mkdir -p "${repo_path}"
         # If bare repo is missing
-        if ! git --git-dir=${BARE_DIR} rev-parse --is-bare-repository &>/dev/null; then
+        if ! git --git-dir=${repo_path} rev-parse --is-bare-repository &>/dev/null; then
 
             # Fresh system
-            FRESH="true"
+            _FRESH_="true"
 
             # TODO - pipe error output
             bdb_outcome "none found. Let's clone remote repo!"
@@ -326,21 +326,21 @@
             # Clone remote repo into bare repo
             repo_url="https://github.com/norville/dotfiles.git"
             bdb_command "Cloning dotfiles into a bare repo"
-            git clone --bare "${repo_url}" "${BARE_DIR}" # Clone master branch
-            #git clone --bare -b <git-branch> ${repo_url} ${BARE_DIR}   # Clone specifc branch
-            bdb_success "cloning dotfiles into <${BARE_DIR}>"
+            git clone --bare "${repo_url}" "${repo_path}" # Clone master branch
+            #git clone --bare -b <git-branch> ${repo_url} ${repo_path}   # Clone specifc branch
+            bdb_success "cloning dotfiles into <${repo_path}>"
 
             # Checkout bare repo
             bdb_command "Checking out repository"
-            dfconf checkout || { # If checkout fails
+            git --git-dir="${repo_path}" --work-tree="${HOME}" checkout || { # If checkout fails
 
                 # Create backup dir
                 backup_path="${HOME}/.dfbackup"
                 bdb_command "Backing up overlapping dotfiles"
                 mkdir -p "${backup_path}"
                 # Move pre-existing dotfiles to ${backup_path}
-                dfconf checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} "${backup_path}"/{}
-                dfconf checkout
+                git --git-dir="${repo_path}" --work-tree="${HOME}" checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} "${backup_path}"/{}
+                git --git-dir="${repo_path}" --work-tree="${HOME}" checkout
                 bdb_success "backing up overlapping dotfiles"
 
             }
@@ -351,11 +351,11 @@
 
             # Set remote url
             remote_url="git@github.com:norville/dotfiles.git"
-            dfconf config remote.origin.url "${remote_url}"
-            dfconf config remote.origin.pushurl "${remote_url}"
+            git --git-dir="${repo_path}" --work-tree="${HOME}" config remote.origin.url "${remote_url}"
+            git --git-dir="${repo_path}" --work-tree="${HOME}" config remote.origin.pushurl "${remote_url}"
 
             # Show all untracked files
-            dfconf config status.showUntrackedFiles all
+            git --git-dir="${repo_path}" --work-tree="${HOME}" config status.showUntrackedFiles all
 
             bdb_outcome "done"
 
@@ -607,7 +607,7 @@
         macos) # System is macOS
 
             # If this is a fresh system
-            if [[ -n "${FRESH}" ]]; then
+            if [[ -n "${_FRESH_}" ]]; then
 
                 # Set macos defaults
                 bdb_command "Restoring macOS preferences"
@@ -677,23 +677,23 @@
 
             ;;
         f) # Full bootstrap
-            repo=1
-            apps=1
-            env=1
-            upgrade=1
+            _REPO_="true"
+            _APPS_="true"
+            _ENV_="true"
+            _UPGD_="true"
             ;;
-        r) repo=1 ;; # Bootstrap repo
-        a)           # Bootstrap apps
-            repo=1
-            apps=1
+        r) _REPO_="true" ;; # Bootstrap repo
+        a)                  # Bootstrap apps
+            _REPO_="true"
+            _APPS_="true"
             ;;
         e) # Bootstrap env
-            repo=1
-            apps=1
-            env=1
+            _REPO_="true"
+            _APPS_="true"
+            _ENV_="true"
             ;;
-        u) upgrade=1 ;; # Upgrade sys
-        l)              # Print to logfile
+        u) _UPGD_="true" ;; # Upgrade sys
+        l)                  # Print to logfile
 
             shift
             LOGFILE="$1"
@@ -701,10 +701,10 @@
 
             ;;
         # TODO - suppress all output
-        s) silent=1 ;; # Silent mode
+        s) _SILENT_="true" ;; # Silent mode
         # TODO - print all commands output
-        v) verbose=1 ;; # Verbose mode
-        :)              # Missing option argument, print usage and exit with error
+        v) _VERBOSE_="true" ;; # Verbose mode
+        :)                     # Missing option argument, print usage and exit with error
 
             bdb_usage 1 "invalid option: -${OPTARG} requires an argument"
 
@@ -741,10 +741,10 @@
     if [[ "${OPTIND}" -gt 1 ]]; then
 
         # Flag mode: bootstrap only flagged items
-        [[ -n "${repo}" ]] && bdb_do_repo
-        [[ -n "${apps}" ]] && bdb_do_apps
-        [[ -n "${env}" ]] && bdb_do_env
-        [[ -n "${upgrade}" ]] && bdb_do_upgrade
+        [[ -n "${_REPO_}" ]] && bdb_do_repo
+        [[ -n "${_APPS_}" ]] && bdb_do_apps
+        [[ -n "${_ENV_}" ]] && bdb_do_env
+        [[ -n "${_UPGD_}" ]] && bdb_do_upgrade
 
     else # No options parsed
 
@@ -763,7 +763,7 @@
     ### Reboot or exit
 
     # If system is fresh, ask user to reboot
-    if [[ -n "${FRESH}" ]]; then
+    if [[ -n "${_FRESH_}" ]]; then
 
         bdb_alert ""
         bdb_alert "Remeber to setup SSH keys and identities:"
