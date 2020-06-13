@@ -541,7 +541,7 @@
         bdb_command "Updating VIM plugins via Vundle"
         #vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
         # TODO - improve vundle progress output
-        vim -T dumb -n -i NONE -es -S <(echo -e 'silent! PluginInstall')
+        vim -E -s -c "source ${HOME}/.vimrc" +PluginInstall +qall -V
         bdb_success "updating Vundle plugins"
 
         #Restore user preferences
