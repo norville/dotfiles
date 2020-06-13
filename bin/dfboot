@@ -35,14 +35,14 @@
     ## Print success message
     bdb_success() {
 
-        echo -en "${GRN_COL}|vvv| DONE ${1:-"*** UNKNOWN ***"} ${RST_COL}"
+        echo -en "\n${GRN_COL}|vvv| DONE ${1:-"*** UNKNOWN ***"} ${RST_COL}"
 
     }
 
     ## Print error message
     bdb_error() {
 
-        echo -e "\n${RED_COL}|xxx| ERROR ${1:-"*** UNKNOWN ***"} ${RST_COL}"
+        echo -en "\n${RED_COL}|xxx| ERROR ${1:-"*** UNKNOWN ***"} ${RST_COL}"
 
     }
 
@@ -56,21 +56,25 @@
     ## Print info message - begin
     bdb_info_in() {
 
+        echo -en "${WHT_COL}"
         echo -en "\n|BDB| ---------------------------------------------------------------------------------"
         echo -en "\n|BDB| vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
         echo -en "\n|BDB|"
         echo -en "\n|BDB| ${1:-"*** UNKNOWN ***"}"
         echo -en "\n|BDB|"
+        echo -en "${RST_COL}"
 
     }
 
     ## Print info message - end
     bdb_info_out() {
 
+        echo -en "${WHT_COL}"
         echo -en "\n|BDB|"
         echo -en "\n|BDB| ${1:-"*** UNKNOWN ***"}"
         echo -en "\n|BDB|"
         echo -en "\n|BDB| ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+        echo -en "${RST_COL}"
 
     }
 
@@ -91,7 +95,7 @@
     ## Print message before command
     bdb_command() {
 
-        echo -e "\n${MGN_COL}|>>>| ${1:-"*** UNKNOWN ***"} ${RST_COL}"
+        echo -e "\n${BLU_COL}|>>>| ${1:-"*** UNKNOWN ***"} ${RST_COL}"
 
     }
 
@@ -99,7 +103,7 @@
     bdb_ask() {
 
         # Print prompt
-        echo -en "${WHT_COL}"
+        echo -en "${MGN_COL}"
         echo -en "\n|???| ---------------------------------------------------------------------------------"
         echo -en "\n|???|"
         echo -en "\n|???| ${1:-"*** UNKNOWN ***"}? [y|N]"
@@ -160,26 +164,13 @@
     bdb_handle_error() {
 
         ERR_CODE="$?"                                 # Last command return value
+        ERR_MSG="${1:-"*** UNKNOWN ***"}"             # Passed custom message
         LAST_CMD="${BASH_COMMAND:-"*** UNKNOWN ***"}" # Last command string
-        ERR_MSG="$1"                                  # Custom error message
 
-        # Check for passed arguments
-        if [[ -n "${ERR_MSG}" ]]; then
-
-            # Handle custom error
-            ERR_CODE=11
-            bdb_error "${ERR_MSG}"
-
-        else
-
-            # Handle command error
-            bdb_error "<${LAST_CMD}> returned error [${ERR_CODE}]"
-
-        fi
-
-        # TODO - cleanup
+        # TODO - cleanup: delete bare repo, tracked files and restore back up
 
         # Print error message and exit
+        bdb_error "${ERR_MSG}: <${LAST_CMD}> returned error [${ERR_CODE}]"
         bdb_error "Exiting with error [${ERR_CODE}]"
         exit "${ERR_CODE}"
 
@@ -439,7 +430,7 @@
             bdb_run "Cleaning APT"
             sudo apt autoremove
             sudo apt autoclean
-            bdb_outcome "done"
+            bdb_success "cleaning APT cache"
 
             ;;
 
@@ -541,7 +532,7 @@
         bdb_command "Updating VIM plugins via Vundle"
         #vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
         # TODO - improve vundle progress output
-        vim -E -s -c "source ${HOME}/.vimrc" +PluginInstall +qall -V
+        vim -E -s -c "source ${HOME}/.vimrc" +PluginInstall! +qall #-V
         bdb_success "updating Vundle plugins"
 
         #Restore user preferences
@@ -634,6 +625,9 @@
 
             fi
 
+            ;;
+
+        debian) # System is Debian
             ;;
 
         *) # System is UNKNOWN
@@ -748,10 +742,26 @@
     else # No options parsed
 
         # Interactive mode: ask user what to bootstrap
-        (bdb_ask "Bootstrap dotfiles repository" && bdb_do_repo) || bdb_alert "Skipping repo bootstrap"
-        (bdb_ask "Bootstrap required applications" && bdb_do_apps) || bdb_alert "Skipping applications bootstrap"
-        (bdb_ask "Bootstrap user environment" && bdb_do_env) || bdb_alert "Skipping environment bootstrap"
-        (bdb_ask "Upgrade local system" && bdb_do_upgrade) || bdb_alert "Skipping system upgrade"
+        if bdb_ask "Bootstrap dotfiles repository"; then
+            bdb_do_repo
+        else
+            bdb_alert "Skipping repo bootstrap"
+        fi
+        if bdb_ask "Bootstrap required applications"; then
+            bdb_do_apps
+        else
+            bdb_alert "Skipping applications bootstrap"
+        fi
+        if bdb_ask "Bootstrap user environment"; then
+            bdb_do_env
+        else
+            bdb_alert "Skipping environment bootstrap"
+        fi
+        if bdb_ask "Upgrade local system"; then
+            bdb_do_upgrade
+        else
+            bdb_alert "Skipping system upgrade"
+        fi
 
     fi
 
