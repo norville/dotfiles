@@ -319,9 +319,7 @@
 
             # Fresh system
             _FRESH_="true"
-
-            # TODO - pipe error output
-            bdb_outcome "none found. Let's clone remote repo!"
+            bdb_outcome "none found, cloning remote repo"
 
             # Clone remote repo into bare repo
             repo_url="https://github.com/norville/dotfiles.git"
@@ -541,8 +539,9 @@
 
         # Update vundle and required plugins
         bdb_command "Updating VIM plugins via Vundle"
-        vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
+        #vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
         # TODO - improve vundle progress output
+        vim -T dumb -n -i NONE -es -S <(echo -e 'silent! PluginInstall')
         bdb_success "updating Vundle plugins"
 
         #Restore user preferences
