@@ -35,7 +35,7 @@
     ## Print success message
     bdb_success() {
 
-        echo -en "\n${GRN_COL}|vvv| DONE ${1:-"*** UNKNOWN ***"} ${RST_COL}"
+        echo -en "\n${GRN_COL}|vvv| SUCCESS ${1:-"*** UNKNOWN ***"} ${RST_COL}"
 
     }
 
@@ -95,7 +95,7 @@
     ## Print message before command
     bdb_command() {
 
-        echo -e "\n${BLU_COL}|>>>| ${1:-"*** UNKNOWN ***"} ${RST_COL}"
+        echo -e "\n${CYN_COL}|>>>| ${1:-"*** UNKNOWN ***"} ${RST_COL}"
 
     }
 
@@ -160,18 +160,16 @@
     }
 
     ## Handle errors, clean up and exit
-    # TODO - simplify error message
     bdb_handle_error() {
 
-        ERR_CODE="$?"                                 # Last command return value
-        ERR_MSG="${1:-"*** UNKNOWN ***"}"             # Passed custom message
-        LAST_CMD="${BASH_COMMAND:-"*** UNKNOWN ***"}" # Last command string
+        ERR_CODE="$?"             # Last command return value
+        ERR_LINE="${LINENO}"      # Line number when error fired
+        ERR_CMD="${BASH_COMMAND}" # Last command string
 
         # TODO - cleanup: delete bare repo, tracked files and restore back up
 
         # Print error message and exit
-        bdb_error "${ERR_MSG}: <${LAST_CMD}> returned error [${ERR_CODE}]"
-        bdb_error "Exiting with error [${ERR_CODE}]"
+        bdb_error "${PROGNAME}@${ERR_LINE}: <${ERR_CMD}> returned error [${ERR_CODE}]. Exiting now!"
         exit "${ERR_CODE}"
 
     }
@@ -179,19 +177,19 @@
     ## Check the system and prepare for bootstrap
     bdb_do_sys() {
 
-        bdb_info_in "Prepare local system for bootstrap"
+        bdb_info_in "[SYS] detect local system and prepare for bootstrap"
 
         # Get admin privileges
-        bdb_run "Getting admin privileges"
+        bdb_command "Getting admin privileges"
         #TODO no newline after password input
         sudo -v
+        bdb_success "getting admin privileges"
 
         # Detect local system
-        bdb_run "Local system is"
-
+        bdb_run "Detecting local system"
+        system=""
         # Path to Linux Standard Base infos
         lsb_path="/etc/os-release"
-
         # If LSB file exists
         if [[ -f "${lsb_path}" ]]; then
 
@@ -204,19 +202,19 @@
             system="macos"
 
         fi
-        case "${system}" in
+        bdb_outcome "${system} detected"
 
+        bdb_run "Preparing to bootstrap"
+        case "${system}" in
         ubuntu | debian | raspbian) DISTRO="debian" ;;
         manjaro* | arch) DISTRO="arch" ;;
         macos) DISTRO="darwin" ;;
         *) DISTRO="unknown" ;;
-
         esac
-        bdb_outcome "${system} (${DISTRO})"
+        bdb_outcome "${DISTRO}"
 
-        ## Prepare local system: update packages cache and install requirements
+        # Prepare local system
         case "${DISTRO}" in
-
         arch) # System is Arch
             bdb_command "Updating Pacman"
             sudo pacman -Syy
@@ -232,12 +230,12 @@
                 test -x "${clt_path}"; then
 
                 # CLT installed
-                bdb_outcome "OK."
+                bdb_outcome "ready"
 
             else
 
                 # CLT not installed
-                bdb_outcome "not found."
+                bdb_outcome "missing"
                 bdb_command "Installing CLT"
                 # on 10.9+, we can leverage SUS to get the latest CLI tools
                 # create the placeholder file that's checked by CLI updates' .dist code
@@ -251,10 +249,12 @@
 
             fi
 
+            bdb_run "Checking Homebrew"
             # If brew is missing
             if ! type brew &>/dev/null; then
 
                 # Install homebrew
+                bdb_outcome "missing"
                 brew_url="https://raw.githubusercontent.com/Homebrew/install/master/install"
                 bdb_command "Installing Homebrew"
                 /usr/bin/ruby -e "$(curl -fsSL ${brew_url})"
@@ -263,6 +263,7 @@
             else
 
                 # Update homebrew
+                bdb_outcome "ready"
                 bdb_command "Updating Homebrew"
                 brew update
                 bdb_success "updating Homebrew"
@@ -275,13 +276,19 @@
             sudo apt-get update
             bdb_success "updating APT"
 
+            bdb_run "Checking git"
             # If git is missing
             if ! type git &>/dev/null; then
 
                 #Install git
+                bdb_outcome "missing"
                 bdb_command "Installing git"
                 sudo apt-get install -y git
                 bdb_success "installing git"
+
+            else
+
+                bdb_outcome "ready"
 
             fi
             ;;
@@ -289,28 +296,27 @@
         *) # System is UNKNOWN
             bdb_handle_error "[SYS] Cannot detect local system"
             ;;
-
         esac
 
-        bdb_info_out "System ready"
+        bdb_info_out "[SYS] system ready"
 
     }
 
     ## Check dotfiles repo
     bdb_do_repo() {
 
-        bdb_info_in "Detect dotfiles or clone remote repository"
+        bdb_info_in "[REPO] detect dotfiles or clone remote repository"
 
-        bdb_run "Looking for dotfiles"
+        bdb_run "Looking for dotfiles repository"
         # Set bare repo dir
         repo_path="${HOME}/.dfbare"
         mkdir -p "${repo_path}"
         # If bare repo is missing
         if ! git --git-dir=${repo_path} rev-parse --is-bare-repository &>/dev/null; then
 
+            bdb_outcome "not found"
             # Fresh system
             _FRESH_="true"
-            bdb_outcome "none found, cloning remote repo"
 
             # Clone remote repo into bare repo
             repo_url="https://github.com/norville/dotfiles.git"
@@ -336,33 +342,30 @@
             bdb_success "checking out repository"
 
             # Configure repo
-            bdb_run "Configuring repository"
-
+            bdb_command "Configuring repository"
             # Set remote url
             remote_url="git@github.com:norville/dotfiles.git"
             git --git-dir="${repo_path}" --work-tree="${HOME}" config remote.origin.url "${remote_url}"
             git --git-dir="${repo_path}" --work-tree="${HOME}" config remote.origin.pushurl "${remote_url}"
-
             # Show all untracked files
             git --git-dir="${repo_path}" --work-tree="${HOME}" config status.showUntrackedFiles all
-
-            bdb_outcome "done"
+            bdb_success "configuring repository"
 
         else
 
             # Repo ok
-            bdb_outcome "repository found"
+            bdb_outcome "ready"
 
         fi
 
-        bdb_info_out "Dotfiles ready"
+        bdb_info_out "[REPO] dotfiles ready"
 
     }
 
     ## Install or update packages
     bdb_do_apps() {
 
-        bdb_info_in "Bootstrap applications"
+        bdb_info_in "[APPS] bootstrap applications"
 
         # Detect system
         case "${DISTRO}" in
@@ -390,9 +393,11 @@
             brew bundle install --file="${brewfile_path}"
             bdb_success "installing required formulae"
 
+            bdb_run "Looking for formulas already installed"
             # If extra formulae are installed
             if [[ "$(brew bundle cleanup --file=${brewfile_path})" ]]; then
 
+                bdb_outcome "found"
                 (bdb_ask "uninstall extra formulae" && { # Yes (true)
 
                     # Delete extra formulae
@@ -408,6 +413,10 @@
                     bdb_success "upgrading all formulae"
 
                 }
+
+            else
+
+                bdb_outcome "not found"
 
             fi
 
@@ -427,7 +436,7 @@
             bdb_success "installing APT packages"
 
             # Cleanup
-            bdb_run "Cleaning APT"
+            bdb_command "Cleaning APT cache"
             sudo apt autoremove
             sudo apt autoclean
             bdb_success "cleaning APT cache"
@@ -440,7 +449,7 @@
 
         esac
 
-        bdb_info_out "Applications ready"
+        bdb_info_out "[APPS] applications ready"
 
     }
 
@@ -480,51 +489,63 @@
     ## Configure user environment
     bdb_do_env() {
 
-        bdb_info_in "Configure user environment"
+        bdb_info_in "[ENV] configure user environment"
 
         # Configure login shell on linux
         if [[ "${DISTRO}" != "darwin" ]]; then
 
-            bdb_run "Configuring ZSH as your login shell"
+            bdb_run "Checking ZSH as your login shell"
             zsh_path="$(which zsh)"
             # If zsh is not the login shell
             if [[ "${SHELL}" != "${zsh_path}" ]]; then
 
+                bdb_outcome "not set"
                 # Set zsh as login shell
-                bdb_run "Switching to ZSH"
+                bdb_command "Switching to ZSH"
                 echo "${zsh_path}" | sudo tee -a /etc/shells
                 sudo chsh -s "${zsh_path}" "${USER}"
-                bdb_outcome "done"
+                bdb_command "switching to ZSH"
 
             else
 
                 # Zsh is the login shell
-                bdb_outcome "done"
+                bdb_outcome "set"
 
                 # Delete antigen dir to force cloning
-                [[ -d "${HOME}/.antigen" ]] && {
+                bdb_run "Checking antigen"
+                if [[ -d "${HOME}/.antigen" ]]; then
 
+                    bdb_outcome "found"
                     bdb_command "Updating Antigen"
                     rm -rf "${HOME}"/.antigen
                     bdb_success "updating Antigen"
 
-                }
+                else
+
+                    bdb_outcome "not found"
+
+                fi
 
             fi
 
         fi
 
         # Install or update vundle and required plugins
+        bdb_run "Checking Vundle as VIM plugin manager"
         vundle_path="${HOME}/.vim/bundle"
-        bdb_run "Configuring VIM as your text editor"
         # If vundle is missing
         if [[ ! -d "${vundle_path}/Vundle.vim" ]]; then
 
+            bdb_outcome "missing"
             # Install vundle
             vundle_url="https://github.com/VundleVim/Vundle.vim.git"
             bdb_command "Installing Vundle - VIM plugin manager"
             git clone "${vundle_url}" "${vundle_path}"/Vundle.vim
             bdb_success "installing Vundle"
+
+        else
+
+            bdb_outcome "ready"
 
         fi
 
@@ -541,8 +562,6 @@
         arch) # System is Arch
 
             # Install nerd fonts for p10k
-            bdb_run "Restoring Tilix fonts"
-
             # Set variables
             font_path="${HOME}/.local/share/fonts"
             fura_name="Fura Mono Regular Nerd Font.otf"
@@ -565,7 +584,6 @@
             bdb_success "updating fonts cache"
 
             # Install Gruvbox theme for Tilix
-            bdb_run "Restoring Tilix colorscheme"
             bdb_command "Installing Gruvbox theme"
             # Clone custom tilix-gruvbox repo
             git clone https://github.com/MichaelThessel/tilix-gruvbox.git
@@ -576,20 +594,10 @@
             bdb_success "installing Gruvbox theme"
 
             # Restore Tilix preferences
-            bdb_run "Restoring Tilix configuration"
-            # Check config file
-            tilix_cfg="${CONF_DIR}/tilix.dconf"
-            if [[ -f "${tilix_cfg}" ]]; then
+            bdb_command "Loading dconf profile"
+            dconf load /com/gexperts/Tilix/ <"${CONF_DIR}/tilix.dconf"
+            bdb_success "loading dconf profile"
 
-                bdb_command "Loading dconf profile"
-                dconf load /com/gexperts/Tilix/ <"${tilix_cfg}"
-                bdb_success "loading dconf profile"
-
-            else
-
-                bdb_handle_error "Invalid file: ${tilix_cfg}"
-
-            fi
             #TODO GNU Stow or mackup
 
             ;;
@@ -615,13 +623,19 @@
             fi
 
             # Restore VSCode extensions
+            bdb_run "Checking VSCode extensions"
             ext_path="${CONF_DIR}/vscode-ext"
             # If no extensions installed and extensions file exists
             if [[ ! "$(code --list-extensions)" && -f "${ext_path}" ]]; then
 
+                bdb_outcome "missing"
                 bdb_command "Installing VSCode extensions"
                 cat "${ext_path}" | xargs -n 1 code --install-extension
                 bdb_success "installing VSCode extensions"
+
+            else
+
+                bdb_outcome "ready"
 
             fi
 
@@ -637,7 +651,7 @@
 
         esac
 
-        bdb_info_out "User environment ready"
+        bdb_info_out "[ENV] user environment ready"
 
     }
 
