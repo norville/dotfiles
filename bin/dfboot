@@ -500,7 +500,7 @@
                 bdb_command "Switching to ZSH"
                 echo "${zsh_path}" | sudo tee -a /etc/shells
                 sudo chsh -s "${zsh_path}" "${USER}"
-                bdb_command "switching to ZSH"
+                bdb_success "switching to ZSH"
 
             else
 
@@ -659,7 +659,7 @@
     set -o pipefail # Exit if a pipeline's commands returns non-zero
 
     # Catch error and exit signals
-    trap "bdb_handle_error" ERR EXIT
+    trap "bdb_handle_error" ERR
 
     ### Parse command options and arguments
 
