@@ -49,7 +49,7 @@
     ## Print alert message
     bdb_alert() {
 
-        echo -en "\n${YLW_COL}|!!!| ${1:-"*** UNKNOWN ***"} ${RST_COL}"
+        echo -en "\n${YLW_COL}|!!!| ${1} ${RST_COL}"
 
     }
 
@@ -148,9 +148,6 @@
         bdb_alert "         -v           : Send all output terminal"
         bdb_alert "         -l <logfile> : Send all output to <logfile>"
         bdb_alert "                        (default: ${LOGFILE})"
-
-        bdb_info_out ""
-        echo -en "\n|BDB| BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB | BDB |BDB|"
 
         # Exit with passed value
         exit "$1"
@@ -487,70 +484,52 @@
 
         bdb_info_in "[ENV] configure user environment"
 
-        # Configure login shell on linux
-        if [[ "${DISTRO}" != "darwin" ]]; then
+        bdb_run "Checking ZSH as your login shell"
+        zsh_path="$(which zsh)"
+        # If zsh is not the login shell
+        if [[ "${SHELL}" != "${zsh_path}" ]]; then
 
-            bdb_run "Checking ZSH as your login shell"
-            zsh_path="$(which zsh)"
-            # If zsh is not the login shell
-            if [[ "${SHELL}" != "${zsh_path}" ]]; then
-
-                bdb_outcome "not set"
-                # Set zsh as login shell
-                bdb_command "Switching to ZSH"
-                echo "${zsh_path}" | sudo tee -a /etc/shells
-                sudo chsh -s "${zsh_path}" "${USER}"
-                bdb_success "switching to ZSH"
-
-            else
-
-                # Zsh is the login shell
-                bdb_outcome "set"
-
-                # Delete antigen dir to force cloning
-                bdb_run "Checking antigen"
-                if [[ -d "${HOME}/.antigen" ]]; then
-
-                    bdb_outcome "found"
-                    bdb_command "Updating Antigen"
-                    rm -rf "${HOME}"/.antigen
-                    bdb_success "updating Antigen"
-
-                else
-
-                    bdb_outcome "not found"
-
-                fi
-
-            fi
-
-        fi
-
-        # Install or update vundle and required plugins
-        bdb_run "Checking Vundle as VIM plugin manager"
-        vundle_path="${HOME}/.vim/bundle"
-        # If vundle is missing
-        if [[ ! -d "${vundle_path}/Vundle.vim" ]]; then
-
-            bdb_outcome "missing"
-            # Install vundle
-            vundle_url="https://github.com/VundleVim/Vundle.vim.git"
-            bdb_command "Installing Vundle - VIM plugin manager"
-            git clone "${vundle_url}" "${vundle_path}"/Vundle.vim
-            bdb_success "installing Vundle"
+            bdb_outcome "not set"
+            # Set zsh as login shell
+            bdb_command "Switching to ZSH"
+            echo "${zsh_path}" | sudo tee -a /etc/shells
+            sudo chsh -s "${zsh_path}" "${USER}"
+            bdb_success "switching to ZSH"
 
         else
 
-            bdb_outcome "ready"
+            # Zsh is the login shell
+            bdb_outcome "set"
 
         fi
 
-        # Update vundle and required plugins
-        bdb_command "Updating VIM plugins via Vundle"
-        #vim -i NONE -c VundleUpdate -c quitall >/dev/null 2>&1
-        # TODO - improve vundle progress output
-        vim -E -s -c "source ${HOME}/.vimrc" +PluginInstall! +qall #-V
-        bdb_success "updating Vundle plugins"
+        # Delete Antigen dir to force cloning
+        bdb_run "Checking Antigen as ZSH plugin manager"
+        antigen_dir="${HOME}/.antigen"
+        if [[ -d "${antigen_dir}" ]]; then
+
+            bdb_outcome "ready"
+            rm -rf "${antigen_dir}"
+
+        else
+
+            bdb_outcome "missing"
+
+        fi
+
+        # Delete Vundle dir to force cloning
+        bdb_run "Checking Vundle as VIM plugin manager"
+        vundle_path="${HOME}/.vim/bundle"
+        if [[ -d "${vundle_path}/Vundle.vim" ]]; then
+
+            bdb_outcome "ready"
+            rm -rf "${vundle_path}"
+
+        else
+
+            bdb_outcome "missing"
+
+        fi
 
         #Restore user preferences
         case "${DISTRO}" in
@@ -714,9 +693,7 @@
             ;;
         \?) # Invalid option, print usage and exit with error
 
-            bdb_usage 1 "invalid option: -${OPTARG}"
-
-            ;;
+            bdb_usage 1 "invalid option: -${OPTARG}" ;;
 
         esac
 
