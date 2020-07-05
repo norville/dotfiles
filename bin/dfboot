@@ -57,8 +57,7 @@
     bdb_info_in() {
 
         echo -en "${WHT_COL}"
-        echo -en "\n|BDB| ---------------------------------------------------------------------------------"
-        echo -en "\n|BDB| vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
+        echo -en "\n|BDB| +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
         echo -en "\n|BDB|"
         echo -en "\n|BDB| ${1:-"*** UNKNOWN ***"}"
         echo -en "\n|BDB|"
@@ -73,7 +72,7 @@
         echo -en "\n|BDB|"
         echo -en "\n|BDB| ${1:-"*** UNKNOWN ***"}"
         echo -en "\n|BDB|"
-        echo -en "\n|BDB| ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+        echo -en "\n|BDB| ---------------------------------------------------------------------------------"
         echo -en "${RST_COL}"
 
     }
@@ -104,10 +103,9 @@
 
         # Print prompt
         echo -en "${MGN_COL}"
-        echo -en "\n|???| ---------------------------------------------------------------------------------"
         echo -en "\n|???|"
-        echo -en "\n|???| ${1:-"*** UNKNOWN ***"}? [y|N]"
-        echo -en "\n|???| > "
+        echo -en "\n|???| ${1:-"*** UNKNOWN ***"}? [y|N] > "
+        echo -en "\n|???|"
         echo -en "${RST_COL}"
 
         # Read user input: suppress output, read 1 char
@@ -163,13 +161,12 @@
     bdb_handle_error() {
 
         ERR_CODE="$?"             # Last command return value
-        ERR_LINE="${LINENO}"      # Line number when error fired
         ERR_CMD="${BASH_COMMAND}" # Last command string
 
         # TODO - cleanup: delete bare repo, tracked files and restore back up
 
         # Print error message and exit
-        bdb_error "${PROGNAME}@${ERR_LINE}: <${ERR_CMD}> returned error [${ERR_CODE}]. Exiting now!"
+        bdb_error "<${ERR_CMD}> returned error [${ERR_CODE}]. Exiting now!"
         exit "${ERR_CODE}"
 
     }
@@ -202,7 +199,7 @@
             system="macos"
 
         fi
-        bdb_outcome "${system} detected"
+        bdb_outcome "${system}"
 
         bdb_run "Preparing to bootstrap"
         case "${system}" in
@@ -329,8 +326,12 @@
             bdb_command "Backing up existing dotfiles"
             backup_path="${HOME}/.dfbackup"
             mkdir -p "${backup_path}"
-            git --git-dir="${repo_path}" --work-tree="${HOME}" checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} "${backup_path}"/{}
-            bdb_success "backing up overlapping dotfiles"
+            # Checkout fails if there are existing dotfiles
+            git --git-dir="${repo_path}" --work-tree="${HOME}" checkout || {
+                # Move them to backup dir
+                egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} "${backup_path}"/{}
+            }
+            bdb_success "backing up existing dotfiles"
 
             bdb_command "Checking out repository"
             git --git-dir="${repo_path}" --work-tree="${HOME}" checkout
