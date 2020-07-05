@@ -1,7 +1,7 @@
 # Ignore everything in repo's root
 /*
 
-# Un-ignore repo's content
+# Un-ignore root's content
 !.bashrc
 !.dfconf.d
 !.gitconfig
@@ -12,7 +12,11 @@
 !.zsh
 !.zshrc
 !bin
-!code/README.md
+!code
 
 # Ignore specific items inside repo
 .vim/bundle/*
+code/*
+
+# un-ignore specific items inside repo
+!code/README.md
