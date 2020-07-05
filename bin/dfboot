@@ -577,7 +577,7 @@
 
             ;;
 
-        macos) # System is macOS
+        darwin) # System is macOS
 
             # If this is a fresh system
             if [[ -n "${_FRESH_}" ]]; then
