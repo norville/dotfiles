@@ -157,14 +157,19 @@
     ## Handle errors, clean up and exit
     bdb_handle_error() {
 
-        ERR_CODE="$?"             # Last command return value
-        ERR_CMD="${BASH_COMMAND}" # Last command string
+        err_value="${?}"
+        err_command="${BASH_COMMAND}" # Last command string
+        err_message="${1:-"UNKNOWN"}" # Message to print when manually invoked
 
         # TODO - cleanup: delete bare repo, tracked files and restore back up
 
         # Print error message and exit
-        bdb_error "<${ERR_CMD}> returned error [${ERR_CODE}]. Exiting now!"
-        exit "${ERR_CODE}"
+        bdb_error "Command: <${err_command}>"
+        bdb_error "Value: [${err_value}]"
+        bdb_error "Message: '${err_message}'"
+        bdb_error "Exiting now!"
+
+        exit "${err_value}"
 
     }
 
@@ -632,13 +637,13 @@
 
     ### Define set builtins and signals to trap
 
+    # Catch error signals
+    trap "bdb_handle_error" ERR
+
     set -o errtrace # (-E) Catch any ERR trap
     set -o errexit  # (-e) Exit immediatly if last command returns non-zero
     set -o nounset  # (-u) Exit immediatly if expanding unset variable
     set -o pipefail # Exit if a pipeline's commands returns non-zero
-
-    # Catch error and exit signals
-    trap "bdb_handle_error" ERR
 
     ### Parse command options and arguments
 
