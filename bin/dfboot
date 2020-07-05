@@ -326,10 +326,10 @@
             bdb_command "Backing up existing dotfiles"
             backup_path="${HOME}/.dfbackup"
             mkdir -p "${backup_path}"
-            # Checkout fails if there are existing dotfiles
+            # List existing dotfiles
             backup_list=$(git --git-dir="${repo_path}" --work-tree="${HOME}" checkout) || {
                 # Move them to backup dir
-                egrep "\s+\." "${backup_list}" | awk {'print $1'} | xargs -I{} mv {} "${backup_path}"/{}
+                echo "${backup_list}" | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} "${backup_path}"/{}
             }
             bdb_success "backing up existing dotfiles"
 
