@@ -325,20 +325,15 @@
             #git clone --bare -b <git-branch> ${repo_url} ${repo_path}   # Clone specifc branch
             bdb_success "cloning dotfiles into <${repo_path}>"
 
-            # Checkout bare repo
+            # Backup existing dotfiles
+            bdb_command "Backing up existing dotfiles"
+            backup_path="${HOME}/.dfbackup"
+            mkdir -p "${backup_path}"
+            git --git-dir="${repo_path}" --work-tree="${HOME}" checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} "${backup_path}"/{}
+            bdb_success "backing up overlapping dotfiles"
+
             bdb_command "Checking out repository"
-            git --git-dir="${repo_path}" --work-tree="${HOME}" checkout || { # If checkout fails
-
-                # Create backup dir
-                backup_path="${HOME}/.dfbackup"
-                bdb_command "Backing up overlapping dotfiles"
-                mkdir -p "${backup_path}"
-                # Move pre-existing dotfiles to ${backup_path}
-                git --git-dir="${repo_path}" --work-tree="${HOME}" checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | xargs -I{} mv {} "${backup_path}"/{}
-                git --git-dir="${repo_path}" --work-tree="${HOME}" checkout
-                bdb_success "backing up overlapping dotfiles"
-
-            }
+            git --git-dir="${repo_path}" --work-tree="${HOME}" checkout
             bdb_success "checking out repository"
 
             # Configure repo
