@@ -224,7 +224,7 @@
             # CLT check
             bdb_run "Checking Xcode Command Line Tools"
             if type xcode-select &>/dev/null &&
-                clt_path="$(xcode-select --print-path)" &&
+                clt_path="$(xcode-select --print-path &>/dev/null)" &&
                 test -d "${clt_path}" &&
                 test -x "${clt_path}"; then
 
@@ -241,7 +241,7 @@
                 # in Apple's SUS catalog
                 touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
                 # find the CLI Tools update
-                clt_package="$(softwareupdate -l | grep "\*.*Command Line" | head -n 1 | awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')"
+                clt_package="$(softwareupdate -l | grep '*.*Command Line' | awk -F ":" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')"
                 # install it
                 softwareupdate -i "${clt_package}"
                 bdb_success "installing CLT"
