@@ -223,8 +223,8 @@
         darwin) # System is macOS
             # CLT check
             bdb_run "Checking Xcode Command Line Tools"
-            if type xcode-select >&- &&
-                clt_path=$(xcode-select --print-path) &&
+            if type xcode-select &>/dev/null &&
+                clt_path="$(xcode-select --print-path)" &&
                 test -d "${clt_path}" &&
                 test -x "${clt_path}"; then
 
@@ -241,9 +241,9 @@
                 # in Apple's SUS catalog
                 touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
                 # find the CLI Tools update
-                clt_package=$(softwareupdate -l | grep "\*.*Command Line" | head -n 1 | awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')
+                clt_package="$(softwareupdate -l | grep "\*.*Command Line" | head -n 1 | awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')"
                 # install it
-                softwareupdate -i "${clt_package}" -v
+                softwareupdate -i "${clt_package}"
                 bdb_success "installing CLT"
 
             fi
@@ -254,9 +254,9 @@
 
                 # Install homebrew
                 bdb_outcome "missing"
-                brew_url="https://raw.githubusercontent.com/Homebrew/install/master/install"
+                brew_url="https://raw.githubusercontent.com/Homebrew/install/master/install.sh"
                 bdb_command "Installing Homebrew"
-                /usr/bin/ruby -e "$(curl -fsSL ${brew_url})"
+                /bin/bash -c "$(curl -fsSL ${brew_url})"
                 bdb_success "installing Homebrew"
 
             else
@@ -306,14 +306,14 @@
 
         bdb_info_in "[REPO] detect dotfiles or clone remote repository"
 
-        bdb_run "Looking for dotfiles repository"
+        bdb_run "Checking dotfiles repository"
         # Set bare repo dir
         repo_path="${HOME}/.dfbare"
         mkdir -p "${repo_path}"
         # If bare repo is missing
         if ! git --git-dir=${repo_path} rev-parse --is-bare-repository &>/dev/null; then
 
-            bdb_outcome "not found"
+            bdb_outcome "missing"
             # Fresh system
             _FRESH_="true"
 
