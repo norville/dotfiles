@@ -256,7 +256,7 @@
                 bdb_outcome "missing"
                 brew_url="https://raw.githubusercontent.com/Homebrew/install/master/install.sh"
                 bdb_command "Installing Homebrew"
-                /bin/bash -c "$(curl -fsSL ${brew_url})"
+                CI=1 /bin/bash -c "$(curl -fsSL ${brew_url})"
                 bdb_success "installing Homebrew"
 
             else
