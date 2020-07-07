@@ -104,8 +104,8 @@
         # Print prompt
         echo -en "${MGN_COL}"
         echo -en "\n|???|"
-        echo -en "\n|???| ${1:-"*** UNKNOWN ***"}? [y|N] > "
-        echo -en "\n|???|"
+        echo -en "\n|???| ${1:-"*** UNKNOWN ***"}? [y|N] >"
+        echo -en "\n|???| "
         echo -en "${RST_COL}"
 
         # Read user input: suppress output, read 1 char
@@ -169,6 +169,7 @@
         bdb_error "Message: '${err_message}'"
         bdb_error "Exiting now!"
 
+        printf -- "\n"
         exit "${err_value}"
 
     }
@@ -179,10 +180,9 @@
         bdb_info_in "[SYS] detect local system and prepare for bootstrap"
 
         # Get admin privileges
-        bdb_command "Getting admin privileges"
+        bdb_run "Getting admin privileges"
         #TODO no newline after password input
         sudo -v
-        bdb_success "getting admin privileges"
 
         # Detect local system
         bdb_run "Detecting local system"
