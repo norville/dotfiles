@@ -248,6 +248,7 @@
 
             fi
 
+            # brew check
             bdb_run "Checking Homebrew"
             # If brew is missing
             if ! type brew &>/dev/null; then
@@ -256,7 +257,7 @@
                 bdb_outcome "missing"
                 brew_url="https://raw.githubusercontent.com/Homebrew/install/master/install.sh"
                 bdb_command "Installing Homebrew"
-                CI=1 /bin/bash -c "$(curl -fsSL ${brew_url})"
+                CI=1 /bin/bash -c "$(curl -fsSL ${brew_url})" # bot mode: CI=1
                 bdb_success "installing Homebrew"
 
             else
@@ -268,6 +269,12 @@
                 bdb_success "updating Homebrew"
 
             fi
+
+            # Mac App Store login
+            bdb_command "Signing in Mac App Store"
+            mas signin bassanimarco79@gmail.com
+            bdb_success "signing in Mac App Store"
+
             ;;
 
         debian) # System is Debian

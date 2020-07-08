@@ -1,3 +1,5 @@
+# TODO - http://joshaven.com/resources/tools/winbox-for-mac/
+
 # Taps
 tap "homebrew/core"
 tap "homebrew/bundle"
@@ -5,12 +7,17 @@ tap "homebrew/cask"
 tap "homebrew/cask-fonts"
 
 # Basic apps
-brew "vim"
-brew "git"
-brew "wget"
 brew "curl"
-brew "zsh"
+brew "git"
+brew "mackup"
+brew "mas"
+brew "openssh"
 brew "shfmt"
+#brew "tmux"
+brew "tree"
+brew "vim"
+brew "wget"
+brew "zsh"
 
 # GNU core utilities (those that come with macOS are outdated)
 brew "coreutils"
@@ -18,30 +25,25 @@ brew "moreutils"
 brew "findutils"
 
 # Frameworks
-brew "python"
+#brew "python"
 #brew "ruby"
 #brew "node"
 #brew "yarn"
 
-# Other tools
-brew "openssh"
-brew "tmux"
-brew "tree"
-brew "mackup"
-brew "mas"
-
 # Apps not on Mac App Store
 #cask "anaconda"
-cask "docker"
-#cask "dropbox"
-cask "firefox"
+#cask "docker"
+cask "dropbox"
+#cask "firefox"
 #cask "forklift"
 #cask "google-chat"
 cask "google-chrome"
 cask "handbrake"
 cask "iterm2"
+cask "microsoft-edge"
+cask "microsoft-teams"
 cask "skype"
-#cask "sonos"
+cask "sonos"
 #cask "spectacle"
 cask "spotify"
 cask "teamviewer"
@@ -58,7 +60,7 @@ mas "BBEdit", id: 404009241
 mas "Keynote", id: 409183694
 mas "Kindle", id: 405399194
 mas "Mactracker", id: 430255202
-#mas "MeisterTask", id: 1051767777
+mas "MeisterTask", id: 1051767777
 mas "Microsoft Excel", id: 462058435
 mas "Microsoft OneNote", id: 784801555
 mas "Microsoft PowerPoint", id: 462062816
