@@ -554,7 +554,7 @@
             fura_name="Fura Mono Regular Nerd Font.otf"
             meslo_name="Meslo LG S Regular Nerd Font.ttf"
             fura_url="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/FiraMono/Regular/complete/Fura%20Mono%20Regular%20Nerd%20Font%20Complete.otf"
-            fura_url="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Meslo/S/Regular/complete/Meslo%20LG%20S%20Regular%20Nerd%20Font%20Complete.ttf"
+            meslo_url="https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Meslo/S/Regular/complete/Meslo%20LG%20S%20Regular%20Nerd%20Font%20Complete.ttf"
 
             # Download fonts
             mkdir -p "${font_path}"
@@ -562,7 +562,7 @@
             curl -fLo "${font_path}/${fura_name}" "${fura_url}"
             bdb_success "installing ${fura_name}"
             bdb_command "Installing ${meslo_name}"
-            curl -fLo "${font_path}/${meslo_name}" "${fura_url}"
+            curl -fLo "${font_path}/${meslo_name}" "${meslo_url}"
             bdb_success "installing ${meslo_name}"
 
             # Update fonts cach
