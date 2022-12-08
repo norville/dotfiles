@@ -1,0 +1,45 @@
+# Compiled source #
+*.class
+*.com
+*.dll
+*.exe
+*.o
+*.pyc
+*.so
+*.zwc
+
+# Packages #
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+*.log
+*.sql
+*.sqlite
+
+# OS generated files #
+*.cache
+*~
+.DS_Store
+.DS_Store?
+.ICEauthority
+.Spotlight-V100
+.Trashes
+.Xauthority
+._*
+Icon
+Thumbs.db
+ehthumbs.db
+
+# App related files #
+*.swp
+.netrwhist
+bower_components
+brewfile.lock.json
+node_modules

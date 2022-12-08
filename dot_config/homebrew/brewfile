@@ -1,0 +1,55 @@
+# Taps
+tap "homebrew/core"
+tap "homebrew/bundle"
+tap "homebrew/cask"
+tap "homebrew/cask-fonts"
+
+# Basic apps
+brew "bat"
+brew "curl"
+brew "git"
+brew "mackup"
+brew "mas"
+brew "openssh"
+brew "shfmt"
+brew "tmux"
+brew "tree"
+brew "vim"
+brew "wget"
+brew "zsh"
+
+# GNU core utilities (those that come with macOS are outdated)
+brew "coreutils"
+brew "moreutils"
+brew "findutils"
+
+# Frameworks
+brew "python"
+
+# Apps not on Mac App Store
+cask "handbrake"
+cask "iterm2"
+cask "tor-browser"
+cask "transmission"
+cask "visual-studio-code"
+cask "vlc"
+
+# Apps from Mac App Store
+mas "BBEdit", id: 404009241
+mas "Keynote", id: 409183694
+mas "Kindle", id: 405399194
+mas "Numbers", id: 409203825
+mas "Pages", id: 409201541
+mas "Pixelmator", id: 407963104
+mas "Spark", id: 1176895641
+mas "The Unarchiver", id: 425424353
+mas "Telegram", id: 747648890
+mas "WhatsApp", id: 1147396723
+mas "Moom", id: 419330170
+mas "Xcode", id: 497799835
+
+# Fonts
+cask "font-fira-mono"
+cask "font-fira-mono-nerd-font"
+cask "font-meslo-lg"
+cask "font-meslo-lg-nerd-font"

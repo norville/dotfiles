@@ -1,0 +1,15 @@
+# Upgrade pip
+#pip3 install -U -r requirements.txt
+
+# Required PyPI packages
+autopep8
+flake8
+mccabe
+pip
+protobuf
+pycodestyle
+pyflakes
+setuptools
+six
+toml
+wheel
