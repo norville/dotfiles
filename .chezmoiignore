@@ -2,13 +2,13 @@ README.md
 
 # ignore these files unless OS is darwin
 {{- if ne .chezmoi.os "darwin" }}
-dot_config/homebrew/
-dot_config/mackup/
+.config/homebrew/
+.config/mackup/
 {{- end }}
 
 # ignore these files unless OS is linux
 {{- if ne .chezmoi.os "linux" }}
-dot_config/pkgfile
+.config/pkgfile
 {{- end }}
 
 # ignore these files unless OS is windows
