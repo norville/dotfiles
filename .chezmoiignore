@@ -2,8 +2,8 @@ README.md
 
 # ignore these files unless OS is darwin
 {{- if ne .chezmoi.os "darwin" }}
-homebrew/
-mackup/
+.config/homebrew/
+.config/mackup/
 {{- end }}
 
 # ignore these files unless OS is linux
