@@ -74,7 +74,7 @@ export FPATH=${BREW_PREFIX}/share/zsh/site-functions:${FPATH}
 eval "$(gdircolors ${ls_colors})"
 alias ls='gls -v --color=auto'
 
-{{- else eq .chezmoi.os "linux" }}
+{{- else if eq .chezmoi.os "linux" }}
 
 # Start keychain ssh-agent
 if type keychain &>/dev/null; then
@@ -85,7 +85,7 @@ fi
 eval "$(dircolors ${ls_colors})"
 alias ls='ls -v --color=auto'
 
-{{- else eq .chezmoi.os "windows" }}
+{{- else if eq .chezmoi.os "windows" }}
 # windows
 {{- end }}
 
