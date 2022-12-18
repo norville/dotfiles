@@ -3,7 +3,13 @@
 {{-   $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
 {{- end -}}
 
+{{- $packages := "" -}}
+{{- if eq .chezmoi.os "linux" -}}
+{{-     $packages = printf "bat curl keychain tree vim wget zsh" -}}
+{{- end -}}
+
 [data]
     osid = {{ $osid | quote }}
     email_mac = "bassanimarco79@gmail.com"
     email_dev = "ing.norville@protonmail.com"
+    packages = {{ $packages | quote }}
