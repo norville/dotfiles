@@ -1,7 +1,6 @@
 {{- if eq .osid "darwin" }}
 
-#!/usr/bin/env bash
-# ensure new process is started
+#!/bin/bash
 
 sudo -v # become admin
 
@@ -34,8 +33,7 @@ mas signin {{- .email_mac | quote }}
 
 {{- else if eq .osid "linux-ubuntu" }}
 
-#!/usr/bin/env bash
-# ensure new process is started
+#!/usr/bin/bash
 
 sudo -v # become admin
 
