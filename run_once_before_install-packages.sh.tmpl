@@ -1,10 +1,8 @@
 {{- if eq .osid "darwin" -}}
 #!/bin/bash
 
-sudo -v # become admin
-
 # update the system
-softwareupdate -i -a --agree-to-license
+sudo oftwareupdate -i -a --agree-to-license
 
 # install Comman Line Tools if missing
 if  ! type xcode-select &>/dev/null || \
@@ -12,12 +10,12 @@ if  ! type xcode-select &>/dev/null || \
     ! test -d "${clt_path}" || \
     ! test -x "${clt_path}"; then
 
-    softwareupdate -i "$(   softwareupdate -l | \
-                            grep '*.*Command Line' | \
-                            awk -F ":" '{print $2}' | \
-                            sed -e 's/^ *//' | \
-                            tr -d '\n' \
-                        )" --agree-to-license
+    sudo softwareupdate -i "$(  sudo softwareupdate -l | \
+                                grep '*.*Command Line' | \
+                                awk -F ":" '{print $2}' | \
+                                sed -e 's/^ *//' | \
+                                tr -d '\n' \
+                            )" --agree-to-license
 
 # install Homebrew if missing
 type brew &>/dev/null || NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL \
@@ -33,13 +31,11 @@ mas signin {{- .email_mac | quote }}
 {{- else if eq .osid "linux-ubuntu" -}}
 #!/usr/bin/bash
 
-sudo -v # become admin
-
 # update the system
-apt update && apt full-upgrade -y && apt autoremove -y && apt autoclean -y
+sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove -y && sudo apt autoclean -y
 
 # install required packages
-apt install -y {{ .packages }}
+sudo apt install -y {{ .packages }}
 
 {{- else if eq .osid "windows" }}
 
