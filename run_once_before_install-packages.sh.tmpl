@@ -1,5 +1,4 @@
-{{- if eq .osid "darwin" }}
-
+{{- if eq .osid "darwin" -}}
 #!/bin/bash
 
 sudo -v # become admin
@@ -31,8 +30,7 @@ mas signin {{- .email_mac | quote }}
 # install required packages
 #brew bundle install --file=""
 
-{{- else if eq .osid "linux-ubuntu" }}
-
+{{- else if eq .osid "linux-ubuntu" -}}
 #!/usr/bin/bash
 
 sudo -v # become admin
