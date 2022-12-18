@@ -59,7 +59,7 @@ timestyle='--time-style="+%Y-%m-%d %H:%M:%S"'
 
 ### OS CONFIG #################################################################
 
-{{- if eq .chezmoi.os "darwin" }}
+{{- if eq .osid "darwin" }}
 
 # configure homebrew path and completions for zsh
 BREW_PREFIX=$(brew --prefix)
@@ -74,7 +74,7 @@ export FPATH=${BREW_PREFIX}/share/zsh/site-functions:${FPATH}
 eval "$(gdircolors ${ls_colors})"
 alias ls='gls -v --color=auto'
 
-{{- else if eq .chezmoi.os "linux" }}
+{{- else if eq .osid "linux-ubuntu" }}
 
 # Start keychain ssh-agent
 if type keychain &>/dev/null; then
@@ -85,7 +85,7 @@ fi
 eval "$(dircolors ${ls_colors})"
 alias ls='ls -v --color=auto'
 
-{{- else if eq .chezmoi.os "windows" }}
+{{- else if eq .osid "windows" }}
 # windows
 {{- end }}
 

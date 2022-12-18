@@ -1,0 +1,52 @@
+{{- if eq .osid "darwin" }}
+
+#!/usr/bin/env bash
+# ensure new process is started
+
+sudo -v # become admin
+
+# update the system
+softwareupdate -i -a --agree-to-license
+
+# install Comman Line Tools if missing
+if  ! type xcode-select &>/dev/null || \
+    ! clt_path="$(xcode-select --print-path &>/dev/null)" || \
+    ! test -d "${clt_path}" || \
+    ! test -x "${clt_path}"; then
+
+    softwareupdate -i "$(   softwareupdate -l | \
+                            grep '*.*Command Line' | \
+                            awk -F ":" '{print $2}' | \
+                            sed -e 's/^ *//' | \
+                            tr -d '\n' \
+                        )" --agree-to-license
+
+# install Homebrew if missing
+type brew &>/dev/null || NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL \
+            https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+
+# sign in into Mac App Store
+type mas &>/dev/null || brew install mas
+mas signin {{- .email_mac | quote }}
+
+# install required packages
+#brew bundle install --file=""
+
+{{- else if eq .osid "linux-ubuntu" }}
+
+#!/usr/bin/env bash
+# ensure new process is started
+
+sudo -v # become admin
+
+# update the system
+apt update && apt full-upgrade -y && apt autoremove -y && apt autoclean -y
+
+# install required packages
+#apt install -y "$(xargs -a <(awk '! /^ *(#|$)/' "") -r)"
+
+{{- else if eq .osid "windows" }}
+
+# windows
+
+{{- end }}
