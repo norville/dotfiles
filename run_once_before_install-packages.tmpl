@@ -43,7 +43,7 @@ sudo -v # become admin
 apt update && apt full-upgrade -y && apt autoremove -y && apt autoclean -y
 
 # install required packages
-#apt install -y "$(xargs -a <(awk '! /^ *(#|$)/' "") -r)"
+
 
 {{- else if eq .osid "windows" }}
 
