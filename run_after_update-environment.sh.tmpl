@@ -1,0 +1,16 @@
+{{- if eq .osid "darwin" -}}
+##!/bin/bash
+
+{{- else if eq .osid "linux-ubuntu" -}}
+#!/usr/bin/bash
+
+# update antigen
+antigen_dir="${HOME}/.antigen"
+[[ -d "${antigen_dir}" ]] && rm -rf "${antigen_dir}/*" || mkdir -p "${antigen_dir}"
+git clone https://github.com/zsh-users/antigen.git "${antigen_dir}"
+
+{{- else if eq .osid "windows" }}
+
+# windows
+
+{{- end }}
