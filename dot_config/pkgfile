@@ -1,7 +1,9 @@
 bat
 curl
 git
+gnupg
 keychain
+software-properties-common
 tree
 vim
 wget
