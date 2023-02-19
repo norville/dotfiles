@@ -1,10 +1,14 @@
-{{- if eq .osid "darwin" -}}
 #!/bin/bash
 
-{{- else if eq .osid "linux-ubuntu" -}}
-#!/usr/bin/bash
+{{- if eq .osid "darwin" -}}
 
-{{- end }}
+{{- else if eq .osid "linux-ubuntu" -}}
+
+{{- else if eq .osid "linux-fedora" -}}
+
+{{- else if eq .osid "linux-arch" -}}
+
+{{- end -}}
 
 # update zsh plugins
 antigen_dir="${HOME}/.antigen"

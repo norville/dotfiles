@@ -3,6 +3,7 @@ tap "homebrew/core"
 tap "homebrew/bundle"
 tap "homebrew/cask"
 tap "homebrew/cask-fonts"
+tap "hashicorp/tap"
 
 # Basic apps
 brew "bat"
@@ -25,6 +26,8 @@ brew "findutils"
 
 # Frameworks
 brew "python"
+brew "ansible"
+brew "terraform"
 
 # Apps not on Mac App Store
 cask "handbrake"

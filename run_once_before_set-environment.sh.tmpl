@@ -1,9 +1,9 @@
-{{- if eq .osid "darwin" -}}
 #!/bin/bash
+
+{{- if eq .osid "darwin" -}}
 
 # update the system
 sudo softwareupdate -i -a --agree-to-license
-
 # install Comman Line Tools if missing
 if  ! type xcode-select &>/dev/null || \
     ! clt_path="$(xcode-select --print-path &>/dev/null)" || \
@@ -29,24 +29,34 @@ mas signin {{- .email_mac | quote }}
 #brew bundle install --file=""
 
 {{- else if eq .osid "linux-ubuntu" -}}
-#!/usr/bin/bash
 
 # update the system
-sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove -y && sudo apt autoclean -y
-
+sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y && sudo apt autoclean -y
 # install required packages
-sudo apt install -y {{ .packages }}
-
+xargs -a "${HOME}"/.config/pkglist sudo apt install -y
 # install ansible and terraform
+sudo apt install -y gnupg software-properties-common
 sudo add-apt-repository --yes --update ppa:ansible/ansible
 wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt update && sudo apt install -y ansible terraform
+
+{{- else if eq .osid "linux-arch" -}}
+
+# update the system and install required packages
+sudo pacman -Syu --needed - < "${HOME}"/.config/pkglist && sudo pacman -Sc
+
+{{- else if eq .osid "linux-fedora" -}}
+
+# update the system
+sudo dnf -y upgrade && sudo dnf -y autoremove && sudo dnf -y clean all
+# install required packages
+xargs -a "${HOME}"/.config/pkglist sudo -y install
+
+{{- end -}}
 
 # set zsh as the login shell
 zsh_path="$(which zsh)"
 if [[ "${SHELL}" != "${zsh_path}" ]]; then
     sudo chsh -s "${zsh_path}" "${USER}"
 fi
-
-{{- end }}
