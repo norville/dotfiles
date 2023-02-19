@@ -3,7 +3,7 @@
 {{-     $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
 {{- end -}}
 {{- $email_mac := "" -}}
-{{- if eq .osid "darwin" -}}
+{{- if eq $osid "darwin" -}}
 {{-     $email_mac = "bassanimarco79@gmail.com" -}}
 {{- end -}}
 
