@@ -76,11 +76,6 @@ alias ls='gls -v --color=auto'
 
 {{- else if eq .osid "linux-ubuntu" }}
 
-# Start keychain ssh-agent
-if type keychain &>/dev/null; then
-    eval $(keychain --eval --quiet --nogui --noask norville_at_github norville_at_gitlab)
-fi
-
 # configure file listing
 eval "$(dircolors ${ls_colors})"
 alias ls='ls -v --color=auto'
