@@ -33,7 +33,7 @@ mas signin {{- .email_mac | quote -}}
 # update the system
 sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y && sudo apt autoclean -y
 # install required packages
-xargs -a "${HOME}"/.config/pkglist sudo apt install -y
+xargs -a "${HOME}"/.config/pkglist sudo apt -y install
 # install ansible and terraform
 sudo apt install -y gnupg software-properties-common
 sudo add-apt-repository --yes --update ppa:ansible/ansible
@@ -54,7 +54,7 @@ sudo pacman -Syu --needed - < "${HOME}"/.config/pkglist && sudo pacman -Sc
 # update the system
 sudo dnf -y upgrade && sudo dnf -y autoremove && sudo dnf -y clean all
 # install required packages
-xargs -a "${HOME}"/.config/pkglist sudo -y install
+xargs -a "${HOME}"/.config/pkglist sudo dnf -y install
 
 {{ end -}}
 
