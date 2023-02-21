@@ -77,7 +77,7 @@ alias ls='gls -v --color=auto'
 {{- else if eq .osid "linux-ubuntu" }}
 
 # configure file listing
-eval "$(dircolors ${ls_colors})"
+#eval "$(dircolors ${ls_colors})"
 alias ls='ls -v --color=auto'
 
 {{- else if eq .osid "windows" }}
