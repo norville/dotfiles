@@ -17,4 +17,3 @@ let g:airline#extensions#tabline#formatter = 'unique_tail' "default | jsformatte
 if g:colors_name == 'github'
     let g:airline_theme='github'
 endif
-#let g:airline_theme = "github"
