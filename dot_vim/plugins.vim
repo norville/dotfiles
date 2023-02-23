@@ -20,7 +20,8 @@ call plug#begin()
 """ Plugins list
 Plug 'altercation/vim-colors-solarized'
 Plug 'nathanaelkane/vim-indent-guides'
-Plug 'morhetz/gruvbox'
+#Plug 'morhetz/gruvbox'
+Plug 'cormacrelf/vim-colors-github'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-surround'
