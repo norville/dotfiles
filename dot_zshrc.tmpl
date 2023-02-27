@@ -50,9 +50,10 @@ path=(~/bin /usr/local/sbin $path[@])
 
 ### LISTING ###################################################################
 
-ls_colors="${HOME}/.config/dircolors/gruvbox"
+# define dircolors theme
+ls_colors="${HOME}/.config/dircolors/onedark"
 
-# set time format
+# define time format
 timestyle='--time-style="+%Y-%m-%d %H:%M:%S"'
 
 ###############################################################################
@@ -77,11 +78,13 @@ alias ls='gls -v --color=auto'
 {{- else if eq .osid "linux-ubuntu" }}
 
 # configure file listing
-#eval "$(dircolors ${ls_colors})"
+eval "$(dircolors ${ls_colors})"
 alias ls='ls -v --color=auto'
 
 {{- else if eq .osid "windows" }}
+
 # windows
+
 {{- end }}
 
 ###############################################################################
