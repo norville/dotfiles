@@ -51,10 +51,8 @@ sudo pacman -Syu --needed - < "${HOME}"/.config/pkglist && sudo pacman -Sc
 
 {{ else if eq .osid "linux-fedora" -}}
 
-# update the system
-sudo dnf -y upgrade && sudo dnf -y autoremove && sudo dnf -y clean all
-# install required packages
-xargs -a "${HOME}"/.config/pkglist sudo dnf -y install
+# update the system and install required packages
+sudo dnf -y upgrade && xargs -a "${HOME}"/.config/pkglist sudo dnf -y install
 
 {{ end -}}
 
