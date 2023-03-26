@@ -77,6 +77,11 @@ alias ls='gls -v --color=auto'
 
 {{- else if eq .osid "linux-ubuntu" }}
 
+# setup ssh-agent plugin
+zstyle :omz:plugins:ssh-agent agent-forwarding yes
+zstyle :omz:plugins:ssh-agent lazy yes
+zstyle :omz:plugins:ssh-agent identities basdev_user norville_at_basnet norville_at_github
+
 # configure file listing
 eval "$(dircolors ${ls_colors})"
 alias ls='ls -v --color=auto'

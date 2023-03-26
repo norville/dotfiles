@@ -27,6 +27,7 @@ antigen theme romkatv/powerlevel10k powerlevel10k
 
 # Load plugins
 #antigen bundle tmux
+antigen bundle ssh-agent
 
 # Last plugins to load
 #antigen bundle zsh-users/zsh-autosuggestions
