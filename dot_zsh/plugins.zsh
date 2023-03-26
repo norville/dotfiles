@@ -26,8 +26,10 @@ antigen use oh-my-zsh
 antigen theme romkatv/powerlevel10k powerlevel10k
 
 # Load plugins
-#antigen bundle tmux
+antigen bundle aliases
+antigen bundle ansible
 antigen bundle ssh-agent
+antigen bundle tmux
 
 # Last plugins to load
 #antigen bundle zsh-users/zsh-autosuggestions
