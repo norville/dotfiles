@@ -86,6 +86,9 @@ zstyle :omz:plugins:ssh-agent identities basdev_user norville_at_basnet norville
 eval "$(dircolors ${ls_colors})"
 alias ls='ls -v --color=auto'
 
+# alias bat
+alias bat="batcat"
+
 {{- else if eq .osid "windows" }}
 
 # windows
