@@ -11,7 +11,7 @@ brew "curl"
 brew "git"
 brew "mackup"
 brew "mas"
-brew "openssh"
+# brew "openssh"
 brew "shfmt"
 brew "tmux"
 brew "tree"
@@ -43,13 +43,13 @@ mas "Keynote", id: 409183694
 mas "Kindle", id: 405399194
 mas "Numbers", id: 409203825
 mas "Pages", id: 409201541
-mas "Pixelmator", id: 407963104
-mas "Spark", id: 1176895641
+# mas "Pixelmator", id: 407963104
+# mas "Spark", id: 1176895641
 mas "The Unarchiver", id: 425424353
-mas "Telegram", id: 747648890
+# mas "Telegram", id: 747648890
 mas "WhatsApp", id: 1147396723
 mas "Moom", id: 419330170
-mas "Xcode", id: 497799835
+# mas "Xcode", id: 497799835
 
 # Fonts
 cask "font-fira-mono"
