@@ -16,6 +16,9 @@ fi
 # Load Antigen
 source "${ATGN_DIR}"/antigen.zsh
 
+# Load BEFORE Oh-My-ZSH
+antigen bundle ssh-agent
+
 # Load Oh-My-ZSH
 antigen use oh-my-zsh
 
@@ -28,10 +31,9 @@ antigen theme romkatv/powerlevel10k powerlevel10k
 # Load plugins
 antigen bundle aliases
 antigen bundle ansible
-antigen bundle ssh-agent
 antigen bundle tmux
 
-# Last plugins to load
+# Load LAST
 #antigen bundle zsh-users/zsh-autosuggestions
 antigen bundle zsh-users/zsh-completions
 antigen bundle zsh-users/zsh-syntax-highlighting

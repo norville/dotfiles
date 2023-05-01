@@ -71,6 +71,11 @@ PATH="${BREW_PREFIX}/lib/ruby/gems/3.0.0/bin:${PATH}"
 export PATH
 export FPATH=${BREW_PREFIX}/share/zsh/site-functions:${FPATH}
 
+# setup ssh-agent plugin
+zstyle :omz:plugins:ssh-agent quiet yes
+zstyle :omz:plugins:ssh-agent lazy yes
+zstyle :omz:plugins:ssh-agent ssh-add-args --apple-load-keychain
+
 # configure file listing
 eval "$(gdircolors ${ls_colors})"
 alias ls='gls -v --color=auto'
@@ -78,9 +83,8 @@ alias ls='gls -v --color=auto'
 {{- else if eq .osid "linux-ubuntu" }}
 
 # setup ssh-agent plugin
-zstyle :omz:plugins:ssh-agent agent-forwarding yes
+zstyle :omz:plugins:ssh-agent quiet yes
 zstyle :omz:plugins:ssh-agent lazy yes
-zstyle :omz:plugins:ssh-agent identities basdev_user norville_at_basnet norville_at_github
 
 # configure file listing
 eval "$(dircolors ${ls_colors})"
