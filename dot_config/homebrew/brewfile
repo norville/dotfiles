@@ -25,8 +25,9 @@ brew "moreutils"
 brew "findutils"
 
 # Frameworks
-brew "python"
 brew "ansible"
+brew "go"
+brew "python"
 brew "terraform"
 
 # Apps not on Mac App Store
