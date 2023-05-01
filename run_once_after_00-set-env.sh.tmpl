@@ -2,8 +2,11 @@
 
 {{ if eq .osid "darwin" -}}
 
+# sign in into Mac App Store
+
 # update the system
-sudo softwareupdate -i -a --agree-to-license
+#sudo softwareupdate -i -a --agree-to-license
+
 # install Comman Line Tools if missing
 if  ! type xcode-select &>/dev/null || \
     ! clt_path="$(xcode-select --print-path &>/dev/null)" || \
@@ -16,17 +19,14 @@ if  ! type xcode-select &>/dev/null || \
                                 sed -e 's/^ *//' | \
                                 tr -d '\n' \
                             )" --agree-to-license
+fi
 
 # install Homebrew if missing
 type brew &>/dev/null || NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL \
             https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 
-# sign in into Mac App Store
-type mas &>/dev/null || brew install mas
-mas signin {{- .email_mac | quote -}}
-
 # install required packages
-#brew bundle install --file=""
+brew bundle install --file=".config/homebrew/brewfile"
 
 {{ else if eq .osid "linux-ubuntu" -}}
 
