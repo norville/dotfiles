@@ -22,4 +22,4 @@ curl    -fLo "${HOME}"/.vim/autoload/plug.vim --create-dirs \
 vim -es -u "${HOME}"/.vimrc -i NONE -c "PlugUpdate" -c "qa"
 
 # Upgrade PyPI packages
-pip3 install -U -r requirements.txt
+pip3 install -U -r "${HOME}"/.config/pip/requirements.txt
