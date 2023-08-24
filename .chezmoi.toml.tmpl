@@ -1,13 +1,12 @@
+{{- /* Detect OS and distro */ -}}
 {{- $osid := .chezmoi.os -}}
 {{- if hasKey .chezmoi.osRelease "id" -}}
 {{-     $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
 {{- end -}}
-{{- $email_mac := "" -}}
-{{- if eq $osid "darwin" -}}
-{{-     $email_mac = "bassanimarco79@gmail.com" -}}
-{{- end -}}
 
 [data]
     osid = {{ $osid | quote }}
-    email_mac = {{ $email_mac | quote }}
-    email_dev = "ing.norville@protonmail.com"
+    email = "ing.norville@protonmail.com"
+
+[diff]
+    command = "vimdiff"
