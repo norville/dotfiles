@@ -7,6 +7,7 @@ tap "hashicorp/tap"
 
 # Basic apps
 brew "bat"
+brew "chezmoi"
 brew "curl"
 brew "git"
 brew "mackup"
