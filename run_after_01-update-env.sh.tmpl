@@ -5,6 +5,8 @@
 # update homebrew and installed formulae
 brew upgrade
 
+{{ else if eq .osid "linux-debian" -}}
+
 {{ else if eq .osid "linux-ubuntu" -}}
 
 {{ else if eq .osid "linux-fedora" -}}

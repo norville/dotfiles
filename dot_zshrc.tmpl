@@ -80,7 +80,7 @@ zstyle :omz:plugins:ssh-agent ssh-add-args --apple-load-keychain
 eval "$(gdircolors ${ls_colors})"
 alias ls='gls -v --color=auto'
 
-{{- else if eq .osid "linux-ubuntu" }}
+{{- else if eq .chezmoi.os "linux" }}
 
 # setup ssh-agent plugin
 zstyle :omz:plugins:ssh-agent quiet yes

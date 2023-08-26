@@ -28,7 +28,7 @@ type brew &>/dev/null || NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL \
 # install required packages
 brew bundle install --file=".config/homebrew/brewfile"
 
-{{ else if eq .osid "linux-ubuntu" -}}
+{{ else if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") -}}
 
 # update the system
 sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y && sudo apt autoclean -y
