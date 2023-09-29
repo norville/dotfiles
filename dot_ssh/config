@@ -1,0 +1,16 @@
+# Required for macOS 10.12+
+# Automatically load macOS ssh-agent and store passphrases in Keychain Access
+Host *
+    AddKeysToAgent yes
+    UseKeychain yes
+
+Host gitlab.com
+    IdentityFile ~/.ssh/norville_at_gitlab
+
+Host github.com
+    IdentityFile ~/.ssh/norville_at_github
+
+Host basnas baspve basphl basphl-2 basunf baspms apt-cacher basdev bashmb
+    Port 25355
+    User norville
+    IdentityFile ~/.ssh/norville_at_basnet
