@@ -311,8 +311,7 @@
     ### Bootstrap end
 
     # Close this session
-    bdb_info_out "Logging out user '${USER}'"
-    # TODO - run command to close session
+    bdb_info_out "Please logout and log back in to load your dotfiles"
     printf -- "\n"
     exit 0
 
