@@ -147,7 +147,7 @@
     set -o pipefail # Exit if a pipeline's commands returns non-zero
 
     ### Bootstrap begin
-    bdb_info_in "Welcome to Bassa Dotfiles Bootstrapper (BDB)."
+    bdb_info_in "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
 
     # Check the system and install requirements
     bdb_info_in "This script will detect the operating system and install all requirements to clone your dotfiles"
@@ -304,7 +304,7 @@
     else
 
         # Do not clone dotfiles
-        bdb_info_in "Clone your dotfiles anytime with command 'chezmoi init --apply --ssh <github_username>'"
+        bdb_info_in "Clone your dotfiles anytime with command 'chezmoi init --apply <github_username>'"
 
     fi
 
