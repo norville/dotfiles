@@ -294,7 +294,7 @@
     bdb_alert ""
 
     # Clone dotfiles now?
-    if [[ $(bdb_ask "Do you want to clone the dotfiles now") ]]; then
+    if bdb_ask "Do you want to clone the dotfiles now"; then
 
         # Clone dotfiles via Chezmoi
         bdb_command "Cloning dotfiles"
