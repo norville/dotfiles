@@ -2,8 +2,20 @@ bat
 curl
 git
 gpg
+python3
 tmux
 tree
 vim
 wget
 zsh
+{{ if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") -}}
+python3-dev
+python3-venv
+python3-pip
+{{ else if eq .osid "linux-arch" -}}
+python-pip
+{{ else if eq .osid "linux-fedora" -}}
+python3-devel
+python3-pip
+python3-wheel
+{{ end -}}
