@@ -4,8 +4,10 @@ flake8
 mccabe
 pip
 protobuf
+proxmoxer
 pycodestyle
 pyflakes
+requests
 setuptools
 six
 toml
