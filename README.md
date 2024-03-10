@@ -1,18 +1,21 @@
 # SETUP NEW MAC
 
-1. Copy SSH keys
+1. Copy SSH keys.
 
-2. Install Homebrew
-```
-NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-```
+2. Install Homebrew:
 
-3. Install chezmoi
-```
-brew install chezmoi
-```
+    ```bash
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+    ```
 
-4. Setup apps and preferences
-```
-chezmoi init --apply --ssh norville
-```
+3. Install chezmoi:
+
+    ```bash
+    brew install chezmoi
+    ```
+
+4. Setup apps and preferences:
+
+    ```bash
+    chezmoi init --apply --ssh norville
+    ```
