@@ -31,5 +31,5 @@ script="https://raw.githubusercontent.com/norville/dotfiles/main/dot_config/boot
 3. Setup apps and preferences:
 
     ```bash
-    chezmoi init --apply --ssh norville
+    chezmoi init --apply norville
     ```

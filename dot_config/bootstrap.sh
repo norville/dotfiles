@@ -298,7 +298,7 @@
 
         # Clone dotfiles via Chezmoi
         bdb_command "Cloning dotfiles"
-        chezmoi init --apply --ssh norville
+        chezmoi init --apply norville
         bdb_success "cloning dotfiles"
 
     else
