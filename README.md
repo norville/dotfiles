@@ -3,8 +3,8 @@
 ## AUTO SETUP
 
 ```bash
-script="https://raw.githubusercontent.com/norville/dotfiles/main/dot_config/bootstrap.sh"
-[[ type curl &>/dev/null ]] && \
+script="https://raw.githubusercontent.com/norville/dotfiles/main/dot_config/bootstrap.sh"; \
+[[ $(type curl &>/dev/null) ]] && \
 /bin/bash -c "$(curl -fsSL $script)" || \
 /bin/bash -c "$(wget -qO- $script)"
 ```

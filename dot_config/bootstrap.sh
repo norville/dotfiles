@@ -51,7 +51,7 @@
         echo -en "${WHT_COL}"
         echo -en "\n|BDB| +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
         echo -en "\n|BDB|"
-        echo -en "\n|BDB| ${1:-"*** UNKNOWN ***"} ."
+        echo -en "\n|BDB| ${1:-"*** UNKNOWN ***"}."
         echo -en "\n|BDB|"
         echo -en "${RST_COL}"
 
@@ -62,7 +62,7 @@
 
         echo -en "${WHT_COL}"
         echo -en "\n|BDB|"
-        echo -en "\n|BDB| ${1:-"*** UNKNOWN ***"} ."
+        echo -en "\n|BDB| ${1:-"*** UNKNOWN ***"}."
         echo -en "\n|BDB|"
         echo -en "\n|BDB| ---------------------------------------------------------------------------------"
         echo -en "${RST_COL}"
@@ -72,21 +72,21 @@
     ## Print run message
     bdb_run() {
 
-        echo -en "\n${BLU_COL}|###| ${1:-"*** UNKNOWN ***"} ...${RST_COL}"
+        echo -en "\n${BLU_COL}|###| ${1:-"*** UNKNOWN ***"}...${RST_COL}"
 
     }
 
     ## Print outcome message
     bdb_outcome() {
 
-        echo -en "${CYN_COL} ${1:-"*** UNKNOWN ***"} .${RST_COL}"
+        echo -en "${CYN_COL} ${1:-"*** UNKNOWN ***"}.${RST_COL}"
 
     }
 
     ## Print message before command
     bdb_command() {
 
-        echo -e "\n${CYN_COL}|>>>| ${1:-"*** UNKNOWN ***"} :${RST_COL}"
+        echo -e "\n${CYN_COL}|>>>| ${1:-"*** UNKNOWN ***"}:${RST_COL}"
 
     }
 
@@ -150,7 +150,7 @@
     bdb_info_in "Welcome to Bassa Dotfiles Bootstrapper (BDB)."
 
     # Check the system and install requirements
-    bdb_info_in "This script will detect the operating system and install all requirements to clone your dotfiles."
+    bdb_info_in "This script will detect the operating system and install all requirements to clone your dotfiles"
 
     # Get admin privileges
     bdb_run "Getting admin privileges"
