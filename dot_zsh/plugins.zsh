@@ -30,11 +30,11 @@ antigen theme romkatv/powerlevel10k powerlevel10k
 
 # Load plugins
 antigen bundle aliases
-#antigen bundle ansible
-#antigen bundle tmux
+antigen bundle ansible
+antigen bundle tmux
 
 # Load LAST
-#antigen bundle zsh-users/zsh-autosuggestions
+antigen bundle zsh-users/zsh-autosuggestions
 antigen bundle zsh-users/zsh-completions
 antigen bundle zsh-users/zsh-syntax-highlighting
 antigen bundle zsh-users/zsh-history-substring-search
