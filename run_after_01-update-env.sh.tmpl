@@ -5,12 +5,12 @@
 # update homebrew and installed formulae
 brew upgrade
 
+# Upgrade PyPI packages
+pip3 install -U -r "${HOME}"/.config/pip/requirements.txt
+
 #{{ else if eq .osid "linux-debian" -}}
 
 {{ end -}}
-
-# Upgrade PyPI packages
-pip3 install -U -r "${HOME}"/.config/pip/requirements.txt
 
 # update zsh plugins
 antigen_dir="${HOME}/.antigen"
