@@ -1,28 +1,41 @@
 #!/bin/bash
 
+# include vars and functions
+source ~/.config/dotfiles/include.sh
+
 {{ if eq .osid "darwin" -}}
 
 # update homebrew and installed formulae
+bdb_command "Upgrading Homebrew formulae"
 brew upgrade
+bdb_success "upgrading Homebrew formulae"
 
 # Upgrade PyPI packages
+bdb_command "Upgrading Python packages"
 pip3 install -U -r "${HOME}"/.config/pip/requirements.txt
+bdb_success "Upgrading Python packages"
 
 {{ else if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") -}}
 
 # Upgrade APT packages
+bdb_command "Upgrading APT packages"
 sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove --purge -y && sudo apt clean -y
+bdb_success "Upgrading APT packages"
 
 # Upgrade Chezmoi
+bdb_command "Upgrading Chezmoi"
 chezmoi upgrade
+bdb_success "upgrading Chezmoi"
 
 {{ end -}}
 
 # update zsh plugins
+bdb_command "Upgrading Antigen"
 antigen_dir="${HOME}/.antigen"
 [[ -d "${antigen_dir}" ]] && rm -rf "${antigen_dir}"
 mkdir -p "${antigen_dir}"
 git clone https://github.com/zsh-users/antigen.git "${antigen_dir}"
+bdb_success "upgrading Antigen"
 
 # update vim plugins
 #curl -fLo "${HOME}"/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim

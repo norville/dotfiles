@@ -1,41 +1,52 @@
 #!/bin/bash
 
+# include vars and functions
+source ~/.config/dotfiles/include.sh
+
 {{ if eq .osid "darwin" -}}
 
-# sign in into Mac App Store
-
-# update the system
-#sudo softwareupdate -i -a --agree-to-license
-
 # install Comman Line Tools if missing
+bdb_run "Checking Xcode Command Line Tools"
 if  ! type xcode-select &>/dev/null || \
     ! clt_path="$(xcode-select --print-path &>/dev/null)" || \
     ! test -d "${clt_path}" || \
     ! test -x "${clt_path}"; then
 
+    bdb_outcome "missing"
+    bdb_command "Installing CLT"
     sudo softwareupdate -i "$(  sudo softwareupdate -l | \
                                 grep '*.*Command Line' | \
                                 awk -F ":" '{print $2}' | \
                                 sed -e 's/^ *//' | \
                                 tr -d '\n' \
                             )" --agree-to-license
+    bdb_success "installing CLT"
+else
+    bdb_outcome "installed"
 fi
 
 # install Homebrew if missing
-type brew &>/dev/null || NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL \
-            https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+bdb_run "Checking Homebrew"
+if ! type brew &>/dev/null; then
+    # Install homebrew
+    bdb_outcome "missing"
+    bdb_command "Installing Homebrew"
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL ${BREW_URL})"
+    bdb_success "installing Homebrew"
+else
+    bdb_outcome "installed"
+fi
 
 # install required packages
+bdb_command "Installing Homebrew formulae"
 brew bundle install --file=".config/homebrew/brewfile"
+bdb_success "installing Homebrew formulae"
 
 {{ else if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") -}}
 
-# update the system
-sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y && sudo apt autoclean -y
-
-# install required packages
-xargs -a "${HOME}"/.config/pkglist sudo apt -y install
-
+# install required APT packages
+bdb_command "Installing APT packages"
+sudo apt update && xargs -a "${HOME}"/.config/pkglist sudo apt -y install
 # install ansible and terraform
 UBUNTU_CODENAME=jammy
 wget -O- "https://keyserver.ubuntu.com/pks/lookup?fingerprint=on&op=get&search=0x6125E2A8C77F2818FB7BD15B93C4A3FD7BB9C367" | sudo gpg --dearmour -o /usr/share/keyrings/ansible-archive-keyring.gpg
@@ -43,12 +54,15 @@ echo "deb [signed-by=/usr/share/keyrings/ansible-archive-keyring.gpg] http://ppa
 wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt update && sudo apt install -y ansible terraform
+bdb_success "installing APT packages"
 
 {{ end -}}
 
 # set zsh as the login shell
+bdb_run "Setting ZSH as default shell"
 zsh_path="$(which zsh)"
 if [[ "${SHELL}" != "${zsh_path}" ]]; then
     echo "${zsh_path}" | sudo tee -a /etc/shells >/dev/null
     sudo chsh -s "${zsh_path}" "${USER}"
 fi
+bdb_outcome "done"
