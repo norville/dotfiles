@@ -12,8 +12,6 @@ YLW_COL="${ESC_SEQ}33;01m"    # yellow
 CYN_COL="${ESC_SEQ}36;01m"    # cyan
 MGN_COL="${ESC_SEQ}35;01m"    # magenta
 WHT_COL="${ESC_SEQ}97;01m"    # white
-BREW_URL="https://raw.githubusercontent.com/Homebrew/install/master/install.sh"
-
 
 ## Print success message
 bdb_success() {

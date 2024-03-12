@@ -31,7 +31,7 @@ if ! type brew &>/dev/null; then
     # Install homebrew
     bdb_outcome "missing"
     bdb_command "Installing Homebrew"
-    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL ${BREW_URL})"
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
     bdb_success "installing Homebrew"
 else
     bdb_outcome "installed"
