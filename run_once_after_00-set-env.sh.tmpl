@@ -47,8 +47,8 @@ sudo apt update && sudo apt install -y ansible terraform
 {{ end -}}
 
 # set zsh as the login shell
-zsh_path="$(which zsh)"
-if [[ "${SHELL}" != "${zsh_path}" ]]; then
-    echo "${zsh_path}" | sudo tee -a /etc/shells >/dev/null
-    sudo chsh -s "${zsh_path}" "${USER}"
-fi
+#zsh_path="$(which zsh)"
+#if [[ "${SHELL}" != "${zsh_path}" ]]; then
+#    echo "${zsh_path}" | sudo tee -a /etc/shells >/dev/null
+#    sudo chsh -s "${zsh_path}" "${USER}"
+#fi
