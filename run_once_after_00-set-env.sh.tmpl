@@ -56,6 +56,11 @@ echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://
 sudo apt update && sudo apt install -y ansible terraform
 bdb_success "installing APT packages"
 
+# update font cach to load manually installed fonts
+bdb_run "Updating font cache"
+fc-cache
+bdb_outcome "done"
+
 {{ end -}}
 
 # set zsh as the login shell
