@@ -29,11 +29,7 @@ brew "python"
 brew "terraform"
 
 # Python packages
-brew "protobuf"
-brew "pycodestyle"
-brew "python-requests"
-brew "python-setuptools"
-brew "six"
+brew "pipx"
 brew "virtualenv"
 
 # Apps not on Mac App Store

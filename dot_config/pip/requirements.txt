@@ -1,6 +1,2 @@
 # Required PyPI packages
-mccabe
 proxmoxer
-pyflakes
-toml
-wheel
