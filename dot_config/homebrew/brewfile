@@ -4,7 +4,6 @@ tap "homebrew/cask-fonts"
 tap "hashicorp/tap"
 
 # Basic apps
-brew "alacritty"
 brew "bat"
 brew "chezmoi"
 brew "curl"
@@ -39,6 +38,7 @@ brew "python-setuptools"
 brew "six"
 
 # Apps not on Mac App Store
+cask "alacritty"
 cask "balenaetcher"
 cask "handbrake"
 cask "iterm2"
