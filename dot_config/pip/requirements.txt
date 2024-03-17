@@ -1,2 +1,0 @@
-# Required PyPI packages
-proxmoxer

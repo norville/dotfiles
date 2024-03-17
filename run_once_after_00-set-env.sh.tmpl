@@ -42,6 +42,12 @@ bdb_command "Installing Homebrew formulae"
 brew bundle install --file=".config/homebrew/brewfile"
 bdb_success "installing Homebrew formulae"
 
+# install required pip packages
+bdb_command "Installing required Python packages via pipx"
+pipx ensurepath
+pipx install proxmoxer
+bdb_success "installing required Python packages"
+
 {{ else if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") -}}
 
 # install required APT packages
