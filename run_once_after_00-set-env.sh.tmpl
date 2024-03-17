@@ -45,7 +45,7 @@ bdb_success "installing Homebrew formulae"
 # install required pip packages
 bdb_command "Installing required Python packages via pipx"
 pipx ensurepath
-pipx install proxmoxer
+#pipx install proxmoxer
 bdb_success "installing required Python packages"
 
 {{ else if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") -}}

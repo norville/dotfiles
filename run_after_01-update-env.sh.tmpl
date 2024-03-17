@@ -12,7 +12,7 @@ bdb_success "upgrading Homebrew formulae"
 
 # Upgrade PyPI packages
 bdb_command "Upgrading Python packages"
-pip3 install -U -r "${HOME}"/.config/pip/requirements.txt
+pipx upgrade-all
 bdb_success "Upgrading Python packages"
 
 {{ else if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") -}}
