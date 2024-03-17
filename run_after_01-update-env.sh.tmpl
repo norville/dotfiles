@@ -10,6 +10,13 @@ bdb_command "Upgrading Homebrew formulae"
 brew upgrade
 bdb_success "upgrading Homebrew formulae"
 
+# remove extra formulae
+#brew bundle --cleanup --file=.config/homebrew/brewfile
+# remove dead dependencies
+#brew autoremove
+# empty cache
+#brew cleanup --prune=all
+
 # Upgrade PyPI packages
 bdb_command "Upgrading Python packages"
 pipx upgrade-all
