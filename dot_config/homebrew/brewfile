@@ -1,6 +1,4 @@
 # Taps
-tap "homebrew/core"
-tap "homebrew/bundle"
 tap "homebrew/cask"
 tap "homebrew/cask-fonts"
 tap "hashicorp/tap"
