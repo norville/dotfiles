@@ -29,13 +29,12 @@ brew "python"
 brew "terraform"
 
 # Python packages
-brew "autopep8"
-brew "flake8"
 brew "protobuf"
 brew "pycodestyle"
 brew "python-requests"
 brew "python-setuptools"
 brew "six"
+brew "virtualenv"
 
 # Apps not on Mac App Store
 cask "alacritty"
