@@ -183,11 +183,9 @@
     arch)
 
         # Update package list
-        bdb_command "Updating Pacman"
-        sudo pacman -Syy
-        bdb_success "updating Pacman"
-
-        #TODO install chezmoi
+        bdb_command "Installing Chezmoi"
+        sudo pacman -Syu chezmoi
+        bdb_success "installing Chezmoi"
 
         ;;
 

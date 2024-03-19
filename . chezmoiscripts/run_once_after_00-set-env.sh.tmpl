@@ -53,7 +53,7 @@ bdb_success "installing required Python packages"
 {{ else if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") -}}
 
 # install required APT packages
-bdb_command "Installing APT packages"
+bdb_command "Installing Linux packages"
 sudo apt update && xargs -a "${HOME}"/.config/pkglist sudo apt -y install
 # install ansible and terraform
 UBUNTU_CODENAME=jammy
@@ -62,22 +62,34 @@ echo "deb [signed-by=/usr/share/keyrings/ansible-archive-keyring.gpg] http://ppa
 wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt update && sudo apt install -y ansible terraform
-bdb_success "installing APT packages"
+bdb_success "installing Linux packages"
+
+{{ else if eq .osid "linux-arch" -}}
+
+# update the system and install required packages
+bdb_command "Installing Linux packages"
+sudo pacman -Syu --needed - < "${HOME}"/.config/pkglist && sudo pacman -Sc
+bdb_success "installing Linux packages"
+
+{{ else if eq .osid "linux-fedora" -}}
+
+# update the system and install required packages
+bdb_command "Installing Linux packages"
+sudo dnf -y upgrade && xargs -a "${HOME}"/.config/pkglist sudo dnf -y install
+# install terraform
+sudo dnf install -y dnf-plugins-core
+sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/hashicorp.repo
+sudo dnf -y install terraform
+bdb_success "installing Linux packages"
+
+{{ end -}}
+
+{{ if eq .chezmoi.os "linux" -}}
 
 # update font cach to load manually installed fonts
 bdb_run "Updating font cache"
 fc-cache
 bdb_outcome "done"
-
-{{ else if eq .osid "linux-arch" -}}
-
-# update the system and install required packages
-sudo pacman -Syu --needed - < "${HOME}"/.config/pkglist && sudo pacman -Sc
-
-{{ else if eq .osid "linux-fedora" -}}
-
-# update the system and install required packages
-sudo dnf -y upgrade && xargs -a "${HOME}"/.config/pkglist sudo dnf -y install
 
 {{ end -}}
 
