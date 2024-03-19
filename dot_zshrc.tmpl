@@ -22,7 +22,7 @@ HIST_STAMPS="dd/mm/yyyy"
 
 # Set default editor
 export EDITOR='vim'
-export VISUAL='vim'
+#export VISUAL='vim'
 
 # Set AUTO_CD
 setopt AUTO_CD
@@ -80,7 +80,11 @@ zstyle :omz:plugins:ssh-agent ssh-add-args --apple-load-keychain
 eval "$(gdircolors ${ls_colors})"
 alias ls='gls -v --color=auto'
 
-{{- else if eq .chezmoi.os "linux" }}
+{{- else if eq .osid "windows" }}
+
+# windows
+
+{{- else }}
 
 # setup ssh-agent plugin
 zstyle :omz:plugins:ssh-agent quiet yes
@@ -92,10 +96,6 @@ alias ls='ls -v --color=auto'
 
 # alias bat
 alias bat="batcat"
-
-{{- else if eq .osid "windows" }}
-
-# windows
 
 {{- end }}
 
