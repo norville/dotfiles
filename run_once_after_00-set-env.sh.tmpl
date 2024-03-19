@@ -48,6 +48,8 @@ pipx ensurepath
 #pipx install proxmoxer
 bdb_success "installing required Python packages"
 
+{{ else if eq .osid "windows" -}}
+
 {{ else if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") -}}
 
 # install required APT packages
@@ -66,6 +68,16 @@ bdb_success "installing APT packages"
 bdb_run "Updating font cache"
 fc-cache
 bdb_outcome "done"
+
+{{ else if eq .osid "linux-arch" -}}
+
+# update the system and install required packages
+sudo pacman -Syu --needed - < "${HOME}"/.config/pkglist && sudo pacman -Sc
+
+{{ else if eq .osid "linux-fedora" -}}
+
+# update the system and install required packages
+sudo dnf -y upgrade && xargs -a "${HOME}"/.config/pkglist sudo dnf -y install
 
 {{ end -}}
 

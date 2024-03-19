@@ -2,12 +2,12 @@
     type = "file"
     url = "https://raw.githubusercontent.com/r3tex/one-dark/master/dircolors"
     refreshPeriod = "168h"
-
 {{- if eq .osid "darwin" }}
 [".config/iterm2/onedark.itermcolors"]
     type = "file"
     url = "https://raw.githubusercontent.com/one-dark/iterm-one-dark-theme/main/One%20Dark.itermcolors"
     refreshPeriod = "168h"
+{{- else if eq .osid "windows" }}
 {{- else }}
 [".local/share/fonts/MesloLGS NF Regular.ttf"]
     type = "file"
