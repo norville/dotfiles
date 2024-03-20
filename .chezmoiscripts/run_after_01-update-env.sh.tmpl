@@ -39,7 +39,7 @@ bdb_success "upgrading Chezmoi"
 {{  else if eq .osid "linux-arch" -}}
 
 bdb_command "Running package maintenance"
-sudo -- bash -c 'pacman -Syu --noconfirm && pacman -Qdtq --noconfirm | pacman -Rns --noconfirm - && pacman -Scc --noconfirm'
+sudo -- bash -c 'pacman -Syu --noconfirm && pacman -Qdtq --noconfirm | ifne pacman -Rns --noconfirm - && pacman -Scc --noconfirm'
 bdb_success "running package maintenance"
 
 {{  else if eq .osid "linux-fedora" -}}
