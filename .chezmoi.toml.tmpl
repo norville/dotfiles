@@ -30,4 +30,4 @@
 [data]
     osid = {{ $osid | quote }}
     email = "ing.norville@protonmail.com"
-    packages = {{ $packages | join " " }}
+    packages = {{ $packages | join " " | quote }}
