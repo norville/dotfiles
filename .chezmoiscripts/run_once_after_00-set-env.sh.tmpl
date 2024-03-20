@@ -22,7 +22,7 @@ bdb_success "installing Linux packages"
 
 # update the system and install required packages
 bdb_command "Installing Linux packages"
-sudo pacman -Syu --noconfirm {{ .packages }}
+sudo pacman -Syu --needed --noconfirm {{ .packages }}
 bdb_success "installing Linux packages"
 
 {{      else if eq .osid "linux-fedora" -}}
