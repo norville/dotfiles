@@ -33,4 +33,5 @@
     email = "ing.norville@protonmail.com"
 
 [scriptEnv]
-    packages = {{ $packages | join " " | quote }}
+    INCLUDES = "~/.config/dotfiles/include.sh"
+    PACKAGES = {{ $packages | join " " | quote }}
