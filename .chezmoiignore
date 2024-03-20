@@ -12,5 +12,5 @@ README.md
 {{- end }}
 
 # ignore these files unless OS is windows
-#{{- if ne .chezmoi.os "windows" }}
-#{{- end }}
+#{{-    if ne .chezmoi.os "windows" }}
+#{{-    end }}
