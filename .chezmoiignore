@@ -8,7 +8,7 @@ README.md
 
 # ignore these files unless OS is linux
 {{- if ne .chezmoi.os "linux" }}
-.config/pkglist
+.config/alacritty/
 {{- end }}
 
 # ignore these files unless OS is windows
