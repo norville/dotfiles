@@ -8,7 +8,7 @@ source "${INCLUDES}"
 
 # install required APT packages
 bdb_command "Installing Linux packages"
-sudo apt update && sudo apt install -y "${PACKAGES}"
+sudo apt update && sudo apt install -y $PACKAGES
 # install ansible and terraform
 UBUNTU_CODENAME=jammy
 wget -O- "https://keyserver.ubuntu.com/pks/lookup?fingerprint=on&op=get&search=0x6125E2A8C77F2818FB7BD15B93C4A3FD7BB9C367" | sudo gpg --dearmour -o /usr/share/keyrings/ansible-archive-keyring.gpg
@@ -22,14 +22,14 @@ bdb_success "installing Linux packages"
 
 # update the system and install required packages
 bdb_command "Installing Linux packages"
-sudo pacman -Syu --needed --noconfirm "${PACKAGES}"
+sudo pacman -Syu --needed --noconfirm $PACKAGES
 bdb_success "installing Linux packages"
 
 {{      else if eq .osid "linux-fedora" -}}
 
 # update the system and install required packages
 bdb_command "Installing Linux packages"
-sudo dnf -y upgrade && sudo dnf -y install "${PACKAGES}"
+sudo dnf -y upgrade && sudo dnf -y install $PACKAGES
 # install terraform
 sudo -- bash -c 'dnf install -y dnf-plugins-core && \
                 dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/hashicorp.repo && \
