@@ -68,7 +68,7 @@ bdb_success "installing Linux packages"
 
 # update the system and install required packages
 bdb_command "Installing Linux packages"
-#TODO sudo pacman -Syu --needed - < "${HOME}"/.config/pkglist
+sudo pacman -Syu --noconfirm - < "${HOME}"/.config/pkglist
 bdb_success "installing Linux packages"
 
 {{ else if eq .osid "linux-fedora" -}}

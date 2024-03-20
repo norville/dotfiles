@@ -184,7 +184,7 @@
 
         # Update package list
         bdb_command "Installing Chezmoi"
-        #TODO sudo pacman -Syu --needed chezmoi
+        sudo pacman -Syu --noconfirm chezmoi
         bdb_success "installing Chezmoi"
 
         ;;
