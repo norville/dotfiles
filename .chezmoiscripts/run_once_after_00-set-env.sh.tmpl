@@ -3,7 +3,47 @@
 # include vars and functions
 source ~/.config/dotfiles/include.sh
 
-{{ if eq .osid "darwin" -}}
+{{  if eq .chezmoi.os "linux" -}}
+{{      if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") -}}
+
+# install required APT packages
+bdb_command "Installing Linux packages"
+sudo apt update && sudo apt install -y {{ .packages }}
+# install ansible and terraform
+UBUNTU_CODENAME=jammy
+wget -O- "https://keyserver.ubuntu.com/pks/lookup?fingerprint=on&op=get&search=0x6125E2A8C77F2818FB7BD15B93C4A3FD7BB9C367" | sudo gpg --dearmour -o /usr/share/keyrings/ansible-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/ansible-archive-keyring.gpg] http://ppa.launchpad.net/ansible/ansible/ubuntu $UBUNTU_CODENAME main" | sudo tee /etc/apt/sources.list.d/ansible.list
+wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo -- bash -c 'apt update && apt install -y ansible terraform'
+bdb_success "installing Linux packages"
+
+{{      else if eq .osid "linux-arch" -}}
+
+# update the system and install required packages
+bdb_command "Installing Linux packages"
+sudo pacman -Syu --noconfirm {{ .packages }}
+bdb_success "installing Linux packages"
+
+{{      else if eq .osid "linux-fedora" -}}
+
+# update the system and install required packages
+bdb_command "Installing Linux packages"
+sudo dnf -y upgrade && sudo dnf -y install {{ .packages }}
+# install terraform
+sudo -- bash -c 'dnf install -y dnf-plugins-core && \
+                dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/hashicorp.repo && \
+                dnf -y install terraform'
+bdb_success "installing Linux packages"
+
+{{      end -}}
+
+# update font cach to load manually installed fonts
+bdb_run "Updating font cache"
+fc-cache
+bdb_outcome "done"
+
+{{  else if eq .osid "darwin" -}}
 
 # install Comman Line Tools if missing
 bdb_run "Checking Xcode Command Line Tools"
@@ -48,50 +88,8 @@ pipx ensurepath
 #pipx install proxmoxer
 bdb_success "installing required Python packages"
 
-{{ else if eq .osid "windows" -}}
-
-{{ else if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") -}}
-
-# install required APT packages
-bdb_command "Installing Linux packages"
-sudo -- bash -c 'apt update && xargs -a "${HOME}"/.config/pkglist apt -y install'
-# install ansible and terraform
-UBUNTU_CODENAME=jammy
-wget -O- "https://keyserver.ubuntu.com/pks/lookup?fingerprint=on&op=get&search=0x6125E2A8C77F2818FB7BD15B93C4A3FD7BB9C367" | sudo gpg --dearmour -o /usr/share/keyrings/ansible-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/ansible-archive-keyring.gpg] http://ppa.launchpad.net/ansible/ansible/ubuntu $UBUNTU_CODENAME main" | sudo tee /etc/apt/sources.list.d/ansible.list
-wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-sudo -- bash -c 'apt update && apt install -y ansible terraform'
-bdb_success "installing Linux packages"
-
-{{ else if eq .osid "linux-arch" -}}
-
-# update the system and install required packages
-bdb_command "Installing Linux packages"
-sudo pacman -Syu --noconfirm - < "${HOME}"/.config/pkglist
-bdb_success "installing Linux packages"
-
-{{ else if eq .osid "linux-fedora" -}}
-
-# update the system and install required packages
-bdb_command "Installing Linux packages"
-sudo -- bash -c 'dnf -y upgrade && xargs -a "${HOME}"/.config/pkglist dnf -y install'
-# install terraform
-sudo -- bash -c 'dnf install -y dnf-plugins-core && \
-                dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/hashicorp.repo && \
-                dnf -y install terraform'
-bdb_success "installing Linux packages"
-
-{{ end -}}
-
-{{ if eq .chezmoi.os "linux" -}}
-
-# update font cach to load manually installed fonts
-bdb_run "Updating font cache"
-fc-cache
-bdb_outcome "done"
-
-{{ end -}}
+{{  else if eq .osid "windows" -}}
+{{  end -}}
 
 # set zsh as the login shell
 bdb_run "Setting ZSH as default shell"

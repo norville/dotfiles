@@ -3,7 +3,7 @@
 # include vars and functions
 source ~/.config/dotfiles/include.sh
 
-{{ if eq .osid "darwin" -}}
+{{  if eq .osid "darwin" -}}
 
 # update homebrew and installed formulae
 bdb_command "Upgrading Homebrew formulae"
@@ -22,9 +22,9 @@ bdb_command "Upgrading Python packages"
 pipx upgrade-all
 bdb_success "Upgrading Python packages"
 
-{{ else if eq .osid "windows" -}}
+{{  else if eq .osid "windows" -}}
 
-{{ else if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") -}}
+{{  else if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") -}}
 
 # Upgrade APT packages
 bdb_command "Running package maintenance"
@@ -36,15 +36,15 @@ bdb_command "Upgrading Chezmoi"
 chezmoi upgrade
 bdb_success "upgrading Chezmoi"
 
-{{ else if eq .osid "linux-arch" -}}
+{{  else if eq .osid "linux-arch" -}}
 
 bdb_command "Running package maintenance"
 sudo -- bash -c 'pacman -Syu --noconfirm && pacman -Qdtq --noconfirm | pacman -Rns --noconfirm - && pacman -Scc --noconfirm'
 bdb_success "running package maintenance"
 
-{{ else if eq .osid "linux-fedora" -}}
+{{  else if eq .osid "linux-fedora" -}}
 
-{{ end -}}
+{{  end -}}
 
 # update zsh plugins
 bdb_command "Upgrading Antigen"
