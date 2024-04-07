@@ -14,7 +14,29 @@ Host gitlab.com
 Host github.com
     IdentityFile ~/.ssh/norville_at_github
 
+#Host basnas baspve basphl basphl-2 basunf baspms apt-cacher basdev bashmb bastux
 Host *.basnet.lan
     Port 25355
     User norville
     IdentityFile ~/.ssh/norville_at_basnet
+
+Host server-ca
+    HostName 10.0.1.31
+    Port 25355
+    User norville
+    IdentityFile ~/.ssh/ansible_at_baspve
+    StrictHostKeyChecking no
+
+Host host-ca
+    HostName 10.0.1.32
+    Port 25355
+    User norville
+    IdentityFile ~/.ssh/ansible_at_baspve
+    StrictHostKeyChecking no
+
+Host client-ca
+    HostName 10.0.1.33
+    Port 25355
+    User norville
+    IdentityFile ~/.ssh/ansible_at_baspve
+    StrictHostKeyChecking no
