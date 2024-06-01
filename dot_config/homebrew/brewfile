@@ -30,6 +30,12 @@ brew "terraform"
 brew "pipx"
 brew "virtualenv"
 
+# Fonts
+brew "font-fira-mono"
+brew "font-fira-mono-nerd-font"
+brew "font-meslo-lg"
+brew "font-meslo-lg-nerd-font"
+
 # Apps not on Mac App Store
 cask "alacritty"
 cask "balenaetcher"
@@ -57,8 +63,3 @@ mas "Pages", id: 409201541
 mas "Pixelmator", id: 407963104
 mas "The Unarchiver", id: 425424353
 
-# Fonts
-cask "font-fira-mono"
-cask "font-fira-mono-nerd-font"
-cask "font-meslo-lg"
-cask "font-meslo-lg-nerd-font"
