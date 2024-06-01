@@ -1,12 +1,12 @@
-{{ if eq .osid "darwin" -}}
-
-# Required for macOS 10.12+
-# Automatically load macOS ssh-agent and store passphrases in Keychain Access
 Host *
+    IdentitiesOnly yes  # use only specified keys, even if ssh-agent offers more identities
+
+{{- if eq .osid "darwin" }}
+    # Required for macOS 10.12+
+    # Automatically load macOS ssh-agent and store passphrases in Keychain Access
     AddKeysToAgent yes
     UseKeychain yes
-
-{{ end -}}
+{{ end }}
 
 Host gitlab.com
     IdentityFile ~/.ssh/norville_at_gitlab
@@ -14,29 +14,14 @@ Host gitlab.com
 Host github.com
     IdentityFile ~/.ssh/norville_at_github
 
-#Host basnas baspve basphl basphl-2 basunf baspms apt-cacher basdev bashmb bastux
-Host *.basnet.lan
+Host basnas baspve basphl basphl-2 basunf baspms apt-cacher basdev bashmb bastux
     Port 25355
     User norville
     IdentityFile ~/.ssh/norville_at_basnet
 
-Host server-ca
-    HostName 10.0.1.31
+Host vsbasdev
+    HostName 10.0.1.26
     Port 25355
-    User norville
-    IdentityFile ~/.ssh/ansible_at_baspve
-    StrictHostKeyChecking no
+    User dev
+    IdentityFile ~/.ssh/dev_at_basnas
 
-Host host-ca
-    HostName 10.0.1.32
-    Port 25355
-    User norville
-    IdentityFile ~/.ssh/ansible_at_baspve
-    StrictHostKeyChecking no
-
-Host client-ca
-    HostName 10.0.1.33
-    Port 25355
-    User norville
-    IdentityFile ~/.ssh/ansible_at_baspve
-    StrictHostKeyChecking no
