@@ -1,5 +1,5 @@
 # Taps
-tap "homebrew/cask-fonts"
+tap "homebrew/cask"
 tap "hashicorp/tap"
 
 # Basic apps
@@ -31,10 +31,10 @@ brew "pipx"
 brew "virtualenv"
 
 # Fonts
-brew "font-fira-mono"
-brew "font-fira-mono-nerd-font"
-brew "font-meslo-lg"
-brew "font-meslo-lg-nerd-font"
+cask "font-fira-mono"
+cask "font-fira-mono-nerd-font"
+cask "font-meslo-lg"
+cask "font-meslo-lg-nerd-font"
 
 # Apps not on Mac App Store
 cask "alacritty"
