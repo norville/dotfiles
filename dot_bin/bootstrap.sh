@@ -175,7 +175,7 @@
         bdb_handle_error "Cannot detect OS type"
         ;;
     esac
-    bdb_outcome "${DISTRO}/${PLATFORM}"
+    bdb_outcome "${PLATFORM}/${DISTRO}"
 
     # Install requirements
     case "${DISTRO}" in
@@ -235,7 +235,7 @@
 
         ;;
 
-    debian)
+    debian | ubuntu)
 
         # Update APT package list
         bdb_command "Updating APT"
