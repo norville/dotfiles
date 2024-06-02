@@ -8,9 +8,9 @@ Library/
 
 # ignore these files unless OS is linux
 {{-     if ne .chezmoi.os "linux" }}
-.config/alacritty/
 {{-     end }}
 
 # ignore these files unless OS is windows
 {{-    if ne .chezmoi.os "windows" }}
 {{-    end }}
+
