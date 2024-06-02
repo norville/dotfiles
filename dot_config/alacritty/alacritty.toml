@@ -1,22 +1,44 @@
+import = [
+    "~/.config/alacritty/themes/one_dark.toml", # Import theme
+]
+
 [env]
 TERM = "xterm-256color"
 
 [window]
+{{- if eq .osid "darwin" }}
 blur            = true
-decorations     = "buttonless"
-opacity         = 0.85
+decorations     = "Buttonless"
 option_as_alt   = "both"
-
+{{- end }}
+opacity         = 0.95
+[window.dimensions]
+columns         = 100
+lines           = 50
 [window.padding]
-x = 10
-y = 10
+x               = 10
+y               = 10
+
+[cursor.style]
+blinking    = "On"
+[cursor.vi_mode_style]
+shape       = "Beam"
+blinking    = "On"
 
 [font]
-size = 12
-
+size    = 12
 [font.normal]
-family = "MesloLGS NF"
+{{- if eq .osid "darwin" }}
+family  = "MesloLGS Nerd Font Mono"
+{{- else if .osid "linux" }}
+family  = "MesloLGS NF"
+{{- end }}
 
-# Theme
-import = [ "~/.config/alacritty/themes/one_dark.toml" ]
+[colors]
+draw_bold_text_with_bright_colors = true
+
+[keyboard]
+bindings = [
+    #{ key = "N", mods = "Control|Shift", action = "CreateNewWindow" },
+]
 
