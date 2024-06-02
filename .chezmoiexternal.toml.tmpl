@@ -1,14 +1,33 @@
+## External files
+
+# Get Alacritty theme
+[".config/alacritty/themes/one_dark.toml"]
+    type = "file"
+    url = "https://raw.githubusercontent.com/alacritty-theme/master/themes/one_darl.toml"
+    refreshPeriod = "168h"
+
+# Get dircolors theme
 [".config/dircolors/onedark.dircolors"]
     type = "file"
     url = "https://raw.githubusercontent.com/r3tex/one-dark/master/dircolors"
     refreshPeriod = "168h"
-{{- if eq .osid "darwin" }}
+
+{{ if eq .osid "darwin" -}}
+## Mac files
+
+# Get iTerm2 theme
 [".config/iterm2/onedark.itermcolors"]
     type = "file"
     url = "https://raw.githubusercontent.com/one-dark/iterm-one-dark-theme/main/One%20Dark.itermcolors"
     refreshPeriod = "168h"
-{{- else if eq .osid "windows" }}
-{{- else }}
+
+{{ else if eq .osid "windows" -}}
+## Win files
+
+{{ else -}}
+## Linux files
+
+# Get nerd fonts
 [".local/share/fonts/MesloLGS NF Regular.ttf"]
     type = "file"
     url = "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS NF Regular.ttf"
@@ -25,4 +44,5 @@
     type = "file"
     url = "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS NF Bold Italic.ttf"
     refreshPeriod = "168h"
-{{- end }}
+{{ end -}}
+
