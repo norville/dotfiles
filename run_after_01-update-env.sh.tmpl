@@ -7,15 +7,18 @@ source "${INCLUDES}"
 
 # update homebrew and installed formulae
 bdb_command "Upgrading Homebrew formulae"
-brew upgrade
+brew update && brew upgrade
 bdb_success "upgrading Homebrew formulae"
 
-# remove extra formulae
-#brew bundle --cleanup --file=.config/homebrew/brewfile
-# remove dead dependencies
-#brew autoremove
-# empty cache
-#brew cleanup --prune=all
+# do brew maintenance
+if bdb_ask "Do you want to remove extra formulae"; then
+    # remove extra formulae
+    brew bundle --cleanup --file=.config/homebrew/brewfile
+    # remove dead dependencies
+    brew autoremove
+    # empty cache
+    brew cleanup --prune=all
+fi
 
 # Upgrade PyPI packages
 bdb_command "Upgrading Python packages"

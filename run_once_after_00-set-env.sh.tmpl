@@ -68,19 +68,21 @@ fi
 # install Homebrew if missing
 bdb_run "Checking Homebrew"
 if ! type brew &>/dev/null; then
-    # Install homebrew
+
+    # install homebrew
     bdb_outcome "missing"
     bdb_command "Installing Homebrew"
     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
     bdb_success "installing Homebrew"
+
+    # install required packages
+    bdb_command "Installing Homebrew formulae"
+    brew bundle install --file=".config/homebrew/brewfile"
+    bdb_success "installing Homebrew formulae"
+
 else
     bdb_outcome "installed"
 fi
-
-# install required packages
-bdb_command "Installing Homebrew formulae"
-brew bundle install --file=".config/homebrew/brewfile"
-bdb_success "installing Homebrew formulae"
 
 # install required pip packages
 bdb_command "Installing required Python packages via pipx"
@@ -99,3 +101,4 @@ if [[ "${SHELL}" != "${zsh_path}" ]]; then
     sudo chsh -s "${zsh_path}" "${USER}"
 fi
 bdb_outcome "done"
+
