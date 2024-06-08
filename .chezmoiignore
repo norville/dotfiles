@@ -1,14 +1,14 @@
 README.md
 
-# ignore these files on maOS because content is managed externally
-{{-     if eq .chezmoi.os "darwin" }}
-.config/moom/com.manytricks.Moom.plist
-.config/iterm2/com.googlecode.iterm2.plist
-{{-     end }}
+# ignore these files because content is managed externally
+.config/iterm2/preferences.plist
+.config/moom/preferences.plist
 
 # ignore these files unless OS is darwin
 {{-     if ne .chezmoi.os "darwin" }}
 .config/homebrew/
+.config/iterm2/
+Library/
 {{-     end }}
 
 # ignore these files unless OS is linux
