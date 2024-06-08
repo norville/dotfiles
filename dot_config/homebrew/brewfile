@@ -36,7 +36,6 @@ cask "font-meslo-lg"
 cask "font-meslo-lg-nerd-font"
 
 # Apps not on Mac App Store
-cask "alacritty"
 cask "balenaetcher"
 cask "handbrake"
 cask "iterm2"
