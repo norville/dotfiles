@@ -5,20 +5,20 @@ source "${INCLUDES}"
 
 {{  if eq .osid "darwin" -}}
 
-# update homebrew and installed formulae
-bdb_command "Upgrading Homebrew formulae"
-brew update && brew upgrade
-bdb_success "upgrading Homebrew formulae"
-
 # do brew maintenance
 if bdb_ask "Do you want to remove extra formulae"; then
     # remove extra formulae
-    brew bundle --cleanup --file=.config/homebrew/brewfile
+    brew bundle cleanup -f --file=.config/homebrew/brewfile
     # remove dead dependencies
     brew autoremove
     # empty cache
     brew cleanup --prune=all
 fi
+
+# update homebrew and installed formulae
+bdb_command "Upgrading Homebrew formulae"
+brew update && brew upgrade
+bdb_success "upgrading Homebrew formulae"
 
 # Upgrade PyPI packages
 bdb_command "Upgrading Python packages"
