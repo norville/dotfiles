@@ -1,9 +1,9 @@
 README.md
+.config/iterm2/com.googlecode.iterm2.plist
 
 # ignore these files unless OS is darwin
 {{-     if ne .chezmoi.os "darwin" }}
 .config/homebrew/
-Library/
 {{-     end }}
 
 # ignore these files unless OS is linux
