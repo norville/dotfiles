@@ -30,7 +30,7 @@ size    = 16
 [font.normal]
 {{- if eq .osid "darwin" }}
 family  = "MesloLGS Nerd Font Mono"
-{{- else if .osid "linux" }}
+{{- else if eq .osid "linux" }}
 family  = "MesloLGS NF"
 {{- end }}
 
