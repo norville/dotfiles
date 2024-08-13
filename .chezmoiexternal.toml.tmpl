@@ -1,5 +1,11 @@
 ## External files
 
+# Get Alacritty theme
+[".config/alacritty/themes/catppuccin-macchiato.toml"]
+    type = "file"
+    url = "https://github.com/catppuccin/alacritty/raw/main/catppuccin-macchiato.toml"
+    refreshPeriod = "168h"
+
 # Get dircolors theme
 [".config/dircolors/onedark.dircolors"]
     type = "file"
@@ -20,12 +26,6 @@
 
 {{ else -}}
 ## Linux files
-
-# Get Alacritty theme
-[".config/alacritty/themes/one_dark.toml"]
-    type = "file"
-    url = "https://raw.githubusercontent.com/alacritty/alacritty-theme/master/themes/one_dark.toml"
-    refreshPeriod = "168h"
 
 # Get nerd fonts
 [".local/share/fonts/MesloLGS NF Regular.ttf"]
