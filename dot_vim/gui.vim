@@ -3,7 +3,7 @@ set background=dark
 if (has("termguicolors"))
     set termguicolors
 endif
-silent! colorscheme onedark
+silent! colorscheme catppuccin_macchiato
 
 """ Enable Indent Guides
 let g:indent_guides_enable_on_vim_startup = 1
@@ -14,6 +14,4 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
 let g:airline#extensions#tabline#formatter = 'unique_tail' "default | jsformatter | unique_tail | unique_tail_improved
-if g:colors_name == 'onedark'
-    let g:airline_theme='onedark'
-endif
+

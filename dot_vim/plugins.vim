@@ -18,7 +18,8 @@ autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
 call plug#begin()
 
 """ Colorscheme
-Plug 'joshdick/onedark.vim'
+"Plug 'joshdick/onedark.vim'
+Plug 'catppuccin/vim', {'as': 'catppuccin'}
 
 """ Plugins
 Plug 'airblade/vim-gitgutter'
@@ -38,3 +39,4 @@ Plug 'ryanoasis/vim-devicons'
 
 call plug#end()
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
