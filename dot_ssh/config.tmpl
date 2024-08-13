@@ -1,10 +1,10 @@
 Host *
     IdentitiesOnly yes  # use only specified keys, even if ssh-agent offers more identities
+    AddKeysToAgent yes  # enter passphrase only on first use (REQUIRED by omz:ssh-agent plugin)
 
 {{- if eq .osid "darwin" }}
     # Required for macOS 10.12+
     # Automatically load macOS ssh-agent and store passphrases in Keychain Access
-    AddKeysToAgent yes
     UseKeychain yes
 {{- end }}
 
