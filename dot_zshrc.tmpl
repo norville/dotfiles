@@ -38,6 +38,9 @@ fi
 if [ -d "$HOME/.local/bin" ] ;
   then path=(~/.local/bin $path)
 fi
+if [ -d "$HOME/.cargo/bin" ] ;
+  then path=(~/.cargo/bin $path)
+fi
 
 ###############################################################################
 
@@ -96,6 +99,9 @@ alias ls='gls -v --color=auto'
 # setup ssh-agent plugin
 zstyle :omz:plugins:ssh-agent quiet yes
 zstyle :omz:plugins:ssh-agent lazy yes
+
+# load node environment
+[[ -f /usr/share/nvm/init-nvm.sh ]] && . /usr/share/nvm/init-nvm.sh
 
 # configure file listing
 eval "$(dircolors ${ls_colors})"
