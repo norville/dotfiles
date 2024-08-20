@@ -98,6 +98,9 @@ defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
 {{  else if eq .osid "windows" -}}
 {{  end -}}
 
+# load bat colorscheme from ~/.config/bat/themes
+bat cache --build
+
 # set zsh as the login shell
 bdb_run "Setting ZSH as default shell"
 zsh_path="$(which zsh)"
