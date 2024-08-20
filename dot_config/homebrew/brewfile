@@ -1,15 +1,17 @@
 # Taps
-tap "hashicorp/tap"
+#tap "hashicorp/tap"
 
 # Basic apps
 brew "bat"
 brew "chezmoi"
 brew "curl"
+#brew "eza"
 brew "git"
+brew "kitty"
 brew "mas"
-brew "shfmt"
-brew "tmux"
-brew "tree"
+#brew "shfmt"
+#brew "tmux"
+#brew "tree"
 brew "vim"
 brew "wget"
 brew "zsh"
@@ -20,20 +22,21 @@ brew "findutils"
 brew "moreutils"
 
 # Frameworks
-brew "ansible"
-brew "go"
-brew "python"
-brew "terraform"
+#brew "ansible"
+#brew "go"
+#brew "python"
+#brew "terraform"
 
 # Python packages
-brew "pipx"
-brew "virtualenv"
+#brew "pipx"
+#brew "virtualenv"
 
 # Fonts
 cask "font-fira-mono"
 cask "font-fira-mono-nerd-font"
 cask "font-meslo-lg"
 cask "font-meslo-lg-nerd-font"
+cask "font-symbols-only-nerd-font"
 
 # Apps not on Mac App Store
 cask "balenaetcher"
