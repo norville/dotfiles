@@ -45,7 +45,6 @@ cask "iterm2"
 cask "logi-options-plus"
 cask "microsoft-edge"
 cask "philips-hue-sync"
-cask "syncthing"
 cask "teamviewer"
 cask "tor-browser"
 cask "transmission"
@@ -55,12 +54,10 @@ cask "vmware-fusion"
 cask "whatsapp"
 
 # Apps from Mac App Store
-mas "BBEdit", id: 404009241
 mas "Keynote", id: 409183694
 mas "Kindle", id: 405399194
 mas "Moom", id: 419330170
 mas "Numbers", id: 409203825
 mas "Pages", id: 409201541
-mas "Pixelmator", id: 407963104
 mas "The Unarchiver", id: 425424353
 
