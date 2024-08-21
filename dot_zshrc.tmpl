@@ -5,9 +5,6 @@
 # Uncomment the following line to use case-sensitive completion.
 CASE_SENSITIVE="true"
 
-# Uncomment to enable automatic upgrades
-#DISABLE_UPDATE_PROMPT=true
-
 # Uncomment the following line to enable command auto-correction.
 ENABLE_CORRECTION="true"
 
@@ -16,20 +13,15 @@ ENABLE_CORRECTION="true"
 # The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
 HIST_STAMPS="dd/mm/yyyy"
 
-# Set language
-#export LC_ALL=en_US.UTF-8
-#export LANG=en_US.UTF-8
-
 # Set default editor
 export EDITOR='vim'
-#export VISUAL='vim'
 
 # Set AUTO_CD
 setopt AUTO_CD
 
 ###############################################################################
 
-### GLOBAL PATH ###############################################################
+### PATH ######################################################################
 
 typeset -U path PATH
 if [ -d "$HOME/.bin" ] ;
@@ -41,32 +33,6 @@ fi
 if [ -d "$HOME/.cargo/bin" ] ;
   then path=(~/.cargo/bin $path)
 fi
-
-###############################################################################
-
-### SECRETS ##################################################################
-
-[[ -f ${HOME}/.zsh/secrets.zsh ]] && . ${HOME}/.zsh/secrets.zsh
-
-###############################################################################
-
-### PLUGINS ###################################################################
-
-[[ -f ${HOME}/.zsh/plugins.zsh ]] && . ${HOME}/.zsh/plugins.zsh
-
-###############################################################################
-
-### LISTING ###################################################################
-
-# define dircolors theme
-ls_colors="${HOME}/.config/dircolors/onedark.dircolors"
-
-# define time format
-timestyle='--time-style="+%Y-%m-%d %H:%M:%S"'
-
-###############################################################################
-
-### OS CONFIG #################################################################
 
 {{- if eq .osid "darwin" }}
 
@@ -81,31 +47,9 @@ PATH="${BREW_PREFIX}/lib/ruby/gems/3.0.0/bin:${PATH}"
 # required by pipx
 PATH="$PATH:/Users/bassa/.local/bin"
 
-# setup ssh-agent plugin
-zstyle :omz:plugins:ssh-agent quiet yes
-zstyle :omz:plugins:ssh-agent lazy yes
-zstyle :omz:plugins:ssh-agent ssh-add-args --apple-load-keychain
-
-# configure file listing
-eval "$(gdircolors ${ls_colors})"
-alias ls='gls -v --color=auto'
-
 {{- else if eq .osid "windows" }}
 
-# windows
-
 {{- else }}
-
-# setup ssh-agent plugin
-zstyle :omz:plugins:ssh-agent quiet yes
-zstyle :omz:plugins:ssh-agent lazy yes
-
-# load node environment
-[[ -f /usr/share/nvm/init-nvm.sh ]] && . /usr/share/nvm/init-nvm.sh
-
-# configure file listing
-eval "$(dircolors ${ls_colors})"
-alias ls='ls -v --color=auto'
 
 {{- end }}
 
@@ -113,11 +57,34 @@ export PATH
 
 ###############################################################################
 
-### ALIASES ###################################################################
+### PLUGINS ###################################################################
 
-alias la="ls -halF ${timestyle}"
-alias ll="ls -hAlF ${timestyle}"
-alias lr="ls -hAlFR ${timestyle}"
-alias lt="ls -hAlFt ${timestyle}"
+[[ -f ${HOME}/.zsh/plugins.zsh ]] && . ${HOME}/.zsh/plugins.zsh
 
 ###############################################################################
+
+### SECRETS ##################################################################
+
+[[ -f ${HOME}/.zsh/secrets.zsh ]] && . ${HOME}/.zsh/secrets.zsh
+
+# setup ssh-agent plugin
+zstyle :omz:plugins:ssh-agent quiet yes
+zstyle :omz:plugins:ssh-agent lazy yes
+{{- if eq .osid "darwin" }}
+# use Keychain
+zstyle :omz:plugins:ssh-agent ssh-add-args --apple-load-keychain
+{{- end }}
+
+###############################################################################
+
+### ENVIRONMENTS ##############################################################
+
+# load node
+[[ -f /usr/share/nvm/init-nvm.sh ]] && . /usr/share/nvm/init-nvm.sh
+
+###############################################################################
+
+### ALIASES ###################################################################
+
+###############################################################################
+
