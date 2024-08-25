@@ -6,20 +6,8 @@
     url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/sublime/tokyonight_night.tmTheme"
     refreshPeriod = "168h"
 
-# Get dircolors theme
-[".config/dircolors/onedark.dircolors"]
-    type = "file"
-    url = "https://raw.githubusercontent.com/r3tex/one-dark/master/dircolors"
-    refreshPeriod = "168h"
-
 {{ if eq .osid "darwin" -}}
 ## Mac files
-
-# Get iTerm2 theme
-[".config/iterm2/onedark.itermcolors"]
-    type = "file"
-    url = "https://raw.githubusercontent.com/one-dark/iterm-one-dark-theme/main/One%20Dark.itermcolors"
-    refreshPeriod = "168h"
 
 {{ else if eq .osid "windows" -}}
 ## Win files
