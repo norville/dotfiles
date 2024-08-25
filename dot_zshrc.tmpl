@@ -86,9 +86,13 @@ zstyle :omz:plugins:ssh-agent ssh-add-args --apple-load-keychain
 
 ### ALIASES ###################################################################
 
-alias ls='lsd'
-alias ll='ls -la'
-alias lt='ls --tree'
+# use eza instead of ls
+ls='eza --icons'
+la='ls --long --all --no-permissions --octal-permissions --group --smart-group'
+ll='ls --long --no-permissions --no-filesize --no-user --no-time'
+lt='ls --long --no-permissions --no-filesize --no-user --no-time --tree'
+lr='ls --long --no-permissions --no-filesize --no-user --reverse --sort=newest'
+lz='ls --long --no-permissions --no-user --no-time --reverse --sort=size'
 
 ###############################################################################
 
