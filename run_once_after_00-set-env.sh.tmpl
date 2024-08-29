@@ -84,17 +84,6 @@ else
     bdb_outcome "installed"
 fi
 
-# install required pip packages
-bdb_command "Installing required Python packages via pipx"
-pipx ensurepath
-#pipx install proxmoxer
-bdb_success "installing required Python packages"
-
-# set custom folder for iterm2 preferences
-defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "~/.config/iterm2"
-# load iterm2 preferences from custom folder
-defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
-
 {{  else if eq .osid "windows" -}}
 {{  end -}}
 
