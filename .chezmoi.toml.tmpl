@@ -16,7 +16,8 @@
 {{- if or (eq $osid "linux-debian") (eq $osid "linux-ubuntu") -}}
 {{-     $packages = concat $packages (list
             "gpg"
-            "python3") -}}
+            "python3"
+            "software-properties-common") -}}
 {{- else if eq $osid "linux-arch" -}}
 {{-     $packages = concat $packages (list
             "ansible"
