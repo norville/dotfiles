@@ -1,17 +1,11 @@
-# Taps
-#tap "hashicorp/tap"
-
 # Basic apps
 brew "bat"
 brew "chezmoi"
 brew "curl"
 brew "eza"
 brew "git"
-brew "kitty"
 brew "mas"
-#brew "shfmt"
-#brew "tmux"
-#brew "tree"
+brew "tree"
 brew "vim"
 brew "wget"
 brew "zsh"
@@ -21,43 +15,16 @@ brew "coreutils"
 brew "findutils"
 brew "moreutils"
 
-# Frameworks
-#brew "ansible"
-#brew "go"
-#brew "python"
-#brew "terraform"
-
-# Python packages
-#brew "pipx"
-#brew "virtualenv"
-
-# Fonts
-cask "font-fira-mono"
-cask "font-fira-mono-nerd-font"
-cask "font-meslo-lg"
-cask "font-meslo-lg-nerd-font"
-cask "font-symbols-only-nerd-font"
-
 # Apps not on Mac App Store
-cask "balenaetcher"
-cask "handbrake"
-cask "iterm2"
+cask "ghostty"
 cask "logi-options-plus"
-cask "microsoft-edge"
-cask "philips-hue-sync"
-cask "teamviewer"
+cask "moom"
 cask "tor-browser"
-cask "transmission"
 cask "visual-studio-code"
-cask "vlc"
-cask "vmware-fusion"
 cask "whatsapp"
 
 # Apps from Mac App Store
 mas "Keynote", id: 409183694
-mas "Kindle", id: 405399194
-mas "Moom", id: 419330170
 mas "Numbers", id: 409203825
 mas "Pages", id: 409201541
 mas "The Unarchiver", id: 425424353
-
