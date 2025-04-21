@@ -16,16 +16,10 @@
     "zsh" -}}
 {{- if or (eq $osid "linux-debian") (eq $osid "linux-ubuntu") -}}
 {{-     $packages = concat $packages (list
-            "gpg"
-            "python3"
-            "software-properties-common") -}}
+            "snapd") -}}
 {{- else if eq $osid "linux-arch" -}}
 {{-     $packages = concat $packages (list
-            "ansible"
-            "gnupg"
-            "moreutils"
-            "python"
-            "terraform") -}}
+            "ghostty") -}}
 {{- else if eq $osid "linux-fedora" -}}
 {{- end -}}
 
