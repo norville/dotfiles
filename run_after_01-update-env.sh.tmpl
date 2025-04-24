@@ -21,7 +21,7 @@ bdb_success "upgrading Homebrew formulae"
 
 {{  else if eq .osid "windows" -}}
 
-{{  else if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") -}}
+{{  else if eq .osid "linux-ubuntu" -}}
 # Upgrade APT packages
 bdb_command "Running package maintenance"
 sudo -- bash -c 'apt update && apt full-upgrade -y && apt autoremove --purge -y && apt clean -y'

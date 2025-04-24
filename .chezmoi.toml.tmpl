@@ -9,12 +9,11 @@
     "bat"
     "curl"
     "eza"
-    "fontconfig"
     "git"
     "vim"
     "wget"
     "zsh" -}}
-{{- if or (eq $osid "linux-debian") (eq $osid "linux-ubuntu") -}}
+{{- if eq $osid "linux-ubuntu" -}}
 {{-     $packages = concat $packages (list
             "snapd") -}}
 {{- else if eq $osid "linux-arch" -}}
