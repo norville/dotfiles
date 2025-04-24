@@ -254,10 +254,23 @@
             bdb_outcome "installed"
         fi
 
-        # Install Chezmoi
-        bdb_command "Installing Chezmoi"
-        sudo sh -c "$(wget -qO- get.chezmoi.io)" -- -b /usr/local/bin
-        bdb_success "installing Chezmoi"
+        # Chezmoi check
+        bdb_command "Checking Chezmoi"
+        if ! type snapd &>/dev/null; then
+            # Install snapd
+            bdb_outcome "Snap is missing"
+            bdb_command "Installing Snap"
+            sudo apt install -y snapd
+            bdb_success "installing Snap"
+        elif ! type chezmoi &>/dev/null; then
+            # Install Chezmoi
+            bdb_outcome "Chezmoi is missing"
+            bdb_command "Installing Chezmoi"
+            sudo snap install chezmoi --classic
+            bdb_success "installing Chezmoi"
+        else
+            bdb_outcome "installed"
+        fi
 
         ;;
 
@@ -268,7 +281,24 @@
         sudo dnf -y upgrade --refresh
         bdb_success "updating RPM"
 
-        #TODO install chezmoi
+        # Chezmoi check
+        bdb_command "Checking Chezmoi"
+        if ! type snapd &>/dev/null; then
+            # Install snapd
+            bdb_outcome "Snap is missing"
+            bdb_command "Installing Snap"
+            sudo dnf -y install snapd
+            sudo ln -s /var/lib/snapd/snap /snap
+            bdb_success "installing Snap"
+        elif ! type chezmoi &>/dev/null; then
+            # Install Chezmoi
+            bdb_outcome "Chezmoi is missing"
+            bdb_command "Installing Chezmoi"
+            sudo snap install chezmoi --classic
+            bdb_success "installing Chezmoi"
+        else
+            bdb_outcome "installed"
+        fi
 
         ;;
 
@@ -280,13 +310,6 @@
 
     # System ready
     bdb_info_out "All requirements installed, ready to clone your dotfiles"
-
-    # SSH keys alert
-    bdb_alert ""
-    bdb_alert "Before cloning remeber to setup your SSH identities:"
-    bdb_alert "1. upload/generate keys (e.g.: ssh-keygen -t ed25519 [-N 'passphrase'] [-C 'comment'] -f ~/.ssh/<id_file>)"
-    bdb_alert "2. copy identities (e.g.: ssh-copy-id [-p <port_num>] -i <id_file> [user@]host)"
-    bdb_alert ""
 
     # Clone dotfiles now?
     if bdb_ask "Do you want to clone the dotfiles now"; then
