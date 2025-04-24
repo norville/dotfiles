@@ -4,62 +4,25 @@
 source "${INCLUDES}"
 
 {{  if eq .chezmoi.os "linux" -}}
-{{      if eq .osid "linux-ubuntu" -}}
-
-# install required APT packages
 bdb_command "Installing Linux packages"
+
+{{-      if eq .osid "linux-ubuntu" -}}
+# install required APT packages
 sudo apt update
 sudo apt install -y $PACKAGES
-# install ansible and terraform
-sudo add-apt-repository --yes ppa:ansible/ansible
-wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
-#gpg --no-default-keyring --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg --fingerprint
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-sudo apt update
-sudo apt install -y ansible terraform
 
-{{      else if eq .osid "linux-debian" -}}
-
-# install required APT packages
-bdb_command "Installing Linux packages"
-sudo apt update
-sudo apt install -y $PACKAGES
-# install ansible and terraform
-UBUNTU_CODENAME=jammy
-wget -O- "https://keyserver.ubuntu.com/pks/lookup?fingerprint=on&op=get&search=0x6125E2A8C77F2818FB7BD15B93C4A3FD7BB9C367" | sudo gpg --dearmour -o /usr/share/keyrings/ansible-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/ansible-archive-keyring.gpg] http://ppa.launchpad.net/ansible/ansible/ubuntu $UBUNTU_CODENAME main" | sudo tee /etc/apt/sources.list.d/ansible.list
-wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-sudo -- bash -c 'apt update && apt install -y ansible terraform'
-bdb_success "installing Linux packages"
-
-{{      else if eq .osid "linux-arch" -}}
-
+{{-      else if eq .osid "linux-arch" -}}
 # update the system and install required packages
-bdb_command "Installing Linux packages"
 sudo pacman -Syu --needed --noconfirm $PACKAGES
-bdb_success "installing Linux packages"
 
-{{      else if eq .osid "linux-fedora" -}}
-
+{{-      else if eq .osid "linux-fedora" -}}
 # update the system and install required packages
-bdb_command "Installing Linux packages"
 sudo dnf -y upgrade && sudo dnf -y install $PACKAGES
-# install terraform
-sudo -- bash -c 'dnf install -y dnf-plugins-core && \
-                dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/hashicorp.repo && \
-                dnf -y install terraform'
+
+{{-      end -}}
 bdb_success "installing Linux packages"
 
-{{      end -}}
-
-# update font cach to load manually installed fonts
-bdb_run "Updating font cache"
-fc-cache
-bdb_outcome "done"
-
-{{  else if eq .osid "darwin" -}}
-
+{{-  else if eq .osid "darwin" -}}
 # install Comman Line Tools if missing
 bdb_run "Checking Xcode Command Line Tools"
 if  ! type xcode-select &>/dev/null || \
