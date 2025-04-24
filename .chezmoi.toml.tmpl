@@ -20,6 +20,8 @@
 {{-     $packages = concat $packages (list
             "ghostty") -}}
 {{- else if eq $osid "linux-fedora" -}}
+{{-     $packages = concat $packages (list
+            "snapd") -}}
 {{- end -}}
 
 [data]

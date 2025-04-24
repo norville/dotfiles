@@ -22,16 +22,10 @@ bdb_success "upgrading Homebrew formulae"
 {{  else if eq .osid "windows" -}}
 
 {{  else if eq .osid "linux-ubuntu" -}}
-
 # Upgrade APT packages
 bdb_command "Running package maintenance"
 sudo -- bash -c 'apt update && apt full-upgrade -y && apt autoremove --purge -y && apt clean -y'
 bdb_success "running package maintenance"
-
-# Upgrade Chezmoi
-bdb_command "Upgrading Chezmoi"
-chezmoi upgrade
-bdb_success "upgrading Chezmoi"
 
 {{  else if eq .osid "linux-arch" -}}
 bdb_command "Running package maintenance"
@@ -39,19 +33,12 @@ sudo -- bash -c 'pacman -Syu --noconfirm && pacman -Qdtq --noconfirm | ifne pacm
 bdb_success "running package maintenance"
 
 {{  else if eq .osid "linux-fedora" -}}
-
 # Upgrade DNF packages
 bdb_command "Running package maintenance"
 sudo -- bash -c 'dnf distro-sync -y && dnf autoremove -y && dnf clean all'
 bdb_success "running package maintenance"
 
-# Upgrade Chezmoi
-bdb_command "Upgrading Chezmoi"
-chezmoi upgrade
-bdb_success "upgrading Chezmoi"
-
 {{  end -}}
-
 # update zsh plugins
 bdb_command "Upgrading Antigen"
 antigen_dir="${HOME}/.antigen"

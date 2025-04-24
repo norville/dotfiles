@@ -10,6 +10,8 @@ bdb_command "Installing Linux packages"
 # install required APT packages
 sudo apt update
 sudo apt install -y $PACKAGES
+# install ghostty via snap
+sudo snap install ghostty --classic
 
 {{-      else if eq .osid "linux-arch" -}}
 # update the system and install required packages
@@ -18,6 +20,8 @@ sudo pacman -Syu --needed --noconfirm $PACKAGES
 {{-      else if eq .osid "linux-fedora" -}}
 # update the system and install required packages
 sudo dnf -y upgrade && sudo dnf -y install $PACKAGES
+# install ghostty via snap
+sudo snap install ghostty --classic
 
 {{-      end -}}
 bdb_success "installing Linux packages"
