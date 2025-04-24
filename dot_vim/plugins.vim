@@ -22,8 +22,6 @@ Plug 'ghifarit53/tokyonight-vim'
 
 """ Plugins
 Plug 'airblade/vim-gitgutter'
-Plug 'altercation/vim-colors-solarized'
-Plug 'nathanaelkane/vim-indent-guides'
 Plug 'scrooloose/nerdtree'
 Plug 'scrooloose/syntastic'
 Plug 'terryma/vim-multiple-cursors'
@@ -38,4 +36,3 @@ Plug 'ryanoasis/vim-devicons'
 
 call plug#end()
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
