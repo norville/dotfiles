@@ -16,9 +16,6 @@ fi
 # Load Antigen
 source "${ATGN_DIR}"/antigen.zsh
 
-# Load BEFORE Oh-My-ZSH
-antigen bundle ssh-agent
-
 # Load Oh-My-ZSH
 antigen use oh-my-zsh
 
@@ -30,7 +27,6 @@ antigen theme romkatv/powerlevel10k powerlevel10k
 
 # Load plugins
 antigen bundle aliases
-antigen bundle ansible
 antigen bundle akash329d/zsh-alias-finder               # help finding aliases
 
 # Load LAST
@@ -41,4 +37,3 @@ antigen bundle zsh-users/zsh-history-substring-search
 
 # Apply configuration
 antigen apply
-

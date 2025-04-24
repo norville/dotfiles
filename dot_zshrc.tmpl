@@ -67,14 +67,6 @@ export PATH
 
 [[ -f ${HOME}/.zsh/secrets.zsh ]] && . ${HOME}/.zsh/secrets.zsh
 
-# setup ssh-agent plugin
-zstyle :omz:plugins:ssh-agent quiet yes
-zstyle :omz:plugins:ssh-agent lazy yes
-{{- if eq .osid "darwin" }}
-# use Keychain
-zstyle :omz:plugins:ssh-agent ssh-add-args --apple-load-keychain
-{{- end }}
-
 ###############################################################################
 
 ### ENVIRONMENTS ##############################################################
@@ -95,4 +87,3 @@ alias lr='ls --long --no-permissions --no-filesize --no-user --reverse --sort=ne
 alias lz='ls --long --no-permissions --no-user --no-time --reverse --sort=size'
 
 ###############################################################################
-
