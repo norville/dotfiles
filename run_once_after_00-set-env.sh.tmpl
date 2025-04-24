@@ -6,27 +6,27 @@ source "${INCLUDES}"
 {{  if eq .chezmoi.os "linux" -}}
 bdb_command "Installing Linux packages"
 
-{{-      if eq .osid "linux-ubuntu" -}}
+{{-      if eq .osid "linux-ubuntu" }}
 # install required APT packages
 sudo apt update
 sudo apt install -y $PACKAGES
 # install ghostty via snap
 sudo snap install ghostty --classic
 
-{{-      else if eq .osid "linux-arch" -}}
+{{-      else if eq .osid "linux-arch" }}
 # update the system and install required packages
 sudo pacman -Syu --needed --noconfirm $PACKAGES
 
-{{-      else if eq .osid "linux-fedora" -}}
+{{-      else if eq .osid "linux-fedora" }}
 # update the system and install required packages
 sudo dnf -y upgrade && sudo dnf -y install $PACKAGES
 # install ghostty via snap
 sudo snap install ghostty --classic
 
-{{-      end -}}
+{{-      end }}
 bdb_success "installing Linux packages"
 
-{{-  else if eq .osid "darwin" -}}
+{{-  else if eq .osid "darwin" }}
 # install Comman Line Tools if missing
 bdb_run "Checking Xcode Command Line Tools"
 if  ! type xcode-select &>/dev/null || \
@@ -76,11 +76,15 @@ batcat cache --build
 bat cache --build
 {{ end -}}
 
-# set zsh as the login shell
-bdb_run "Setting ZSH as default shell"
-zsh_path="$(which zsh)"
-if [[ "${SHELL}" != "${zsh_path}" ]]; then
-    echo "${zsh_path}" | sudo tee -a /etc/shells >/dev/null
-    sudo chsh -s "${zsh_path}" "${USER}"
+# set the login shell
+bdb_run "Changing the login shell"
+if type zsh &>/dev/null; then
+    zsh_path="$(which zsh)"
+    if [[ "${SHELL}" != "${zsh_path}" ]]; then
+        echo "${zsh_path}" | sudo tee -a /etc/shells >/dev/null
+        sudo chsh -s "${zsh_path}" "${USER}"
+    fi
+    bdb_outcome "changed to ${zsh_path}"
+else
+    bdb_outcome "${zsh_path} not found"
 fi
-bdb_outcome "done"
