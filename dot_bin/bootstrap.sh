@@ -235,7 +235,7 @@
 
         ;;
 
-    debian | ubuntu)
+    ubuntu)
 
         # Update APT package list
         bdb_command "Updating APT"
@@ -256,17 +256,11 @@
 
         # Chezmoi check
         bdb_command "Checking Chezmoi"
-        if ! type snapd &>/dev/null; then
-            # Install snapd
-            bdb_outcome "Snap is missing"
-            bdb_command "Installing Snap"
-            sudo apt install -y snapd
-            bdb_success "installing Snap"
-        elif ! type chezmoi &>/dev/null; then
+        if ! type chezmoi &>/dev/null; then
             # Install Chezmoi
             bdb_outcome "Chezmoi is missing"
             bdb_command "Installing Chezmoi"
-            sudo snap install chezmoi --classic
+            sudo sh -c "$(wget -qO- get.chezmoi.io)" -- -b /usr/local/bin
             bdb_success "installing Chezmoi"
         else
             bdb_outcome "installed"
@@ -283,18 +277,11 @@
 
         # Chezmoi check
         bdb_command "Checking Chezmoi"
-        if ! type snapd &>/dev/null; then
-            # Install snapd
-            bdb_outcome "Snap is missing"
-            bdb_command "Installing Snap"
-            sudo dnf -y install snapd
-            sudo ln -s /var/lib/snapd/snap /snap
-            bdb_success "installing Snap"
-        elif ! type chezmoi &>/dev/null; then
+        if ! type chezmoi &>/dev/null; then
             # Install Chezmoi
             bdb_outcome "Chezmoi is missing"
             bdb_command "Installing Chezmoi"
-            sudo snap install chezmoi --classic
+            sudo sh -c "$(wget -qO- get.chezmoi.io)" -- -b /usr/local/bin
             bdb_success "installing Chezmoi"
         else
             bdb_outcome "installed"
