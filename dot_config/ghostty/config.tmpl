@@ -12,7 +12,7 @@ window-padding-y = 5
 window-save-state = always
 unfocused-split-opacity = 0.25
 
-{{- if eq $osid "linux-arch" }}
+{{- if eq .osid "linux-arch" }}
 adw-toolbar-style = raised-border
 gtk-adwaita = true
 gtk-titlebar = false
@@ -38,7 +38,7 @@ cursor-click-to-move = false
 ## Font
 font-family = "JetBrains Mono"
 
-{{- if eq $osid "linux-arch" }}
+{{- if eq .osid "linux-arch" }}
 font-size = 10
 
 {{- else if eq .osid "darwin" }}
@@ -59,7 +59,7 @@ selection-foreground = #c0caf5
 cursor-color = #c0caf5
 cursor-text = #15161e
 
-{{- if eq $osid "linux-arch" }}
+{{- if eq .osid "linux-arch" }}
 window-titlebar-background = #15161e
 unfocused-split-fill = #1a1b26
 split-divider-color = #15161e
@@ -82,7 +82,7 @@ palette = 13=#bb9af7
 palette = 14=#7dcfff
 palette = 15=#c0caf5
 
-{{- if or (eq $osid "linux-debian") (eq $osid "linux-ubuntu") -}}
+{{- if eq .osid "linux-ubuntu" -}}
 
 {{- else if eq $osid "linux-fedora" -}}
 
