@@ -1,27 +1,32 @@
 Host *
-    IdentitiesOnly yes  # use only specified keys, even if ssh-agent offers more identities
-    AddKeysToAgent yes  # enter passphrase only on first use (REQUIRED by omz:ssh-agent plugin)
 
-{{- if eq .osid "darwin" }}
-    # Required for macOS 10.12+
-    # Automatically load macOS ssh-agent and store passphrases in Keychain Access
-    UseKeychain yes
+{{- if eq .chezmoi.os "darwin" }}
+    IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+{{- else if eq .chezmoi.os "linux" }}
+    IdentityAgent ~/.1password/agent.sock
 {{- end }}
+    IdentitiesOnly yes  # use only specified keys, even if ssh-agent offers more identities
 
 Host gitlab.com
-    IdentityFile ~/.ssh/norville_at_gitlab
+    IdentityFile ~/.ssh/norville_at_gitlab.pub
 
 Host github.com
-    IdentityFile ~/.ssh/norville_at_github
+    IdentityFile ~/.ssh/norville_at_github.pub
 
-Host asura indra baspve basphl basphl-2 basunf baspms apt-cacher basdev bashmb bastux
+Host *.basnet.lan
     Port 25355
     User norville
-    IdentityFile ~/.ssh/norville_at_basnet
+    IdentityFile ~/.ssh/norville_at_basnet.pub
 
-Host vsbasdev
-    HostName basdev
+Host jiraya
     Port 25355
-    User dev
-    IdentityFile ~/.ssh/dev_at_basnas
+    User norville
+    IdentityFile ~/.ssh/norville_at_basnet.pub
+    ForwardAgent yes
 
+Host jiraya-code
+    HostName jiraya
+    Port 25355
+    User code
+    IdentityFile ~/.ssh/code_at_jiraya.pub
+    ForwardAgent yes
