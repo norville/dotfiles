@@ -78,6 +78,10 @@ export PATH
 
 ### ALIASES ###################################################################
 
+{{ if eq .osid "linux-ubuntu" -}}
+alias bat='batcat'
+{{ end -}}
+
 # use eza instead of ls
 alias ls='eza --icons'
 alias la='ls --long --all --no-permissions --octal-permissions --group --smart-group'

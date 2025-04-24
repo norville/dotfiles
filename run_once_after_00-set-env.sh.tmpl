@@ -66,7 +66,11 @@ fi
 {{  end -}}
 
 # load bat colorscheme from ~/.config/bat/themes
+{{ if eq .osid "linux-ubuntu" -}}
+batcat cache --build
+{{ else -}}
 bat cache --build
+{{ end -}}
 
 # set zsh as the login shell
 bdb_run "Setting ZSH as default shell"
