@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# include global vars and functions
+source "${INCLUDES}"
+
+# load bat colorscheme from ~/.config/bat/themes
+{{ if eq .osid "linux-ubuntu" -}}
+batcat cache --build
+{{ else -}}
+bat cache --build
+{{ end -}}
+
+# set the login shell
+bdb_run "Changing the login shell"
+if type zsh &>/dev/null; then
+    zsh_path="$(which zsh)"
+    if [[ "${SHELL}" != "${zsh_path}" ]]; then
+        echo "${zsh_path}" | sudo tee -a /etc/shells >/dev/null
+        sudo chsh -s "${zsh_path}" "${USER}"
+    fi
+    bdb_outcome "changed to ${zsh_path}"
+else
+    bdb_outcome "${zsh_path} not found"
+fi
