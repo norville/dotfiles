@@ -1,4 +1,5 @@
 # Basic apps
+brew "1password-cli"
 brew "bat"
 brew "chezmoi"
 brew "curl"
@@ -16,6 +17,7 @@ brew "findutils"
 brew "moreutils"
 
 # Apps not on Mac App Store
+cashk "1password"
 cask "ghostty"
 cask "logi-options-plus"
 cask "moom"
