@@ -255,7 +255,7 @@
         fi
 
         # Chezmoi check
-        bdb_command "Checking Chezmoi"
+        bdb_run "Checking Snap"
         if ! type snapd &>/dev/null; then
             # Install snapd
             bdb_outcome "Snap is missing"
@@ -263,6 +263,7 @@
             sudo apt install -y snapd
             bdb_success "installing Snap"
         fi
+        bdb_run "Checking Chezmoi"
         if ! type chezmoi &>/dev/null; then
             # Install Chezmoi
             bdb_outcome "Chezmoi is missing"
@@ -283,7 +284,7 @@
         bdb_success "updating RPM"
 
         # Chezmoi check
-        bdb_command "Checking Chezmoi"
+        bdb_command "Checking Snap"
         if ! type snapd &>/dev/null; then
             # Install snapd
             bdb_outcome "Snap is missing"
@@ -292,6 +293,7 @@
             sudo ln -s /var/lib/snapd/snap /snap
             bdb_success "installing Snap"
         fi
+        bdb_run "Checking Chezmoi"
         if ! type chezmoi &>/dev/null; then
             # Install Chezmoi
             bdb_outcome "Chezmoi is missing"
