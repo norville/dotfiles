@@ -15,12 +15,15 @@
     "zsh" -}}
 {{- if eq $osid "linux-ubuntu" -}}
 {{-     $packages = concat $packages (list
+            "gpg"
             "snapd") -}}
 {{- else if eq $osid "linux-arch" -}}
 {{-     $packages = concat $packages (list
-            "ghostty") -}}
+            "ghostty"
+            "gnupg") -}}
 {{- else if eq $osid "linux-fedora" -}}
 {{-     $packages = concat $packages (list
+            "gpg"
             "snapd") -}}
 {{- end -}}
 
