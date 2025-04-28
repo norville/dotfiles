@@ -24,6 +24,8 @@ sudo pacman -S --needed git base-devel && \
 {{-      else if eq .osid "linux-fedora" }}
 # update the system and install required packages
 sudo dnf -y upgrade && sudo dnf -y install $PACKAGES
+# load snapd
+PATH="/var/lib/snapd/snap/bin:${PATH}" snap
 # install ghostty via snap
 sudo snap install ghostty --classic
 
