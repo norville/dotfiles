@@ -291,7 +291,7 @@
             bdb_command "Installing Snap"
             sudo dnf -y install snapd
             sudo ln -s /var/lib/snapd/snap /snap
-            set PATH="/var/lib/snapd/snap/bin:${PATH}" && snap
+            PATH="/var/lib/snapd/snap/bin:${PATH}" && snap
             bdb_success "installing Snap"
         fi
         bdb_run "Checking Chezmoi"
