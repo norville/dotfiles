@@ -3,6 +3,7 @@
 ## Shell
 command = zsh
 shell-integration = zsh
+# disable cursor integration to force blinking
 shell-integration-features = no-cursor,sudo,title
 
 ## Windows (not the OS)
@@ -65,6 +66,7 @@ unfocused-split-fill = #1a1b26
 split-divider-color = #15161e
 {{- end }}
 
+## Palette
 palette = 0=#15161e
 palette = 1=#f7768e
 palette = 2=#9ece6a
@@ -96,7 +98,8 @@ palette = 15=#c0caf5
 #keybind = super+w=close_surface
 #keybind = super+k=clear_screen
 #keybind = super+alt+i=inspector:toggle
-keybind = super+ctrl+r=reset                # reset terminal
+# reset terminal
+keybind = super+ctrl+r=reset
 #keybind = super+shift+comma=reload_config
 
 ## Font
@@ -106,10 +109,14 @@ keybind = super+ctrl+r=reset                # reset terminal
 #keybind = super+zero=reset_font_size
 
 ## Splits
-keybind = super+d=ignore                          # ignore default keybind for vertical split
-keybind = super+shift+v=new_split:right           # remap default keybind for vertical split
-keybind = super+shift+d=ignore                    # ignore default keybind for horizontal split
-keybind = super+shift+h=new_split:down            # remap default keybind for horizontal split
+# ignore default keybind for vertical split
+keybind = super+d=ignore
+# remap default keybind for vertical split
+keybind = super+shift+v=new_split:right
+# ignore default keybind for horizontal split
+keybind = super+shift+d=ignore     
+# remap default keybind for horizontal split
+keybind = super+shift+h=new_split:down
 #keybind = super+ctrl+left=resize_split:left,10
 #keybind = super+ctrl+right=resize_split:right,10
 #keybind = super+ctrl+up=resize_split:up,10
@@ -125,10 +132,14 @@ keybind = super+shift+h=new_split:down            # remap default keybind for ho
 
 ## Tabs
 #keybind = super+t=new_tab
-keybind = ctrl+shift+tab=ignore                 # ignore default keybind for previous tab
-keybind = super+shift+left_bracket=previous_tab # remap default keybind for previous tab
-keybind = ctrl+tab=ignore                       # ignore default keybind for next tab
-keybind = super+shift+right_bracket=next_tab    # remap default keybind for next tab
+# ignore default keybind for previous tab
+keybind = ctrl+shift+tab=ignore
+# remap default keybind for previous tab
+keybind = super+shift+left_bracket=previous_tab
+# ignore default keybind for next tab
+keybind = ctrl+tab=ignore
+# remap default keybind for next tab
+keybind = super+shift+right_bracket=next_tab
 keybind = super+ctrl+left_bracket=move_tab:-1
 keybind = super+ctrl+right_bracket=move_tab:1
 #keybind = super+physical:nine=last_tab
@@ -137,8 +148,10 @@ keybind = super+ctrl+right_bracket=move_tab:1
 #keybind = super+n=new_window
 #keybind = super+shift+w=close_window
 #keybind = super+alt+shift+w=close_all_windows
-keybind = super+enter=ignore                    # ignore default keybind to toggle fullscreen
-keybind = super+ctrl+f=toggle_fullscreen        # remap default keybind to toggle fullscreen
+# ignore default keybind to toggle fullscreen
+keybind = super+enter=ignore
+# remap default keybind to toggle fullscreen
+keybind = super+ctrl+f=toggle_fullscreen
 
 ## Selection
 #keybind = shift+left=adjust_selection:left
@@ -149,8 +162,10 @@ keybind = super+ctrl+f=toggle_fullscreen        # remap default keybind to toggl
 #keybind = shift+page_down=adjust_selection:page_down
 #keybind = shift+home=adjust_selection:home
 #keybind = shift+end=adjust_selection:end
-keybind = super+alt+shift+s=write_selection_file:open # paste selection content to a temp file and open it with default editor
-keybind = super+shift+s=write_selection_file:paste    # paste selection temp file path into terminal
+# paste selection content to a temp file and open it with default editor
+keybind = super+alt+shift+s=write_selection_file:open
+# paste selection temp file path into terminal
+keybind = super+shift+s=write_selection_file:paste
 
 ## Scroll
 #keybind = super+shift+down=jump_to_prompt:1
@@ -162,7 +177,8 @@ keybind = super+shift+s=write_selection_file:paste    # paste selection temp fil
 #keybind = super+shift+j=write_scrollback_file:paste
 
 ## Escape sequences
-keybind = alt+tab=ignore          # ignore sequence
+# ignore sequence
+keybind = alt+tab=ignore
 #keybind = alt+left=esc:b
 #keybind = alt+right=esc:f
 #keybind = super+backspace=esc:
