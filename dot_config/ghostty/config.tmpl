@@ -3,7 +3,7 @@
 ## Shell
 command = zsh
 shell-integration = zsh
-shell-integration-features = no-cursor,sudo,title # disable cursor shell integration to force blinking
+shell-integration-features = no-cursor,sudo,title
 
 ## Windows (not the OS)
 window-padding-balance = true
@@ -63,7 +63,7 @@ cursor-text = #15161e
 window-titlebar-background = #15161e
 unfocused-split-fill = #1a1b26
 split-divider-color = #15161e
-{{- end -}}
+{{- end }}
 
 palette = 0=#15161e
 palette = 1=#f7768e
@@ -82,13 +82,13 @@ palette = 13=#bb9af7
 palette = 14=#7dcfff
 palette = 15=#c0caf5
 
-{{- if eq .osid "linux-ubuntu" -}}
+{{- if eq .osid "linux-ubuntu" }}
 
-{{- else if eq .osid "linux-fedora" -}}
+{{- else if eq .osid "linux-fedora" }}
 
 {{- else if eq .osid "windows" -}}
 
-{{- end -}}
+{{- end }}
 
 ### Keybinds
 
