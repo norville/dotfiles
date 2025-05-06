@@ -25,8 +25,8 @@ sudo pacman -S --needed git base-devel && \
 # update the system and install required packages
 sudo dnf -y upgrade && sudo dnf -y install $PACKAGES
 # install ghostty
-sudo dnf install --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
-sudo dnf install ghostty
+sudo dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
+sudo dnf install -y ghostty
 
 {{-      end }}
 bdb_success "installing Linux packages"
