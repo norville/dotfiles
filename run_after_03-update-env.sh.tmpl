@@ -33,6 +33,10 @@ sudo -- bash -c 'pacman -Syu --noconfirm && pacman -Qdtq --noconfirm | ifne pacm
 bdb_success "running package maintenance"
 
 {{  else if eq .osid "linux-fedora" -}}
+# Upgrade Chezmoi
+bdb_command "Upgrading Chezmoi"
+chezmoi upgrade
+bdb_success "upgrading Chezmoi"
 # Upgrade DNF packages
 bdb_command "Running package maintenance"
 sudo -- bash -c 'dnf distro-sync -y && dnf autoremove -y && dnf clean all'

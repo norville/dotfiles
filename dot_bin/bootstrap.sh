@@ -284,22 +284,12 @@
         bdb_success "updating RPM"
 
         # Chezmoi check
-        bdb_command "Checking Snap"
-        if ! type snapd &>/dev/null; then
-            # Install snapd
-            bdb_outcome "Snap is missing"
-            bdb_command "Installing Snap"
-            sudo dnf -y install snapd
-            sudo ln -s /var/lib/snapd/snap /snap
-            PATH="/var/lib/snapd/snap/bin:${PATH}" && snap
-            bdb_success "installing Snap"
-        fi
         bdb_run "Checking Chezmoi"
         if ! type chezmoi &>/dev/null; then
             # Install Chezmoi
             bdb_outcome "Chezmoi is missing"
             bdb_command "Installing Chezmoi"
-            sudo snap install chezmoi --classic
+            sh -c "$(curl -fsLS get.chezmoi.io)"
             bdb_success "installing Chezmoi"
         else
             bdb_outcome "installed"
