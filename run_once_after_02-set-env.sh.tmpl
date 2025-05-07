@@ -20,5 +20,5 @@ if type zsh &>/dev/null; then
     fi
     bdb_outcome "changed to ${zsh_path}"
 else
-    bdb_outcome "${zsh_path} not found"
+    bdb_error "ZSH not installed"
 fi
