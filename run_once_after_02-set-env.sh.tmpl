@@ -12,13 +12,27 @@ bat cache --build
 
 # set the login shell
 bdb_run "Changing the login shell"
+
+# check if zsh is installed
 if type zsh &>/dev/null; then
+
+    # check if zsh is already the default shell
     zsh_path="$(which zsh)"
     if [[ "${SHELL}" != "${zsh_path}" ]]; then
+
+        # set zsh as the default shell
         echo "${zsh_path}" | sudo tee -a /etc/shells >/dev/null
         sudo chsh -s "${zsh_path}" "${USER}"
+        bdb_outcome "changed to ${zsh_path}"
+
+    else
+
+        bdb_outcome "${zsh_path} is already the default shell"
+
     fi
-    bdb_outcome "changed to ${zsh_path}"
+
 else
+
     bdb_error "ZSH not installed"
+
 fi
