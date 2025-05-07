@@ -17,7 +17,8 @@ brew "findutils"
 brew "moreutils"
 
 # Apps not on Mac App Store
-cashk "1password"
+cask "1password"
+cask "font-jetbrains-mono"
 cask "ghostty"
 cask "logi-options-plus"
 cask "moom"
