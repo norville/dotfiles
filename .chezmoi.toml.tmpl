@@ -23,8 +23,7 @@
             "gnupg") -}}
 {{- else if eq $osid "linux-fedora" -}}
 {{-     $packages = concat $packages (list
-            "gpg"
-            "snapd") -}}
+            "gpg") -}}
 {{- end -}}
 
 [data]
