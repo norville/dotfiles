@@ -3,12 +3,7 @@
 # include global vars and functions
 source "${INCLUDES}"
 
-# load bat colorscheme from ~/.config/bat/themes
-{{ if eq .osid "linux-ubuntu" -}}
-batcat cache --build
-{{ else -}}
-bat cache --build
-{{ end -}}
+bdb_command "Setting up the environment"
 
 # set the login shell
 bdb_run "Changing the login shell"
@@ -26,13 +21,17 @@ if type zsh &>/dev/null; then
         bdb_outcome "changed to ${zsh_path}"
 
     else
-
         bdb_outcome "${zsh_path} is already the default shell"
-
     fi
-
 else
-
     bdb_error "ZSH not installed"
-
 fi
+
+# load bat colorscheme from ~/.config/bat/themes
+{{ if eq .osid "linux-ubuntu" -}}
+batcat cache --build
+{{ else -}}
+bat cache --build
+{{ end -}}
+
+bdb_success "setting up the environment"
