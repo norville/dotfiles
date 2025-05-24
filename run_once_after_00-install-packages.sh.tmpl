@@ -28,45 +28,7 @@ sudo dnf -y upgrade && sudo dnf -y install $PACKAGES
 {{-      end }}
 bdb_success "installing Linux packages"
 
-{{-  else if eq .osid "darwin" }}
-# install Comman Line Tools if missing
-bdb_run "Checking Xcode Command Line Tools"
-if  ! type xcode-select &>/dev/null || \
-    ! clt_path="$(xcode-select --print-path &>/dev/null)" || \
-    ! test -d "${clt_path}" || \
-    ! test -x "${clt_path}"; then
-
-    bdb_outcome "missing"
-    bdb_command "Installing CLT"
-    sudo softwareupdate -i "$(  sudo softwareupdate -l | \
-                                grep '*.*Command Line' | \
-                                awk -F ":" '{print $2}' | \
-                                sed -e 's/^ *//' | \
-                                tr -d '\n' \
-                            )" --agree-to-license
-    bdb_success "installing CLT"
-else
-    bdb_outcome "installed"
-fi
-
-# install Homebrew if missing
-bdb_run "Checking Homebrew"
-if ! type brew &>/dev/null; then
-
-    # install homebrew
-    bdb_outcome "missing"
-    bdb_command "Installing Homebrew"
-    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-    bdb_success "installing Homebrew"
-
-    # install required packages
-    bdb_command "Installing Homebrew formulae"
-    brew bundle install --file=".config/homebrew/brewfile"
-    bdb_success "installing Homebrew formulae"
-
-else
-    bdb_outcome "installed"
-fi
+{{- else if eq .osid "darwin" }}
 
 {{  else if eq .osid "windows" -}}
 {{  end -}}
