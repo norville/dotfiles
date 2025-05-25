@@ -17,7 +17,7 @@
 {{-     $packages = concat $packages (list
             "gpg"
             "snapd") -}}
-{{- else if eq $osid "linux-arch" -}}
+{{- else if (or (eq $osid "linux-arch") (eq $osid "linux-manjaro")) -}}
 {{-     $packages = concat $packages (list
             "ghostty"
             "gnupg") -}}

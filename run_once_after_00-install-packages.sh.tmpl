@@ -13,7 +13,7 @@ sudo apt install -y $PACKAGES
 # install ghostty via snap
 sudo snap install ghostty --classic
 
-{{-      else if eq .osid "linux-arch" }}
+{{-      else if (or (eq $osid "linux-arch") (eq $osid "linux-manjaro")) }}
 # update the system and install required packages
 sudo pacman -Syu --needed --noconfirm $PACKAGES
 # install yay via AUR

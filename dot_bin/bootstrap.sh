@@ -180,7 +180,7 @@
     # Install requirements
     case "${DISTRO}" in
 
-    arch)
+    arch | manjaro)
 
         # Update package list
         bdb_command "Installing Chezmoi"
