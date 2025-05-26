@@ -27,7 +27,7 @@ bdb_command "Running package maintenance"
 sudo -- bash -c 'apt update && apt full-upgrade -y && apt autoremove --purge -y && apt clean -y'
 bdb_success "running package maintenance"
 
-{{  else if (or (eq $osid "linux-arch") (eq $osid "linux-manjaro")) -}}
+{{  else if (or (eq .osid "linux-arch") (eq .osid "linux-manjaro")) -}}
 bdb_command "Running package maintenance"
 sudo -- bash -c 'pacman -Syu --noconfirm && pacman -Qdtq --noconfirm | ifne pacman -Rns --noconfirm - && pacman -Scc --noconfirm'
 bdb_success "running package maintenance"
@@ -43,6 +43,7 @@ sudo -- bash -c 'dnf distro-sync -y && dnf autoremove -y && dnf clean all'
 bdb_success "running package maintenance"
 
 {{  end -}}
+
 # update zsh plugins
 bdb_command "Upgrading Antigen"
 antigen_dir="${HOME}/.antigen"

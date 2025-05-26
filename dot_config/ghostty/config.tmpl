@@ -13,7 +13,7 @@ window-padding-y = 5
 window-save-state = always
 unfocused-split-opacity = 0.25
 
-{{- if eq .osid "linux-arch" }}
+{{- if (or (eq .osid "linux-arch") (eq .osid "linux-manjaro")) }}
 adw-toolbar-style = raised-border
 gtk-adwaita = true
 gtk-titlebar = false
