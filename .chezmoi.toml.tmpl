@@ -11,7 +11,7 @@
 {{- else if eq $osid "windows" -}}
     {{- $manufacturer = (includeCmd "wmic computersystem get manufacturer" | splitList "\n" | index 1 | trim) -}}
 {{- else if eq $osid "darwin" -}}
-    {{- $manufacturer = "Apple Inc." -}}
+    {{- $manufacturer = "Apple" -}}
 {{- else -}}
     {{- $manufacturer = "Unknown" -}}
 {{- end -}}

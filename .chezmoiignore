@@ -1,14 +1,19 @@
 README.md
 
 # ignore these files unless OS is darwin
-{{-     if ne .chezmoi.os "darwin" }}
+{{- if ne .chezmoi.os "darwin" }}
 .config/homebrew/
-{{-     end }}
+{{- end }}
 
 # ignore these files unless OS is linux
-{{-     if ne .chezmoi.os "linux" }}
-{{-     end }}
+{{- if ne .chezmoi.os "linux" }}
+{{- end }}
+
+# ignore these files unless OS is Manjaro runinng on Mac
+{{- if (and (eq .osid "linux-manjaro") (eq .manufacturer "Apple")) -}}
+/etc/modprobe.d/alsa-base.conf
+{{- end }}
 
 # ignore these files unless OS is windows
-{{-    if ne .chezmoi.os "windows" }}
-{{-    end }}
+{{- if ne .chezmoi.os "windows" }}
+{{- end }}
