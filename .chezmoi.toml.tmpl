@@ -1,35 +1,55 @@
-{{- /* Detect OS and distro */ -}}
+{{- /* Detect OS and Linux distro */ -}}
 {{- $osid := .chezmoi.os -}}
 {{- if hasKey .chezmoi.osRelease "id" -}}
-{{-     $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+    {{- $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
 {{- end -}}
 
-{{- /* Create list of required packages for Linux */ -}}
-{{- $packages := list
-    "bat"
-    "curl"
-    "eza"
-    "git"
-    "vim"
-    "wget"
-    "zsh" -}}
-{{- if eq $osid "linux-ubuntu" -}}
-{{-     $packages = concat $packages (list
-            "gpg"
-            "snapd") -}}
-{{- else if (or (eq $osid "linux-arch") (eq $osid "linux-manjaro")) -}}
-{{-     $packages = concat $packages (list
-            "ghostty"
-            "gnupg") -}}
-{{- else if eq $osid "linux-fedora" -}}
-{{-     $packages = concat $packages (list
-            "gpg") -}}
+{{- /* Detect machine manufacturer */ -}}
+{{- $manufacturer := "" -}}
+{{- if hasPrefix $osid "linux" -}}
+    {{- $manufacturer = (includeCmd "cat /sys/devices/virtual/dmi/id/sys_vendor" | trim) -}}
+{{- else if eq $osid "windows" -}}
+    {{- $manufacturer = (includeCmd "wmic computersystem get manufacturer" | splitList "\n" | index 1 | trim) -}}
+{{- else if eq $osid "darwin" -}}
+    {{- $manufacturer = "Apple Inc." -}}
+{{- else -}}
+    {{- $manufacturer = "Unknown" -}}
+{{- end -}}
+
+{{- /* Create list of packages required by Linux */ -}}
+{{- if hasPrefix $osid "linux" -}}
+    {{- $packages := list
+            "bat"
+            "curl"
+            "eza"
+            "git"
+            "vim"
+            "wget"
+            "zsh" -}}
+    {{- if eq $osid "linux-ubuntu" -}}
+        {{- $packages = concat $packages (list
+                "gpg"
+                "snapd") -}}
+    {{- else if (or (eq $osid "linux-arch") (eq $osid "linux-manjaro")) -}}
+        {{- $packages = concat $packages (list
+                "ghostty"
+                "gnupg") -}}
+    {{- else if eq $osid "linux-fedora" -}}
+        {{- $packages = concat $packages (list
+                "gpg") -}}
+    {{- end -}}
 {{- end -}}
 
 [data]
+    manufacturer: {{ $manufacturer | quote }}
     osid = {{ $osid | quote }}
     email = "ing.norville@protonmail.com"
 
 [scriptEnv]
+{{- /* Define ENV variables for shell scripts */ -}}
+{{- /* Path to script utilities */ }}
     INCLUDES = ".config/lib/include"
+{{- /* List of required packages */ -}}
+{{- if hasPrefix $osid "linux" }}
     PACKAGES = {{ $packages | join " " | quote }}
+{{- end }}
