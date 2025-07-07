@@ -288,9 +288,10 @@
     esac
 
     # Setup Chezmoi
-    bdb_info_in "Setting up Chezmoi"
-    mkdir -p "${HOME}/.config/chezmoi"
-    echo "{\"manufacturer\": \"${manufacturer}\"}" > "${HOME}/.config/chezmoi/manufacturer.json"
+    bdb_command "Setting up Chezmoi"
+    chezmoi_source_dir="${HOME}/.local/share/chezmoi"
+    mkdir -p "${chezmoi_source_dir}"
+    echo "{\"manufacturer\": \"${manufacturer}\"}" > "${chezmoi_source_dir}/manufacturer.json"
     bdb_success "setting up Chezmoi"
     
     # System ready

@@ -1,5 +1,5 @@
 {{- /* Detect machine manufacturer */ -}}
-{{- $manufacturerData := (include "~/config/chemoi/manufacturer.json" | fromJson) -}}
+{{- $manufacturerData := (include "manufacturer.json" | fromJson) -}}
 {{- $manufacturer := $manufacturerData.manufacturer | default "Unknown" -}}
 
 {{- /* Detect OS and Linux distro */ -}}
