@@ -287,13 +287,6 @@
 
     esac
 
-    # Setup Chezmoi
-    bdb_command "Setting up Chezmoi"
-    chezmoi_source_dir="${HOME}/.local/share/chezmoi"
-    mkdir -p "${chezmoi_source_dir}"
-    echo "{\"manufacturer\": \"${manufacturer}\"}" > "${chezmoi_source_dir}/manufacturer.json"
-    bdb_success "setting up Chezmoi"
-    
     # System ready
     bdb_info_out "All requirements installed, ready to clone your dotfiles"
 

@@ -1,6 +1,5 @@
 {{- /* Detect machine manufacturer */ -}}
-{{- $manufacturerData := (include "manufacturer.json" | fromJson) -}}
-{{- $manufacturer := $manufacturerData.manufacturer | default "Unknown" -}}
+{{- $manufacturer := (output "cat" "/sys/devices/virtual/dmi/id/sys_vendor" "2>/dev/null" | trim | default "Unknown") -}}
 
 {{- /* Detect OS and Linux distro */ -}}
 {{- $osid := .chezmoi.os -}}
