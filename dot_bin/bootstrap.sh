@@ -158,8 +158,6 @@
     # Detect machine manufacturer
     bdb_run "Detecting machine manufacturer"
     manufacturer="$(cat /sys/devices/virtual/dmi/id/sys_vendor 2>/dev/null || echo Unknown)"
-    manufacturerData="${HOME}/.config/chezmoi/manufacturer.json"
-    echo "{\"manufacturer\": \"${manufacturer}\"}" > "${manufacturerData}"
     bdb_outcome "${manufacturer}"
 
     # Detect OS
@@ -310,6 +308,12 @@
 
     esac
 
+    # Setup Chezmoi
+    bdb_info_in "Setting up Chezmoi"
+    mkdir -p "${HOME}/.config/chezmoi"
+    echo "{\"manufacturer\": \"${manufacturer}\"}" > "${HOME}/.config/chezmoi/manufacturer.json"
+    bdb_success "setting up Chezmoi"
+    
     # System ready
     bdb_info_out "All requirements installed, ready to clone your dotfiles"
 
