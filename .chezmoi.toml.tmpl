@@ -5,16 +5,8 @@
 {{- end -}}
 
 {{- /* Detect machine manufacturer */ -}}
-{{- $manufacturer := "" -}}
-{{- if hasPrefix $osid "linux" -}}
-    {{- $manufacturer = (includeCmd "cat /sys/devices/virtual/dmi/id/sys_vendor" | trim) -}}
-{{- else if eq $osid "windows" -}}
-    {{- $manufacturer = (includeCmd "wmic computersystem get manufacturer" | splitList "\n" | index 1 | trim) -}}
-{{- else if eq $osid "darwin" -}}
-    {{- $manufacturer = "Apple" -}}
-{{- else -}}
-    {{- $manufacturer = "Unknown" -}}
-{{- end -}}
+{{- $manufacturerData := (include "manufacturer.json" | fromJson) -}}
+{{- $manufacturer := $manufacturerData.manufacturer | default "Unknown" -}}
 
 {{- /* Create list of packages required by Linux */ -}}
 {{- if hasPrefix $osid "linux" -}}
@@ -47,7 +39,7 @@
 
 [scriptEnv]
 {{- /* Define ENV variables for shell scripts */ -}}
-{{- /* Path to script utilities */ }}
+{{- /* Path to script utilities */ -}}
     INCLUDES = ".config/lib/include"
 {{- /* List of required packages */ -}}
 {{- if hasPrefix $osid "linux" }}

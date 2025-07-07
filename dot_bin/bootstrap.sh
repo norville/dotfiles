@@ -155,6 +155,13 @@
     #TODO no newline after password input
     sudo -v
 
+    # Detect machine manufacturer
+    bdb_run "Detecting machine manufacturer"
+    manufacturer="$(cat /sys/devices/virtual/dmi/id/sys_vendor 2>/dev/null || echo Unknown)"
+    manufacturerData="${HOME}/.config/chezmoi/manufacturer.json"
+    echo "{\"manufacturer\": \"${manufacturer}\"}" > "${manufacturerData}"
+    bdb_outcome "${manufacturer}"
+
     # Detect OS
     bdb_run "Detecting operating system"
     # OS type check
