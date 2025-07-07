@@ -281,27 +281,6 @@
 
         ;;
 
-    fedora)
-
-        # Update RPM package list
-        bdb_command "Updating RPM"
-        sudo dnf -y upgrade --refresh
-        bdb_success "updating RPM"
-
-        # Chezmoi check
-        bdb_run "Checking Chezmoi"
-        if ! type chezmoi &>/dev/null; then
-            # Install Chezmoi
-            bdb_outcome "Chezmoi is missing"
-            bdb_command "Installing Chezmoi"
-            sh -c "$(curl -fsLS get.chezmoi.io)"
-            bdb_success "installing Chezmoi"
-        else
-            bdb_outcome "installed"
-        fi
-
-        ;;
-
     *)
         bdb_handle_error "Cannot detect OS type"
         ;;
