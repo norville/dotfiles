@@ -4,31 +4,51 @@
 source "${INCLUDES}"
 
 {{  if eq .chezmoi.os "linux" -}}
+# Linux packages
 bdb_command "Installing Linux packages"
+packages = (
+    bat
+    curl
+    eza
+    git
+    vim
+    wget
+    zsh
+)
 
 {{-      if eq .osid "linux-ubuntu" }}
 # install required APT packages
+apt_packages = (
+    build-essential
+    gpg
+    snapd
+)
 sudo apt update
-sudo apt install -y $PACKAGES
+sudo apt install -y "${packages[@]}" "${apt_packages[@]}"
 # install ghostty via snap
 sudo snap install ghostty --classic
 
 {{-      else if (or (eq .osid "linux-arch") (eq .osid "linux-manjaro")) }}
-# update the system and install required packages
-sudo pacman -Syu --needed --noconfirm $PACKAGES
+# install required ARCH packages
+arch_packages = (
+    base-devel
+    gnupg
+    ghostty
+)
+sudo pacman -Syu --needed --noconfirm "${packages[@]}" "${arch_packages[@]}"
 # install yay via AUR
 sudo pacman -S --needed git base-devel && \
     git clone https://aur.archlinux.org/yay.git && \
     cd yay && makepkg -si --noconfirm
 
-{{-      else if eq .osid "linux-fedora" }}
-# update the system and install required packages
-sudo dnf -y upgrade && sudo dnf -y install $PACKAGES
-
 {{-      end }}
+
 bdb_success "installing Linux packages"
 
 {{- else if eq .osid "darwin" }}
+# macos packages
 
-{{  else if eq .osid "windows" -}}
-{{  end -}}
+{{-  else if eq .osid "windows" -}}
+# Windows packages
+
+{{-  end }}
