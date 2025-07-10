@@ -7,21 +7,21 @@ source "${INCLUDES}"
 # Linux packages
 bdb_command "Installing Linux packages"
 packages = (
-    bat
-    curl
-    eza
-    git
-    vim
-    wget
-    zsh
+    "bat"
+    "curl"
+    "eza"
+    "git"
+    "vim"
+    "wget"
+    "zsh"
 )
 
 {{-      if eq .osid "linux-ubuntu" }}
 # install required APT packages
 apt_packages = (
-    build-essential
-    gpg
-    snapd
+    "build-essential"
+    "gpg"
+    "snapd"
 )
 sudo apt update
 sudo apt install -y "${packages[@]}" "${apt_packages[@]}"
@@ -31,9 +31,9 @@ sudo snap install ghostty --classic
 {{-      else if (or (eq .osid "linux-arch") (eq .osid "linux-manjaro")) }}
 # install required ARCH packages
 arch_packages = (
-    base-devel
-    gnupg
-    ghostty
+    "base-devel"
+    "gnupg"
+    "ghostty"
 )
 sudo pacman -Syu --needed --noconfirm "${packages[@]}" "${arch_packages[@]}"
 # install yay via AUR
