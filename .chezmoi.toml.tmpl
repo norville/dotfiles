@@ -1,11 +1,15 @@
-{{- /* Detect machine manufacturer */ -}}
-{{- $manufacturer := (output "cat" "/sys/devices/virtual/dmi/id/sys_vendor" "2>/dev/null" | trim | default "Unknown") -}}
-
 {{- /* Detect OS and Linux distro */ -}}
 {{- $osid := .chezmoi.os -}}
 {{- if hasKey .chezmoi.osRelease "id" -}}
     {{- $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
 {{- end -}}
+
+{{- /* Detect machine manufacturer */ -}}
+{{- $manufacturer := "Unknown" -}}
+{{- if (or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin")) -}}
+{{-     $manufacturer = (output "cat" "/sys/devices/virtual/dmi/id/sys_vendor" | trim | default "Unknown") -}}
+{{- else if eq .osid "windows" -}}
+{{- end }}
 
 [data]
     manufacturer: {{ $manufacturer | quote }}
