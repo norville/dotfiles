@@ -9,14 +9,15 @@
 {{- if (or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin")) -}}
 {{-     $manufacturer = (output "cat" "/sys/devices/virtual/dmi/id/sys_vendor" | trim | default "Unknown") -}}
 {{- else if eq .osid "windows" -}}
-{{- end }}
+{{- end -}}
 
+# Define chezmoi variables to be used in templates
 [data]
     manufacturer = {{ $manufacturer | quote }}
     osid = {{ $osid | quote }}
     email = "ing.norville@protonmail.com"
 
+# Define ENV variables for shell scripts
 [scriptEnv]
-{{- /* Define ENV variables for shell scripts */ -}}
-{{- /* Path to script utilities */ -}}
+    # Path to script utilities
     INCLUDES = ".config/lib/include"
