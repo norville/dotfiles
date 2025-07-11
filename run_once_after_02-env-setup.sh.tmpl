@@ -29,13 +29,9 @@ fi
 
 {{ if eq .chezmoi.os "linux" -}}
 # install JetBrains Mono font
-bdb_run "Installing JetBrains Mono font"
-if [[ ! -f "${HOME}/.local/share/fonts/fonts/ttf/JetBrainsMono-Regular.ttf" ]]; then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/install_manual.sh)"
-    bdb_outcome "installed"
-else
-    bdb_outcome "already installed"
-fi
+bdb_command "Installing JetBrains Mono font"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/install_manual.sh)"
+bdb_success "installing JetBrains Mono font"
 {{- end }}
 
 # load bat colorscheme from ~/.config/bat/themes
