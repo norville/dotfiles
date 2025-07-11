@@ -179,15 +179,17 @@ global_bootstrap() {
                 bdb_outcome "installed"
             fi
             bdb_run "Checking Snap"
-            if ! command -v snapd >/dev/null 2>&1; then
-                bdb_outcome "Snap is missing"
+            if ! command -v snap >/dev/null 2>&1; then
+                bdb_outcome "missing"
                 bdb_command "Installing Snap"
                 sudo apt install -y snapd
                 bdb_success "installing Snap"
+            else
+                bdb_outcome "installed"
             fi
             bdb_run "Checking Chezmoi"
             if ! command -v chezmoi >/dev/null 2>&1; then
-                bdb_outcome "Chezmoi is missing"
+                bdb_outcome "missing"
                 bdb_command "Installing Chezmoi"
                 sudo snap install chezmoi --classic
                 bdb_success "installing Chezmoi"
