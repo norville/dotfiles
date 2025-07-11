@@ -11,15 +11,14 @@ global_bootstrap() {
     PLATFORM=""
     DISTRO=""
     # Escape sequences for colored output
-    ESC_SEQ="\033["
-    RST_COL="${ESC_SEQ}39;49;00m" # reset
-    RED_COL="${ESC_SEQ}31;01m"    # red
-    GRN_COL="${ESC_SEQ}32;01m"    # green
-    BLU_COL="${ESC_SEQ}34;01m"    # blue
-    YLW_COL="${ESC_SEQ}33;01m"    # yellow
-    CYN_COL="${ESC_SEQ}36;01m"    # cyan
-    MGN_COL="${ESC_SEQ}35;01m"    # magenta
-    WHT_COL="${ESC_SEQ}97;01m"    # white
+    RST_COL=$'\033[39;49;00m' # reset
+    RED_COL=$'\033[31;01m'    # red
+    GRN_COL=$'\033[32;01m'    # green
+    BLU_COL=$'\033[34;01m'    # blue
+    YLW_COL=$'\033[33;01m'    # yellow
+    CYN_COL=$'\033[36;01m'    # cyan
+    MGN_COL=$'\033[35;01m'    # magenta
+    WHT_COL=$'\033[97;01m'    # white
 
     # Print success message
     bdb_success() {
