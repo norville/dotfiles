@@ -23,7 +23,7 @@ global_bootstrap() {
 
     # Print success message
     bdb_success() {
-        printf "\n%s|vvv| SUCCESS %s. %s\n" "${GRN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
+        printf "\n%s|vvv| SUCCESS %s. %s" "${GRN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
     }
 
     # Print error message
@@ -38,12 +38,12 @@ global_bootstrap() {
 
     # Print info message - begin
     bdb_info_in() {
-        printf "%s\n|BDB| +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n|BDB|\n|BDB| %s.\n|BDB|\n%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
+        printf "%s\n|BDB| +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n|BDB|\n|BDB| %s.\n|BDB|%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
     }
 
     # Print info message
     bdb_info() {
-        printf "%s\n|BDB|\n|BDB| %s.\n|BDB|\n%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
+        printf "%s\n|BDB|\n|BDB| %s.\n|BDB|%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
     }
 
     # Print info message - end
