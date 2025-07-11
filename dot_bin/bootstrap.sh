@@ -200,8 +200,6 @@ global_bootstrap() {
             ;;
     esac
 
-    bdb_info_out "All requirements installed, ready to clone dotfiles"
-
     if bdb_ask "Clone dotfiles now"; then
         bdb_command "Cloning dotfiles"
         chezmoi init --apply ${GITHUB_USER}
