@@ -202,12 +202,13 @@ global_bootstrap() {
             ;;
     esac
 
-    if bdb_ask "Clone dotfiles now"; then
-        bdb_command "Cloning dotfiles"
+    bdb_info "All requirements installed, you may now configure your environment"
+    if bdb_ask "Clone dotfiles and apply configuration now"; then
+        bdb_command "Cloning dotfiles and applying configuration"
         chezmoi init --apply ${GITHUB_USER}
-        bdb_success "cloning dotfiles"
+        bdb_success "cloning dotfiles and applying configuration"
     else
-        bdb_alert "Cloning skipped. Use command 'chezmoi init --apply ${GITHUB_USER}' when ready to clone"
+        bdb_alert "Cloning skipped. Use command 'chezmoi init --apply ${GITHUB_USER}' when ready"
     fi
 
     bdb_info_out "Bootstrap complete, please logout and log back in to load your dotfiles"
