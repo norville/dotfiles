@@ -3,6 +3,8 @@
 # include global vars and functions
 source "${INCLUDES}"
 
+bdb_info_in "Chezmoi init: install optional packages"
+
 if bdb_ask "Do you want to install 1Password?"; then
 
     bdb_command "Installing 1Password"
@@ -38,5 +40,7 @@ if bdb_ask "Do you want to install 1Password?"; then
     bdb_success "installing 1Password"
 
 else
-    bdb_info_in "Skipping 1Password installation"
+    bdb_alert "Skipping 1Password installation"
 fi
+
+bdb_info_out "Chezmoi init: optional packages installed"

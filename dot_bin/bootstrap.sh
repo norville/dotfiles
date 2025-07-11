@@ -8,6 +8,7 @@ set -euo pipefail
 # Ensure download of entire script
 global_bootstrap() {
     # Define global variables
+    GITHUB_USER="norville"
     PLATFORM=""
     DISTRO=""
     # Escape sequences for colored output
@@ -22,7 +23,7 @@ global_bootstrap() {
 
     # Print success message
     bdb_success() {
-        printf "\n%s|vvv| SUCCESS %s. %s" "${GRN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
+        printf "\n%s|vvv| SUCCESS %s. %s\n" "${GRN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
     }
 
     # Print error message
@@ -38,6 +39,11 @@ global_bootstrap() {
     # Print info message - begin
     bdb_info_in() {
         printf "%s\n|BDB| +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n|BDB|\n|BDB| %s.\n|BDB|\n%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
+    }
+
+    # Print info message
+    bdb_info() {
+        printf "%s\n|BDB|\n|BDB| %s.\n|BDB|\n%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
     }
 
     # Print info message - end
@@ -87,17 +93,18 @@ global_bootstrap() {
 
     # Bootstrap begin
     bdb_info_in "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
-    bdb_info_in "This script will detect the operating system and install all requirements to clone your dotfiles"
+    bdb_info "This script will detect the operating system and install all requirements to clone your dotfiles"
 
     # Get admin privileges
     bdb_run "Getting admin privileges"
     if command -v sudo >/dev/null 2>&1; then
         sudo -v
+        bdb_outcome "sudo OK"
     fi
 
     # Detect machine manufacturer
     bdb_run "Detecting machine manufacturer"
-    manufacturer="$(cat /sys/devices/virtual/dmi/id/sys_vendor 2>/dev/null || echo Unknown)"
+    manufacturer="$(cat /sys/devices/virtual/dmi/id/sys_vendor 2>/dev/null || echo 'Unknown')"
     bdb_outcome "${manufacturer}"
 
     # Detect OS
@@ -193,17 +200,17 @@ global_bootstrap() {
             ;;
     esac
 
-    bdb_info_out "All requirements installed, ready to clone your dotfiles"
+    bdb_info_out "All requirements installed, ready to clone dotfiles"
 
-    if bdb_ask "Do you want to clone the dotfiles now"; then
+    if bdb_ask "Clone dotfiles now"; then
         bdb_command "Cloning dotfiles"
-        chezmoi init --apply norville
+        chezmoi init --apply ${GITHUB_USER}
         bdb_success "cloning dotfiles"
     else
-        bdb_info_in "Clone your dotfiles anytime with command 'chezmoi init --apply <github_username>'"
+        bdb_alert "Cloning skipped. Use command 'chezmoi init --apply ${GITHUB_USER}' when ready to clone"
     fi
 
-    bdb_info_out "Please logout and log back in to load your dotfiles"
+    bdb_info_out "Bootstrap complete, please logout and log back in to load your dotfiles"
     printf "\n"
     exit 0
 }

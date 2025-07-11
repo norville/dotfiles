@@ -3,15 +3,19 @@
 # include global vars and functions
 source "${INCLUDES}"
 
+bdb_info_in "Chezmoi init: update environment"
+
 {{  if eq .osid "darwin" -}}
 # do brew maintenance
-if bdb_ask "Do you want to remove extra formulae"; then
+if bdb_ask "Do you want to remove extra Homebrew formulae"; then
+    bdb_command "Removing extra Homebrew formulae"
     # remove extra formulae
     brew bundle cleanup -f --file=.config/homebrew/brewfile
     # remove dead dependencies
     brew autoremove
     # empty cache
     brew cleanup --prune=all
+    bdb_success "removed extra Homebrew formulae"
 fi
 
 # update homebrew and installed formulae
@@ -21,17 +25,15 @@ bdb_success "upgrading Homebrew formulae"
 
 {{  else if eq .osid "windows" -}}
 
-{{  else if eq .osid "linux-ubuntu" -}}
+{{  else if eq .chezmoi.os "linux" -}}
+bdb_command "Running package maintenance"
+{{      if eq .osid "linux-ubuntu" -}}
 # Upgrade APT packages
-bdb_command "Running package maintenance"
 sudo -- bash -c 'apt update && apt full-upgrade -y && apt autoremove --purge -y && apt clean -y'
-bdb_success "running package maintenance"
-
-{{  else if (or (eq .osid "linux-arch") (eq .osid "linux-manjaro")) -}}
-bdb_command "Running package maintenance"
+{{      else if (or (eq .osid "linux-arch") (eq .osid "linux-manjaro")) -}}
 sudo -- bash -c 'pacman -Syu --noconfirm && pacman -Qdtq --noconfirm | ifne pacman -Rns --noconfirm - && pacman -Scc --noconfirm'
+{{      end -}}
 bdb_success "running package maintenance"
-
 {{  end -}}
 
 # update zsh plugins
@@ -47,3 +49,5 @@ bdb_command "Upgrading Vim plugins"
 vim -es -u "${HOME}"/.vimrc -i NONE -c "PlugUpdate" -c "qa"
 #vim -c PlugUpdate -c qa
 bdb_success "upgrading Vim plugins"
+
+bdb_info_out "Chezmoi init: environment update complete"

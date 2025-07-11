@@ -3,13 +3,13 @@
 # include global vars and functions
 source "${INCLUDES}"
 
-bdb_command "Setting up the environment"
+bdb_info_in "Chezmoi init: environment setup"
 
 # set the login shell
 bdb_run "Changing the login shell"
 
 # check if zsh is installed
-if type zsh &>/dev/null; then
+if command -v zsh >/dev/null 2>&1; then
 
     # check if zsh is already the default shell
     zsh_path="$(which zsh)"
@@ -39,10 +39,12 @@ fi
 {{- end }}
 
 # load bat colorscheme from ~/.config/bat/themes
+bdb_command "Setting up bat colorscheme"
 {{ if eq .osid "linux-ubuntu" -}}
 batcat cache --build
 {{ else -}}
 bat cache --build
 {{ end -}}
+bdb_success "setting up bat colorscheme"
 
-bdb_success "setting up the environment"
+bdb_info_out "Chezmoi init: environment setup complete"
