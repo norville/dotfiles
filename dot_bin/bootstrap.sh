@@ -11,7 +11,7 @@ global_bootstrap() {
     PLATFORM=""
     DISTRO=""
     # Escape sequences for colored output
-    ESC_SEQ="\x1b["
+    ESC_SEQ="\033["
     RST_COL="${ESC_SEQ}39;49;00m" # reset
     RED_COL="${ESC_SEQ}31;01m"    # red
     GRN_COL="${ESC_SEQ}32;01m"    # green
