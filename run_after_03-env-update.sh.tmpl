@@ -1,42 +1,42 @@
 #!/bin/bash
 
-# include global vars and functions
+# Include global variables and helper functions
 source "${INCLUDES}"
 
+# --- Begin: Environment Update ---
 bdb_info_in "Chezmoi init: update environment"
 
 {{  if eq .osid "darwin" -}}
-# do brew maintenance
+# macOS: Homebrew maintenance
 if bdb_ask "Do you want to remove extra Homebrew formulae"; then
     bdb_command "Removing extra Homebrew formulae"
-    # remove extra formulae
     brew bundle cleanup -f --file=.config/homebrew/brewfile
-    # remove dead dependencies
     brew autoremove
-    # empty cache
     brew cleanup --prune=all
     bdb_success "removed extra Homebrew formulae"
 fi
-
-# update homebrew and installed formulae
+# Update Homebrew and installed formulae
 bdb_command "Upgrading Homebrew formulae"
 brew update && brew upgrade
 bdb_success "upgrading Homebrew formulae"
 
 {{  else if eq .osid "windows" -}}
+# Windows: (add update steps if needed)
 
 {{  else if eq .chezmoi.os "linux" -}}
+# Linux: package manager maintenance
 bdb_command "Running package maintenance"
 {{      if eq .osid "linux-ubuntu" -}}
-# Upgrade APT packages
+# Ubuntu: upgrade and clean APT packages
 sudo -- bash -c 'apt update && apt full-upgrade -y && apt autoremove --purge -y && apt clean -y'
 {{      else if (or (eq .osid "linux-arch") (eq .osid "linux-manjaro")) -}}
+# Arch/Manjaro: upgrade and clean pacman packages
 sudo -- bash -c 'pacman -Syu --noconfirm && pacman -Qdtq --noconfirm | ifne pacman -Rns --noconfirm - && pacman -Scc --noconfirm'
 {{      end -}}
 bdb_success "running package maintenance"
 {{  end -}}
 
-# update zsh plugins
+# Update zsh plugins (Antigen)
 bdb_command "Upgrading Antigen"
 antigen_dir="${HOME}/.antigen"
 [[ -d "${antigen_dir}" ]] && rm -rf "${antigen_dir}"
@@ -44,10 +44,10 @@ mkdir -p "${antigen_dir}"
 git clone https://github.com/zsh-users/antigen.git "${antigen_dir}"
 bdb_success "upgrading Antigen"
 
-# update vim plugins
+# Update vim plugins
 bdb_command "Upgrading Vim plugins"
 vim -es -u "${HOME}"/.vimrc -i NONE -c "PlugUpdate" -c "qa"
-#vim -c PlugUpdate -c qa
 bdb_success "upgrading Vim plugins"
 
+# --- End: Environment Update ---
 bdb_info_out "Chezmoi init: environment update complete"

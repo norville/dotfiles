@@ -7,61 +7,65 @@ set -euo pipefail
 
 # Ensure download of entire script
 global_bootstrap() {
-    # Define global variables
-    GITHUB_USER="norville"
-    PLATFORM=""
-    DISTRO=""
-    # Escape sequences for colored output
-    RST_COL=$'\033[39;49;00m' # reset
-    RED_COL=$'\033[31;01m'    # red
-    GRN_COL=$'\033[32;01m'    # green
-    BLU_COL=$'\033[34;01m'    # blue
-    YLW_COL=$'\033[33;01m'    # yellow
-    CYN_COL=$'\033[36;01m'    # cyan
-    MGN_COL=$'\033[35;01m'    # magenta
-    WHT_COL=$'\033[97;01m'    # white
 
-    # Print success message
+    # Define global variables
+    GITHUB_USER="norville"  # GitHub username for dotfiles repo
+    PLATFORM=""             # OS type (Darwin/Linux)
+    DISTRO=""               # OS distribution name
+
+    # Escape sequences for colored output (ANSI C quoting)
+    RST_COL=$'\033[39;49;00m'   # reset
+    RED_COL=$'\033[31;01m'      # red
+    GRN_COL=$'\033[32;01m'      # green
+    BLU_COL=$'\033[34;01m'      # blue
+    YLW_COL=$'\033[33;01m'      # yellow
+    CYN_COL=$'\033[36;01m'      # cyan
+    MGN_COL=$'\033[35;01m'      # magenta
+    WHT_COL=$'\033[97;01m'      # white
+
+    # --- Output helper functions ---
+
+    # Print success message (green)
     bdb_success() {
         printf "\n%s|vvv| SUCCESS %s. %s" "${GRN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
     }
 
-    # Print error message
+    # Print error message (red)
     bdb_error() {
         printf "\n%s|xxx| ERROR %s %s" "${RED_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
     }
 
-    # Print alert message
+    # Print alert message (yellow)
     bdb_alert() {
         printf "\n%s|!!!| %s %s" "${YLW_COL}" "$1" "${RST_COL}"
     }
 
-    # Print info message - begin
+    # Print info message - begin (white)
     bdb_info_in() {
         printf "%s\n|BDB| +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n|BDB|\n|BDB| %s.\n|BDB|%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
     }
 
-    # Print info message
+    # Print info message (white)
     bdb_info() {
         printf "%s\n|BDB|\n|BDB| %s.\n|BDB|%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
     }
 
-    # Print info message - end
+    # Print info message - end (white)
     bdb_info_out() {
         printf "%s\n|BDB|\n|BDB| %s.\n|BDB|\n|BDB| ---------------------------------------------------------------------------------%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
     }
 
-    # Print run message
+    # Print run message (blue)
     bdb_run() {
         printf "\n%s|###| %s...%s" "${BLU_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
     }
 
-    # Print outcome message
+    # Print outcome message (cyan)
     bdb_outcome() {
         printf " %s%s.%s" "${CYN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
     }
 
-    # Print message before command
+    # Print message before command (cyan)
     bdb_command() {
         printf "\n%s|>>>| %s:%s" "${CYN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
     }
@@ -78,9 +82,9 @@ global_bootstrap() {
 
     # Handle errors, clean up and exit
     bdb_handle_error() {
-        local err_value="$?"
-        local err_command="$BASH_COMMAND"
-        local err_message="${1:-UNKNOWN}"
+        local err_value="$?"         # Last command exit value
+        local err_command="$BASH_COMMAND" # Last command string
+        local err_message="${1:-UNKNOWN}" # Optional error message
         bdb_error "Command: <${err_command}>"
         bdb_error "Value: [${err_value}]"
         bdb_error "Message: '${err_message}'"
@@ -89,25 +93,27 @@ global_bootstrap() {
         exit "${err_value}"
     }
 
+    # Trap errors and call handler
     trap 'bdb_handle_error' ERR
 
-    # Bootstrap begin
+    # --- Bootstrap process ---
+
     bdb_info_in "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
     bdb_info "This script will detect the operating system and install all requirements to clone your dotfiles"
 
-    # Get admin privileges
+    # Get admin privileges (sudo)
     bdb_run "Getting admin privileges"
     if command -v sudo >/dev/null 2>&1; then
         sudo -v
         bdb_outcome "sudo OK"
     fi
 
-    # Detect machine manufacturer
+    # Detect machine manufacturer (for info)
     bdb_run "Detecting machine manufacturer"
     manufacturer="$(cat /sys/devices/virtual/dmi/id/sys_vendor 2>/dev/null || echo 'Unknown')"
     bdb_outcome "${manufacturer}"
 
-    # Detect OS
+    # Detect OS type and distribution
     bdb_run "Detecting operating system"
     PLATFORM="$(uname)"
     case "${PLATFORM}" in
@@ -128,7 +134,7 @@ global_bootstrap() {
     esac
     bdb_outcome "${PLATFORM}/${DISTRO}"
 
-    # Install requirements
+    # --- Install requirements based on OS ---
     case "${DISTRO}" in
         arch|manjaro)
             bdb_command "Installing Chezmoi"
@@ -136,6 +142,7 @@ global_bootstrap() {
             bdb_success "installing Chezmoi"
             ;;
         macos)
+            # macOS: Xcode CLT and Homebrew
             bdb_run "Checking Xcode Command Line Tools"
             if command -v xcode-select >/dev/null 2>&1 && \
                 clt_path="$(xcode-select --print-path 2>/dev/null)" && \
@@ -166,6 +173,7 @@ global_bootstrap() {
             bdb_success "installing Chezmoi"
             ;;
         ubuntu)
+            # Ubuntu: APT, git, snapd, chezmoi
             bdb_command "Updating APT"
             sudo apt update
             bdb_success "updating APT"
@@ -202,6 +210,7 @@ global_bootstrap() {
             ;;
     esac
 
+    # --- Final user prompt and info ---
     bdb_info "All requirements installed, you may now configure your environment"
     if bdb_ask "Clone dotfiles and apply configuration now"; then
         bdb_command "Cloning dotfiles and applying configuration"
@@ -216,4 +225,5 @@ global_bootstrap() {
     exit 0
 }
 
+# --- Start bootstrap ---
 global_bootstrap

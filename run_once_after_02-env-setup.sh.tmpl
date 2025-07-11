@@ -1,25 +1,21 @@
 #!/bin/bash
 
-# include global vars and functions
+# Include global variables and helper functions
 source "${INCLUDES}"
 
+# --- Begin: Environment Setup ---
 bdb_info_in "Chezmoi init: environment setup"
 
-# set the login shell
+# Set the login shell to zsh if available
 bdb_run "Changing the login shell"
-
-# check if zsh is installed
 if command -v zsh >/dev/null 2>&1; then
-
-    # check if zsh is already the default shell
+    # Get zsh path and check if already default
     zsh_path="$(which zsh)"
     if [[ "${SHELL}" != "${zsh_path}" ]]; then
-
-        # set zsh as the default shell
+        # Add zsh to /etc/shells and set as default
         echo "${zsh_path}" | sudo tee -a /etc/shells >/dev/null
         sudo chsh -s "${zsh_path}" "${USER}"
         bdb_outcome "changed to ${zsh_path}"
-
     else
         bdb_outcome "${zsh_path} is already the default shell"
     fi
@@ -28,13 +24,13 @@ else
 fi
 
 {{ if eq .chezmoi.os "linux" -}}
-# install JetBrains Mono font
+# Linux: install JetBrains Mono font
 bdb_command "Installing JetBrains Mono font"
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/install_manual.sh)"
 bdb_success "installing JetBrains Mono font"
 {{- end }}
 
-# load bat colorscheme from ~/.config/bat/themes
+# Set up bat colorscheme from ~/.config/bat/themes
 bdb_command "Setting up bat colorscheme"
 {{ if eq .osid "linux-ubuntu" -}}
 batcat cache --build
@@ -43,4 +39,5 @@ bat cache --build
 {{ end -}}
 bdb_success "setting up bat colorscheme"
 
+# --- End: Environment Setup ---
 bdb_info_out "Chezmoi init: environment setup complete"
