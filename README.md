@@ -7,3 +7,13 @@ script="https://raw.githubusercontent.com/norville/dotfiles/test/dot_config/bdb/
 /bin/bash -c "$(curl -fsSL $script)" || \
 /bin/bash -c "$(wget -qO- $script)"
 ```
+
+## TODO
+
+- download helpers from bootstrap
+- check whitespaces in go templates
+- implement flags:
+  - verbose
+  - log file
+  - no-confirm
+- check out twpayne for new ideas
