@@ -1,4 +1,5 @@
 README.md
+.config/bdb/bdb_bootstrap.sh
 
 # ignore these files unless OS is darwin
 {{- if ne .chezmoi.os "darwin" }}
