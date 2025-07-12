@@ -18,10 +18,12 @@ bdb_info_in "Chezmoi init: install optional packages"
 
 # Prompt user for 1Password installation
 if bdb_ask "Do you want to install 1Password?"; then
+
     bdb_command "Installing 1Password"
+
     {{- if eq .chezmoi.os "linux" }}
-    # Linux: install 1Password
     {{-     if eq .osid "linux-ubuntu" }}
+
     # Ubuntu: add 1Password repo and install
     curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
     sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg && \
@@ -34,21 +36,32 @@ if bdb_ask "Do you want to install 1Password?"; then
     curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
     sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg && \
     sudo apt update && sudo apt install -y 1password 1password-cli
-    {{-      else if (or (eq .osid "linux-arch") (eq .osid "linux-manjaro")) }}
+
+    {{-     else if (or (eq .osid "linux-arch") (eq .osid "linux-manjaro")) }}
+
     # Arch/Manjaro: install 1Password from AUR
     packages=("1password" "1password-cli")
     for pkg in "${packages[@]}"; do
         yay --sudoloop --noconfirm $pkg
     done
-    {{-      end }}
-    {{-  else if eq .osid "darwin" }}
+
+    {{-     end }}
+    {{- else if eq .osid "darwin" }}
+
     # macOS: (add 1Password install if needed)
-    {{-  else if eq .osid "windows" }}
+
+    {{- else if eq .osid "windows" }}
+
     # Windows: (add 1Password install if needed)
-    {{-  end }}
+
+    {{- end }}
+
     bdb_success "installing 1Password"
+
 else
+
     bdb_alert "Skipping 1Password installation"
+
 fi
 
 # --- End: Optional Packages Installation ---

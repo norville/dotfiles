@@ -3,6 +3,16 @@
 # include global vars and functions
 source "${BDB_HELPERS}"
 
+# Ensure strict error handling
+# -e: exit on error
+# -u: treat unset variables as an error
+# -o pipefail: return the exit status of the last command in the pipeline that failed
+# -x: print commands and their arguments as they are executed (for debugging)
+set -euo pipefail
+
+# Trap errors and call handler
+trap 'bdb_handle_error' ERR
+
 bdb_info_in "Chezmoi init: install required packages"
 
 {{  if eq .chezmoi.os "linux" -}}
@@ -17,36 +27,38 @@ bdb_info_in "Chezmoi init: install required packages"
             "wget"
             "zsh" -}}
 
-bdb_command "Installing Linux packages"
-
 {{-     if eq .osid "linux-ubuntu" }}
 
 {{/*        APT packages */}}
-{{          $packages = mustAppend $packages
+{{          $packages = concat $packages (list
                 "build-essential"
-                "gpg" -}}
+                "gpg"
+            ) -}}
 
+bdb_command "Installing APT packages: {{ $packages | join ", " }}, ghostty(snap)"
 sudo apt update
 sudo apt install -y {{ $packages | join " " }}
 # install ghostty via snap
 sudo snap install ghostty --classic
-bdb_success "installing APT packages: {{ $packages | join " " }}"
+bdb_success "installing APT packages"
 
 {{-     else if (or (eq .osid "linux-arch") (eq .osid "linux-manjaro")) }}
 
 {{/*        PACMAN packages */}}
-{{          $packages = mustAppend $packages
+{{          $packages = concat $packages (list
                 "base-devel"
                 "gnupg"
-                "ghostty" -}}
+                "ghostty"
+            ) -}}
 
+bdb_command "Installing PACMAN packages: {{ $packages | join ", " }}, yay(AUR)"
 sudo pacman -Syu --needed --noconfirm {{ $packages | join " " }}
 # install yay via AUR
 git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si --noconfirm
+bdb_success "installing PACMAN packages"
 
 {{-     end }}
 
-#bdb_success "installing Linux packages"
 
 {{- else if eq .osid "darwin" }}
 
