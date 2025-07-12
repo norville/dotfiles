@@ -209,7 +209,7 @@ bdb_bootstrap() {
     bdb_info "All requirements installed, you may now configure your environment"
     if bdb_ask "Clone dotfiles and apply configuration now"; then
         bdb_command "Cloning dotfiles and applying configuration"
-        chezmoi init --apply ${GITHUB_USER}
+        chezmoi init --branch test --apply ${GITHUB_USER}
         bdb_success "cloning dotfiles and applying configuration"
     else
         bdb_alert "Cloning skipped. Use command 'chezmoi init --apply ${GITHUB_USER}' when ready"
