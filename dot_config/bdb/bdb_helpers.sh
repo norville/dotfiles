@@ -69,14 +69,14 @@ bdb_ask() {
 
 # Print timestamp (for logging)
 bdb_timestamp() {
-    { set +x; } 2>/dev/null
+    #{ set +x; } 2>/dev/null
     printf "\n[%s] " "$(date '+%Y-%m-%d %H:%M:%S')"
-    set -x
+    #set -x
 }
 
 # Clean up temporary files and reset environment
 bdb_cleanup() {
-    bdb_info_in "Cleaning up temporary files and resetting environment"
+    bdb_info "Cleaning up temporary files and resetting environment"
 
     # Remove temporary files
     if [[ -f "${BDB_HELPERS}" ]]; then
@@ -97,8 +97,6 @@ bdb_cleanup() {
     # Reset stdout and stderr to original state
     exec 1>&3 2>&1  # Redirect stdout and stderr back to original
     exec 3>&-       # Close FD 3
-
-    bdb_info_out "Cleanup complete, exiting now"
 }
 
 # Handle errors, clean up and exit
