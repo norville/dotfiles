@@ -23,22 +23,6 @@ fi
 # shellcheck disable=SC1090
 source "${BDB_HELPERS}"
 
-# --- Setup error handling ---
-# -e: exit on error
-# -u: treat unset variables as an error
-# -o pipefail: return the exit status of the last command in the pipeline that failed
-set -euo pipefail
-
-# --- Setup traps ---
-trap 'bdb_handle_error' ERR # Call handler on error
-trap 'bdb_cleanup' EXIT     # Call cleanup on exit (normal or error)
-trap 'bdb_timestamp' DEBUG  # Print timestamp before command execution
-
-# --- Setup logging and output redirection ---
-LOGFILE="./bdb_log.txt"         # log file path
-exec 3>&1 1>"${LOGFILE}" 2>&1   # create FD for user messages, redirect stdout and stderr to log file
-set -x                          # enable command tracing: print commands and their arguments as they are executed
-
 # Define main function to ensure download of entire script
 bdb_bootstrap() {
 
@@ -175,6 +159,22 @@ bdb_bootstrap() {
     bdb_info "Bootstrap complete, check the log file at <${LOGFILE}> for details"
     bdb_info_out "Please logout and log back in to load your dotfiles"
 }
+
+# --- Setup error handling ---
+# -e: exit on error
+# -u: treat unset variables as an error
+# -o pipefail: return the exit status of the last command in the pipeline that failed
+set -euo pipefail
+
+# --- Setup traps ---
+trap 'bdb_handle_error' ERR # Call handler on error
+trap 'bdb_cleanup' EXIT     # Call cleanup on exit (normal or error)
+trap 'bdb_timestamp' DEBUG  # Print timestamp before command execution
+
+# --- Setup logging and output redirection ---
+LOGFILE="./bdb_log.txt"         # log file path
+exec 3>&1 1>"${LOGFILE}" 2>&1   # create FD for user messages, redirect stdout and stderr to log file
+set -x                          # enable command tracing: print commands and their arguments as they are executed
 
 # --- Start bootstrap ---
 bdb_bootstrap
