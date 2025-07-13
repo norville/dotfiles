@@ -198,5 +198,4 @@ trap 'bdb_cleanup' EXIT
 # --- Start bootstrap ---
 bdb_bootstrap
 
-printf "\n"
 exit 0
