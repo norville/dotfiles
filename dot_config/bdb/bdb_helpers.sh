@@ -14,53 +14,53 @@ WHT_COL=$'\033[97;01m'      # white
 
 # Print success message (green)
 bdb_success() {
-    printf "\n%s|vvv| SUCCESS %s. %s" "${GRN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
+    printf "\n%s|vvv| SUCCESS %s. %s" "${GRN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" > /dev/tty
 }
 
 # Print error message (red)
 bdb_error() {
-    printf "\n%s|xxx| ERROR %s %s" "${RED_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
+    printf "\n%s|xxx| ERROR %s %s" "${RED_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" > /dev/tty
 }
 
 # Print alert message (yellow)
 bdb_alert() {
-    printf "\n%s|!!!| %s %s" "${YLW_COL}" "$1" "${RST_COL}"
+    printf "\n%s|!!!| %s %s" "${YLW_COL}" "$1" "${RST_COL}" > /dev/tty
 }
 
 # Print info message - begin (white)
 bdb_info_in() {
-    printf "%s\n|BDB| +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n|BDB|\n|BDB| %s.\n|BDB|%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
+    printf "%s\n|BDB| +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n|BDB|\n|BDB| %s.\n|BDB|%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" > /dev/tty
 }
 
 # Print info message (white)
 bdb_info() {
-    printf "%s\n|BDB|\n|BDB| %s.\n|BDB|%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
+    printf "%s\n|BDB|\n|BDB| %s.\n|BDB|%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" > /dev/tty
 }
 
 # Print info message - end (white)
 bdb_info_out() {
-    printf "%s\n|BDB|\n|BDB| %s.\n|BDB|\n|BDB| ---------------------------------------------------------------------------------%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
+    printf "%s\n|BDB|\n|BDB| %s.\n|BDB|\n|BDB| ---------------------------------------------------------------------------------%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" > /dev/tty
 }
 
 # Print run message (blue)
 bdb_run() {
-    printf "\n%s|###| %s...%s" "${BLU_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
+    printf "\n%s|###| %s...%s" "${BLU_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" > /dev/tty
 }
 
 # Print outcome message (cyan)
 bdb_outcome() {
-    printf " %s%s.%s" "${CYN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
+    printf " %s%s.%s" "${CYN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" > /dev/tty
 }
 
 # Print message before command (cyan)
 bdb_command() {
-    printf "\n%s|>>>| %s:%s" "${CYN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
+    printf "\n%s|>>>| %s:%s" "${CYN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" > /dev/tty
 }
 
 # Ask user yes/no, return 0 for yes (default: no)
 bdb_ask() {
-    printf "%s\n|???|\n|???| %s ? [y|N] >\n|???| %s" "${MGN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
-    read -s -r -n 1 response
+    printf "%s\n|???|\n|???| %s ? [y|N] >\n|???| %s" "${MGN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" > /dev/tty
+    read -s -r -n 1 response < /dev/tty
     if [[ "${response:-}" =~ (y|Y) ]]; then
         return 0
     fi

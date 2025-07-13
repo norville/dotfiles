@@ -24,6 +24,29 @@ fi
 # shellcheck disable=SC1090
 source "${BDB_HELPERS}"
 
+# --- Parse flags for verbosity and logfile ---
+VERBOSE=0
+LOGFILE="./bdb_log.txt"
+for arg in "$@"; do
+    case "$arg" in
+        -v|--verbose)
+            VERBOSE=1
+            ;;
+        --logfile=*)
+            LOGFILE="${arg#*=}"
+            ;;
+    esac
+    # Remove processed arg from $@
+    shift
+done
+
+# --- Setup output redirection ---
+if [[ $VERBOSE -eq 1 ]]; then
+    exec > >(tee -a "$LOGFILE") 2>&1
+else
+    exec >"$LOGFILE" 2>&1
+fi
+
 # Define main function to ensure download of entire script
 bdb_bootstrap() {
 
