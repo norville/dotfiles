@@ -5,18 +5,24 @@
 
 #  --- Source helper functions (portable, works regardless of current directory) ---
 
-BDB_HELPERS="https://raw.githubusercontent.com/norville/dotfiles/test/dot_config/bdb/bdb_helpers.sh"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BDB_HELPERS="${CURRENT_DIR}/bdb_helpers.sh"
+BDB_HELPERS_URL="https://raw.githubusercontent.com/norville/dotfiles/test/dot_config/bdb/bdb_helpers.sh"
 if command -v curl >/dev/null 2>&1; then
-    curl -fsSL "${BDB_HELPERS}" -o "${SCRIPT_DIR}/bdb_helpers.sh"
+    curl -fsSL "${BDB_HELPERS_URL}" -o "${BDB_HELPERS}"
 elif command -v wget >/dev/null 2>&1; then
-    wget -qO "${SCRIPT_DIR}/bdb_helpers.sh" "${BDB_HELPERS}"
+    wget -qO "${BDB_HELPERS}" "${BDB_HELPERS_URL}"
 else
-    echo "Error: curl or wget is required to download helper scripts." >&2
+    echo "Error: curl or wget is required to download helper script." >&2
+    exit 1
+fi
+if [[ ! -f "${BDB_HELPERS}" ]]; then
+    echo "Error: Failed to download helper script from ${BDB_HELPERS_URL}" >&2
     exit 1
 fi
 # shellcheck disable=SC1091
-source "${SCRIPT_DIR}/bdb_helpers.sh"
+# shellcheck disable=SC1090
+source "${BDB_HELPERS}"
 
 # Define main function to ensure download of entire script
 bdb_bootstrap() {
@@ -151,8 +157,6 @@ bdb_bootstrap() {
     fi
 
     bdb_info_out "Bootstrap complete, please logout and log back in to load your dotfiles"
-    printf "\n"
-    exit 0
 }
 
 # Ensure strict error handling
@@ -167,3 +171,9 @@ trap 'bdb_handle_error' ERR
 
 # --- Start bootstrap ---
 bdb_bootstrap
+
+# --- Cleanup temporary files and reset environment ---
+bdb_cleanup
+
+printf "\n"
+exit 0

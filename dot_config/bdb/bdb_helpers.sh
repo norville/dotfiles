@@ -67,15 +67,37 @@ bdb_ask() {
     return 1
 }
 
+# Clean up temporary files and reset environment
+bdb_cleanup() {
+    bdb_info_in "Cleaning up temporary files and resetting environment"
+
+    # Remove temporary files
+    if [[ -f "${BDB_HELPERS}" ]]; then
+        bdb_run "Removing temp file ${BDB_HELPERS}"
+        rm -f "${BDB_HELPERS}"
+        bdb_outcome "done"
+    fi
+
+    # Reset environment variables if needed
+    unset BDB_HELPERS_URL
+    unset BDB_HELPERS
+    unset CURRENT_DIR
+
+    bdb_info_out "Cleanup complete, exiting now"
+}
+
 # Handle errors, clean up and exit
 bdb_handle_error() {
-    local err_value="$?"         # Last command exit value
-    local err_command="$BASH_COMMAND" # Last command string
-    local err_message="${1:-UNKNOWN}" # Optional error message
-    bdb_error "Command: <${err_command}>"
-    bdb_error "Value: [${err_value}]"
-    bdb_error "Message: '${err_message}'"
-    bdb_error "Exiting now!"
-    printf "\n"
+    local err_value="$?"                    # Last command exit value
+    local err_command="$BASH_COMMAND"       # Last command string
+    local err_message="${1:-UNKNOWN}"       # Optional error message
+    bdb_error "Command:\t<${err_command}>"
+    bdb_error "Value:\t[${err_value}]"
+    bdb_error "Message:\t'${err_message}'"
+    bdb_error "Doing clean up before exiting"
+
+    # Call cleanup helper
+    bdb_cleanup
+
     exit "${err_value}"
 }
