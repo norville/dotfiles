@@ -14,57 +14,64 @@ WHT_COL=$'\033[97;01m'      # white
 
 # Print success message (green)
 bdb_success() {
-    printf "\n%s|vvv| SUCCESS %s. %s" "${GRN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" | tee -a "$LOGFILE" > /dev/tty
+    printf "\n%s|vvv| SUCCESS %s. %s" "${GRN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" >&3
 }
 
 # Print error message (red)
 bdb_error() {
-    printf "\n%s|xxx| ERROR %s %s" "${RED_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" | tee -a "$LOGFILE" > /dev/tty
+    printf "\n%s|xxx| ERROR %s %s" "${RED_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" >&3
 }
 
 # Print alert message (yellow)
 bdb_alert() {
-    printf "\n%s|!!!| %s %s" "${YLW_COL}" "$1" "${RST_COL}" | tee -a "$LOGFILE" > /dev/tty
+    printf "\n%s|!!!| %s %s" "${YLW_COL}" "$1" "${RST_COL}" >&3
 }
 
 # Print info message - begin (white)
 bdb_info_in() {
-    printf "%s\n|BDB| +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n|BDB|\n|BDB| %s.\n|BDB|%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" | tee -a "$LOGFILE" > /dev/tty
+    printf "%s\n|BDB| +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n|BDB|\n|BDB| %s.\n|BDB|%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" >&3
 }
 
 # Print info message (white)
 bdb_info() {
-    printf "%s\n|BDB|\n|BDB| %s.\n|BDB|%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" | tee -a "$LOGFILE" > /dev/tty
+    printf "%s\n|BDB|\n|BDB| %s.\n|BDB|%s" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" >&3
 }
 
 # Print info message - end (white)
 bdb_info_out() {
-    printf "%s\n|BDB|\n|BDB| %s.\n|BDB|\n|BDB| ---------------------------------------------------------------------------------%s\n" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" | tee -a "$LOGFILE" > /dev/tty
+    printf "%s\n|BDB|\n|BDB| %s.\n|BDB|\n|BDB| ---------------------------------------------------------------------------------%s\n" "${WHT_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" >&3
 }
 
 # Print run message (blue)
 bdb_run() {
-    printf "\n%s|###| %s...%s" "${BLU_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" | tee -a "$LOGFILE" > /dev/tty
+    printf "\n%s|###| %s...%s" "${BLU_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" >&3
 }
 
 # Print outcome message (cyan)
 bdb_outcome() {
-    printf " %s%s.%s" "${CYN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" | tee -a "$LOGFILE" > /dev/tty
+    printf " %s%s.%s" "${CYN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" >&3
 }
 
 # Print message before command (cyan)
 bdb_command() {
-    printf "\n%s|>>>| %s:%s" "${CYN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" | tee -a "$LOGFILE" > /dev/tty
+    printf "\n%s|>>>| %s:%s" "${CYN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" >&3
 }
 
 # Ask user yes/no, return 0 for yes (default: no)
 bdb_ask() {
-    printf "%s\n|???|\n|???| %s ? [y|N] >\n|???| %s" "${MGN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" | tee -a "$LOGFILE" > /dev/tty
+    printf "%s\n|???|\n|???| %s ? [y|N] >\n|???| %s" "${MGN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}" >&3
     read -s -r -n 1 response < /dev/tty
     if [[ "${response:-}" =~ (y|Y) ]]; then
         return 0
     fi
     return 1
+}
+
+# Print timestamp (for logging)
+bdb_timestamp() {
+    { set +x; } 2>/dev/null
+    printf "\n[%s] " "$(date '+%Y-%m-%d %H:%M:%S')"
+    set -x
 }
 
 # Clean up temporary files and reset environment
@@ -82,6 +89,14 @@ bdb_cleanup() {
     unset BDB_HELPERS_URL
     unset BDB_HELPERS
     unset CURRENT_DIR
+    unset LOGFILE
+
+    # Disable command tracing and error handling
+    set +xeuo pipefail
+
+    # Reset stdout and stderr to original state
+    exec 1>&3 2>&1  # Redirect stdout and stderr back to original
+    exec 3>&-       # Close FD 3
 
     bdb_info_out "Cleanup complete, exiting now"
 }

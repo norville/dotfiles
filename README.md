@@ -10,8 +10,9 @@ script="https://raw.githubusercontent.com/norville/dotfiles/test/dot_config/bdb/
 
 ## TODO
 
+- write a function to log all output to a logfile prepending timestamp
 - check whitespaces in go templates
-- implement flags:
+- build a CLI to present available options:
   - verbose
   - log file
   - no-confirm

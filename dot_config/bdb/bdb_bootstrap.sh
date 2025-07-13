@@ -3,8 +3,18 @@
 
 ### BDF BOOT - bootstrap Bassa's Dot Files
 
-#  --- Source helper functions (portable, works regardless of current directory) ---
+# --- Setup error handling ---
+# -e: exit on error
+# -u: treat unset variables as an error
+# -o pipefail: return the exit status of the last command in the pipeline that failed
+set -euo pipefail
 
+# --- Setup logging and output redirection ---
+set -x                          # enable command tracing: print commands and their arguments as they are executed
+LOGFILE="./bdb_log.txt"         # log file path
+exec 3>&1 1>"${LOGFILE}" 2>&1   # create FD for user messages, redirect stdout and stderr to log file
+
+#  --- Source helper functions (portable, works regardless of current directory) ---
 CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BDB_HELPERS="${CURRENT_DIR}/bdb_helpers.sh"
 BDB_HELPERS_URL="https://raw.githubusercontent.com/norville/dotfiles/test/dot_config/bdb/bdb_helpers.sh"
@@ -24,28 +34,10 @@ fi
 # shellcheck disable=SC1090
 source "${BDB_HELPERS}"
 
-# --- Parse flags for verbosity and logfile ---
-VERBOSE=0
-LOGFILE="./bdb_log.txt"
-for arg in "$@"; do
-    case "$arg" in
-        -v|--verbose)
-            VERBOSE=1
-            ;;
-        --logfile=*)
-            LOGFILE="${arg#*=}"
-            ;;
-    esac
-    # Remove processed arg from $@
-    shift
-done
-
-# --- Setup output redirection ---
-if [[ $VERBOSE -eq 1 ]]; then
-    exec > >(tee -a "$LOGFILE") 2>&1
-else
-    exec >"$LOGFILE" 2>&1
-fi
+# --- Setup traps ---
+trap 'bdb_handle_error' ERR # Call handler on error
+trap 'bdb_cleanup' EXIT     # Call cleanup on exit (normal or error)
+trap 'bdb_timestamp' DEBUG  # Print timestamp before command execution
 
 # Define main function to ensure download of entire script
 bdb_bootstrap() {
@@ -180,20 +172,9 @@ bdb_bootstrap() {
         bdb_alert "Cloning skipped. Use command 'chezmoi init --apply ${GITHUB_USER}' when ready"
     fi
 
-    bdb_info_out "Bootstrap complete, please logout and log back in to load your dotfiles"
+    bdb_info "Bootstrap complete, check the log file at ${LOGFILE} for details"
+    bdb_info_out "Please logout and log back in to load your dotfiles"
 }
-
-# Ensure strict error handling
-# -e: exit on error
-# -u: treat unset variables as an error
-# -o pipefail: return the exit status of the last command in the pipeline that failed
-# -x: print commands and their arguments as they are executed (for debugging)
-set -euo pipefail
-
-# Trap errors and call handler
-trap 'bdb_handle_error' ERR
-# Always run cleanup on exit (normal or error)
-trap 'bdb_cleanup' EXIT
 
 # --- Start bootstrap ---
 bdb_bootstrap
