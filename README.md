@@ -10,7 +10,6 @@ script="https://raw.githubusercontent.com/norville/dotfiles/test/dot_config/bdb/
 
 ## TODO
 
-- download helpers from bootstrap
 - check whitespaces in go templates
 - implement flags:
   - verbose
