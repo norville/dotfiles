@@ -169,12 +169,11 @@ set -euo pipefail
 
 # Trap errors and call handler
 trap 'bdb_handle_error' ERR
+# Always run cleanup on exit (normal or error)
+trap 'bdb_cleanup' EXIT
 
 # --- Start bootstrap ---
 bdb_bootstrap
-
-# --- Cleanup temporary files and reset environment ---
-bdb_cleanup
 
 printf "\n"
 exit 0

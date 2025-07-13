@@ -94,10 +94,5 @@ bdb_handle_error() {
     bdb_error "Command: <${err_command}>"
     bdb_error "Value:   [${err_value}]"
     bdb_error "Message: '${err_message}'"
-    bdb_error "Doing clean up before exiting"
-
-    # Call cleanup helper
-    bdb_cleanup
-
     exit "${err_value}"
 }
