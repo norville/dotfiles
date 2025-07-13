@@ -3,16 +3,6 @@
 # Source helper functions
 source "${BDB_HELPERS}"
 
-# Set error handling
-# -e: exit on error - DISABLED
-# -u: treat unset variables as an error
-# -o pipefail: return the exit status of the last command in the pipeline that failed
-# -x: print commands and their arguments as they are executed (for debugging)
-set -uo pipefail
-
-# Trap errors and call handler
-trap 'bdb_handle_error' ERR
-
 # --- Begin: Environment Update ---
 bdb_info_in "Chezmoi init: update environment"
 
@@ -56,7 +46,7 @@ bdb_success "upgrading Antigen"
 
 # Update vim plugins
 bdb_command "Upgrading Vim plugins"
-vim -es -u "${HOME}"/.vimrc -i NONE -c "PlugUpdate" -c "qa"
+vim -e -s -u "${HOME}"/.vimrc -i NONE +"PlugUpdate" +"qa"
 bdb_success "upgrading Vim plugins"
 
 # --- End: Environment Update ---
