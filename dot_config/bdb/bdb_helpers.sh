@@ -61,7 +61,7 @@ bdb_command() {
 bdb_ask() {
     printf "%s\n|???|\n|???| %s ? [y|N] >\n|???| %s" "${MGN_COL}" "${1:-*** UNKNOWN ***}" "${RST_COL}"
     read -s -r -n 1 response
-    if [[ ${response:-} =~ (y|Y) ]]; then
+    if [[ "${response:-}" =~ (y|Y) ]]; then
         return 0
     fi
     return 1

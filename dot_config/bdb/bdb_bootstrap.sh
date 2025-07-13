@@ -29,6 +29,7 @@ bdb_bootstrap() {
 
     # Define variables
     GITHUB_USER="norville"  # GitHub username for dotfiles repo
+    CHEZMOI_BRANCH="test"   # Branch to use for chezmoi init
     PLATFORM=""             # OS type (Darwin/Linux)
     DISTRO=""               # OS distribution name
 
@@ -150,7 +151,7 @@ bdb_bootstrap() {
     bdb_info "All requirements installed, you may now configure your environment"
     if bdb_ask "Clone dotfiles and apply configuration now"; then
         bdb_command "Cloning dotfiles and applying configuration"
-        chezmoi init --branch test --apply ${GITHUB_USER}
+        chezmoi init --branch "${CHEZMOI_BRANCH}" --apply "${GITHUB_USER}"
         bdb_success "cloning dotfiles and applying configuration"
     else
         bdb_alert "Cloning skipped. Use command 'chezmoi init --apply ${GITHUB_USER}' when ready"
