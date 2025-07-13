@@ -3,12 +3,12 @@
 # Source helper functions
 source "${BDB_HELPERS}"
 
-# Ensure strict error handling
-# -e: exit on error
+# Set error handling
+# -e: exit on error - DISABLED
 # -u: treat unset variables as an error
 # -o pipefail: return the exit status of the last command in the pipeline that failed
 # -x: print commands and their arguments as they are executed (for debugging)
-set -euo pipefail
+set -uo pipefail
 
 # Trap errors and call handler
 trap 'bdb_handle_error' ERR
