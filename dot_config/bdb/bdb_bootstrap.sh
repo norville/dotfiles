@@ -4,6 +4,7 @@
 ### BDF BOOT - bootstrap Bassa's Dot Files
 
 #  --- Source helper functions (portable, works regardless of current directory) ---
+PC_VENDOR="" # Machine vendor - exported to be used in 'chezmoi.toml'
 CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BDB_HELPERS="${CURRENT_DIR}/bdb_helpers.sh"
 BDB_HELPERS_URL="https://raw.githubusercontent.com/norville/dotfiles/test/dot_config/bdb/bdb_helpers.sh"
@@ -44,10 +45,13 @@ bdb_bootstrap() {
         bdb_outcome "sudo OK"
     fi
 
-    # Detect machine manufacturer (for info)
-    bdb_run "Detecting machine manufacturer"
-    manufacturer="$(cat /sys/devices/virtual/dmi/id/sys_vendor 2>/dev/null || echo 'Unknown')"
-    bdb_outcome "${manufacturer}"
+    # Detect machine vendor (for info)
+    bdb_run "Detecting machine vendor"
+    vendor_x86="/sys/devices/virtual/dmi/id/sys_vendor"
+    vendor_arm="/sys/firmware/devicetree/base/model"
+    PC_VENDOR=$([[ -f "${vendor_x86}" ]] && cat "${vendor_x86}" || [[ -f "${vendor_arm}" ]] && cat "${vendor_arm}" || echo "Unknown")
+    bdb_outcome "${PC_VENDOR}"
+    export PC_VENDOR  # Export vendor for use in chezmoi.toml
 
     # Detect OS type and distribution
     bdb_run "Detecting operating system"
@@ -73,9 +77,23 @@ bdb_bootstrap() {
     # --- Install requirements based on OS ---
     case "${DISTRO}" in
         arch|manjaro)
-            bdb_command "Installing Chezmoi"
-            sudo pacman -Syu --noconfirm chezmoi
-            bdb_success "installing Chezmoi"
+            bdb_command "Checking Git and Chezmoi"
+            sudo pacman -S --noconfirm git chezmoi
+            bdb_success "Git and Chezmoi installed"
+            ;;
+        debian)
+            bdb_command "Checking Git"
+            sudo apt update && sudo apt install -y git
+            bdb_success "Git installed"
+            bdb_run "Checking Chezmoi"
+            if ! command -v chezmoi >/dev/null 2>&1; then
+                bdb_outcome "missing"
+                bdb_command "Installing Chezmoi"
+                sudo sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+                bdb_success "installing Chezmoi"
+            else
+                bdb_outcome "installed"
+            fi
             ;;
         macos)
             # macOS: Xcode CLT and Homebrew
@@ -109,28 +127,9 @@ bdb_bootstrap() {
             bdb_success "installing Chezmoi"
             ;;
         ubuntu)
-            # Ubuntu: APT, git, snapd, chezmoi
-            bdb_command "Updating APT"
-            sudo apt update
-            bdb_success "updating APT"
-            bdb_run "Checking git"
-            if ! command -v git >/dev/null 2>&1; then
-                bdb_outcome "missing"
-                bdb_command "Installing git"
-                sudo apt install -y git
-                bdb_success "installing git"
-            else
-                bdb_outcome "installed"
-            fi
-            bdb_run "Checking Snap"
-            if ! command -v snap >/dev/null 2>&1; then
-                bdb_outcome "missing"
-                bdb_command "Installing Snap"
-                sudo apt install -y snapd
-                bdb_success "installing Snap"
-            else
-                bdb_outcome "installed"
-            fi
+            bdb_command "Checking Git and Snap"
+            sudo apt update && sudo apt install -y git snapd
+            bdb_success "Git and Snap installed"
             bdb_run "Checking Chezmoi"
             if ! command -v chezmoi >/dev/null 2>&1; then
                 bdb_outcome "missing"

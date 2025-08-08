@@ -21,13 +21,11 @@ bdb_info_in "Chezmoi init: install required packages"
 {{      $packages := list
             "bat"
             "curl"
-            "eza"
-            "git"
             "vim"
             "wget"
             "zsh" -}}
 
-{{-     if eq .osid "linux-ubuntu" }}
+{{-     if (or (eq .osid "linux-debian") (eq .osid "linux-ubuntu")) }}
 
 {{/*        APT packages */}}
 {{          $packages = concat $packages (list
@@ -35,30 +33,44 @@ bdb_info_in "Chezmoi init: install required packages"
                 "gpg"
             ) -}}
 
-bdb_command "Installing APT packages: {{ $packages | join ", " }}, ghostty(snap)"
-sudo apt update
+bdb_command "Installing APT packages: {{ $packages | join ", " }}"
 sudo apt install -y {{ $packages | join " " }}
-# install ghostty via snap
-sudo snap install ghostty --classic
 bdb_success "installing APT packages"
+
+bdb_command "Installing Eza"
+sudo mkdir -p /etc/apt/keyrings
+wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/eza.list
+sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/eza.list
+sudo apt update
+sudo apt install -y eza
+bdb_success "installing Eza"
+
+{{-         if eq .osid "linux-ubuntu" }}
+
+bdb_command "Installing Ghostty"
+sudo snap install ghostty --classic
+bdb_success "installing Ghostty"
+
+{{-         end }}
 
 {{-     else if (or (eq .osid "linux-arch") (eq .osid "linux-manjaro")) }}
 
 {{/*        PACMAN packages */}}
 {{          $packages = concat $packages (list
                 "base-devel"
+                "eza"
                 "gnupg"
                 "ghostty"
             ) -}}
 
 bdb_command "Installing PACMAN packages: {{ $packages | join ", " }}, yay(AUR)"
-sudo pacman -Syu --needed --noconfirm {{ $packages | join " " }}
+sudo pacman -S --needed --noconfirm {{ $packages | join " " }}
 # install yay via AUR
 git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si --noconfirm
 bdb_success "installing PACMAN packages"
 
 {{-     end }}
-
 
 {{- else if eq .osid "darwin" }}
 
