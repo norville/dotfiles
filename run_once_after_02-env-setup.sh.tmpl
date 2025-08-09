@@ -33,10 +33,11 @@ else
     bdb_error "ZSH not installed"
 fi
 
-{{ if eq .chezmoi.os "linux" -}}
+{{- if eq .osid "linux-manjaro" }}
 # Linux: install JetBrains Mono font
 bdb_command "Installing JetBrains Mono font"
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/install_manual.sh)"
+sudo pacman -S --noconfirm --needed ttf-jetbrains-mono
+#/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/install_manual.sh)"
 bdb_success "installing JetBrains Mono font"
 {{- end }}
 
