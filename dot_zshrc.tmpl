@@ -78,7 +78,7 @@ export PATH
 
 ### ALIASES ###################################################################
 
-{{ if eq .osid "linux-ubuntu" -}}
+{{ if (or (eq .osid "linux-debian") (eq .osid "linux-ubuntu")) -}}
 alias bat='batcat'
 {{ end -}}
 
