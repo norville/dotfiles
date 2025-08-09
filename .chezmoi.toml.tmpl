@@ -8,7 +8,6 @@
 {{- $vendor := "Unknown" -}}
 {{- if (or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin")) -}}
 {{-     $vendor = (env "PC_VENDOR" | trim | default "Unknown") -}}
-{{- else if eq .osid "windows" -}}
 {{- end -}}
 
 # Define chezmoi variables to be used in templates

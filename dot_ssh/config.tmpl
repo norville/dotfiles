@@ -7,9 +7,6 @@ Host *
 {{- end }}
     IdentitiesOnly yes  # use only specified keys, even if ssh-agent offers more identities
 
-Host gitlab.com
-    IdentityFile ~/.ssh/norville_at_gitlab.pub
-
 Host github.com
     IdentityFile ~/.ssh/norville_at_github.pub
 
@@ -17,6 +14,7 @@ Host *.basnet.lan
     Port 25355
     User norville
     IdentityFile ~/.ssh/norville_at_basnet.pub
+    SetEnv TERM=xterm-256color  # Avoid terminfo issues with Ghostty
 
 Host jiraya
     Port 25355
