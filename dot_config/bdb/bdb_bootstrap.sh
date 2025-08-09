@@ -3,11 +3,12 @@
 
 ### BDF BOOT - bootstrap Bassa's Dot Files
 
+#  --- Define global variables ---
+CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"                                                 # Get current directory of this script
+BDB_HELPERS="${CURRENT_DIR}/bdb_helpers.sh"                                                                 # Path to helper functions
+BDB_HELPERS_URL="https://raw.githubusercontent.com/norville/dotfiles/test/dot_config/bdb/bdb_helpers.sh"    # URL to download helper functions
+
 #  --- Source helper functions (portable, works regardless of current directory) ---
-PC_VENDOR="" # Machine vendor - exported to be used in 'chezmoi.toml'
-CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BDB_HELPERS="${CURRENT_DIR}/bdb_helpers.sh"
-BDB_HELPERS_URL="https://raw.githubusercontent.com/norville/dotfiles/test/dot_config/bdb/bdb_helpers.sh"
 if command -v curl >/dev/null 2>&1; then
     curl -fsSL "${BDB_HELPERS_URL}" -o "${BDB_HELPERS}"
 elif command -v wget >/dev/null 2>&1; then
@@ -24,64 +25,59 @@ fi
 # shellcheck disable=SC1090
 source "${BDB_HELPERS}"
 
-# Define main function to ensure download of entire script
+# --- Define main function ---
 bdb_bootstrap() {
 
-    # Define variables
-    GITHUB_USER="norville"  # GitHub username for dotfiles repo
-    CHEZMOI_BRANCH="test"   # Branch to use for chezmoi init
-    PLATFORM=""             # OS type (Darwin/Linux)
-    DISTRO=""               # OS distribution name
+    # --- Define local variables ---
+    GITHUB_USER="norville"                              # GitHub username for dotfiles repo
+    CHEZMOI_BRANCH="test"                               # Branch to use for chezmoi init
+    PLATFORM="$(uname)"                                 # OS type (Darwin/Linux)
+    DISTRO="Unknown"                                    # OS distribution name
+    LSB_PATH="/etc/os-release"                          # Path to lsb-release file (Linux)
+    VENDOR_X86="/sys/devices/virtual/dmi/id/sys_vendor" # x86/x86_64 vendor info
+    VENDOR_ARM="/sys/firmware/devicetree/base/model"    # ARM vendor info
+    PC_VENDOR="Unknown"                                 # Machine vendor - exported to be used in 'chezmoi.toml'
+    LOGFILE="./bdb_log.txt"                             # log file path
 
-    # --- Bootstrap process ---
-
+    # --- Print welcome message ---
     bdb_info_in "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
     bdb_info "This script will detect the operating system and install all requirements to clone your dotfiles"
 
-    # Get admin privileges (sudo)
+    # --- Get admin privileges (sudo) ---
     bdb_run "Getting admin privileges"
     if command -v sudo >/dev/null 2>&1; then
         sudo -v
         bdb_outcome "sudo OK"
     fi
 
-    # Detect machine vendor (for info)
+    # --- Detect machine vendor (for info) ---
     bdb_run "Detecting machine vendor"
-    vendor_x86="/sys/devices/virtual/dmi/id/sys_vendor"
-    vendor_arm="/sys/firmware/devicetree/base/model"
-    if [[ -f "${vendor_x86}" ]]; then
-        PC_VENDOR="$(cat "${vendor_x86}")"
-    elif [[ -f "${vendor_arm}" ]]; then
-        PC_VENDOR="$(cat "${vendor_arm}")"
-    else
-        bdb_handle_error "Cannot detect machine vendor"
-        PC_VENDOR="Unknown"
+    if [[ -f "${VENDOR_X86}" ]]; then
+        PC_VENDOR="$(cat ${VENDOR_X86})"
+    elif [[ -f "${VENDOR_ARM}" ]]; then
+        PC_VENDOR="$(cat ${VENDOR_ARM})"
     fi
     bdb_outcome "${PC_VENDOR}"
     export PC_VENDOR  # Export vendor for use in chezmoi.toml
 
-    # Detect OS type and distribution
+    # --- Detect OS type and distribution ---
     bdb_run "Detecting operating system"
-    PLATFORM="$(uname)"
     case "${PLATFORM}" in
         Darwin)
             DISTRO="macos"
             ;;
         Linux)
-            lsb_path="/etc/os-release"
-            if [[ -f "${lsb_path}" ]]; then
-                DISTRO="$(grep -e '^ID=' "${lsb_path}" | cut -d '=' -f 2 | tr '[:upper:]' '[:lower:]')"
-            else
-                DISTRO="linux"
+            if [[ -f "${LSB_PATH}" ]]; then
+                DISTRO="$(grep -e '^ID=' "${LSB_PATH}" | cut -d '=' -f 2 | tr '[:upper:]' '[:lower:]')"
             fi
             ;;
         *)
-            bdb_handle_error "Cannot detect OS type"
+            bdb_handle_error "Cannot detect operating system"
             ;;
     esac
     bdb_outcome "${PLATFORM}/${DISTRO}"
 
-    # --- Install Chezmoi requirements based on OS ---
+    # --- Install Chezmoi requirements ---
     bdb_command "Installing Chezmoi and its dependencies"
     case "${DISTRO}" in
         arch|manjaro)
@@ -146,6 +142,7 @@ bdb_bootstrap() {
         bdb_alert "Cloning skipped. Use command 'chezmoi init --apply ${GITHUB_USER}' when ready"
     fi
 
+    # --- Print completion message ---
     bdb_info "Bootstrap complete, check the log file at <${LOGFILE}> for details"
     bdb_info_out "Please logout and log back in to load your dotfiles"
 }
@@ -162,7 +159,6 @@ trap 'bdb_cleanup' EXIT     # Call cleanup on exit (normal or error)
 trap 'bdb_timestamp' DEBUG  # Print timestamp before command execution
 
 # --- Setup logging and output redirection ---
-LOGFILE="./bdb_log.txt"         # log file path
 exec 3>&1 1>"${LOGFILE}" 2>&1   # create FD for user messages, redirect stdout and stderr to log file
 set -x                          # enable command tracing: print commands and their arguments as they are executed
 
