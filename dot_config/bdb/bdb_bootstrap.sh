@@ -4,10 +4,10 @@
 ### BDF BOOT - bootstrap Bassa's Dot Files
 
 #  --- Define global variables ---
-CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"                                                 # Get current directory of this script
-BDB_HELPERS="${CURRENT_DIR}/bdb_helpers.sh"                                                                 # Path to helper functions
+BDB_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"                                              # Get current directory of this script
+BDB_HELPERS="${BDB_SCRIPT_DIR}/bdb_helpers.sh"                                                              # Path to helper functions
 BDB_HELPERS_URL="https://raw.githubusercontent.com/norville/dotfiles/test/dot_config/bdb/bdb_helpers.sh"    # URL to download helper functions
-LOGFILE="./bdb_log.txt"                                                                                     # log file path
+BDB_LOG_FILE="./bdb_log.txt"                                                                                # log file path
 
 #  --- Source helper functions (portable, works regardless of current directory) ---
 if command -v curl >/dev/null 2>&1; then
@@ -159,7 +159,7 @@ trap 'bdb_cleanup' EXIT     # Call cleanup on exit (normal or error)
 trap 'bdb_timestamp' DEBUG  # Print timestamp before command execution
 
 # --- Setup logging and output redirection ---
-exec 3>&1 1>"${LOGFILE}" 2>&1   # create FD for user messages, redirect stdout and stderr to log file
+exec 3>&1 1>"${BDB_LOG_FILE}" 2>&1   # create FD for user messages, redirect stdout and stderr to log file
 set -x                          # enable command tracing: print commands and their arguments as they are executed
 
 # --- Start bootstrap ---
