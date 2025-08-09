@@ -6,7 +6,7 @@
 #  --- Define global variables ---
 BDB_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"                                              # Get current directory of this script
 BDB_HELPERS="${BDB_SCRIPT_DIR}/bdb_helpers.sh"                                                              # Path to helper functions
-BDB_HELPERS_URL="https://raw.githubusercontent.com/norville/dotfiles/test/dot_config/bdb/bdb_helpers.sh"    # URL to download helper functions
+BDB_HELPERS_URL="https://raw.githubusercontent.com/norville/dotfiles/main/dot_config/bdb/bdb_helpers.sh"    # URL to download helper functions
 BDB_LOG_FILE="./bdb_log.txt"                                                                                # log file path
 
 #  --- Source helper functions (portable, works regardless of current directory) ---
@@ -31,7 +31,7 @@ bdb_bootstrap() {
 
     # --- Define local variables ---
     GITHUB_USER="norville"                              # GitHub username for dotfiles repo
-    CHEZMOI_BRANCH="test"                               # Branch to use for chezmoi init
+    CHEZMOI_BRANCH="main"                               # Branch to use for chezmoi init
     PLATFORM="$(uname)"                                 # OS type (Darwin/Linux)
     DISTRO="Unknown"                                    # OS distribution name
     LSB_PATH="/etc/os-release"                          # Path to lsb-release file (Linux)
