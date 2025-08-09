@@ -81,25 +81,16 @@ bdb_bootstrap() {
     esac
     bdb_outcome "${PLATFORM}/${DISTRO}"
 
-    # --- Install requirements based on OS ---
+    # --- Install Chezmoi requirements based on OS ---
+    bdb_command "Installing Chezmoi and its dependencies"
     case "${DISTRO}" in
         arch|manjaro)
-            bdb_command "Checking Git and Chezmoi"
             sudo pacman -S --noconfirm git chezmoi
-            bdb_success "Git and Chezmoi installed"
             ;;
         debian)
-            bdb_command "Checking Git"
-            sudo apt update && sudo apt install -y git
-            bdb_success "Git installed"
-            bdb_run "Checking Chezmoi"
+            sudo apt update && sudo apt install -y curl git
             if ! command -v chezmoi >/dev/null 2>&1; then
-                bdb_outcome "missing"
-                bdb_command "Installing Chezmoi"
                 sudo sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
-                bdb_success "installing Chezmoi"
-            else
-                bdb_outcome "installed"
             fi
             ;;
         macos)
@@ -134,25 +125,18 @@ bdb_bootstrap() {
             bdb_success "installing Chezmoi"
             ;;
         ubuntu)
-            bdb_command "Checking Git and Snap"
             sudo apt update && sudo apt install -y git snapd
-            bdb_success "Git and Snap installed"
-            bdb_run "Checking Chezmoi"
             if ! command -v chezmoi >/dev/null 2>&1; then
-                bdb_outcome "missing"
-                bdb_command "Installing Chezmoi"
                 sudo snap install chezmoi --classic
-                bdb_success "installing Chezmoi"
-            else
-                bdb_outcome "installed"
             fi
             ;;
         *)
-            bdb_handle_error "Cannot detect OS type"
+            bdb_handle_error "Cannot install Chezmoi or its dependencies"
             ;;
     esac
+    bdb_success "installing Chezmoi and its dependencies"
 
-    # --- Final user prompt and info ---
+    # --- Chezmoi installed, ready to clone dotfiles ---
     bdb_info "All requirements installed, you may now configure your environment"
     if bdb_ask "Clone dotfiles and apply configuration now"; then
         bdb_command "Cloning dotfiles and applying configuration"
