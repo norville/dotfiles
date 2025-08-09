@@ -7,6 +7,7 @@
 CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"                                                 # Get current directory of this script
 BDB_HELPERS="${CURRENT_DIR}/bdb_helpers.sh"                                                                 # Path to helper functions
 BDB_HELPERS_URL="https://raw.githubusercontent.com/norville/dotfiles/test/dot_config/bdb/bdb_helpers.sh"    # URL to download helper functions
+LOGFILE="./bdb_log.txt"                                                                                     # log file path
 
 #  --- Source helper functions (portable, works regardless of current directory) ---
 if command -v curl >/dev/null 2>&1; then
@@ -37,7 +38,6 @@ bdb_bootstrap() {
     VENDOR_X86="/sys/devices/virtual/dmi/id/sys_vendor" # x86/x86_64 vendor info
     VENDOR_ARM="/sys/firmware/devicetree/base/model"    # ARM vendor info
     PC_VENDOR="Unknown"                                 # Machine vendor - exported to be used in 'chezmoi.toml'
-    LOGFILE="./bdb_log.txt"                             # log file path
 
     # --- Print welcome message ---
     bdb_info_in "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
