@@ -65,11 +65,14 @@ bdb_success "installing Ghostty"
                 "ghostty"
             ) -}}
 
-bdb_command "Installing PACMAN packages: {{ $packages | join ", " }}, yay(AUR)"
+bdb_command "Installing PACMAN packages: {{ $packages | join ", " }}"
 sudo pacman -S --needed --noconfirm {{ $packages | join " " }}
-# install yay via AUR
-git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si --noconfirm
 bdb_success "installing PACMAN packages"
+
+# install yay
+bdb_command "Installing yay"
+git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si --noconfirm
+bdb_success "installing yay"
 
 {{-     end }}
 
