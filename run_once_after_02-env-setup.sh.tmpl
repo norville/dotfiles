@@ -43,7 +43,7 @@ bdb_success "installing JetBrains Mono font"
 
 # Set up bat colorscheme from ~/.config/bat/themes
 bdb_command "Setting up bat colorscheme"
-{{ if eq .osid "linux-ubuntu" -}}
+{{- if (or (eq .osid "linux-debian") (eq .osid "linux-ubuntu")) }}
 batcat cache --build
 {{ else -}}
 bat cache --build
