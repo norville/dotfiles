@@ -11,7 +11,7 @@ README.md
 {{- end }}
 
 # ignore these files unless OS is Manjaro runinng on Mac
-{{- if (and (eq .osid "linux-manjaro") (eq .vendor "Apple")) -}}
+{{- if (or (ne .osid "linux-manjaro") (ne .vendor "Apple")) -}}
 /etc/modprobe.d/alsa-base.conf
 {{- end }}
 
