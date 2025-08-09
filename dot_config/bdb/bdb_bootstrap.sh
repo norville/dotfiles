@@ -49,7 +49,14 @@ bdb_bootstrap() {
     bdb_run "Detecting machine vendor"
     vendor_x86="/sys/devices/virtual/dmi/id/sys_vendor"
     vendor_arm="/sys/firmware/devicetree/base/model"
-    PC_VENDOR=$([[ -f "${vendor_x86}" ]] && cat "${vendor_x86}" || [[ -f "${vendor_arm}" ]] && cat "${vendor_arm}" || echo "Unknown")
+    if [[ -f "${vendor_x86}" ]]; then
+        PC_VENDOR="$(cat "${vendor_x86}")"
+    elif [[ -f "${vendor_arm}" ]]; then
+        PC_VENDOR="$(cat "${vendor_arm}")"
+    else
+        bdb_handle_error "Cannot detect machine vendor"
+        PC_VENDOR="Unknown"
+    fi
     bdb_outcome "${PC_VENDOR}"
     export PC_VENDOR  # Export vendor for use in chezmoi.toml
 
