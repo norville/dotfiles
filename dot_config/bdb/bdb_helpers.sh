@@ -88,8 +88,8 @@ bdb_cleanup() {
     # Reset environment variables if needed
     unset BDB_HELPERS_URL
     unset BDB_HELPERS
-    unset CURRENT_DIR
-    unset LOGFILE
+    unset BDB_SCRIPT_DIR
+    unset BDB_LOG_FILE
 
     # Disable command tracing and error handling
     set +xeuo pipefail
