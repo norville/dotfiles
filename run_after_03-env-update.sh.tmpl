@@ -26,8 +26,8 @@ bdb_success "upgrading Homebrew formulae"
 {{  else if eq .chezmoi.os "linux" -}}
 # Linux: package manager maintenance
 bdb_command "Running package maintenance"
-{{      if eq .osid "linux-ubuntu" -}}
-# Ubuntu: upgrade and clean APT packages
+{{      if (or (eq .osid "linux-debian") (eq .osid "linux-ubuntu")) -}}
+# Debian/Ubuntu: upgrade and clean APT packages
 sudo -- bash -c 'apt update && apt full-upgrade -y && apt autoremove --purge -y && apt clean -y'
 {{      else if (or (eq .osid "linux-arch") (eq .osid "linux-manjaro")) -}}
 # Arch/Manjaro: upgrade and clean pacman packages
