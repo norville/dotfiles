@@ -7,15 +7,6 @@ Host *
 {{- end }}
     IdentitiesOnly yes  # use only specified keys, even if ssh-agent offers more identities
 
-Host github.com
-    IdentityFile ~/.ssh/norville_at_github.pub
-
-Host *.basnet.lan
-    Port 25355
-    User norville
-    IdentityFile ~/.ssh/norville_at_basnet.pub
-    SetEnv TERM=xterm-256color  # Avoid terminfo issues with Ghostty
-
 Host jiraya
     Port 25355
     User norville
@@ -28,3 +19,16 @@ Host jiraya-code
     User code
     IdentityFile ~/.ssh/code_at_jiraya.pub
     ForwardAgent yes
+
+Host gitea.basnet.lan
+    Port 22
+    IdentityFile ~/.ssh/norville_at_gitea.pub
+
+Host *.basnet.lan
+    Port 25355
+    User norville
+    IdentityFile ~/.ssh/norville_at_basnet.pub
+    SetEnv TERM=xterm-256color  # Avoid terminfo issues with Ghostty
+
+Host github.com
+    IdentityFile ~/.ssh/norville_at_github.pub
