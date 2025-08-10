@@ -21,9 +21,9 @@ setopt AUTO_CD
 
 # Export 1password ssh agent socket, required for agent forwarding
 {{- if eq .chezmoi.os "darwin" }}
-    export SSH_AUTH_SOCK="${HOME}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+export SSH_AUTH_SOCK="${HOME}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 {{- else if eq .chezmoi.os "linux" }}
-    export SSH_AUTH_SOCK="${HOME}/.1password/agent.sock"
+export SSH_AUTH_SOCK="${HOME}/.1password/agent.sock"
 {{- end }}
 
 ###############################################################################
