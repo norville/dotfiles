@@ -37,7 +37,6 @@ fi
 # Linux: install JetBrains Mono font
 bdb_command "Installing JetBrains Mono font"
 sudo pacman -S --noconfirm --needed ttf-jetbrains-mono
-#/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/install_manual.sh)"
 bdb_success "installing JetBrains Mono font"
 {{- end }}
 
@@ -49,6 +48,11 @@ batcat cache --build
 bat cache --build
 {{ end -}}
 bdb_success "setting up bat colorscheme"
+
+# Update zsh plugins via Antigen
+bdb_command "Upgrading Antigen and zsh plugins"
+antigen selfupdate && antigen update
+bdb_success "upgrading Antigen and zsh plugins"
 
 # --- End: Environment Setup ---
 bdb_info_out "Chezmoi init: environment setup complete"

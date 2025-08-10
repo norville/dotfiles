@@ -77,6 +77,58 @@ bdb_bootstrap() {
     esac
     bdb_outcome "${PLATFORM}/${DISTRO}"
 
+    # --- Update the system ---
+    if bdb_ask "Update the system now"; then
+        bdb_command "Updating the system"
+        case "${DISTRO}" in
+            arch|manjaro)
+                sudo -- bash -c 'pacman -Syu --noconfirm && \
+                                pacman -Qdtq --noconfirm | ifne pacman -Rns --noconfirm - && \
+                                pacman -Scc --noconfirm'
+                ;;
+            debian|ubuntu)
+                sudo -- bash -c 'apt-get update && \
+                                apt-get full-upgrade -y && \
+                                apt-get autoremove --purge -y && \
+                                apt-get clean -y'
+                ;;
+            macos)
+                # macOS: Xcode CLT and Homebrew
+                bdb_run "Checking Xcode Command Line Tools"
+                if command -v xcode-select >/dev/null 2>&1 && \
+                    clt_path="$(xcode-select --print-path 2>/dev/null)" && \
+                    [ -d "${clt_path}" ] && [ -x "${clt_path}" ]; then
+                    bdb_outcome "installed"
+                else
+                    bdb_outcome "missing"
+                    bdb_command "Installing CLT"
+                    touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
+                    clt_package="$(softwareupdate -l | grep '.*Command Line' | awk -F ":" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')"
+                    softwareupdate -i "${clt_package}"
+                    bdb_success "installing CLT"
+                fi
+                bdb_run "Checking Homebrew"
+                if ! command -v brew >/dev/null 2>&1; then
+                    bdb_outcome "missing"
+                    bdb_command "Installing Homebrew"
+                    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+                    bdb_success "installing Homebrew"
+                else
+                    bdb_outcome "installed"
+                    bdb_command "Updating Homebrew"
+                    brew update && brew upgrade
+                    bdb_success "updating Homebrew"
+                fi
+                ;;
+            *)
+                bdb_handle_error "Cannot update the system"
+                ;;
+        esac
+        bdb_success "updating the system"
+    else
+        bdb_alert "Skipping system update"
+    fi
+    
     # --- Install Chezmoi requirements ---
     bdb_command "Installing Chezmoi and its dependencies"
     case "${DISTRO}" in
@@ -84,50 +136,24 @@ bdb_bootstrap() {
             sudo pacman -S --noconfirm git chezmoi
             ;;
         debian)
-            sudo apt update && sudo apt install -y curl git
+            sudo apt-get install -y curl git
             if ! command -v chezmoi >/dev/null 2>&1; then
                 sudo sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
             fi
             ;;
         macos)
-            # macOS: Xcode CLT and Homebrew
-            bdb_run "Checking Xcode Command Line Tools"
-            if command -v xcode-select >/dev/null 2>&1 && \
-                clt_path="$(xcode-select --print-path 2>/dev/null)" && \
-                [ -d "${clt_path}" ] && [ -x "${clt_path}" ]; then
-                bdb_outcome "installed"
-            else
-                bdb_outcome "missing"
-                bdb_command "Installing CLT"
-                touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
-                clt_package="$(softwareupdate -l | grep '.*Command Line' | awk -F ":" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')"
-                softwareupdate -i "${clt_package}"
-                bdb_success "installing CLT"
-            fi
-            bdb_run "Checking Homebrew"
-            if ! command -v brew >/dev/null 2>&1; then
-                bdb_outcome "missing"
-                bdb_command "Installing Homebrew"
-                NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-                bdb_success "installing Homebrew"
-            else
-                bdb_outcome "installed"
-                bdb_command "Updating Homebrew"
-                brew update
-                bdb_success "updating Homebrew"
-            fi
             bdb_command "Installing Chezmoi"
             brew install chezmoi
             bdb_success "installing Chezmoi"
             ;;
         ubuntu)
-            sudo apt update && sudo apt install -y git snapd
+            sudo apt-get install -y git snapd
             if ! command -v chezmoi >/dev/null 2>&1; then
                 sudo snap install chezmoi --classic
             fi
             ;;
         *)
-            bdb_handle_error "Cannot install Chezmoi or its dependencies"
+            bdb_handle_error "Cannot install Chezmoi and its dependencies"
             ;;
     esac
     bdb_success "installing Chezmoi and its dependencies"

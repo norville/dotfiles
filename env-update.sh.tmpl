@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# Source helper functions
-source "${HELPERS}"
-
-# --- Begin: Environment Update ---
-bdb_info_in "Chezmoi init: update environment"
-
 {{  if eq .osid "darwin" -}}
 # macOS: Homebrew maintenance
 if bdb_ask "Do you want to remove extra Homebrew formulae"; then
@@ -36,18 +30,12 @@ sudo -- bash -c 'pacman -Syu --noconfirm && pacman -Qdtq --noconfirm | ifne pacm
 bdb_success "running package maintenance"
 {{  end -}}
 
-# Update zsh plugins (Antigen)
-bdb_command "Upgrading Antigen"
-antigen_dir="${HOME}/.antigen"
-[[ -d "${antigen_dir}" ]] && rm -rf "${antigen_dir}"
-mkdir -p "${antigen_dir}"
-git clone https://github.com/zsh-users/antigen.git "${antigen_dir}"
-bdb_success "upgrading Antigen"
+# Update zsh plugins via Antigen
+bdb_command "Upgrading Antigen and zsh plugins"
+antigen selfupdate && antigen update
+bdb_success "upgrading Antigen and zsh plugins"
 
 # Update vim plugins
 bdb_command "Upgrading Vim plugins"
 vim -e -s -u "${HOME}"/.vimrc -i NONE +"PlugUpdate" +"qa"
 bdb_success "upgrading Vim plugins"
-
-# --- End: Environment Update ---
-bdb_info_out "Chezmoi init: environment update complete"

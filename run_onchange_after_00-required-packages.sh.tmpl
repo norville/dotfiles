@@ -35,7 +35,7 @@ bdb_info_in "Chezmoi init: install required packages"
             ) -}}
 
 bdb_command "Installing APT packages: {{ $packages | join ", " }}"
-sudo apt install -y {{ $packages | join " " }}
+sudo apt-get install -y {{ $packages | join " " }}
 bdb_success "installing APT packages"
 
 bdb_command "Installing Eza"
@@ -43,8 +43,8 @@ sudo mkdir -p /etc/apt/keyrings
 wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
 echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/eza.list
 sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/eza.list
-sudo apt update
-sudo apt install -y eza
+sudo apt-get update
+sudo apt-get install -y eza
 bdb_success "installing Eza"
 
 {{-         if eq .osid "linux-ubuntu" }}
@@ -82,13 +82,6 @@ bdb_success "installing yay"
 #bdb_command "Installing macOS packages"
 # do install
 #bdb_success "installing macOS packages"
-
-{{- else if eq .osid "windows" -}}
-
-{{/* Windows packages */}}
-#bdb_command "Installing Windows packages"
-# do install
-#bdb_success "installing Windows packages"
 
 {{- end }}
 
