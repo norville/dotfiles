@@ -12,6 +12,6 @@ README.md
 {{- end }}
 
 # ignore these unless OS is either Manjaro or macOS
-{{- if (and (ne .osid "linux-manjaro") (ne .chezmoi.os "darwin")) -
+{{- if (and (ne .osid "linux-manjaro") (ne .chezmoi.os "darwin")) -}}
 .ssh/config
 {{- end }}
