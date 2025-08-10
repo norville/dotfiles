@@ -49,10 +49,5 @@ bat cache --build
 {{ end -}}
 bdb_success "setting up bat colorscheme"
 
-# Update zsh plugins via Antigen
-bdb_command "Upgrading Antigen and zsh plugins"
-antigen selfupdate && antigen update
-bdb_success "upgrading Antigen and zsh plugins"
-
 # --- End: Environment Setup ---
 bdb_info_out "Chezmoi init: environment setup complete"
