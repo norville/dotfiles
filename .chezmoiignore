@@ -1,20 +1,17 @@
 README.md
 .config/bdb/bdb_bootstrap.sh
 
-# ignore these files unless OS is darwin
+# ignore these unless OS is darwin
 {{- if ne .chezmoi.os "darwin" }}
 .config/homebrew/
 {{- end }}
 
-# ignore these files unless OS is linux
-{{- if ne .chezmoi.os "linux" }}
-{{- end }}
-
-# ignore these files unless OS is Manjaro runinng on Mac
+# ignore these unless OS is Manjaro runinng on Mac
 {{- if (or (ne .osid "linux-manjaro") (ne .vendor "Apple")) -}}
 /etc/modprobe.d/alsa-base.conf
 {{- end }}
 
-# ignore these files unless OS is windows
-{{- if ne .chezmoi.os "windows" }}
+# ignore these unless OS is either Manjaro or macOS
+{{- if (and (ne .osid "linux-manjaro") (ne .chezmoi.os "darwin")) -
+.ssh/config
 {{- end }}
