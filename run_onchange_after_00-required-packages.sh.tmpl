@@ -75,14 +75,6 @@ git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si --noconfirm
 bdb_success "installing yay"
 
 {{-     end }}
-
-{{- else if eq .osid "darwin" }}
-
-{{/* macOS packages */}}
-#bdb_command "Installing macOS packages"
-# do install
-#bdb_success "installing macOS packages"
-
 {{- end }}
 
 bdb_info_out "Chezmoi init: required packages installed"

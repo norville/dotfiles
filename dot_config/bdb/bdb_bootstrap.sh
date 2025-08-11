@@ -171,7 +171,7 @@ bdb_bootstrap() {
     fi
 
     # --- Print completion message ---
-    bdb_info "Bootstrap complete, check the log file at <${LOGFILE}> for details"
+    bdb_info "Bootstrap complete, check the log file at <${BDB_LOG_FILE}> for details"
     bdb_info_out "Please logout and log back in to load your dotfiles"
 }
 
