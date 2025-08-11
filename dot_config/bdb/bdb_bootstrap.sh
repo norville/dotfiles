@@ -82,15 +82,17 @@ bdb_bootstrap() {
         bdb_command "Updating the system"
         case "${DISTRO}" in
             arch|manjaro)
-                sudo -- bash -c 'pacman -Syu --noconfirm && \
-                                pacman -Qdtq --noconfirm | ifne pacman -Rns --noconfirm - && \
-                                pacman -Scc --noconfirm'
+                sudo -- bash -c '\
+                    pacman -Syu --noconfirm && \
+                    pacman -Qdtq --noconfirm | ifne pacman -Rns --noconfirm - && \
+                    pacman -Scc --noconfirm'
                 ;;
             debian|ubuntu)
-                sudo -- bash -c 'apt-get update && \
-                                apt-get full-upgrade -y && \
-                                apt-get autoremove --purge -y && \
-                                apt-get clean -y'
+                sudo -- bash -c '\
+                    apt-get update && \
+                    apt-get full-upgrade -y && \
+                    apt-get autoremove --purge -y && \
+                    apt-get clean -y'
                 ;;
             macos)
                 # macOS: Xcode CLT and Homebrew
