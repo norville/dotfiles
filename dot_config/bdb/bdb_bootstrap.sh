@@ -187,8 +187,8 @@ trap 'bdb_cleanup' EXIT     # Call cleanup on exit (normal or error)
 trap 'bdb_timestamp' DEBUG  # Print timestamp before command execution
 
 # --- Setup logging and output redirection ---
-exec 3>&1 1>"${BDB_LOG_FILE}" 2>&1   # create FD for user messages, redirect stdout and stderr to log file
-set -x                          # enable command tracing: print commands and their arguments as they are executed
+exec 3>&1 1>"${BDB_LOG_FILE}" 2>&1  # create FD for user messages, redirect stdout and stderr to log file
+set -x                              # enable command tracing: print commands and their arguments as they are executed
 
 # --- Start bootstrap ---
 bdb_bootstrap
