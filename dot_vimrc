@@ -89,7 +89,12 @@ set laststatus=2
 set showtabline=2
 set noshowmode
 
-source ~/.vim/theme.vim
+" Set background and colorscheme
+set background=dark
+if (has("termguicolors"))
+    set termguicolors
+endif
+colorscheme tokyonight-moon
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " HIGHLIGHT AND SEARCH
@@ -166,4 +171,3 @@ nmap <D-[> <<
 nmap <D-]> >>
 vmap <D-[> <gv
 vmap <D-]> >gv
-map <C-e> :NERDTreeToggle<CR>" POWERLINE

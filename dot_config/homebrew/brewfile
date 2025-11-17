@@ -1,12 +1,11 @@
 # Basic apps
-brew "1password-cli"
 brew "bat"
+brew "btop"
 brew "chezmoi"
 brew "curl"
 brew "eza"
 brew "git"
-brew "mas"
-brew "tree"
+brew "starship"
 brew "vim"
 brew "wget"
 brew "zsh"
@@ -16,18 +15,23 @@ brew "coreutils"
 brew "findutils"
 brew "moreutils"
 
+# LazyGit
+brew "fd"
+brew "fzf"
+brew "lazygit"
+brew "neovim"
+brew "ripgrep"
+brew "tree-sitter-cli"
+
 # Apps not on Mac App Store
 cask "1password"
+cask "1password-cli"
+cask "brave-browser"
 cask "font-jetbrains-mono"
-cask "ghostty"
+cask "font-jetbrains-mono-nerd-font"
+cask "kitty"
 cask "logi-options-plus"
 cask "moom"
 cask "tor-browser"
 cask "visual-studio-code"
 cask "whatsapp"
-
-# Apps from Mac App Store
-mas "Keynote", id: 409183694
-mas "Numbers", id: 409203825
-mas "Pages", id: 409201541
-mas "The Unarchiver", id: 425424353

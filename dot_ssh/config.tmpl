@@ -10,25 +10,19 @@ Host *
 Host jiraya
     Port 25355
     User norville
-    IdentityFile ~/.ssh/norville_at_basnet.pub
+    IdentityFile ~/.ssh/norville_at_chikyu.pub
     ForwardAgent yes
 
-Host jiraya-code
-    HostName jiraya
-    Port 25355
-    User code
-    IdentityFile ~/.ssh/code_at_jiraya.pub
-    ForwardAgent yes
-
-Host gitea.basnet.lan
+Host gitea
+    HostName 10.0.1.25
     Port 22
+    User gitea
     IdentityFile ~/.ssh/norville_at_gitea.pub
 
-Host *.basnet.lan
+Host *.chikyu.lan
     Port 25355
     User norville
-    IdentityFile ~/.ssh/norville_at_basnet.pub
-    SetEnv TERM=xterm-256color  # Avoid terminfo issues with Ghostty
+    IdentityFile ~/.ssh/norville_at_chikyu.pub
 
 Host github.com
     IdentityFile ~/.ssh/norville_at_github.pub

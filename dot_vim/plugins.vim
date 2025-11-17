@@ -18,21 +18,16 @@ autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
 call plug#begin()
 
 """ Colorscheme
-Plug 'ghifarit53/tokyonight-vim'
+Plug 'folke/tokyonight.nvim', { 'rtp': 'extras/vim' }
 
 """ Plugins
 Plug 'airblade/vim-gitgutter'
-Plug 'scrooloose/nerdtree'
+Plug 'scrooloose/nerdcommenter'
 Plug 'scrooloose/syntastic'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-surround'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-
-""" Last plugin to load
-Plug 'ryanoasis/vim-devicons'
 
 call plug#end()
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

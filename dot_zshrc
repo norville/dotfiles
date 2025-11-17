@@ -1,0 +1,333 @@
+# Export 1password ssh agent socket, required for agent forwarding
+
+#!/bin/zsh
+# =============================================================================
+# ZSH Configuration File
+# =============================================================================
+# This configuration follows XDG Base Directory specification and includes
+# robust error handling, portability checks, and extensive documentation.
+#
+# Last updated: 2025
+# =============================================================================
+
+# =============================================================================
+# ENVIRONMENT VARIABLES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Default Programs
+# -----------------------------------------------------------------------------
+# Set default editor for command-line editing and visual tasks
+# Falls back to vi if vim is not available (POSIX compliance)
+if command -v vim >/dev/null 2>&1; then
+    export EDITOR="vim"
+    export VISUAL="vim"
+elif command -v vi >/dev/null 2>&1; then
+    export EDITOR="vi"
+    export VISUAL="vi"
+else
+    export EDITOR="nano"
+    export VISUAL="nano"
+fi
+
+# -----------------------------------------------------------------------------
+# XDG Base Directory Specification
+# -----------------------------------------------------------------------------
+# Defines standard locations for user-specific files to keep $HOME clean
+# Reference: https://specifications.freedesktop.org/basedir-spec/latest/
+
+# Configuration files (e.g., application settings)
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
+
+# Data files (e.g., application state, databases)
+export XDG_DATA_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}"
+
+# Cached files (e.g., temporary data that can be regenerated)
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-${HOME}/.cache}"
+
+# Runtime files (e.g., sockets, process IDs) - only set if /run/user exists
+if [[ -d "/run/user/$(id -u)" ]]; then
+    export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+fi
+
+# Create XDG directories if they don't exist
+for dir in "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_CACHE_HOME"; do
+    [[ ! -d "$dir" ]] && mkdir -p "$dir" 2>/dev/null
+done
+
+# -----------------------------------------------------------------------------
+# SSH Agent Configuration (1Password)
+# -----------------------------------------------------------------------------
+# Configure 1Password SSH agent for secure key management and agent forwarding
+# Supports both macOS and Linux socket locations
+# Documentation: https://developer.1password.com/docs/ssh/
+
+# Detect operating system
+_os_type="$(uname -s)"
+
+case "$_os_type" in
+    Darwin)
+        # macOS: 1Password SSH agent socket location
+        _onepassword_sock="${HOME}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+        ;;
+    Linux)
+        # Linux: 1Password SSH agent socket location
+        _onepassword_sock="${HOME}/.1password/agent.sock"
+        ;;
+    *)
+        # Unknown OS: try Linux location as fallback
+        _onepassword_sock="${HOME}/.1password/agent.sock"
+        ;;
+esac
+
+# Only set SSH_AUTH_SOCK if the 1Password socket exists and is a valid socket
+if [[ -S "$_onepassword_sock" ]]; then
+    export SSH_AUTH_SOCK="$_onepassword_sock"
+elif [[ -n "$SSH_AUTH_SOCK" ]] && [[ ! -S "$SSH_AUTH_SOCK" ]]; then
+    # If SSH_AUTH_SOCK is set but invalid, unset it to avoid issues
+    unset SSH_AUTH_SOCK
+fi
+
+# Cleanup temporary variables
+unset _onepassword_sock _os_type
+
+# -----------------------------------------------------------------------------
+# Starship Prompt Configuration
+# -----------------------------------------------------------------------------
+# Set custom location for Starship prompt configuration file
+# Starship: Cross-shell prompt written in Rust (https://starship.rs)
+export STARSHIP_CONFIG="${XDG_CONFIG_HOME}/starship/config.toml"
+
+# =============================================================================
+# ZSH CORE SETTINGS
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Load Essential Modules
+# -----------------------------------------------------------------------------
+# compinit: Initialize completion system for command/argument completion
+# colors: Enable color support in prompt and output
+autoload -Uz compinit colors
+compinit
+colors
+
+# Performance optimization: Only regenerate compdump once a day
+# This speeds up shell startup by caching completion data
+if [[ -n "${ZDOTDIR:-$HOME}/.zcompdump"(#qN.mh+24) ]]; then
+    compinit
+else
+    compinit -C
+fi
+
+# -----------------------------------------------------------------------------
+# Completion System Configuration
+# -----------------------------------------------------------------------------
+# Enable advanced completion features with case-insensitive matching
+setopt auto_menu            # Automatically use menu completion after second TAB
+setopt menu_complete        # Insert first match immediately on ambiguous completion
+setopt list_packed          # Compact completion list display
+setopt complete_in_word     # Complete from both ends of a word
+setopt always_to_end        # Move cursor to end of word after completion
+
+# Case-insensitive completion
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
+# Colorful completion listings
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+
+# Group completions by type
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:descriptions' format '%F{yellow}-- %d --%f'
+
+# -----------------------------------------------------------------------------
+# Directory Navigation Options
+# -----------------------------------------------------------------------------
+setopt autocd               # Type directory name to cd into it (no 'cd' needed)
+setopt auto_pushd           # Make cd push old directory onto directory stack
+setopt pushd_ignore_dups    # Don't push multiple copies of same directory
+setopt pushd_minus          # Exchanges meanings of '+' and '-' in pushd
+setopt auto_param_slash     # Add trailing slash to completed directory names
+
+# -----------------------------------------------------------------------------
+# Globbing (Pattern Matching) Options
+# -----------------------------------------------------------------------------
+setopt no_case_glob         # Case-insensitive globbing for file matching
+setopt no_case_match        # Case-insensitive pattern matching in conditions
+setopt globdots             # Include hidden files (dotfiles) in glob matches
+setopt extended_glob        # Enable advanced glob operators: ~ # ^
+setopt numeric_glob_sort    # Sort numeric filenames numerically, not lexically
+
+# Prevent accidental file overwrites
+setopt no_clobber           # Don't overwrite existing files with > (use >! to force)
+
+# -----------------------------------------------------------------------------
+# General Shell Behavior
+# -----------------------------------------------------------------------------
+setopt interactive_comments # Allow comments in interactive shell (lines starting with #)
+setopt no_beep             # Disable terminal beep on errors
+setopt multios             # Enable multiple redirections (tee-like behavior)
+setopt prompt_subst        # Enable parameter expansion in prompts
+unsetopt prompt_sp         # Don't add extra space before prompt
+
+# Disable flow control (Ctrl-S/Ctrl-Q) to free up Ctrl-S for other uses
+if [[ -t 0 ]]; then
+    stty stop undef 2>/dev/null
+    stty start undef 2>/dev/null
+fi
+
+# -----------------------------------------------------------------------------
+# History Configuration
+# -----------------------------------------------------------------------------
+# Configure command history for better recall and sharing between sessions
+
+# History file location and size
+HISTFILE="${XDG_CACHE_HOME}/zsh_history"
+HISTSIZE=100000             # Number of commands to keep in memory
+SAVEHIST=100000             # Number of commands to save to file
+
+# Ensure history file exists with proper permissions
+if [[ ! -f "$HISTFILE" ]]; then
+    touch "$HISTFILE"
+    chmod 600 "$HISTFILE"
+fi
+
+# History behavior options
+setopt append_history       # Append to history file, don't overwrite
+setopt inc_append_history   # Write to history file immediately, not on exit
+setopt share_history        # Share history between all sessions
+setopt hist_ignore_dups     # Don't record duplicate consecutive commands
+setopt hist_ignore_space    # Don't record commands starting with space
+setopt hist_reduce_blanks   # Remove superfluous blanks from history
+setopt hist_verify          # Show expanded history before executing
+setopt extended_history     # Save timestamp and duration with each command
+
+# Ignore specific commands in history
+HISTORY_IGNORE="(ls|cd|pwd|exit|clear|history)"
+
+# =============================================================================
+# PATH CONFIGURATION
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Homebrew Package Manager
+# -----------------------------------------------------------------------------
+# Homebrew: Package manager for macOS and Linux
+# Documentation: https://brew.sh
+#
+# This section handles multiple Homebrew installation locations:
+# - /opt/homebrew (Apple Silicon Macs)
+# - /usr/local (Intel Macs)
+# - /home/linuxbrew/.linuxbrew (Linux)
+# - ~/.linuxbrew (Linux user installation)
+
+# Check if brew is already in PATH
+if ! command -v brew >/dev/null 2>&1; then
+    # Try common Homebrew installation paths
+    # Apple Silicon Macs (M1/M2/M3)
+    if [[ -x "/opt/homebrew/bin/brew" ]]; then
+        export PATH="/opt/homebrew/bin:$PATH"
+    # Intel Macs
+    elif [[ -x "/usr/local/bin/brew" ]]; then
+        export PATH="/usr/local/bin:$PATH"
+    # Linux (system-wide installation)
+    elif [[ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then
+        export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+    # Linux (user installation)
+    elif [[ -x "${HOME}/.linuxbrew/bin/brew" ]]; then
+        export PATH="${HOME}/.linuxbrew/bin:$PATH"
+    fi
+fi
+
+# Initialize Homebrew environment if available
+# This sets up HOMEBREW_PREFIX, HOMEBREW_CELLAR, MANPATH, INFOPATH, etc.
+if command -v brew >/dev/null 2>&1; then
+    eval "$(brew shellenv)"
+fi
+
+# -----------------------------------------------------------------------------
+# Custom Binary Directories
+# -----------------------------------------------------------------------------
+# Add custom binary directories to PATH if they exist
+# Checked in reverse priority order (last added appears first in PATH)
+
+# User-local binaries (highest priority)
+[[ -d "${HOME}/.local/bin" ]] && path=("${HOME}/.local/bin" $path)
+
+# Personal scripts and tools
+[[ -d "${HOME}/.bin" ]] && path=("${HOME}/.bin" $path)
+
+# Remove duplicate entries from PATH
+typeset -U path
+
+# Export PATH for subprocesses
+export PATH
+
+# =============================================================================
+# EXTERNAL PLUGINS AND CONFIGURATIONS
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Load ZSH Plugins
+# -----------------------------------------------------------------------------
+# Source external plugin manager or plugin definitions
+# Common plugins: syntax-highlighting, autosuggestions, history-substring-search
+_plugin_file="${HOME}/.zsh/antidote.zsh"
+if [[ -f "$_plugin_file" ]]; then
+    source "$_plugin_file"
+elif [[ -f "${ZDOTDIR:-$HOME}/.zsh/antidote.zsh" ]]; then
+    source "${ZDOTDIR:-$HOME}/.zsh/antidote.zsh"
+fi
+unset _plugin_file
+
+# -----------------------------------------------------------------------------
+# Load Custom Aliases
+# -----------------------------------------------------------------------------
+# Source shell aliases for command shortcuts and customizations
+_alias_file="${HOME}/.zsh/aliases.zsh"
+if [[ -f "$_alias_file" ]]; then
+    source "$_alias_file"
+elif [[ -f "${ZDOTDIR:-$HOME}/.zsh/aliases.zsh" ]]; then
+    source "${ZDOTDIR:-$HOME}/.zsh/aliases.zsh"
+fi
+unset _alias_file
+
+# =============================================================================
+# EXTERNAL TOOL INTEGRATION
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# FZF (Fuzzy Finder) Integration
+# -----------------------------------------------------------------------------
+# FZF: Command-line fuzzy finder for files, history, processes, etc.
+# Documentation: https://github.com/junegunn/fzf
+if command -v fzf >/dev/null 2>&1; then
+    # Load FZF key bindings and completion
+    if [[ -f ~/.fzf.zsh ]]; then
+        source ~/.fzf.zsh
+    else
+        # Try to initialize from FZF's standard installation
+        eval "$(fzf --zsh 2>/dev/null)" || true
+    fi
+
+    # FZF configuration options
+    export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
+
+    # Use fd for file listing if available (faster and respects .gitignore)
+    if command -v fd >/dev/null 2>&1; then
+        export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+        export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    fi
+fi
+
+# -----------------------------------------------------------------------------
+# Starship Prompt Initialization
+# -----------------------------------------------------------------------------
+# Starship: Fast, customizable, minimal prompt for any shell
+# Only initialize if starship is installed and in PATH
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init zsh)"
+fi
+
+# =============================================================================
+# END OF CONFIGURATION
+# =============================================================================

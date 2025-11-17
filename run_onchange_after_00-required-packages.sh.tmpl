@@ -22,6 +22,7 @@ bdb_info_in "Chezmoi init: install required packages"
             "bat"
             "curl"
             "git"
+            "kitty"
             "vim"
             "wget"
             "zsh" -}}
@@ -31,7 +32,12 @@ bdb_info_in "Chezmoi init: install required packages"
 {{/*        APT packages */}}
 {{          $packages = concat $packages (list
                 "build-essential"
+                "fd-find"
+                "fzf"
                 "gpg"
+                "lazygit"
+                "ripgrep"
+                "tree-sitter"
             ) -}}
 
 bdb_command "Installing APT packages: {{ $packages | join ", " }}"
@@ -49,9 +55,11 @@ bdb_success "installing Eza"
 
 {{-         if eq .osid "linux-ubuntu" }}
 
-bdb_command "Installing Ghostty"
-sudo snap install ghostty --classic
-bdb_success "installing Ghostty"
+{{/*        UBUNTU packages */}}
+bdb_command "Installing LazyVim"
+sudo add-apt-repository ppa:neovim-ppa/stable
+sudo apt-get update
+sudo apt-get install neovim
 
 {{-         end }}
 
@@ -60,9 +68,14 @@ bdb_success "installing Ghostty"
 {{/*        PACMAN packages */}}
 {{          $packages = concat $packages (list
                 "base-devel"
+                "btop"
                 "eza"
+                "fd"
+                "fzf"
                 "gnupg"
-                "ghostty"
+                "lazygit"
+                "neovim"
+                "ripgrep"
             ) -}}
 
 bdb_command "Installing PACMAN packages: {{ $packages | join ", " }}"

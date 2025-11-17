@@ -1,9 +1,15 @@
 ## External files
 
 # Get colorscheme for bat
-[".config/bat/themes/tokyonight_night.tmTheme"]
+[".config/bat/themes/tokyonight_moon.tmTheme"]
     type = "file"
-    url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/sublime/tokyonight_night.tmTheme"
+    url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/sublime/tokyonight_moon.tmTheme"
+    refreshPeriod = "168h"
+
+# Get colorscheme for eza
+[".config/eza/theme.yml"]
+    type = "file"
+    url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/refs/heads/main/extras/eza/tokyonight_moon.yml"
     refreshPeriod = "168h"
 
 {{ if eq .osid "darwin" -}}
