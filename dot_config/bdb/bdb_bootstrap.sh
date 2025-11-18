@@ -1,196 +1,518 @@
 #!/usr/bin/env bash
-# ensure new process is started
+# =============================================================================
+# BDB Bootstrap - Bassa's Dotfiles Bootstrapper
+# =============================================================================
+# Automated setup script for installing chezmoi and syncing dotfiles
+# across different machines and operating systems
+#
+# Supported Systems:
+# - macOS (Intel and Apple Silicon)
+# - Linux: Arch, Manjaro, Debian, Ubuntu, Fedora, RHEL
+#
+# Features:
+# - Auto-detection of OS and distribution
+# - Installation of required dependencies
+# - Chezmoi installation and configuration
+# - Automatic dotfile synchronization
+# - Comprehensive logging
+#
+# Usage:
+#   bash <(curl -fsSL https://raw.githubusercontent.com/norville/dotfiles/main/path/to/bdb_bootstrap.sh)
+#   or
+#   ./bdb_bootstrap.sh
+#
+# Repository: https://github.com/norville/dotfiles
+# Last updated: 2025
+# =============================================================================
 
-### BDF BOOT - bootstrap Bassa's Dot Files
+# =============================================================================
+# GLOBAL CONFIGURATION
+# =============================================================================
 
-#  --- Define global variables ---
-BDB_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"                                              # Get current directory of this script
-BDB_HELPERS="${BDB_SCRIPT_DIR}/bdb_helpers.sh"                                                              # Path to helper functions
-BDB_HELPERS_URL="https://raw.githubusercontent.com/norville/dotfiles/main/dot_config/bdb/bdb_helpers.sh"    # URL to download helper functions
-BDB_LOG_FILE="./bdb_log.txt"                                                                                # log file path
+# GitHub repository configuration
+readonly GITHUB_USER="norville"                     # GitHub username
+readonly GITHUB_REPO="dotfiles"                     # Repository name
+readonly CHEZMOI_BRANCH="main"                      # Branch to use for initialization
 
-#  --- Source helper functions (portable, works regardless of current directory) ---
-if command -v curl >/dev/null 2>&1; then
-    curl -fsSL "${BDB_HELPERS_URL}" -o "${BDB_HELPERS}"
-elif command -v wget >/dev/null 2>&1; then
-    wget -qO "${BDB_HELPERS}" "${BDB_HELPERS_URL}"
-else
-    echo "Error: curl or wget is required to download helper script." >&2
-    exit 1
-fi
-if [[ ! -f "${BDB_HELPERS}" ]]; then
-    echo "Error: Failed to download helper script from ${BDB_HELPERS_URL}" >&2
-    exit 1
-fi
-# shellcheck disable=SC1091
-# shellcheck disable=SC1090
-source "${BDB_HELPERS}"
+# Script paths and URLs
+readonly BDB_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly BDB_HELPERS="${BDB_SCRIPT_DIR}/bdb_helpers.sh"
+readonly BDB_HELPERS_URL="https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/dot_config/bdb/bdb_helpers.sh"
 
-# --- Define main function ---
-bdb_bootstrap() {
+# Logging configuration
+readonly BDB_LOG_FILE="${BDB_SCRIPT_DIR}/bdb_log_$(date +%Y%m%d_%H%M%S).txt"
 
-    # --- Define local variables ---
-    GITHUB_USER="norville"                              # GitHub username for dotfiles repo
-    CHEZMOI_BRANCH="main"                               # Branch to use for chezmoi init
-    PLATFORM="$(uname)"                                 # OS type (Darwin/Linux)
-    DISTRO="Unknown"                                    # OS distribution name
-    LSB_PATH="/etc/os-release"                          # Path to lsb-release file (Linux)
-    VENDOR_X86="/sys/devices/virtual/dmi/id/sys_vendor" # x86/x86_64 vendor info
-    VENDOR_ARM="/sys/firmware/devicetree/base/model"    # ARM vendor info
-    PC_VENDOR="Unknown"                                 # Machine vendor - exported to be used in 'chezmoi.toml'
+# System detection paths
+readonly LSB_RELEASE_PATH="/etc/os-release"         # Standard Linux OS info
+readonly VENDOR_X86="/sys/devices/virtual/dmi/id/sys_vendor"  # x86/x64 vendor
+readonly VENDOR_ARM="/sys/firmware/devicetree/base/model"     # ARM vendor
 
-    # --- Print welcome message ---
-    bdb_info_in "Welcome to Bassa Dotfiles Bootstrapper (BDB)"
-    bdb_info "This script will detect the operating system and install all requirements to clone your dotfiles"
+# =============================================================================
+# HELPER FUNCTION LOADING
+# =============================================================================
 
-    # --- Get admin privileges (sudo) ---
-    bdb_run "Getting admin privileges"
-    if command -v sudo >/dev/null 2>&1; then
-        sudo -v
-        bdb_outcome "sudo OK"
-    fi
-
-    # --- Detect machine vendor (for info) ---
-    bdb_run "Detecting machine vendor"
-    if [[ -f "${VENDOR_X86}" ]]; then
-        PC_VENDOR="$(cat ${VENDOR_X86})"
-    elif [[ -f "${VENDOR_ARM}" ]]; then
-        PC_VENDOR="$(cat ${VENDOR_ARM})"
-    fi
-    bdb_outcome "${PC_VENDOR}"
-    export PC_VENDOR  # Export vendor for use in chezmoi.toml
-
-    # --- Detect OS type and distribution ---
-    bdb_run "Detecting operating system"
-    case "${PLATFORM}" in
-        Darwin)
-            DISTRO="macos"
-            ;;
-        Linux)
-            if [[ -f "${LSB_PATH}" ]]; then
-                DISTRO="$(grep -e '^ID=' "${LSB_PATH}" | cut -d '=' -f 2 | tr '[:upper:]' '[:lower:]')"
-            fi
-            ;;
-        *)
-            bdb_handle_error "Cannot detect operating system"
-            ;;
-    esac
-    bdb_outcome "${PLATFORM}/${DISTRO}"
-
-    # --- Update the system ---
-    if bdb_ask "Update the system now"; then
-        bdb_command "Updating the system"
-        case "${DISTRO}" in
-            arch|manjaro)
-                sudo -- bash -c '\
-                    pacman -Syu --noconfirm && \
-                    pacman -Qdtq --noconfirm | ifne pacman -Rns --noconfirm - && \
-                    pacman -Scc --noconfirm'
-                ;;
-            debian|ubuntu)
-                sudo -- bash -c '\
-                    apt-get update && \
-                    apt-get full-upgrade -y && \
-                    apt-get autoremove --purge -y && \
-                    apt-get clean -y'
-                ;;
-            macos)
-                # macOS: Xcode CLT and Homebrew
-                bdb_run "Checking Xcode Command Line Tools"
-                if command -v xcode-select >/dev/null 2>&1 && \
-                    clt_path="$(xcode-select --print-path 2>/dev/null)" && \
-                    [ -d "${clt_path}" ] && [ -x "${clt_path}" ]; then
-                    bdb_outcome "installed"
-                else
-                    bdb_outcome "missing"
-                    bdb_command "Installing CLT"
-                    touch /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
-                    clt_package="$(softwareupdate -l | grep '.*Command Line' | awk -F ":" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')"
-                    softwareupdate -i "${clt_package}"
-                    bdb_success "installing CLT"
-                fi
-                bdb_run "Checking Homebrew"
-                if ! command -v brew >/dev/null 2>&1; then
-                    bdb_outcome "missing"
-                    bdb_command "Installing Homebrew"
-                    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-                    bdb_success "installing Homebrew"
-                else
-                    bdb_outcome "installed"
-                    bdb_command "Updating Homebrew"
-                    brew update && brew upgrade
-                    bdb_success "updating Homebrew"
-                fi
-                ;;
-            *)
-                bdb_handle_error "Cannot update the system"
-                ;;
-        esac
-        bdb_success "updating the system"
+# -----------------------------------------------------------------------------
+# Download and Source Helper Functions
+# -----------------------------------------------------------------------------
+# Download helper functions from GitHub if not available locally
+# Supports both curl and wget for portability
+load_helpers() {
+    local helpers_exist=false
+    
+    # Check if helpers exist locally
+    if [[ -f "${BDB_HELPERS}" ]]; then
+        helpers_exist=true
+        echo "[INFO] Using local helper functions from ${BDB_HELPERS}"
     else
-        bdb_alert "Skipping system update"
+        echo "[INFO] Downloading helper functions from ${BDB_HELPERS_URL}"
+        
+        # Try to download helpers
+        if command -v curl >/dev/null 2>&1; then
+            if curl -fsSL "${BDB_HELPERS_URL}" -o "${BDB_HELPERS}"; then
+                helpers_exist=true
+            fi
+        elif command -v wget >/dev/null 2>&1; then
+            if wget -qO "${BDB_HELPERS}" "${BDB_HELPERS_URL}"; then
+                helpers_exist=true
+            fi
+        else
+            echo "[ERROR] Neither curl nor wget is available. Cannot download helpers." >&2
+            exit 1
+        fi
     fi
     
-    # --- Install Chezmoi requirements ---
-    bdb_command "Installing Chezmoi and its dependencies"
-    case "${DISTRO}" in
-        arch|manjaro)
-            sudo pacman -S --noconfirm git chezmoi
+    # Verify download success
+    if [[ "$helpers_exist" != true ]] || [[ ! -f "${BDB_HELPERS}" ]]; then
+        echo "[ERROR] Failed to obtain helper functions from ${BDB_HELPERS_URL}" >&2
+        exit 1
+    fi
+    
+    # Source the helper functions
+    # shellcheck disable=SC1090,SC1091
+    source "${BDB_HELPERS}"
+}
+
+# Load helpers first thing
+load_helpers
+
+# =============================================================================
+# SYSTEM DETECTION FUNCTIONS
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Detect Machine Vendor
+# -----------------------------------------------------------------------------
+# Identify the hardware manufacturer for informational purposes
+# Exports: PC_VENDOR (used in chezmoi.toml templates)
+detect_machine_vendor() {
+    local vendor="Unknown"
+    
+    bdb_run "Detecting machine vendor"
+    
+    if [[ -f "${VENDOR_X86}" ]]; then
+        vendor="$(cat "${VENDOR_X86}" 2>/dev/null | tr -d '\0')"
+    elif [[ -f "${VENDOR_ARM}" ]]; then
+        vendor="$(cat "${VENDOR_ARM}" 2>/dev/null | tr -d '\0')"
+    fi
+    
+    bdb_outcome "${vendor}"
+    export PC_VENDOR="${vendor}"
+}
+
+# -----------------------------------------------------------------------------
+# Detect Operating System
+# -----------------------------------------------------------------------------
+# Identify OS type (Darwin/Linux) and distribution
+# Sets: PLATFORM, DISTRO
+# Returns: 0 on success, 1 on failure
+detect_os() {
+    local platform distro
+    
+    bdb_run "Detecting operating system"
+    
+    platform="$(uname -s)"
+    
+    case "${platform}" in
+        Darwin)
+            distro="macos"
             ;;
-        debian)
-            sudo apt-get install -y curl git
-            if ! command -v chezmoi >/dev/null 2>&1; then
-                sudo sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
-            fi
-            ;;
-        macos)
-            bdb_command "Installing Chezmoi"
-            brew install chezmoi
-            bdb_success "installing Chezmoi"
-            ;;
-        ubuntu)
-            sudo apt-get install -y git snapd
-            if ! command -v chezmoi >/dev/null 2>&1; then
-                sudo snap install chezmoi --classic
+        Linux)
+            if [[ -f "${LSB_RELEASE_PATH}" ]]; then
+                # Extract ID field from os-release, normalize to lowercase
+                distro="$(grep -E '^ID=' "${LSB_RELEASE_PATH}" | cut -d'=' -f2 | tr -d '"' | tr '[:upper:]' '[:lower:]')"
+                
+                # Handle ID_LIKE for derivatives (e.g., Pop!_OS -> ubuntu)
+                if [[ -z "${distro}" ]]; then
+                    distro="$(grep -E '^ID_LIKE=' "${LSB_RELEASE_PATH}" | cut -d'=' -f2 | tr -d '"' | awk '{print $1}' | tr '[:upper:]' '[:lower:]')"
+                fi
+            else
+                distro="unknown"
             fi
             ;;
         *)
-            bdb_handle_error "Cannot install Chezmoi and its dependencies"
+            bdb_error "Unsupported operating system: ${platform}"
+            return 1
             ;;
     esac
-    bdb_success "installing Chezmoi and its dependencies"
-
-    # --- Chezmoi installed, ready to clone dotfiles ---
-    bdb_info "All requirements installed, you may now configure your environment"
-    if bdb_ask "Clone dotfiles and apply configuration now"; then
-        bdb_command "Cloning dotfiles and applying configuration"
-        chezmoi init --branch "${CHEZMOI_BRANCH}" --apply "${GITHUB_USER}"
-        bdb_success "cloning dotfiles and applying configuration"
-    else
-        bdb_alert "Cloning skipped. Use command 'chezmoi init --apply ${GITHUB_USER}' when ready"
-    fi
-
-    # --- Print completion message ---
-    bdb_info "Bootstrap complete, check the log file at <${BDB_LOG_FILE}> for details"
-    bdb_info_out "Please logout and log back in to load your dotfiles"
+    
+    bdb_outcome "${platform}/${distro}"
+    
+    export PLATFORM="${platform}"
+    export DISTRO="${distro}"
+    return 0
 }
 
-# --- Setup error handling ---
-# -e: exit on error
-# -u: treat unset variables as an error
-# -o pipefail: return the exit status of the last command in the pipeline that failed
+# =============================================================================
+# SYSTEM UPDATE FUNCTIONS
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Update Arch/Manjaro System
+# -----------------------------------------------------------------------------
+update_arch() {
+    bdb_command "Updating Arch/Manjaro system"
+    
+    sudo pacman -Syu --noconfirm
+    
+    # Remove orphaned packages if any exist
+    local orphans
+    orphans="$(pacman -Qdtq 2>/dev/null || true)"
+    if [[ -n "${orphans}" ]]; then
+        echo "${orphans}" | sudo pacman -Rns --noconfirm -
+    fi
+    
+    # Clean package cache
+    sudo pacman -Scc --noconfirm
+}
+
+# -----------------------------------------------------------------------------
+# Update Debian/Ubuntu System
+# -----------------------------------------------------------------------------
+update_debian() {
+    bdb_command "Updating Debian/Ubuntu system"
+    
+    sudo apt-get update
+    sudo apt-get full-upgrade -y
+    sudo apt-get autoremove --purge -y
+    sudo apt-get clean
+}
+
+# -----------------------------------------------------------------------------
+# Update Fedora/RHEL System
+# -----------------------------------------------------------------------------
+update_fedora() {
+    bdb_command "Updating Fedora/RHEL system"
+    
+    sudo dnf upgrade -y
+    sudo dnf autoremove -y
+    sudo dnf clean all
+}
+
+# -----------------------------------------------------------------------------
+# Setup macOS Development Environment
+# -----------------------------------------------------------------------------
+# Install Xcode Command Line Tools and Homebrew
+setup_macos() {
+    # Check and install Xcode Command Line Tools
+    bdb_run "Checking Xcode Command Line Tools"
+    
+    if xcode-select -p &>/dev/null; then
+        bdb_outcome "already installed"
+    else
+        bdb_outcome "not installed"
+        bdb_command "Installing Xcode Command Line Tools"
+        
+        # Trigger installation prompt
+        xcode-select --install &>/dev/null || true
+        
+        # Wait for installation to complete
+        until xcode-select -p &>/dev/null; do
+            sleep 5
+        done
+        
+        bdb_success "Xcode Command Line Tools installed"
+    fi
+    
+    # Check and install Homebrew
+    bdb_run "Checking Homebrew"
+    
+    if command -v brew >/dev/null 2>&1; then
+        bdb_outcome "already installed"
+        bdb_command "Updating Homebrew"
+        brew update && brew upgrade
+        bdb_success "Homebrew updated"
+    else
+        bdb_outcome "not installed"
+        bdb_command "Installing Homebrew"
+        
+        # Non-interactive installation
+        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        
+        # Add Homebrew to PATH for current session
+        if [[ -x "/opt/homebrew/bin/brew" ]]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        elif [[ -x "/usr/local/bin/brew" ]]; then
+            eval "$(/usr/local/bin/brew shellenv)"
+        fi
+        
+        bdb_success "Homebrew installed"
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Update System
+# -----------------------------------------------------------------------------
+# Update the system based on detected distribution
+update_system() {
+    if ! bdb_ask "Update the system now"; then
+        bdb_alert "Skipping system update"
+        return 0
+    fi
+    
+    case "${DISTRO}" in
+        arch|manjaro)
+            update_arch
+            ;;
+        debian|ubuntu|pop)
+            update_debian
+            ;;
+        fedora|rhel|centos)
+            update_fedora
+            ;;
+        macos)
+            setup_macos
+            ;;
+        *)
+            bdb_error "Unsupported distribution for system update: ${DISTRO}"
+            return 1
+            ;;
+    esac
+    
+    bdb_success "System updated successfully"
+}
+
+# =============================================================================
+# DEPENDENCY INSTALLATION FUNCTIONS
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Install Dependencies on Arch/Manjaro
+# -----------------------------------------------------------------------------
+install_deps_arch() {
+    bdb_command "Installing dependencies (Arch/Manjaro)"
+    sudo pacman -S --needed --noconfirm git chezmoi
+}
+
+# -----------------------------------------------------------------------------
+# Install Dependencies on Debian
+# -----------------------------------------------------------------------------
+install_deps_debian() {
+    bdb_command "Installing dependencies (Debian)"
+    sudo apt-get install -y curl git
+    
+    # Install chezmoi if not already present
+    if ! command -v chezmoi >/dev/null 2>&1; then
+        bdb_run "Installing chezmoi"
+        sudo sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b /usr/local/bin
+        bdb_outcome "chezmoi installed"
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Install Dependencies on Ubuntu
+# -----------------------------------------------------------------------------
+install_deps_ubuntu() {
+    bdb_command "Installing dependencies (Ubuntu)"
+    sudo apt-get install -y git snapd
+    
+    # Install chezmoi via snap if not already present
+    if ! command -v chezmoi >/dev/null 2>&1; then
+        bdb_run "Installing chezmoi via snap"
+        sudo snap install chezmoi --classic
+        bdb_outcome "chezmoi installed"
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Install Dependencies on Fedora/RHEL
+# -----------------------------------------------------------------------------
+install_deps_fedora() {
+    bdb_command "Installing dependencies (Fedora/RHEL)"
+    sudo dnf install -y git
+    
+    # Install chezmoi if not already present
+    if ! command -v chezmoi >/dev/null 2>&1; then
+        bdb_run "Installing chezmoi"
+        sudo sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b /usr/local/bin
+        bdb_outcome "chezmoi installed"
+    fi
+}
+
+# -----------------------------------------------------------------------------
+# Install Dependencies on macOS
+# -----------------------------------------------------------------------------
+install_deps_macos() {
+    bdb_command "Installing dependencies (macOS)"
+    brew install chezmoi
+}
+
+# -----------------------------------------------------------------------------
+# Install Required Dependencies
+# -----------------------------------------------------------------------------
+# Install git and chezmoi based on detected distribution
+install_dependencies() {
+    bdb_info "Installing chezmoi and dependencies"
+    
+    case "${DISTRO}" in
+        arch|manjaro)
+            install_deps_arch
+            ;;
+        debian)
+            install_deps_debian
+            ;;
+        ubuntu|pop)
+            install_deps_ubuntu
+            ;;
+        fedora|rhel|centos)
+            install_deps_fedora
+            ;;
+        macos)
+            install_deps_macos
+            ;;
+        *)
+            bdb_error "Unsupported distribution for dependency installation: ${DISTRO}"
+            return 1
+            ;;
+    esac
+    
+    # Verify chezmoi installation
+    if ! command -v chezmoi >/dev/null 2>&1; then
+        bdb_error "Chezmoi installation failed"
+        return 1
+    fi
+    
+    bdb_success "Dependencies installed successfully"
+}
+
+# =============================================================================
+# DOTFILES INITIALIZATION
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Initialize and Apply Dotfiles
+# -----------------------------------------------------------------------------
+# Clone dotfiles repository and apply configuration using chezmoi
+init_dotfiles() {
+    bdb_info "Ready to clone dotfiles and apply configuration"
+    
+    if ! bdb_ask "Clone dotfiles from ${GITHUB_USER}/${GITHUB_REPO} and apply now"; then
+        bdb_alert "Dotfile initialization skipped"
+        bdb_info "Run this command when ready:"
+        bdb_info "  chezmoi init --branch ${CHEZMOI_BRANCH} --apply ${GITHUB_USER}"
+        return 0
+    fi
+    
+    bdb_command "Initializing chezmoi with dotfiles"
+    
+    # Initialize and apply in one command
+    if chezmoi init --branch "${CHEZMOI_BRANCH}" --apply "${GITHUB_USER}"; then
+        bdb_success "Dotfiles cloned and applied successfully"
+    else
+        bdb_error "Failed to initialize dotfiles"
+        bdb_info "You can try manually with:"
+        bdb_info "  chezmoi init --branch ${CHEZMOI_BRANCH} ${GITHUB_USER}"
+        bdb_info "  chezmoi apply"
+        return 1
+    fi
+}
+
+# =============================================================================
+# MAIN BOOTSTRAP FUNCTION
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Bootstrap Main Function
+# -----------------------------------------------------------------------------
+# Orchestrate the complete bootstrap process
+bdb_bootstrap() {
+    # Welcome message
+    bdb_info_in "Welcome to Bassa's Dotfiles Bootstrapper (BDB)"
+    bdb_info "This script will set up your system with dotfiles from GitHub"
+    bdb_info "Repository: https://github.com/${GITHUB_USER}/${GITHUB_REPO}"
+    
+    # Get admin privileges early
+    bdb_run "Requesting administrator privileges"
+    if command -v sudo >/dev/null 2>&1; then
+        sudo -v
+        bdb_outcome "sudo access granted"
+        
+        # Keep sudo alive in background
+        while true; do
+            sudo -n true
+            sleep 60
+            kill -0 "$$" 2>/dev/null || exit
+        done 2>/dev/null &
+    else
+        bdb_alert "sudo not available, some operations may fail"
+    fi
+    
+    # Detect system information
+    detect_machine_vendor
+    detect_os || exit 1
+    
+    # Update system packages
+    update_system || exit 1
+    
+    # Install required dependencies
+    install_dependencies || exit 1
+    
+    # Initialize dotfiles
+    init_dotfiles || exit 1
+    
+    # Completion message
+    bdb_info "Bootstrap process completed successfully"
+    bdb_info "Log file saved to: ${BDB_LOG_FILE}"
+    bdb_info_out "Please log out and log back in to load your dotfiles"
+    
+    return 0
+}
+
+# =============================================================================
+# SCRIPT INITIALIZATION
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Setup Error Handling
+# -----------------------------------------------------------------------------
+# Enable strict error handling and automatic cleanup
+# -e: Exit immediately if a command exits with non-zero status
+# -u: Treat unset variables as errors
+# -o pipefail: Return exit status of last failed command in pipeline
 set -euo pipefail
 
-# --- Setup traps ---
-trap 'bdb_handle_error' ERR # Call handler on error
-trap 'bdb_cleanup' EXIT     # Call cleanup on exit (normal or error)
-trap 'bdb_timestamp' DEBUG  # Print timestamp before command execution
+# -----------------------------------------------------------------------------
+# Setup Traps
+# -----------------------------------------------------------------------------
+# Register cleanup and error handlers
+trap 'bdb_handle_error' ERR      # Handle errors automatically
+trap 'bdb_cleanup' EXIT          # Cleanup on script exit
+trap 'bdb_timestamp' DEBUG       # Add timestamps to log entries
 
-# --- Setup logging and output redirection ---
-exec 3>&1 1>"${BDB_LOG_FILE}" 2>&1  # create FD for user messages, redirect stdout and stderr to log file
-set -x                              # enable command tracing: print commands and their arguments as they are executed
+# -----------------------------------------------------------------------------
+# Setup Logging
+# -----------------------------------------------------------------------------
+# Redirect stdout/stderr to log file, preserve FD3 for user output
+exec 3>&1                        # Save original stdout to FD3
+exec 1>"${BDB_LOG_FILE}"         # Redirect stdout to log file
+exec 2>&1                        # Redirect stderr to stdout (log file)
 
-# --- Start bootstrap ---
+# Enable command tracing in log file
+set -x
+
+# =============================================================================
+# START BOOTSTRAP
+# =============================================================================
+
 bdb_bootstrap
 
 exit 0
