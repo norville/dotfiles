@@ -4,12 +4,6 @@
     {{- $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
 {{- end -}}
 
-{{- /* Get machine vendor from env variable set by bootstrap script */ -}}
-{{- $vendor := "Unknown" -}}
-{{- if (or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin")) -}}
-{{-     $vendor = (env "PC_VENDOR" | trim | default "Unknown") -}}
-{{- end -}}
-
 # Define chezmoi variables to be used in templates
 [data]
     vendor = {{ $vendor | quote }}

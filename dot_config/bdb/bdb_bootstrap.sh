@@ -44,8 +44,6 @@ readonly BDB_LOG_FILE="${BDB_SCRIPT_DIR}/bdb_log_$(date +%Y%m%d_%H%M%S).txt"
 
 # System detection paths
 readonly LSB_RELEASE_PATH="/etc/os-release"         # Standard Linux OS info
-readonly VENDOR_X86="/sys/devices/virtual/dmi/id/sys_vendor"  # x86/x64 vendor
-readonly VENDOR_ARM="/sys/firmware/devicetree/base/model"     # ARM vendor
 
 # =============================================================================
 # HELPER FUNCTION LOADING
@@ -98,26 +96,6 @@ load_helpers
 # =============================================================================
 # SYSTEM DETECTION FUNCTIONS
 # =============================================================================
-
-# -----------------------------------------------------------------------------
-# Detect Machine Vendor
-# -----------------------------------------------------------------------------
-# Identify the hardware manufacturer for informational purposes
-# Exports: PC_VENDOR (used in chezmoi.toml templates)
-detect_machine_vendor() {
-    local vendor="Unknown"
-    
-    bdb_run "Detecting machine vendor"
-    
-    if [[ -f "${VENDOR_X86}" ]]; then
-        vendor="$(cat "${VENDOR_X86}" 2>/dev/null | tr -d '\0')"
-    elif [[ -f "${VENDOR_ARM}" ]]; then
-        vendor="$(cat "${VENDOR_ARM}" 2>/dev/null | tr -d '\0')"
-    fi
-    
-    bdb_outcome "${vendor}"
-    export PC_VENDOR="${vendor}"
-}
 
 # -----------------------------------------------------------------------------
 # Detect Operating System
@@ -457,7 +435,6 @@ bdb_bootstrap() {
     fi
     
     # Detect system information
-    detect_machine_vendor
     detect_os || exit 1
     
     # Update system packages
