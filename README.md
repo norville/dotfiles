@@ -27,13 +27,13 @@ A comprehensive, cross-platform dotfiles management system using [Chezmoi](https
 Run this single command to set up everything automatically:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/norville/dotfiles/main/dot_config/bdb/bdb_bootstrap.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/norville/newtest/main/dot_config/bdb/bdb_bootstrap.sh)
 ```
 
 Or with wget:
 
 ```bash
-bash <(wget -qO- https://raw.githubusercontent.com/norville/dotfiles/main/dot_config/bdb/bdb_bootstrap.sh)
+bash <(wget -qO- https://raw.githubusercontent.com/norville/newtest/main/dot_config/bdb/bdb_bootstrap.sh)
 ```
 
 The bootstrap script will:
