@@ -1,0 +1,275 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Chezmoi Script: Install Required Packages
+# =============================================================================
+# This script installs essential packages required for the dotfiles environment
+# Runs whenever this file changes (onchange) and after other scripts
+#
+# Execution: Automatic on 'chezmoi apply' when file changes
+# Location: .chezmoiscripts/run_onchange_after_00-required-packages.sh.tmpl
+# =============================================================================
+
+# Source helper functions
+# shellcheck disable=SC1090,SC1091
+source "${HELPERS}"
+
+# -----------------------------------------------------------------------------
+# Error Handling Configuration
+# -----------------------------------------------------------------------------
+set -euo pipefail              # Strict error handling
+trap 'bdb_handle_error' ERR    # Handle errors automatically
+
+# =============================================================================
+# PACKAGE DEFINITIONS
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Core Packages (All Systems)
+# -----------------------------------------------------------------------------
+# Essential tools required on all systems
+CORE_PACKAGES=(
+    "bat"           # Modern cat with syntax highlighting
+    "curl"          # HTTP client
+    "git"           # Version control
+    "vim"           # Text editor (fallback)
+    "wget"          # File downloader
+    "zsh"           # Z shell
+)
+
+{{- /* ========================================================================== */ -}}
+{{- /* Linux Package Installation                                                */ -}}
+{{- /* ========================================================================== */ -}}
+{{- if eq .chezmoi.os "linux" }}
+
+# =============================================================================
+# LINUX PACKAGE INSTALLATION
+# =============================================================================
+
+bdb_info_in "Installing required packages for {{ .osid }}"
+
+{{- /* ------------------------------------------------------------------------ */ -}}
+{{- /* Debian/Ubuntu APT Packages                                               */ -}}
+{{- /* ------------------------------------------------------------------------ */ -}}
+{{- if eq .packageManager "apt" }}
+
+# -----------------------------------------------------------------------------
+# APT Package List (Debian/Ubuntu)
+# -----------------------------------------------------------------------------
+APT_PACKAGES=(
+    "${CORE_PACKAGES[@]}"
+    "build-essential"   # Compilation tools (gcc, make, etc.)
+    "fd-find"          # Fast file finder (modern find)
+    "fzf"              # Fuzzy finder
+    "gpg"              # GNU Privacy Guard
+    "kitty"            # Modern GPU-accelerated terminal
+    "lazygit"          # Terminal UI for git
+    "neovim"           # Modern vim replacement
+    "ripgrep"          # Fast grep alternative
+    "tree-sitter-cli"  # Parser generator tool
+)
+
+# Install APT packages
+bdb_command "Installing APT packages"
+sudo apt-get update
+sudo apt-get install -y "${APT_PACKAGES[@]}"
+bdb_success "APT packages installed"
+
+# Install eza (modern ls) - requires manual repository setup
+bdb_command "Installing eza from custom repository"
+if ! command -v eza >/dev/null 2>&1; then
+    sudo mkdir -p /etc/apt/keyrings
+    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | \
+        sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | \
+        sudo tee /etc/apt/sources.list.d/eza.list
+    sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/eza.list
+    sudo apt-get update
+    sudo apt-get install -y eza
+    bdb_outcome "eza installed"
+else
+    bdb_outcome "eza already installed"
+fi
+
+# Install btop (system monitor) - may not be in older repos
+bdb_command "Installing btop"
+if apt-cache show btop >/dev/null 2>&1; then
+    sudo apt-get install -y btop
+    bdb_outcome "btop installed"
+else
+    bdb_alert "btop not available in repositories, skipping"
+fi
+
+# Install lazygit - may need snap on older Ubuntu
+{{- if eq .osid "linux-ubuntu" }}
+if ! command -v lazygit >/dev/null 2>&1; then
+    bdb_command "Installing lazygit via snap"
+    sudo snap install lazygit
+    bdb_outcome "lazygit installed via snap"
+fi
+
+# Install Starship Prompt
+bdb_command "Installing Starship prompt"
+if ! command -v starship >/dev/null 2>&1; then
+    curl -fsSL https://starship.rs/install.sh | sh -s -- -y
+    bdb_outcome "Starship installed"
+else
+    bdb_outcome "Starship already installed"
+fi
+
+{{- end }}
+
+{{- /* ------------------------------------------------------------------------ */ -}}
+{{- /* Fedora/RHEL DNF Packages                                                 */ -}}
+{{- /* ------------------------------------------------------------------------ */ -}}
+{{- else if eq .packageManager "dnf" }}
+
+# -----------------------------------------------------------------------------
+# DNF Package List (Fedora/RHEL)
+# -----------------------------------------------------------------------------
+DNF_PACKAGES=(
+    "${CORE_PACKAGES[@]}"
+    "@development-tools"  # Compilation tools group
+    "btop"               # System monitor
+    "eza"                # Modern ls replacement
+    "fd-find"            # Fast file finder
+    "fzf"                # Fuzzy finder
+    "gnupg2"             # GNU Privacy Guard
+    "kitty"              # Modern terminal
+    "lazygit"            # Terminal UI for git
+    "neovim"             # Modern vim
+    "python3-neovim"     # Python support for neovim
+    "ripgrep"            # Fast grep alternative
+    "starship"          # Command line prompt
+)
+
+# Enable COPR repositories for additional packages
+bdb_command "Enabling COPR repositories"
+sudo dnf copr enable -y atim/lazygit 2>/dev/null || true
+sudo dnf copr enable -y pennbauman/ports 2>/dev/null || true
+sudo dnf copr enable -y atim/starship 2>/dev/null || true
+
+# Install DNF packages
+bdb_command "Installing DNF packages"
+sudo dnf install -y "${DNF_PACKAGES[@]}"
+bdb_success "DNF packages installed"
+
+# Install bat-extras (additional bat utilities)
+bdb_command "Installing bat-extras"
+if ! command -v batman >/dev/null 2>&1; then
+    git clone --depth=1 https://github.com/eth-p/bat-extras.git /tmp/bat-extras
+    sudo /tmp/bat-extras/build.sh --install
+    rm -rf /tmp/bat-extras
+    bdb_outcome "bat-extras installed"
+else
+    bdb_outcome "bat-extras already installed"
+fi
+
+{{- /* ------------------------------------------------------------------------ */ -}}
+{{- /* Arch/Manjaro Pacman Packages                                             */ -}}
+{{- /* ------------------------------------------------------------------------ */ -}}
+{{- else if eq .packageManager "pacman" }}
+
+# -----------------------------------------------------------------------------
+# Pacman Package List (Arch/Manjaro)
+# -----------------------------------------------------------------------------
+PACMAN_PACKAGES=(
+    "${CORE_PACKAGES[@]}"
+    "base-devel"        # Base development tools
+    "btop"              # System monitor
+    "eza"               # Modern ls replacement
+    "fd"                # Fast file finder
+    "fzf"               # Fuzzy finder
+    "gnupg"             # GNU Privacy Guard
+    "kitty"             # Modern terminal
+    "lazygit"           # Terminal UI for git
+    "neovim"            # Modern vim
+    "ripgrep"           # Fast grep alternative
+    "starship"          # Command line prompt
+    "tree-sitter"       # Parser generator
+)
+
+# Install Pacman packages
+bdb_command "Installing Pacman packages"
+sudo pacman -S --needed --noconfirm "${PACMAN_PACKAGES[@]}"
+bdb_success "Pacman packages installed"
+
+# Install yay (AUR helper) if not present
+bdb_command "Checking for yay (AUR helper)"
+if ! command -v yay >/dev/null 2>&1; then
+    bdb_run "Installing yay from AUR"
+    git clone https://aur.archlinux.org/yay.git /tmp/yay
+    (cd /tmp/yay && makepkg -si --noconfirm)
+    rm -rf /tmp/yay
+    bdb_outcome "yay installed"
+else
+    bdb_outcome "yay already installed"
+fi
+
+# Install bat-extras from AUR
+bdb_command "Installing bat-extras"
+if ! command -v batman >/dev/null 2>&1; then
+    yay -S --noconfirm bat-extras
+    bdb_outcome "bat-extras installed"
+else
+    bdb_outcome "bat-extras already installed"
+fi
+
+{{- end }}
+
+# -----------------------------------------------------------------------------
+# Post-Installation: Font Configuration (Linux)
+# -----------------------------------------------------------------------------
+{{- if eq .packageManager "pacman" }}
+# Arch/Manjaro: Install JetBrains Mono Nerd Font from repository
+bdb_command "Installing JetBrains Mono Nerd Font"
+sudo pacman -S --needed --noconfirm ttf-jetbrains-mono-nerd
+bdb_success "JetBrains Mono Nerd Font installed"
+
+{{- else }}
+# Other distros: Font installed via .chezmoiexternal.toml
+bdb_info "JetBrains Mono Nerd Font will be installed via external resources"
+bdb_command "Updating font cache"
+if command -v fc-cache >/dev/null 2>&1; then
+    fc-cache -f
+    bdb_outcome "font cache updated"
+fi
+{{- end }}
+
+{{- /* ========================================================================== */ -}}
+{{- /* macOS Package Installation                                                */ -}}
+{{- /* ========================================================================== */ -}}
+{{- else if eq .chezmoi.os "darwin" }}
+
+# =============================================================================
+# MACOS PACKAGE INSTALLATION
+# =============================================================================
+
+bdb_info_in "Installing required packages for macOS"
+
+# -----------------------------------------------------------------------------
+# Homebrew Package List
+# -----------------------------------------------------------------------------
+# See list in "${HOME}/.config/homebrew/brewfile"
+
+# Install Homebrew packages
+bdb_command "Installing Homebrew packages"
+brew bundle --file="${HOME}/.config/homebrew/brewfile"
+bdb_success "Homebrew packages installed"
+
+# Install fonts via Homebrew cask
+bdb_command "Installing JetBrains Mono Nerd Font"
+brew install --cask font-jetbrains-mono-nerd-font
+bdb_success "JetBrains Mono Nerd Font installed"
+
+{{- end }}
+
+# =============================================================================
+# CROSS-PLATFORM: ADDITIONAL TOOLS
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+bdb_info_out "Required packages installed successfully"
+
+exit 0

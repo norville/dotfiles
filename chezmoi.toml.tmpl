@@ -1,0 +1,157 @@
+{{- /* ========================================================================== */ -}}
+{{- /* Chezmoi Configuration Template                                          */ -}}
+{{- /* ========================================================================== */ -}}
+{{- /* This file configures chezmoi behavior and defines template variables    */ -}}
+{{- /* that are available in all chezmoi templates.                            */ -}}
+{{- /*                                                                          */ -}}
+{{- /* Documentation: https://www.chezmoi.io/reference/configuration-file/     */ -}}
+{{- /* ========================================================================== */ -}}
+
+{{- /* ========================================================================== */ -}}
+{{- /* Operating System Detection                                               */ -}}
+{{- /* ========================================================================== */ -}}
+{{- /* Detect OS type and Linux distribution to enable OS-specific templates   */ -}}
+{{- /* Format: "darwin" for macOS, "linux-<distro>" for Linux variants         */ -}}
+
+{{- $osid := .chezmoi.os -}}
+
+{{- /* For Linux systems, append distribution ID from /etc/os-release */ -}}
+{{- if eq .chezmoi.os "linux" -}}
+    {{- if hasKey .chezmoi.osRelease "id" -}}
+        {{- $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+    {{- else -}}
+        {{- $osid = "linux-unknown" -}}
+    {{- end -}}
+{{- end -}}
+
+{{- /* ========================================================================== */ -}}
+{{- /* Package Manager Detection                                                */ -}}
+{{- /* ========================================================================== */ -}}
+{{- /* Determine the primary package manager based on detected OS               */ -}}
+
+{{- $packageManager := "unknown" -}}
+{{- if eq .chezmoi.os "darwin" -}}
+    {{- $packageManager = "brew" -}}
+{{- else if eq .chezmoi.os "linux" -}}
+    {{- if or (eq $osid "linux-arch") (eq $osid "linux-manjaro") -}}
+        {{- $packageManager = "pacman" -}}
+    {{- else if or (eq $osid "linux-debian") (eq $osid "linux-ubuntu") (eq $osid "linux-pop") -}}
+        {{- $packageManager = "apt" -}}
+    {{- else if or (eq $osid "linux-fedora") (eq $osid "linux-rhel") (eq $osid "linux-centos") -}}
+        {{- $packageManager = "dnf" -}}
+    {{- end -}}
+{{- end -}}
+
+{{- /* ========================================================================== */ -}}
+{{- /* User Configuration                                                       */ -}}
+{{- /* ========================================================================== */ -}}
+{{- /* Personal information used in templates (e.g., git config)                */ -}}
+
+{{- $email := "ing.norville@protonmail.com" -}}
+{{- $name := "Norville" -}}
+
+# =============================================================================
+# Chezmoi Configuration
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Data Section - Template Variables
+# -----------------------------------------------------------------------------
+# These variables are available in all chezmoi templates via {{ .osid }}, etc.
+[data]
+    # Operating system identifier (e.g., "darwin", "linux-ubuntu", "linux-fedora")
+    osid = {{ $osid | quote }}
+    
+    # Package manager (e.g., "brew", "apt", "dnf", "pacman")
+    packageManager = {{ $packageManager | quote }}
+    
+    # User email address
+    email = {{ $email | quote }}
+    
+    # User full name
+    name = {{ $name | quote }}
+
+# -----------------------------------------------------------------------------
+# Script Environment Variables
+# -----------------------------------------------------------------------------
+# Environment variables available to all chezmoi scripts
+[scriptEnv]
+    # Path to BDB helper functions (relative to source directory)
+    HELPERS = "{{ .chezmoi.sourceDir }}/.config/bdb/bdb_helpers.sh"
+
+# -----------------------------------------------------------------------------
+# Git Configuration
+# -----------------------------------------------------------------------------
+# Configure how chezmoi interacts with the git repository
+[git]
+    # Automatically commit changes when applying
+    autoCommit = false
+    
+    # Automatically push changes after commit
+    autoPush = false
+
+# -----------------------------------------------------------------------------
+# Diff Configuration
+# -----------------------------------------------------------------------------
+# Configure diff tool for reviewing changes
+[diff]
+    # Use external diff tool if available
+    pager = "delta"
+
+# -----------------------------------------------------------------------------
+# Merge Configuration
+# -----------------------------------------------------------------------------
+# Configure merge strategy for conflicts
+[merge]
+    # Use three-way merge
+    command = "vimdiff"
+
+# -----------------------------------------------------------------------------
+# Hooks - Post-Update Actions
+# -----------------------------------------------------------------------------
+# Commands to run after 'chezmoi update' completes successfully
+[hooks.read-source-state.post]
+    # This hook runs after chezmoi reads the source state
+    # Useful for validating configuration before applying changes
+    
+[update.command]
+    # Run environment update script after 'chezmoi update'
+    # This script updates system packages and tools
+    command = "{{ .chezmoi.sourceDir }}/.chezmoiscripts/run_after_update_env.sh"
+
+# -----------------------------------------------------------------------------
+# Editor Configuration
+# -----------------------------------------------------------------------------
+# Default editor for 'chezmoi edit'
+[edit]
+    command = "nvim"
+    args = []
+
+# -----------------------------------------------------------------------------
+# Template Options
+# -----------------------------------------------------------------------------
+# Configure template rendering behavior
+[template]
+    # Template options
+    options = ["missingkey=error"]
+
+# =============================================================================
+# Usage Notes
+# =============================================================================
+# Available template variables in all .tmpl files:
+#
+# {{ .osid }}              - Operating system ID (e.g., "linux-ubuntu")
+# {{ .packageManager }}    - Package manager (e.g., "apt", "dnf")
+# {{ .email }}             - User email address
+# {{ .name }}              - User full name
+# {{ .chezmoi.os }}        - OS type ("linux", "darwin", "windows")
+# {{ .chezmoi.arch }}      - Architecture ("amd64", "arm64", etc.)
+# {{ .chezmoi.hostname }}  - Machine hostname
+# {{ .chezmoi.username }}  - Current user
+# {{ .chezmoi.homeDir }}   - Home directory path
+# {{ .chezmoi.sourceDir }} - Chezmoi source directory
+#
+# Conditional examples:
+# {{- if eq .osid "darwin" }}...{{- end }}
+# {{- if eq .packageManager "apt" }}...{{- end }}
+# =============================================================================

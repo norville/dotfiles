@@ -1,24 +1,116 @@
-## External files
+# =============================================================================
+# Chezmoi External Files Configuration
+# =============================================================================
+# This file defines external resources to download and manage
+# Chezmoi will automatically download and keep these files updated
+#
+# Documentation: https://www.chezmoi.io/reference/special-files-and-directories/chezmoiexternal-format/
+# =============================================================================
 
-# Get colorscheme for bat
+# -----------------------------------------------------------------------------
+# Color Schemes and Themes
+# -----------------------------------------------------------------------------
+# Download and manage color schemes for various applications
+
+# Tokyo Night theme for bat (syntax highlighting)
 [".config/bat/themes/tokyonight_moon.tmTheme"]
     type = "file"
     url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/sublime/tokyonight_moon.tmTheme"
-    refreshPeriod = "168h"
+    refreshPeriod = "168h"  # Refresh weekly
+    executable = false
 
-# Get colorscheme for eza
+# Tokyo Night theme for eza (ls replacement)
 [".config/eza/theme.yml"]
     type = "file"
-    url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/refs/heads/main/extras/eza/tokyonight_moon.yml"
+    url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/eza/tokyonight_moon.yml"
     refreshPeriod = "168h"
+    executable = false
 
-{{ if eq .osid "darwin" -}}
-## Mac files
+# Tokyo Night theme for btop (system monitor)
+[".config/btop/themes/tokyonight_moon.theme"]
+    type = "file"
+    url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/btop/tokyonight_moon.theme"
+    refreshPeriod = "168h"
+    executable = false
 
-{{ else if eq .osid "windows" -}}
-## Win files
+# -----------------------------------------------------------------------------
+# Neovim Configuration (LazyVim)
+# -----------------------------------------------------------------------------
+# LazyVim starter configuration (optional - uncomment if needed)
+# [".config/nvim"]
+#     type = "archive"
+#     url = "https://github.com/LazyVim/starter/archive/main.tar.gz"
+#     stripComponents = 1
+#     refreshPeriod = "168h"
 
-{{ else -}}
-## Linux files
+# -----------------------------------------------------------------------------
+# Shell Plugins and Tools
+# -----------------------------------------------------------------------------
+# Additional shell enhancements
 
-{{ end -}}
+# Starship prompt configuration examples (optional)
+# [".config/starship/presets/tokyo-night.toml"]
+#     type = "file"
+#     url = "https://starship.rs/presets/toml/tokyo-night.toml"
+#     refreshPeriod = "168h"
+#     executable = false
+
+{{- /* ========================================================================== */ -}}
+{{- /* macOS-Specific External Files                                             */ -}}
+{{- /* ========================================================================== */ -}}
+{{- if eq .chezmoi.os "darwin" }}
+
+# -----------------------------------------------------------------------------
+# macOS External Resources
+# -----------------------------------------------------------------------------
+
+{{- end }}
+
+{{- /* ========================================================================== */ -}}
+{{- /* Linux-Specific External Files                                             */ -}}
+{{- /* ========================================================================== */ -}}
+{{- if eq .chezmoi.os "linux" }}
+
+# -----------------------------------------------------------------------------
+# Linux External Resources
+# -----------------------------------------------------------------------------
+
+# Nerd Font (JetBrains Mono)
+{{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
+# For distributions without Nerd Fonts in repositories
+[".local/share/fonts/JetBrainsMonoNerdFont-Regular.ttf"]
+    type = "file"
+    url = "https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/JetBrainsMono/Ligatures/Regular/JetBrainsMonoNerdFont-Regular.ttf"
+    refreshPeriod = "720h"  # Refresh monthly
+    executable = false
+{{- end }}
+
+{{- end }}
+
+{{- /* ========================================================================== */ -}}
+{{- /* Windows-Specific External Files                                           */ -}}
+{{- /* ========================================================================== */ -}}
+{{- if eq .chezmoi.os "windows" }}
+
+# -----------------------------------------------------------------------------
+# Windows External Resources
+# -----------------------------------------------------------------------------
+
+{{- end }}
+
+# =============================================================================
+# External Resources Management Notes
+# =============================================================================
+#
+# Commands:
+#   chezmoi apply           - Download and install all external resources
+#   chezmoi update          - Update all external resources if refresh period expired
+#   chezmoi verify          - Check if external resources need updating
+#
+# Refresh Period Format:
+#   "0"      - Never refresh (only download once)
+#   "168h"   - Refresh weekly
+#   "720h"   - Refresh monthly
+#   "8760h"  - Refresh yearly
+#
+# =============================================================================

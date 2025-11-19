@@ -1,7 +1,75 @@
+# =============================================================================
+# Chezmoi Ignore File
+# =============================================================================
+# Files and directories listed here will not be copied to the target system
+# Supports glob patterns and conditional logic using templates
+#
+# Documentation: https://www.chezmoi.io/reference/special-files-and-directories/chezmoiignore/
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Repository Files (Never Install)
+# -----------------------------------------------------------------------------
+# Documentation and bootstrap scripts that should remain in the repository
+
 README.md
+LICENSE
+
+# Bootstrap script (only used for initial setup)
 .config/bdb/bdb_bootstrap.sh
 
-# ignore these unless OS is darwin
+# -----------------------------------------------------------------------------
+# macOS-Specific Files
+# -----------------------------------------------------------------------------
+# Only install these files on macOS systems
 {{- if ne .chezmoi.os "darwin" }}
 .config/homebrew/
 {{- end }}
+
+# -----------------------------------------------------------------------------
+# Linux-Specific Files
+# -----------------------------------------------------------------------------
+# Only install these files on Linux systems
+{{- if ne .chezmoi.os "linux" }}
+{{- end }}
+
+# -----------------------------------------------------------------------------
+# Windows-Specific Files
+# -----------------------------------------------------------------------------
+# Only install these files on Windows systems
+{{- if ne .chezmoi.os "windows" }}
+{{- end }}
+
+# -----------------------------------------------------------------------------
+# Distribution-Specific Excludes
+# -----------------------------------------------------------------------------
+# Exclude package manager files based on distribution
+
+{{- if ne .packageManager "apt" }}
+# Not using APT - ignore Debian/Ubuntu specific files
+{{- end }}
+
+{{- if ne .packageManager "pacman" }}
+# Not using Pacman - ignore Arch/Manjaro specific files
+{{- end }}
+
+{{- if ne .packageManager "dnf" }}
+# Not using DNF - ignore Fedora/RHEL specific files
+{{- end }}
+
+# -----------------------------------------------------------------------------
+# Temporary and Cache Files
+# -----------------------------------------------------------------------------
+# Never install temporary or cache files
+
+*.tmp
+*.swp
+*.swo
+*~
+.DS_Store
+.cache/
+__pycache__/
+
+# =============================================================================
+# End of Ignore Configuration
+# =============================================================================

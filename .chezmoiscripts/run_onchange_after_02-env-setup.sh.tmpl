@@ -1,0 +1,220 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Chezmoi Script: Environment Setup
+# =============================================================================
+# This script configures the shell environment and application settings
+# Runs whenever this file changes (onchange) and after package installation
+#
+# Execution: Automatic on 'chezmoi apply' when file changes
+# Location: .chezmoiscripts/run_onchange_after_02-env-setup.sh.tmpl
+# =============================================================================
+
+# Source helper functions
+# shellcheck disable=SC1090,SC1091
+source "${HELPERS}"
+
+# -----------------------------------------------------------------------------
+# Error Handling Configuration
+# -----------------------------------------------------------------------------
+set -euo pipefail              # Strict error handling
+trap 'bdb_handle_error' ERR    # Handle errors automatically
+
+# =============================================================================
+# ENVIRONMENT SETUP
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Application Configuration
+# -----------------------------------------------------------------------------
+
+# Configure bat (syntax highlighting tool)
+bdb_command "Building bat theme cache"
+{{- if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") }}
+# Debian/Ubuntu uses 'batcat' command name
+if command -v batcat >/dev/null 2>&1; then
+    batcat cache --build >/dev/null 2>&1
+    bdb_outcome "bat cache built (batcat)"
+fi
+{{- else }}
+# Other systems use 'bat' command name
+if command -v bat >/dev/null 2>&1; then
+    bat cache --build >/dev/null 2>&1
+    bdb_outcome "bat cache built"
+fi
+{{- end }}
+
+# Configure eza (modern ls replacement)
+bdb_command "Verifying eza theme installation"
+if [[ -f "${HOME}/.config/eza/theme.yml" ]]; then
+    bdb_outcome "eza theme configured"
+else
+    bdb_alert "eza theme not found - will be downloaded by chezmoi external"
+fi
+
+# Configure btop (system monitor)
+bdb_command "Verifying btop theme installation"
+if [[ -f "${HOME}/.config/btop/themes/tokyonight_moon.theme" ]]; then
+    # Set theme in btop config if it exists
+    if [[ -f "${HOME}/.config/btop/btop.conf" ]]; then
+        sed -i 's/^color_theme = .*/color_theme = "tokyonight_moon"/' "${HOME}/.config/btop/btop.conf" 2>/dev/null || true
+    fi
+    bdb_outcome "btop theme configured"
+else
+    bdb_alert "btop theme not found - will be downloaded by chezmoi external"
+fi
+
+{{- /* ========================================================================== */ -}}
+{{- /* Linux-Specific Configuration                                              */ -}}
+{{- /* ========================================================================== */ -}}
+{{- if eq .chezmoi.os "linux" }}
+
+# -----------------------------------------------------------------------------
+# Shell Configuration
+# -----------------------------------------------------------------------------
+
+bdb_info_in "Configuring shell environment"
+
+# Set ZSH as default login shell
+bdb_run "Setting ZSH as default shell"
+if command -v zsh >/dev/null 2>&1; then
+    zsh_path="$(command -v zsh)"
+    
+    # Check if ZSH is already the default shell
+    if [[ "${SHELL}" != "${zsh_path}" ]]; then
+        # Ensure ZSH is in /etc/shells
+        if ! grep -Fxq "${zsh_path}" /etc/shells 2>/dev/null; then
+            echo "${zsh_path}" | sudo tee -a /etc/shells >/dev/null
+        fi
+        
+        # Change default shell
+        sudo chsh -s "${zsh_path}" "${USER}"
+        bdb_outcome "shell changed to ${zsh_path}"
+    else
+        bdb_outcome "already using ${zsh_path}"
+    fi
+else
+    bdb_error "ZSH not found - cannot set as default shell"
+fi
+
+# -----------------------------------------------------------------------------
+# Linux-Specific Configuration
+# -----------------------------------------------------------------------------
+
+{{- if eq .packageManager "pacman" }}
+# Arch/Manjaro: Install JetBrains Mono Nerd Font
+bdb_command "Verifying JetBrains Mono Nerd Font"
+if fc-list | grep -q "JetBrainsMono Nerd Font"; then
+    bdb_outcome "font already installed"
+else
+    bdb_run "Installing font"
+    sudo pacman -S --needed --noconfirm ttf-jetbrains-mono-nerd
+    fc-cache -fv >/dev/null 2>&1
+    bdb_outcome "font installed and cache updated"
+fi
+{{- else }}
+# Other distros: Font installed via .chezmoiexternal.toml
+bdb_command "Updating font cache"
+if command -v fc-cache >/dev/null 2>&1; then
+    fc-cache -fv >/dev/null 2>&1
+    bdb_outcome "font cache updated"
+fi
+{{- end }}
+
+# Configure terminal emulator (Kitty)
+bdb_command "Verifying Kitty terminal configuration"
+if [[ -f "${HOME}/.config/kitty/kitty.conf" ]]; then
+    bdb_outcome "kitty configured"
+else
+    bdb_alert "kitty config not found - ensure dotfiles include kitty.conf"
+fi
+
+{{- /* ========================================================================== */ -}}
+{{- /* macOS-Specific Configuration                                              */ -}}
+{{- /* ========================================================================== */ -}}
+{{- else if eq .chezmoi.os "darwin" }}
+
+# -----------------------------------------------------------------------------
+# macOS-Specific Configuration
+# -----------------------------------------------------------------------------
+
+# Configure macOS defaults
+#bdb_command "Configuring macOS system defaults"
+
+# Show hidden files in Finder
+#defaults write com.apple.finder AppleShowAllFiles -bool true
+
+# Show path bar in Finder
+#defaults write com.apple.finder ShowPathbar -bool true
+
+# Show status bar in Finder
+#defaults write com.apple.finder ShowStatusBar -bool true
+
+# Disable press-and-hold for keys in favor of key repeat
+#defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+
+# Set fast key repeat rate
+#defaults write NSGlobalDomain KeyRepeat -int 2
+#defaults write NSGlobalDomain InitialKeyRepeat -int 15
+
+# Restart Finder to apply changes
+#killall Finder 2>/dev/null || true
+
+#bdb_outcome "macOS defaults configured"
+
+# Configure Homebrew
+bdb_command "Configuring Homebrew"
+if command -v brew >/dev/null 2>&1; then
+    # Disable analytics
+    brew analytics off 2>/dev/null || true
+    bdb_outcome "Homebrew configured"
+fi
+
+{{- end }}
+
+# -----------------------------------------------------------------------------
+# Git Configuration
+# -----------------------------------------------------------------------------
+
+#bdb_command "Configuring Git"
+
+# Set global Git configuration
+#git config --global user.name "{{ .name }}"
+#git config --global user.email "{{ .email }}"
+#git config --global init.defaultBranch main
+#git config --global pull.rebase false
+#git config --global core.editor "nvim"
+
+# Configure Git to use 1Password for SSH if available
+#if [[ -S "${SSH_AUTH_SOCK:-}" ]]; then
+#    git config --global gpg.format ssh
+#    bdb_outcome "Git configured with 1Password SSH"
+#else
+#    bdb_outcome "Git configured (1Password SSH not detected)"
+#fi
+
+# -----------------------------------------------------------------------------
+# Neovim Configuration
+# -----------------------------------------------------------------------------
+
+#bdb_command "Initializing Neovim configuration"
+#if command -v nvim >/dev/null 2>&1; then
+#    # Create necessary directories
+#    mkdir -p "${HOME}/.config/nvim"
+#    mkdir -p "${HOME}/.local/share/nvim"
+#    mkdir -p "${HOME}/.local/state/nvim"
+    
+#    # Initialize Neovim plugins (headless)
+#    # This will be done on first nvim run, but we prepare the directories
+#    bdb_outcome "Neovim directories created"
+#else
+#    bdb_alert "Neovim not installed"
+#fi
+
+# =============================================================================
+# COMPLETION
+# =============================================================================
+
+bdb_info_out "Environment setup complete"
+bdb_info "NOTE: Please log out and log back in for all changes to take effect"
+
+exit 0

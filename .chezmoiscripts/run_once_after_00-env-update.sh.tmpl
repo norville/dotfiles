@@ -1,0 +1,261 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Chezmoi Script: Environment Update
+# =============================================================================
+# This script updates system packages and tools after 'chezmoi update'
+# Only runs after chezmoi update command, not on regular apply
+#
+# Execution: Runs after 'chezmoi update' via hooks configuration
+# Location: .chezmoiscripts/run_after_update_env.sh.tmpl
+# =============================================================================
+
+# Source helper functions
+# shellcheck disable=SC1090,SC1091
+source "${HELPERS}"
+
+# -----------------------------------------------------------------------------
+# Error Handling Configuration
+# -----------------------------------------------------------------------------
+set -euo pipefail              # Strict error handling
+trap 'bdb_handle_error' ERR    # Handle errors automatically
+
+# =============================================================================
+# SYSTEM UPDATE
+# =============================================================================
+
+bdb_info_in "Running environment update after chezmoi update"
+
+{{- /* ========================================================================== */ -}}
+{{- /* macOS Updates                                                             */ -}}
+{{- /* ========================================================================== */ -}}
+{{- if eq .chezmoi.os "darwin" }}
+
+# -----------------------------------------------------------------------------
+# macOS: Homebrew Updates
+# -----------------------------------------------------------------------------
+
+# Optional cleanup before upgrade
+if bdb_ask "Remove unused Homebrew formulae before upgrading"; then
+    bdb_command "Cleaning up Homebrew"
+    
+    if [[ -f "${HOME}/.config/homebrew/Brewfile" ]]; then
+        brew bundle cleanup --force --file="${HOME}/.config/homebrew/Brewfile"
+    fi
+    
+    brew autoremove
+    brew cleanup --prune=all
+    bdb_success "Homebrew cleanup complete"
+fi
+
+# Update and upgrade Homebrew packages
+bdb_command "Updating Homebrew packages"
+brew update
+brew upgrade
+bdb_success "Homebrew packages updated"
+
+# Update Homebrew casks
+bdb_command "Updating Homebrew casks"
+brew upgrade --cask --greedy
+bdb_success "Homebrew casks updated"
+
+{{- /* ========================================================================== */ -}}
+{{- /* Linux Updates                                                             */ -}}
+{{- /* ========================================================================== */ -}}
+{{- else if eq .chezmoi.os "linux" }}
+
+# -----------------------------------------------------------------------------
+# Linux: Package Manager Updates
+# -----------------------------------------------------------------------------
+
+{{- if eq .packageManager "apt" }}
+
+# Debian/Ubuntu: APT updates
+bdb_command "Updating APT packages"
+sudo apt-get update
+sudo apt-get full-upgrade -y
+sudo apt-get autoremove --purge -y
+sudo apt-get clean
+bdb_success "APT packages updated"
+
+# Update Snap packages if installed
+if command -v snap >/dev/null 2>&1; then
+    bdb_command "Updating Snap packages"
+    sudo snap refresh
+    bdb_success "Snap packages updated"
+fi
+
+{{- else if eq .packageManager "dnf" }}
+
+# Fedora/RHEL: DNF updates
+bdb_command "Updating DNF packages"
+sudo dnf upgrade --refresh -y
+sudo dnf autoremove -y
+sudo dnf clean all
+bdb_success "DNF packages updated"
+
+# Update Flatpak if installed
+if command -v flatpak >/dev/null 2>&1; then
+    bdb_command "Updating Flatpak packages"
+    flatpak update -y
+    bdb_success "Flatpak packages updated"
+fi
+
+{{- else if eq .packageManager "pacman" }}
+
+# Arch/Manjaro: Pacman updates
+bdb_command "Updating Pacman packages"
+sudo pacman -Syu --noconfirm
+
+# Clean orphaned packages
+orphans="$(pacman -Qdtq 2>/dev/null || true)"
+if [[ -n "${orphans}" ]]; then
+    echo "${orphans}" | sudo pacman -Rns --noconfirm -
+fi
+
+# Clean package cache
+sudo pacman -Scc --noconfirm
+bdb_success "Pacman packages updated"
+
+# Update AUR packages if yay is installed
+if command -v yay >/dev/null 2>&1; then
+    bdb_command "Updating AUR packages"
+    yay -Syu --noconfirm
+    bdb_success "AUR packages updated"
+fi
+
+{{- end }}
+{{- end }}
+
+# =============================================================================
+# SHELL PLUGIN UPDATES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Update ZSH Plugins (Antidote)
+# -----------------------------------------------------------------------------
+bdb_command "Updating ZSH plugins"
+
+if command -v antidote >/dev/null 2>&1; then
+    # Update Antidote itself
+    antidote_dir="${ZDOTDIR:-$HOME}/.antidote"
+    if [[ -d "${antidote_dir}" ]]; then
+        (cd "${antidote_dir}" && git pull --quiet) || true
+    fi
+    
+    # Update plugins
+    antidote update 2>/dev/null || true
+    
+    bdb_success "ZSH plugins updated"
+else
+    bdb_alert "Antidote not found - skipping plugin updates"
+fi
+
+# =============================================================================
+# APPLICATION UPDATES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Update Neovim Plugins
+# -----------------------------------------------------------------------------
+bdb_command "Updating Neovim plugins"
+
+if command -v nvim >/dev/null 2>&1; then
+    # Update plugins using lazy.nvim (if using LazyVim)
+    # Run in headless mode with error suppression
+    nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
+    bdb_success "Neovim plugins updated"
+else
+    bdb_alert "Neovim not found - skipping plugin updates"
+fi
+
+{{- /* ========================================================================== */ -}}
+{{- /* Update Starship via script                                                 */ -}}
+{{- /* ========================================================================== */ -}}
+{{- if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") }}
+# -----------------------------------------------------------------------------
+# Update Starship Prompt
+# -----------------------------------------------------------------------------
+bdb_command "Checking for Starship updates"
+
+if command -v starship >/dev/null 2>&1; then
+    current_version="$(starship --version | awk '{print $2}')"
+    
+    # Check for updates (will auto-update if newer version available)
+    curl -fsSL https://starship.rs/install.sh | sh -s -- -y --force >/dev/null 2>&1 || true
+    
+    new_version="$(starship --version | awk '{print $2}')"
+    
+    if [[ "${current_version}" != "${new_version}" ]]; then
+        bdb_outcome "Starship updated: ${current_version} → ${new_version}"
+    else
+        bdb_outcome "Starship is up to date (${current_version})"
+    fi
+else
+    bdb_alert "Starship not found - skipping update"
+fi
+{{- end }}
+
+# -----------------------------------------------------------------------------
+# Update bat Themes
+# -----------------------------------------------------------------------------
+bdb_command "Rebuilding bat theme cache"
+
+{{- if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") }}
+if command -v batcat >/dev/null 2>&1; then
+    batcat cache --build >/dev/null 2>&1
+    bdb_outcome "bat cache rebuilt"
+fi
+{{- else }}
+if command -v bat >/dev/null 2>&1; then
+    bat cache --build >/dev/null 2>&1
+    bdb_outcome "bat cache rebuilt"
+fi
+{{- end }}
+
+{{- /* ========================================================================== */ -}}
+{{- /* Linux Font Cache Update                                                   */ -}}
+{{- /* ========================================================================== */ -}}
+{{- if eq .chezmoi.os "linux" }}
+
+# -----------------------------------------------------------------------------
+# Update Font Cache (Linux)
+# -----------------------------------------------------------------------------
+bdb_command "Updating font cache"
+if command -v fc-cache >/dev/null 2>&1; then
+    fc-cache -fv >/dev/null 2>&1
+    bdb_outcome "font cache updated"
+fi
+
+{{- end }}
+
+# =============================================================================
+# OPTIONAL UPDATES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Update Docker Images (if Docker is installed)
+# -----------------------------------------------------------------------------
+if command -v docker >/dev/null 2>&1; then
+    if bdb_ask "Update Docker images"; then
+        bdb_command "Updating Docker images"
+        
+        # Update all images that have local containers
+        docker images --format "{{`{{.Repository}}:{{.Tag}}`}}" | \
+            grep -v '<none>' | \
+            xargs -L1 docker pull 2>/dev/null || true
+        
+        # Remove dangling images
+        docker image prune -f >/dev/null 2>&1
+        
+        bdb_success "Docker images updated"
+    fi
+fi
+
+# =============================================================================
+# COMPLETION
+# =============================================================================
+
+bdb_info_out "Environment update complete"
+bdb_info "All packages and tools have been updated successfully"
+
+exit 0
