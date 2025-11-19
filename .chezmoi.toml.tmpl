@@ -1,17 +1,17 @@
 {{- /* ========================================================================== */ -}}
-{{- /* Chezmoi Configuration Template                                          */ -}}
+{{- /* Chezmoi Configuration Template                                             */ -}}
 {{- /* ========================================================================== */ -}}
-{{- /* This file configures chezmoi behavior and defines template variables    */ -}}
-{{- /* that are available in all chezmoi templates.                            */ -}}
-{{- /*                                                                          */ -}}
-{{- /* Documentation: https://www.chezmoi.io/reference/configuration-file/     */ -}}
+{{- /* This file configures chezmoi behavior and defines template variables       */ -}}
+{{- /* that are available in all chezmoi templates.                               */ -}}
+{{- /*                                                                            */ -}}
+{{- /* Documentation: https://www.chezmoi.io/reference/configuration-file/        */ -}}
 {{- /* ========================================================================== */ -}}
 
 {{- /* ========================================================================== */ -}}
-{{- /* Operating System Detection                                               */ -}}
+{{- /* Operating System Detection                                                 */ -}}
 {{- /* ========================================================================== */ -}}
-{{- /* Detect OS type and Linux distribution to enable OS-specific templates   */ -}}
-{{- /* Format: "darwin" for macOS, "linux-<distro>" for Linux variants         */ -}}
+{{- /* Detect OS type and Linux distribution to enable OS-specific templates      */ -}}
+{{- /* Format: "darwin" for macOS, "linux-<distro>" for Linux variants            */ -}}
 
 {{- $osid := .chezmoi.os -}}
 
@@ -25,9 +25,9 @@
 {{- end -}}
 
 {{- /* ========================================================================== */ -}}
-{{- /* Package Manager Detection                                                */ -}}
+{{- /* Package Manager Detection                                                  */ -}}
 {{- /* ========================================================================== */ -}}
-{{- /* Determine the primary package manager based on detected OS               */ -}}
+{{- /* Determine the primary package manager based on detected OS                 */ -}}
 
 {{- $packageManager := "unknown" -}}
 {{- if eq .chezmoi.os "darwin" -}}
@@ -43,9 +43,9 @@
 {{- end -}}
 
 {{- /* ========================================================================== */ -}}
-{{- /* User Configuration                                                       */ -}}
+{{- /* User Configuration                                                         */ -}}
 {{- /* ========================================================================== */ -}}
-{{- /* Personal information used in templates (e.g., git config)                */ -}}
+{{- /* Personal information used in templates (e.g., git config)                  */ -}}
 
 {{- $email := "ing.norville@protonmail.com" -}}
 {{- $name := "Norville" -}}
@@ -61,13 +61,13 @@
 [data]
     # Operating system identifier (e.g., "darwin", "linux-ubuntu", "linux-fedora")
     osid = {{ $osid | quote }}
-    
+
     # Package manager (e.g., "brew", "apt", "dnf", "pacman")
     packageManager = {{ $packageManager | quote }}
-    
+
     # User email address
     email = {{ $email | quote }}
-    
+
     # User full name
     name = {{ $name | quote }}
 
@@ -86,7 +86,7 @@
 [git]
     # Automatically commit changes when applying
     autoCommit = false
-    
+
     # Automatically push changes after commit
     autoPush = false
 
@@ -113,7 +113,7 @@
 [hooks.read-source-state.post]
     # This hook runs after chezmoi reads the source state
     # Useful for validating configuration before applying changes
-    
+
 [update.command]
     # Run environment update script after 'chezmoi update'
     # This script updates system packages and tools

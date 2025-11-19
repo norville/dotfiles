@@ -1,5 +1,3 @@
-# Export 1password ssh agent socket, required for agent forwarding
-
 #!/bin/zsh
 # =============================================================================
 # ZSH Configuration File
@@ -62,23 +60,18 @@ done
 # Supports both macOS and Linux socket locations
 # Documentation: https://developer.1password.com/docs/ssh/
 
-# Detect operating system
-_os_type="$(uname -s)"
+{{ if eq .chezmoi.os "darwin" -}}
+# macOS: 1Password SSH agent socket location
+_onepassword_sock="${HOME}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 
-case "$_os_type" in
-    Darwin)
-        # macOS: 1Password SSH agent socket location
-        _onepassword_sock="${HOME}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-        ;;
-    Linux)
-        # Linux: 1Password SSH agent socket location
-        _onepassword_sock="${HOME}/.1password/agent.sock"
-        ;;
-    *)
-        # Unknown OS: try Linux location as fallback
-        _onepassword_sock="${HOME}/.1password/agent.sock"
-        ;;
-esac
+{{ else if eq .chezmoi.os "linux" -}}
+# Linux: 1Password SSH agent socket location
+_onepassword_sock="${HOME}/.1password/agent.sock"
+
+{{ else if eq .chezmoi.os "windows" -}}
+# Windows: 1Password SSH agent socket location
+
+{{ end -}}
 
 # Only set SSH_AUTH_SOCK if the 1Password socket exists and is a valid socket
 if [[ -S "$_onepassword_sock" ]]; then
@@ -208,6 +201,7 @@ HISTORY_IGNORE="(ls|cd|pwd|exit|clear|history)"
 # PATH CONFIGURATION
 # =============================================================================
 
+{{ if eq .chezmoi.os "darwin" -}}
 # -----------------------------------------------------------------------------
 # Homebrew Package Manager
 # -----------------------------------------------------------------------------
@@ -217,8 +211,6 @@ HISTORY_IGNORE="(ls|cd|pwd|exit|clear|history)"
 # This section handles multiple Homebrew installation locations:
 # - /opt/homebrew (Apple Silicon Macs)
 # - /usr/local (Intel Macs)
-# - /home/linuxbrew/.linuxbrew (Linux)
-# - ~/.linuxbrew (Linux user installation)
 
 # Check if brew is already in PATH
 if ! command -v brew >/dev/null 2>&1; then
@@ -229,12 +221,6 @@ if ! command -v brew >/dev/null 2>&1; then
     # Intel Macs
     elif [[ -x "/usr/local/bin/brew" ]]; then
         export PATH="/usr/local/bin:$PATH"
-    # Linux (system-wide installation)
-    elif [[ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then
-        export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
-    # Linux (user installation)
-    elif [[ -x "${HOME}/.linuxbrew/bin/brew" ]]; then
-        export PATH="${HOME}/.linuxbrew/bin:$PATH"
     fi
 fi
 
@@ -243,6 +229,8 @@ fi
 if command -v brew >/dev/null 2>&1; then
     eval "$(brew shellenv)"
 fi
+
+{{ end -}}
 
 # -----------------------------------------------------------------------------
 # Custom Binary Directories
