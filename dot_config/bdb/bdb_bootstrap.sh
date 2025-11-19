@@ -37,7 +37,7 @@ readonly CHEZMOI_BRANCH="newtest"                      # Branch to use for initi
 # Script paths and URLs
 readonly BDB_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly BDB_HELPERS="${BDB_SCRIPT_DIR}/bdb_helpers.sh"
-readonly BDB_HELPERS_URL="https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/dot_config/bdb/bdb_helpers.sh"
+readonly BDB_HELPERS_URL="https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${CHEZMOI_BRANCH}/dot_config/bdb/bdb_helpers.sh"
 
 # Logging configuration
 readonly BDB_LOG_FILE="${BDB_SCRIPT_DIR}/bdb_log_$(date +%Y%m%d_%H%M%S).txt"
