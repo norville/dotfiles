@@ -1,0 +1,41 @@
+#!/bin/bash
+
+{{  if eq .osid "darwin" -}}
+
+# macOS: upgrade Homebrew and installed formulae
+printf "Do you want to remove extra formulae before upgrading Homebrew? (y/N): "
+read -s -r -n 1 response < /dev/tty
+if [[ "${response:-}" =~ (y|Y) ]]; then
+    brew bundle cleanup -f --file=.config/homebrew/brewfile
+    brew autoremove
+    brew cleanup --prune=all
+fi
+brew update && brew upgrade
+
+{{  else if eq .chezmoi.os "linux" -}}
+{{      if (or (eq .osid "linux-debian") (eq .osid "linux-ubuntu")) -}}
+
+# Debian/Ubuntu: upgrade and clean APT packages
+sudo -- bash -c 'apt update && apt full-upgrade -y && apt autoremove --purge -y && apt clean -y'
+# Ubuntu: upgrade Snap packages
+if ! command -v snap >/dev/null 2>&1; then
+    sudo snap refresh
+fi
+            
+{{      else if (or (eq .osid "linux-arch") (eq .osid "linux-manjaro")) -}}
+
+# Arch/Manjaro: upgrade and clean pacman packages
+sudo -- bash -c 'pacman -Syu --noconfirm && pacman -Qdtq --noconfirm | ifne pacman -Rns --noconfirm - && pacman -Scc --noconfirm'
+# Arch/Manjaro: upgrade AUR packages
+if ! command -v yay >/dev/null 2>&1; then
+    yay -Syu --noconfirm
+fi
+
+{{      end -}}
+{{  end -}}
+
+# Update zsh plugins via Antigen
+antigen selfupdate && antigen update
+
+# Update vim plugins
+vim -e -s -u "${HOME}"/.vimrc -i NONE +"PlugUpdate" +"qa"
