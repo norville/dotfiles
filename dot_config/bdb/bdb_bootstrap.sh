@@ -17,13 +17,25 @@
 # - Comprehensive logging
 #
 # Usage:
-#   bash <(curl -fsSL https://raw.githubusercontent.com/norville/dotfiles/main/path/to/bdb_bootstrap.sh)
+#   curl -fsSL https://raw.githubusercontent.com/norville/dotfiles/main/dot_config/bdb/bdb_bootstrap.sh | bash
+#   or
+#   wget -qO- https://raw.githubusercontent.com/norville/dotfiles/main/dot_config/bdb/bdb_bootstrap.sh | bash
 #   or
 #   ./bdb_bootstrap.sh
 #
 # Repository: https://github.com/norville/dotfiles
 # Last updated: 2025
 # =============================================================================
+
+# Prevent issues when piped from curl/wget
+# This ensures stdin is properly redirected from /dev/tty for user input
+if [ -t 0 ]; then
+    # Running interactively, stdin is already a terminal
+    :
+else
+    # Running from pipe, redirect stdin to /dev/tty
+    exec < /dev/tty
+fi
 
 # =============================================================================
 # GLOBAL CONFIGURATION
