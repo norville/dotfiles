@@ -25,6 +25,30 @@
 {{- end -}}
 
 {{- /* ========================================================================== */ -}}
+{{- /* CPU Architecture Detection                                                 */ -}}
+{{- /* ========================================================================== */ -}}
+{{- /* Detect CPU architecture for platform-specific configurations               */ -}}
+
+{{- $cpuArch := .chezmoi.arch -}}
+{{- $isARM := false -}}
+{{- $isIntel := false -}}
+{{- $isAppleSilicon := false -}}
+
+{{- /* Detect ARM-based processors */ -}}
+{{- if or (eq $cpuArch "arm64") (eq $cpuArch "aarch64") (eq $cpuArch "arm") -}}
+    {{- $isARM = true -}}
+    {{- /* Check if it's Apple Silicon (macOS on ARM) */ -}}
+    {{- if eq .chezmoi.os "darwin" -}}
+        {{- $isAppleSilicon = true -}}
+    {{- end -}}
+{{- end -}}
+
+{{- /* Detect Intel/AMD x86_64 processors */ -}}
+{{- if or (eq $cpuArch "amd64") (eq $cpuArch "x86_64") -}}
+    {{- $isIntel = true -}}
+{{- end -}}
+
+{{- /* ========================================================================== */ -}}
 {{- /* Package Manager Detection                                                  */ -}}
 {{- /* ========================================================================== */ -}}
 {{- /* Determine the primary package manager based on detected OS                 */ -}}
@@ -63,6 +87,14 @@
 
     # Package manager (e.g., "brew", "apt", "dnf", "pacman")
     packageManager = {{ $packageManager | quote }}
+
+    # CPU architecture (e.g., "amd64", "arm64", "x86_64", "aarch64")
+    cpuArch = {{ $cpuArch | quote }}
+
+    # Architecture flags
+    isARM = {{ $isARM }}
+    isIntel = {{ $isIntel }}
+    isAppleSilicon = {{ $isAppleSilicon }}
 
     # User email address
     email = {{ $email | quote }}
