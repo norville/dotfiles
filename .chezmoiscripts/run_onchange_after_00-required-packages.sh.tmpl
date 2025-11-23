@@ -65,6 +65,7 @@ APT_PACKAGES=(
     "lazygit"          # Terminal UI for git
     "neovim"           # Modern vim replacement
     "ripgrep"          # Fast grep alternative
+    "starship"          # Command line prompt
     "tree-sitter-cli"  # Parser generator tool
 )
 
@@ -105,15 +106,6 @@ if ! command -v lazygit >/dev/null 2>&1; then
     bdb_command "Installing lazygit via snap"
     sudo snap install lazygit
     bdb_outcome "lazygit installed via snap"
-fi
-
-# Install Starship Prompt
-bdb_command "Installing Starship prompt"
-if ! command -v starship >/dev/null 2>&1; then
-    curl -fsSL https://starship.rs/install.sh | sh -s -- -y
-    bdb_outcome "Starship installed"
-else
-    bdb_outcome "Starship already installed"
 fi
 
 {{- end }}
