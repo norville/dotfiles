@@ -64,7 +64,7 @@ else
 fi
 
 {{- /* ========================================================================== */ -}}
-{{- /* Linux-Specific Configuration                                              */ -}}
+{{- /* Linux-Specific Configuration                                               */ -}}
 {{- /* ========================================================================== */ -}}
 {{- if eq .chezmoi.os "linux" }}
 
@@ -78,14 +78,14 @@ bdb_info_in "Configuring shell environment"
 bdb_run "Setting ZSH as default shell"
 if command -v zsh >/dev/null 2>&1; then
     zsh_path="$(command -v zsh)"
-    
+
     # Check if ZSH is already the default shell
     if [[ "${SHELL}" != "${zsh_path}" ]]; then
         # Ensure ZSH is in /etc/shells
         if ! grep -Fxq "${zsh_path}" /etc/shells 2>/dev/null; then
             echo "${zsh_path}" | sudo tee -a /etc/shells >/dev/null
         fi
-        
+
         # Change default shell
         sudo chsh -s "${zsh_path}" "${USER}"
         bdb_outcome "shell changed to ${zsh_path}"
@@ -202,7 +202,7 @@ fi
 #    mkdir -p "${HOME}/.config/nvim"
 #    mkdir -p "${HOME}/.local/share/nvim"
 #    mkdir -p "${HOME}/.local/state/nvim"
-    
+
 #    # Initialize Neovim plugins (headless)
 #    # This will be done on first nvim run, but we prepare the directories
 #    bdb_outcome "Neovim directories created"

@@ -26,7 +26,7 @@ trap 'bdb_handle_error' ERR    # Handle errors automatically
 bdb_info_in "Running environment update after chezmoi update"
 
 {{- /* ========================================================================== */ -}}
-{{- /* macOS Updates                                                             */ -}}
+{{- /* macOS Updates                                                              */ -}}
 {{- /* ========================================================================== */ -}}
 {{- if eq .chezmoi.os "darwin" }}
 
@@ -37,11 +37,11 @@ bdb_info_in "Running environment update after chezmoi update"
 # Optional cleanup before upgrade
 if bdb_ask "Remove unused Homebrew formulae before upgrading"; then
     bdb_command "Cleaning up Homebrew"
-    
+
     if [[ -f "${HOME}/.config/homebrew/Brewfile" ]]; then
         brew bundle cleanup --force --file="${HOME}/.config/homebrew/Brewfile"
     fi
-    
+
     brew autoremove
     brew cleanup --prune=all
     bdb_success "Homebrew cleanup complete"
@@ -59,7 +59,7 @@ brew upgrade --cask --greedy
 bdb_success "Homebrew casks updated"
 
 {{- /* ========================================================================== */ -}}
-{{- /* Linux Updates                                                             */ -}}
+{{- /* Linux Updates                                                              */ -}}
 {{- /* ========================================================================== */ -}}
 {{- else if eq .chezmoi.os "linux" }}
 
@@ -141,10 +141,10 @@ if command -v antidote >/dev/null 2>&1; then
     if [[ -d "${antidote_dir}" ]]; then
         (cd "${antidote_dir}" && git pull --quiet) || true
     fi
-    
+
     # Update plugins
     antidote update 2>/dev/null || true
-    
+
     bdb_success "ZSH plugins updated"
 else
     bdb_alert "Antidote not found - skipping plugin updates"
@@ -179,12 +179,12 @@ bdb_command "Checking for Starship updates"
 
 if command -v starship >/dev/null 2>&1; then
     current_version="$(starship --version | awk '{print $2}')"
-    
+
     # Check for updates (will auto-update if newer version available)
     curl -fsSL https://starship.rs/install.sh | sh -s -- -y --force >/dev/null 2>&1 || true
-    
+
     new_version="$(starship --version | awk '{print $2}')"
-    
+
     if [[ "${current_version}" != "${new_version}" ]]; then
         bdb_outcome "Starship updated: ${current_version} → ${new_version}"
     else
@@ -213,7 +213,7 @@ fi
 {{- end }}
 
 {{- /* ========================================================================== */ -}}
-{{- /* Linux Font Cache Update                                                   */ -}}
+{{- /* Linux Font Cache Update                                                    */ -}}
 {{- /* ========================================================================== */ -}}
 {{- if eq .chezmoi.os "linux" }}
 
@@ -238,15 +238,15 @@ fi
 if command -v docker >/dev/null 2>&1; then
     if bdb_ask "Update Docker images"; then
         bdb_command "Updating Docker images"
-        
+
         # Update all images that have local containers
         docker images --format "{{`{{.Repository}}:{{.Tag}}`}}" | \
             grep -v '<none>' | \
             xargs -L1 docker pull 2>/dev/null || true
-        
+
         # Remove dangling images
         docker image prune -f >/dev/null 2>&1
-        
+
         bdb_success "Docker images updated"
     fi
 fi
