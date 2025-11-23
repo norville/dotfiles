@@ -135,22 +135,3 @@
     options = ["missingkey=error"]
 
 # =============================================================================
-# Usage Notes
-# =============================================================================
-# Available template variables in all .tmpl files:
-#
-# {{ .osid }}              - Operating system ID (e.g., "linux-ubuntu")
-# {{ .packageManager }}    - Package manager (e.g., "apt", "dnf")
-# {{ .email }}             - User email address
-# {{ .name }}              - User full name
-# {{ .chezmoi.os }}        - OS type ("linux", "darwin", "windows")
-# {{ .chezmoi.arch }}      - Architecture ("amd64", "arm64", etc.)
-# {{ .chezmoi.hostname }}  - Machine hostname
-# {{ .chezmoi.username }}  - Current user
-# {{ .chezmoi.homeDir }}   - Home directory path
-# {{ .chezmoi.sourceDir }} - Chezmoi source directory
-#
-# Conditional examples:
-# {{- if eq .osid "darwin" }}...{{- end }}
-# {{- if eq .packageManager "apt" }}...{{- end }}
-# =============================================================================
