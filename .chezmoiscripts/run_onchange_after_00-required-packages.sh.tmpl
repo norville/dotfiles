@@ -220,11 +220,6 @@ bdb_success "JetBrains Mono Nerd Font installed"
 {{- else }}
 # Other distros: Font installed via .chezmoiexternal.toml
 bdb_info "JetBrains Mono Nerd Font will be installed via external resources"
-bdb_command "Updating font cache"
-if command -v fc-cache >/dev/null 2>&1; then
-    fc-cache -f
-    bdb_outcome "font cache updated"
-fi
 {{- end }}
 
 {{- /* ========================================================================== */ -}}
@@ -247,11 +242,6 @@ bdb_info_in "Installing required packages for macOS"
 bdb_command "Installing Homebrew packages"
 brew bundle --file="${HOME}/.config/homebrew/brewfile"
 bdb_success "Homebrew packages installed"
-
-# Install fonts via Homebrew cask
-bdb_command "Installing JetBrains Mono Nerd Font"
-brew install --cask font-jetbrains-mono-nerd-font
-bdb_success "JetBrains Mono Nerd Font installed"
 
 {{- end }}
 

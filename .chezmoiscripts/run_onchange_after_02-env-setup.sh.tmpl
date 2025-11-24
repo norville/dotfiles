@@ -113,10 +113,17 @@ else
 fi
 {{- else }}
 # Other distros: Font installed via .chezmoiexternal.toml
-bdb_command "Updating font cache"
-if command -v fc-cache >/dev/null 2>&1; then
-    fc-cache -fv >/dev/null 2>&1
-    bdb_outcome "font cache updated"
+bdb_command "Verifying JetBrains Mono Nerd Font installation"
+if [[ -f "${HOME}/.local/share/fonts/JetBrainsMonoNerdFont-Regular.ttf" ]]; then
+    bdb_outcome "font file found"
+    bdb_command "Updating font cache"
+    if command -v fc-cache >/dev/null 2>&1; then
+        fc-cache -fv >/dev/null 2>&1 || true
+        bdb_outcome "font cache updated"
+    fi
+else
+    bdb_alert "Font not yet downloaded - chezmoi will install it via external resources"
+    bdb_info "Run 'chezmoi apply' again to complete font installation"
 fi
 {{- end }}
 
