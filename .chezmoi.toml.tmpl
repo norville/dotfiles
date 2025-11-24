@@ -37,7 +37,7 @@
 {{- /* Detect ARM-based processors */ -}}
 {{- if or (eq $cpuArch "arm64") (eq $cpuArch "aarch64") (eq $cpuArch "arm") -}}
     {{- $isARM = true -}}
-    {{- /* Check if it's Apple Silicon (macOS on ARM) */ -}}
+    {{- /* Detect Apple Silicon (macOS on ARM) */ -}}
     {{- if eq .chezmoi.os "darwin" -}}
         {{- $isAppleSilicon = true -}}
     {{- end -}}
@@ -148,7 +148,7 @@
 [update]
     # Run environment update script after 'chezmoi update'
     # This script updates system packages and tools
-    command = "{{ .chezmoi.sourceDir }}/.chezmoiscripts/run_after_03-env-update.sh"
+    command = "{{ .chezmoi.homeDir }}/.local/share/chezmoi/.chezmoiscripts/run_after_03-env-update.sh"
 
 # -----------------------------------------------------------------------------
 # Editor Configuration

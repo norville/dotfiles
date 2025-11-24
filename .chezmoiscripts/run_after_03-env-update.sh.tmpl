@@ -155,47 +155,6 @@ fi
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Update Neovim Plugins
-# -----------------------------------------------------------------------------
-bdb_command "Updating Neovim plugins"
-
-if command -v nvim >/dev/null 2>&1; then
-    # Update plugins using lazy.nvim (if using LazyVim)
-    # Run in headless mode with error suppression
-    nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
-    bdb_success "Neovim plugins updated"
-else
-    bdb_alert "Neovim not found - skipping plugin updates"
-fi
-
-{{- /* ========================================================================== */ -}}
-{{- /* Update Starship via script                                                 */ -}}
-{{- /* ========================================================================== */ -}}
-{{- if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") }}
-# -----------------------------------------------------------------------------
-# Update Starship Prompt
-# -----------------------------------------------------------------------------
-bdb_command "Checking for Starship updates"
-
-if command -v starship >/dev/null 2>&1; then
-    current_version="$(starship --version | awk '{print $2}')"
-
-    # Check for updates (will auto-update if newer version available)
-    curl -fsSL https://starship.rs/install.sh | sh -s -- -y --force >/dev/null 2>&1 || true
-
-    new_version="$(starship --version | awk '{print $2}')"
-
-    if [[ "${current_version}" != "${new_version}" ]]; then
-        bdb_outcome "Starship updated: ${current_version} → ${new_version}"
-    else
-        bdb_outcome "Starship is up to date (${current_version})"
-    fi
-else
-    bdb_alert "Starship not found - skipping update"
-fi
-{{- end }}
-
-# -----------------------------------------------------------------------------
 # Update bat Themes
 # -----------------------------------------------------------------------------
 bdb_command "Rebuilding bat theme cache"
@@ -227,29 +186,6 @@ if command -v fc-cache >/dev/null 2>&1; then
 fi
 
 {{- end }}
-
-# =============================================================================
-# OPTIONAL UPDATES
-# =============================================================================
-
-# -----------------------------------------------------------------------------
-# Update Docker Images (if Docker is installed)
-# -----------------------------------------------------------------------------
-if command -v docker >/dev/null 2>&1; then
-    if bdb_ask "Update Docker images"; then
-        bdb_command "Updating Docker images"
-
-        # Update all images that have local containers
-        docker images --format "{{`{{.Repository}}:{{.Tag}}`}}" | \
-            grep -v '<none>' | \
-            xargs -L1 docker pull 2>/dev/null || true
-
-        # Remove dangling images
-        docker image prune -f >/dev/null 2>&1
-
-        bdb_success "Docker images updated"
-    fi
-fi
 
 # =============================================================================
 # COMPLETION
