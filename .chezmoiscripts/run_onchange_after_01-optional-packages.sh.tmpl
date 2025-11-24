@@ -35,21 +35,70 @@ if bdb_ask "Do you want to install 1Password"; then
 
 {{- else if eq .chezmoi.os "linux" }}
 
+{{- if .isARM }}
+    # ARM Architecture: Install from .tar.gz
+    bdb_command "Installing 1Password for ARM architecture"
+
+    # Determine ARM architecture variant
+    if [[ "{{ .cpuArch }}" == "aarch64" ]] || [[ "{{ .cpuArch }}" == "arm64" ]]; then
+        ARCH_URL="https://downloads.1password.com/linux/tar/stable/aarch64/1password-latest.tar.gz"
+        bdb_run "Downloading 1Password (arm64)"
+    else
+        bdb_error "Unsupported ARM architecture: {{ .cpuArch }}"
+        exit 1
+    fi
+
+    # Download 1Password tarball
+    curl -sSO "${ARCH_URL}"
+    bdb_outcome "downloaded"
+
+    # Extract files
+    bdb_run "Extracting 1Password"
+    tar -xf 1password-latest.tar.gz
+    bdb_outcome "extracted"
+
+    # Move to /opt directory
+    bdb_run "Installing to /opt/1Password"
+    sudo mkdir -p /opt/1Password
+    sudo mv 1password-*/* /opt/1Password/
+    bdb_outcome "files moved"
+
+    # Run installation script
+    bdb_run "Running post-install script"
+    sudo /opt/1Password/after-install.sh
+    bdb_outcome "post-install complete"
+
+    # Create symlink for easy access
+    if [[ ! -f /usr/local/bin/1password ]]; then
+        sudo ln -s /opt/1Password/1password /usr/local/bin/1password
+    fi
+
+    # Clean up downloaded files
+    rm -f 1password-latest.tar.gz
+    rm -rf 1password-*/
+
+    bdb_success "1Password installed (ARM .tar.gz)"
+    bdb_info "Launch 1Password with: 1password"
+
+{{- else }}
+    # x86_64 Architecture: Use package managers
+
 {{- if eq .packageManager "apt" }}
     # Debian/Ubuntu: Install from official repository
     bdb_command "Installing 1Password (Debian/Ubuntu)"
 
-    # Add 1Password repository
+    # Add the key for the 1Password apt repository
     curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
         sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg
 
+    # Add the 1Password apt repository
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | \
         sudo tee /etc/apt/sources.list.d/1password.list
 
+    # Add the debsig-verify policy
     sudo mkdir -p /etc/debsig/policies/AC2D62742012EA22/
     curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | \
         sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol
-
     sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22
     curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
         sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg
@@ -86,6 +135,7 @@ EOF'
     yay -S --noconfirm 1password 1password-cli
     bdb_success "1Password installed"
 
+{{- end }}
 {{- end }}
 {{- end }}
 
