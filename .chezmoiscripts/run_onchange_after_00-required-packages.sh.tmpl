@@ -136,9 +136,10 @@ DNF_PACKAGES=(
 
 # Enable COPR repositories for additional packages
 bdb_command "Enabling COPR repositories"
+sudo dnf copr enable -y alternateved/eza 2>/dev/null || true
 sudo dnf copr enable -y atim/lazygit 2>/dev/null || true
-sudo dnf copr enable -y pennbauman/ports 2>/dev/null || true
 sudo dnf copr enable -y atim/starship 2>/dev/null || true
+sudo dnf copr enable -y pennbauman/ports 2>/dev/null || true
 
 # Install DNF packages
 bdb_command "Installing DNF packages"
