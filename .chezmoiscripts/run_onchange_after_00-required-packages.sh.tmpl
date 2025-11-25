@@ -121,6 +121,7 @@ fi
 DNF_PACKAGES=(
     "${CORE_PACKAGES[@]}"
     "@development-tools"  # Compilation tools group
+    "bat-extras"       # Additional bat utilities
     "btop"               # System monitor
     "eza"                # Modern ls replacement
     "fd-find"            # Fast file finder
@@ -139,23 +140,13 @@ bdb_command "Enabling COPR repositories"
 sudo dnf copr enable -y alternateved/eza 2>/dev/null || true
 sudo dnf copr enable -y atim/lazygit 2>/dev/null || true
 sudo dnf copr enable -y atim/starship 2>/dev/null || true
+sudo dnf copr enable -y awood/bat-extras 2>/dev/null || true
 sudo dnf copr enable -y pennbauman/ports 2>/dev/null || true
 
 # Install DNF packages
 bdb_command "Installing DNF packages"
 sudo dnf install -y "${DNF_PACKAGES[@]}"
 bdb_success "DNF packages installed"
-
-# Install bat-extras (additional bat utilities)
-bdb_command "Installing bat-extras"
-if ! command -v batman >/dev/null 2>&1; then
-    git clone --depth=1 https://github.com/eth-p/bat-extras.git /tmp/bat-extras
-    sudo /tmp/bat-extras/build.sh --install
-    rm -rf /tmp/bat-extras
-    bdb_outcome "bat-extras installed"
-else
-    bdb_outcome "bat-extras already installed"
-fi
 
 {{- /* ------------------------------------------------------------------------ */ -}}
 {{- /* Arch/Manjaro Pacman Packages                                             */ -}}
