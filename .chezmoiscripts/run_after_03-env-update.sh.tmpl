@@ -9,8 +9,16 @@
 # Location: .chezmoiscripts/run_after_update_env.sh.tmpl
 # =============================================================================
 
+# -----------------------------------------------------------------------------
+# Setup File Descriptors for Helper Functions
+# -----------------------------------------------------------------------------
+# The BDB helper functions use FD3 for user-facing output
+# We need to set this up before sourcing the helpers
+if [[ ! -t 3 ]]; then
+    exec 3>&1  # Redirect FD3 to stdout if not already set
+fi
+
 # Source helper functions
-# shellcheck disable=SC1090,SC1091
 source "${HELPERS}"
 
 # -----------------------------------------------------------------------------
@@ -193,5 +201,13 @@ fi
 
 bdb_info_out "Environment update complete"
 bdb_info "All packages and tools have been updated successfully"
+
+# -----------------------------------------------------------------------------
+# Cleanup File Descriptors
+# -----------------------------------------------------------------------------
+# Close FD3 if we opened it
+if [[ -t 3 ]]; then
+    exec 3>&-
+fi
 
 exit 0
