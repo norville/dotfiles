@@ -138,19 +138,6 @@
     command = "vimdiff"
 
 # -----------------------------------------------------------------------------
-# Hooks - Post-Update Actions
-# -----------------------------------------------------------------------------
-# Commands to run after 'chezmoi update' completes successfully
-[hooks.read-source-state.post]
-    # This hook runs after chezmoi reads the source state
-    # Useful for validating configuration before applying changes
-
-[update]
-    # Run environment update script after 'chezmoi update'
-    # This script updates system packages and tools
-    command = "{{ .chezmoi.homeDir }}/.local/share/chezmoi/.chezmoiscripts/run_after_03-env-update.sh"
-
-# -----------------------------------------------------------------------------
 # Editor Configuration
 # -----------------------------------------------------------------------------
 # Default editor for 'chezmoi edit'
