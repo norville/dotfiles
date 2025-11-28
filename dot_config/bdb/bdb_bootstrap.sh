@@ -838,11 +838,6 @@ trap '_bdb_log_timestamp' DEBUG # Timestamp log entries
 # The log file path was set earlier in GLOBAL CONFIGURATION section
 bdb_init_logging "${BDB_LOG_FILE}"
 
-# Save original stdout to FD3 for user-facing output
-# This was already done by bdb_init_logging, but we document it here
-# FD3 is where all terminal messages (bdb_success, bdb_error, etc.) are sent
-exec 3>&1
-
 # =============================================================================
 # START BOOTSTRAP
 # =============================================================================
