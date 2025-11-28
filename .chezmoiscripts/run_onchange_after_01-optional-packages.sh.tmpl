@@ -337,20 +337,65 @@ if bdb_ask "Do you want to install Ansible"; then
 {{- else if eq .chezmoi.os "linux" }}
 
 {{- if eq .packageManager "apt" }}
-    # Debian/Ubuntu: Install from official PPA
+    # Debian/Ubuntu: Install Ansible
     bdb_action "Installing Ansible (Debian/Ubuntu)"
 
-    # Add Ansible PPA
-    bdb_exec "Adding Ansible PPA" sudo apt-get install -y software-properties-common
-    bdb_exec "Adding Ansible repository" sudo add-apt-repository --yes --update ppa:ansible/ansible
+{{- if eq .osid "linux-ubuntu" }}
+    # Ubuntu: Check version to determine installation method
+    # PPA ansible/ansible only supports LTS releases (20.04, 22.04, 24.04, etc.)
+    # For interim releases or latest versions, use pipx instead
 
-    # Install Ansible
+    # Get Ubuntu version
+    ubuntu_version=$(grep VERSION_ID /etc/os-release | cut -d'"' -f2)
+    bdb_var "Ubuntu Version" "${ubuntu_version}"
+
+    # Check if this is an LTS release (version ends with .04)
+    if [[ "${ubuntu_version}" =~ \.04$ ]]; then
+        bdb_info "LTS release detected - using PPA installation"
+
+        # Add Ansible PPA (works on LTS releases)
+        bdb_exec "Installing software-properties-common" sudo apt-get install -y software-properties-common
+        bdb_exec "Adding Ansible PPA" sudo add-apt-repository --yes --update ppa:ansible/ansible
+
+        # Install Ansible from PPA
+        bdb_exec "Installing Ansible from PPA" sudo apt-get install -y ansible python3-pip python3-argcomplete
+
+        # Enable command completion
+        bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete3 2>/dev/null || true
+
+        bdb_success "Ansible installed from PPA"
+    else
+        bdb_info "Non-LTS release detected - using pipx installation"
+        bdb_warn "PPA ansible/ansible may not be available for Ubuntu ${ubuntu_version}"
+
+        # Install pipx and Ansible via pipx (works on all Ubuntu versions)
+        bdb_exec "Installing pipx" sudo apt-get install -y pipx python3-pip python3-argcomplete
+
+        # Ensure pipx path is set up
+        bdb_exec "Setting up pipx environment" pipx ensurepath
+
+        # Install Ansible via pipx
+        bdb_exec "Installing Ansible via pipx" pipx install --include-deps ansible
+
+        # Enable command completion
+        bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete3 2>/dev/null || true
+
+        bdb_success "Ansible installed via pipx"
+        bdb_info "You may need to restart your shell for pipx PATH to take effect"
+    fi
+
+{{- else if eq .osid "linux-debian" }}
+    # Debian: Install from default repositories or backports
+    bdb_info "Installing Ansible on Debian"
+
+    # Try to install from default repositories first
     bdb_exec "Installing Ansible" sudo apt-get install -y ansible python3-pip python3-argcomplete
 
     # Enable command completion
     bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete3 2>/dev/null || true
 
     bdb_success "Ansible installed"
+{{- end }}
 
 {{- else if eq .packageManager "dnf" }}
     # Fedora/RHEL: Install from official repositories
