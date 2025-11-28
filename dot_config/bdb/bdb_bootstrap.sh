@@ -34,7 +34,7 @@
 # GitHub repository configuration
 readonly GITHUB_USER="norville"                     # GitHub username
 readonly GITHUB_REPO="dotfiles"                     # Repository name
-readonly CHEZMOI_BRANCH="newtest"                      # Branch to use for initialization
+readonly CHEZMOI_BRANCH="main"                      # Branch to use for initialization
 
 # Script paths and URLs
 readonly BDB_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
