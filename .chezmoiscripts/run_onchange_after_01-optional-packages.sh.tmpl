@@ -181,14 +181,37 @@ if bdb_ask "Do you want to install Docker"; then
     # Remove old versions
     bdb_exec "Removing old Docker versions" sudo apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
 
-    # Add Docker repository
-    bdb_exec "Installing prerequisites" sudo apt-get install -y ca-certificates curl gnupg lsb-release
-    bdb_exec "Adding Docker GPG key" bash -c "sudo mkdir -p /etc/apt/keyrings && \
-        curl -fsSL https://download.docker.com/linux/$(. /etc/os-release && echo \"\$ID\")/gpg | \
-        sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
+    # Install prerequisites
+    bdb_exec "Installing prerequisites" sudo apt-get install -y ca-certificates curl gnupg
+
+    # Add Docker's official GPG key
+    bdb_action "Adding Docker GPG key"
+    sudo install -m 0755 -d /etc/apt/keyrings
+
+{{- if eq .osid "linux-ubuntu" }}
+    # Ubuntu specific GPG key URL
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+    bdb_success "Docker GPG key added for Ubuntu"
+
+    # Add Docker repository for Ubuntu
     bdb_exec "Adding Docker repository" bash -c "echo \
-      'deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$(. /etc/os-release && echo \"\$ID\") \
-      $(lsb_release -cs) stable' | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null"
+      'deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo \"\$VERSION_CODENAME\") stable' | \
+      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null"
+
+{{- else if eq .osid "linux-debian" }}
+    # Debian specific GPG key URL
+    sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+    bdb_success "Docker GPG key added for Debian"
+
+    # Add Docker repository for Debian
+    bdb_exec "Adding Docker repository" bash -c "echo \
+      'deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
+      $(. /etc/os-release && echo \"\$VERSION_CODENAME\") stable' | \
+      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null"
+{{- end }}
 
     # Install Docker
     bdb_exec "Updating package lists" sudo apt-get update
