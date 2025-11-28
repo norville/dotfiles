@@ -962,16 +962,20 @@ bdb_handle_error() {
 #     $BDB_TEMP_FILES - Space-separated list of temp files to remove
 #     $BDB_HELPERS_URL, etc. - Environment variables to unset
 # Returns:
-#   Always returns 0
+#   Always returns 0 (never fails)
 # Output:
 #   Log: Cleanup operations recorded
 #   Terminal: None (cleanup is silent)
 # Behavior:
 #   1. Disables command tracing
-#   2. Removes temporary files (if any)
-#   3. Unsets environment variables
+#   2. Removes temporary files from BDB_TEMP_FILES list
+#   3. Attempts to unset environment variables (handles readonly gracefully)
 #   4. Disables strict error handling
-#   5. Restores file descriptors
+#   5. Restores file descriptors if they were redirected
+# Note on readonly variables:
+#   Some scripts may declare BDB_* variables as readonly
+#   This function handles that gracefully with 2>/dev/null || true
+#   Variables that can't be unset are simply left in place
 # Example trap setup:
 #   trap 'bdb_cleanup' EXIT
 #   # Script automatically cleaned up on exit
@@ -994,7 +998,15 @@ bdb_cleanup() {
     fi
 
     # Clean up environment variables to avoid pollution
-    unset BDB_HELPERS_URL BDB_HELPERS BDB_SCRIPT_DIR BDB_LOG_FILE BDB_TEMP_FILES
+    # Note: Use 'unset -v' to avoid errors if variables are readonly
+    # The '2>/dev/null || true' ensures cleanup always succeeds
+    {
+        unset -v BDB_HELPERS_URL 2>/dev/null || true
+        unset -v BDB_HELPERS 2>/dev/null || true
+        unset -v BDB_SCRIPT_DIR 2>/dev/null || true
+        unset -v BDB_LOG_FILE 2>/dev/null || true
+        unset -v BDB_TEMP_FILES 2>/dev/null || true
+    } 2>/dev/null
 
     # Disable strict error handling (safe for cleanup)
     set +euo pipefail 2>/dev/null

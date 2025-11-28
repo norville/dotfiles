@@ -37,9 +37,11 @@ readonly GITHUB_REPO="dotfiles"
 readonly CHEZMOI_BRANCH="main"
 
 # Script paths and URLs
-readonly BDB_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly BDB_HELPERS="${BDB_SCRIPT_DIR}/bdb_helpers.sh"
-readonly BDB_HELPERS_URL="https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${CHEZMOI_BRANCH}/dot_config/bdb/bdb_helpers.sh"
+# Note: NOT readonly so they can be unset during cleanup
+# BDB_HELPERS may be a downloaded temp file that needs to be removed
+BDB_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BDB_HELPERS="${BDB_SCRIPT_DIR}/bdb_helpers.sh"
+BDB_HELPERS_URL="https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${CHEZMOI_BRANCH}/dot_config/bdb/bdb_helpers.sh"
 
 # Logging configuration
 # Set log file path with timestamp for unique logs per bootstrap run
@@ -47,6 +49,10 @@ readonly BDB_HELPERS_URL="https://raw.githubusercontent.com/${GITHUB_USER}/${GIT
 # The .txt extension is used to distinguish from helper's default .log extension
 # This ensures bootstrap logs are easily identifiable
 BDB_LOG_FILE="${BDB_SCRIPT_DIR}/bdb_log_$(date +%Y%m%d_%H%M%S).txt"
+
+# Temporary files tracking
+# Will be populated if helpers need to be downloaded
+BDB_TEMP_FILES=""
 
 # System detection paths
 readonly LSB_RELEASE_PATH="/etc/os-release"
@@ -79,6 +85,7 @@ readonly LSB_RELEASE_PATH="/etc/os-release"
 # This function must complete successfully before any other operations
 load_helpers() {
     local helpers_exist=false
+    local was_downloaded=false
 
     # Check if helpers exist locally (common when running from repo)
     if [[ -f "${BDB_HELPERS}" ]]; then
@@ -92,16 +99,24 @@ load_helpers() {
         if command -v curl >/dev/null 2>&1; then
             if curl -fsSL "${BDB_HELPERS_URL}" -o "${BDB_HELPERS}"; then
                 helpers_exist=true
+                was_downloaded=true
             fi
         # Fall back to wget if curl not available
         elif command -v wget >/dev/null 2>&1; then
             if wget -qO "${BDB_HELPERS}" "${BDB_HELPERS_URL}"; then
                 helpers_exist=true
+                was_downloaded=true
             fi
         else
             # Neither download tool available - cannot proceed
             echo "[ERROR] Neither curl nor wget is available. Cannot download helpers." >&2
             exit 1
+        fi
+
+        # If downloaded, add to temp files for cleanup
+        if [[ "$was_downloaded" == true ]]; then
+            BDB_TEMP_FILES="${BDB_TEMP_FILES} ${BDB_HELPERS}"
+            echo "[INFO] Helper file will be removed on exit"
         fi
     fi
 
