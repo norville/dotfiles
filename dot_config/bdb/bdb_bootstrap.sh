@@ -499,18 +499,27 @@ install_deps_ubuntu() {
 # Install Dependencies on Fedora/RHEL
 # -----------------------------------------------------------------------------
 install_deps_fedora() {
-    # Check and install git
+    local packages_to_install=()
+
+    # Check if git is already installed
     if bdb_test_cmd "git"; then
         bdb_success "Git already installed"
     else
-        bdb_exec "Installing git" sudo dnf install -y git
+        # Git not found - add to installation list
+        packages_to_install+=("git")
     fi
 
-    # Install chezmoi if not already present
+    # Check if chezmoi is already installed
     if bdb_test_cmd "chezmoi"; then
         bdb_success "Chezmoi already installed"
     else
-        bdb_exec "Installing chezmoi" sudo sh -c "\$(curl -fsLS https://get.chezmoi.io)" -- -b /usr/local/bin
+        # Chezmoi not found - add to installation list
+        packages_to_install+=("chezmoi")
+    fi
+
+    # Install any missing packages
+    if [[ ${#packages_to_install[@]} -gt 0 ]]; then
+        bdb_exec "Installing dependencies (Fedora/RHEL)" sudo dnf install -y "${packages_to_install[@]}"
     fi
 }
 
