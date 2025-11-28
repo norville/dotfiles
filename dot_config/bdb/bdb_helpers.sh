@@ -89,15 +89,33 @@ _bdb_log_timestamp() {
 # Log to File Only
 # -----------------------------------------------------------------------------
 # Write a message directly to the log file without any terminal output
-# Useful for internal logging that doesn't need user visibility
+# Adds timestamps to section markers and important events
 #
 # Usage: _bdb_log "Starting initialization phase"
 # Arguments:
 #   $* - All arguments are concatenated and written to log
 # Output:
-#   Writes "[LOG] <message>" to log file only
+#   Writes "[TIMESTAMP] [LOG] <message>" for sections/important events
+#   Writes "[LOG] <message>" for regular log entries
+# Behavior:
+#   Timestamps are added to:
+#   - Lines starting with "========" (section separators)
+#   - Lines containing "SECTION:" (section headers)
+#   - Lines containing "Script:" (script identifiers)
+#   - Lines containing "Action:" (important actions)
+#   - Lines containing "SUCCESS:" (completion markers)
 _bdb_log() {
-    echo "[LOG] $*" >&1
+    local message="$*"
+
+    # Check if this is an important marker that should get a timestamp
+    if [[ "$message" =~ ^===+$ ]] || \
+       [[ "$message" =~ SECTION:|Script:|Action:|SUCCESS:|ERROR:|Command: ]]; then
+        # Add timestamp for important markers
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [LOG] $message" >&1
+    else
+        # Regular log entry without timestamp
+        echo "[LOG] $message" >&1
+    fi
 }
 
 # -----------------------------------------------------------------------------
@@ -1105,6 +1123,23 @@ bdb_progress() {
 # Initialize the dual-output logging system
 # This MUST be called at the start of your script before any other BDB functions
 #
+# IMPORTANT: This function is idempotent and context-aware
+# - If logging is already initialized (e.g., by a parent bootstrap script),
+#   it will detect this and skip re-initialization
+# - This allows chezmoi scripts to work both standalone and under bootstrap
+#
+# Detection Logic:
+#   1. Checks if BDB_LOG_FILE is already set
+#   2. Checks if FD3 is already configured
+#   3. If both are true, continues with existing logging setup
+#   4. Otherwise, initializes new logging
+#
+# Logging Strategy:
+#   - Commands are NOT logged (no 'set -x')
+#   - Only command OUTPUT is logged
+#   - Timestamps added to important markers (sections, actions, results)
+#   - This keeps logs clean and focused on actual results
+#
 # Usage: bdb_init_logging "/path/to/logfile.log"
 #        bdb_init_logging  # Uses BDB_LOG_FILE if set, or generates default
 #
@@ -1114,35 +1149,57 @@ bdb_progress() {
 #        1. Existing BDB_LOG_FILE variable (if set by caller)
 #        2. Generated default: bdb_YYYYMMDD_HHMMSS.log
 # Returns:
-#   Exits with error if log file cannot be created
+#   0 - Always returns success (exits on error)
 # Output:
-#   Creates log file and sets up file descriptors
+#   Creates log file and sets up file descriptors (if not already initialized)
 # Behavior:
-#   1. Determines log file path (argument > existing var > default)
-#   2. Exports BDB_LOG_FILE for use by other functions
-#   3. Creates or opens log file
-#   4. Sets up FD3 for terminal output (if not already set)
-#   5. Redirects stdout (FD1) to log file
-#   6. Redirects stderr (FD2) to log file
-#   7. Enables command tracing (set -x) in log
-#   8. Writes initialization header to log
+#   If already initialized:
+#     - Logs a marker indicating continuation with existing setup
+#     - Returns without modifying file descriptors
+#   If not initialized:
+#     1. Determines log file path (argument > existing var > default)
+#     2. Exports BDB_LOG_FILE for use by other functions
+#     3. Creates or opens log file
+#     4. Sets up FD3 for terminal output (if not already set)
+#     5. Redirects stdout (FD1) to log file
+#     6. Redirects stderr (FD2) to log file
+#     7. Enables command tracing (set -x) in log
+#     8. Writes initialization header to log
 # Side Effects:
 #   - Sets/updates global variable: BDB_LOG_FILE
-#   - Redirects stdout/stderr to log file
+#   - Redirects stdout/stderr to log file (if not already redirected)
 #   - All subsequent command output goes to log
 #   - Terminal output must use FD3 (>&3)
 # Example:
-#   # Option 1: Explicit path
+#   # Option 1: Standalone script with explicit path
 #   bdb_init_logging "/var/log/myapp/setup.log"
 #
 #   # Option 2: Pre-set variable (common in bootstrap scripts)
 #   BDB_LOG_FILE="${HOME}/setup_$(date +%Y%m%d).log"
 #   bdb_init_logging "${BDB_LOG_FILE}"
 #
-#   # Option 3: Use default generated name
+#   # Option 3: Chezmoi script (auto-detects if running under bootstrap)
+#   SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/myscript.log"
+#   bdb_init_logging "${SCRIPT_LOG_FILE}"
+#   # If under bootstrap: continues with bootstrap log
+#   # If standalone: creates myscript.log
+#
+#   # Option 4: Use default generated name
 #   bdb_init_logging
 #   # Creates: bdb_20250115_143022.log
 bdb_init_logging() {
+    # Check if logging is already initialized (BDB_LOG_FILE is set and FD3 exists)
+    if [[ -n "${BDB_LOG_FILE:-}" ]] && [[ -t 3 ]]; then
+        # Logging already initialized (probably by parent bootstrap script)
+        # Just log that we're continuing with existing setup
+        _bdb_log "========================================="
+        _bdb_log "BDB Logging already initialized"
+        _bdb_log "Existing log file: ${BDB_LOG_FILE}"
+        _bdb_log "Continuing with parent logging setup"
+        _bdb_log "========================================="
+        return 0
+    fi
+
     # Use provided argument, or fall back to already-set BDB_LOG_FILE,
     # or generate default filename
     local log_file="${1:-${BDB_LOG_FILE:-bdb_$(date +%Y%m%d_%H%M%S).log}}"
@@ -1168,9 +1225,10 @@ bdb_init_logging() {
     exec 1>>"${BDB_LOG_FILE}"  # Append stdout to log file
     exec 2>&1                   # Redirect stderr to stdout (log file)
 
-    # Enable command tracing in log file
-    # This will prefix each command with + in the log
-    set -x
+    # Note: We do NOT enable 'set -x' (command tracing) here
+    # This prevents every bash command from being logged with '+'
+    # We only want to log command OUTPUT, not the commands themselves
+    # Commands are already documented via _bdb_log calls
 
     # Write initialization header to log
     _bdb_log "========================================="

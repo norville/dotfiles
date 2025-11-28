@@ -805,17 +805,15 @@ set -euo pipefail
 #                Removes temporary files, unsets variables, restores FDs
 #                Ensures clean state even if script is interrupted
 #
-#   DEBUG trap - Calls _bdb_log_timestamp before each command
-#                Adds [YYYY-MM-DD HH:MM:SS] timestamp to log entries
-#                Helps with debugging by showing when each command executed
+# Note: We deliberately do NOT use DEBUG trap for timestamps
+#       DEBUG trap runs before EVERY command, creating excessive log noise
+#       Instead, timestamps are added only to important markers via _bdb_log
 #
 # Trap Order Matters:
 #   - ERR runs first on command failure
 #   - EXIT always runs last, even after ERR
-#   - DEBUG runs before every command
 trap 'bdb_handle_error' ERR     # Handle command failures
 trap 'bdb_cleanup' EXIT         # Cleanup on exit
-trap '_bdb_log_timestamp' DEBUG # Timestamp log entries
 
 # -----------------------------------------------------------------------------
 # Setup Logging
@@ -836,6 +834,7 @@ trap '_bdb_log_timestamp' DEBUG # Timestamp log entries
 #   - Log contains complete audit trail with timestamps
 #
 # The log file path was set earlier in GLOBAL CONFIGURATION section
+# Note: bdb_init_logging handles FD3 setup internally, no need to do it here
 bdb_init_logging "${BDB_LOG_FILE}"
 
 # =============================================================================

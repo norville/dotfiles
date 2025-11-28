@@ -9,24 +9,49 @@
 # Location: .chezmoiscripts/run_onchange_after_00-required-packages.sh.tmpl
 # =============================================================================
 
-# Source helper functions
-# shellcheck disable=SC1090,SC1091
+# -----------------------------------------------------------------------------
+# Source Helper Functions
+# -----------------------------------------------------------------------------
+# Load BDB helper functions for consistent output and logging
+# The HELPERS variable is set by chezmoi via scriptEnv in .chezmoi.toml.tmpl
 source "${HELPERS}"
+
+# -----------------------------------------------------------------------------
+# Initialize Logging
+# -----------------------------------------------------------------------------
+# Set up logging for this script
+# If running under bootstrap, this will detect existing logging and continue with it
+# If running standalone, this will create a new log file
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl)"
+SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/${SCRIPT_NAME}_$(date +%Y%m%d_%H%M%S).log"
+
+# Ensure log directory exists
+mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
+
+# Initialize BDB logging system
+# This will detect if already initialized by bootstrap and skip re-initialization
+bdb_init_logging "${SCRIPT_LOG_FILE}"
+
+# Add a marker to the log to identify this script
+_bdb_log "========================================="
+_bdb_log "Script: ${SCRIPT_NAME}"
+_bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
+_bdb_log "========================================="
 
 # -----------------------------------------------------------------------------
 # Error Handling Configuration
 # -----------------------------------------------------------------------------
 set -euo pipefail              # Strict error handling
 trap 'bdb_handle_error' ERR    # Handle errors automatically
+trap 'bdb_cleanup' EXIT        # Cleanup on exit
 
 # =============================================================================
 # PACKAGE DEFINITIONS
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Core Packages (All Systems)
+# Core packages required on all systems
 # -----------------------------------------------------------------------------
-# Essential tools required on all systems
 CORE_PACKAGES=(
     "bat"           # Modern cat with syntax highlighting
     "curl"          # HTTP client
@@ -45,7 +70,7 @@ CORE_PACKAGES=(
 # LINUX PACKAGE INSTALLATION
 # =============================================================================
 
-bdb_info_in "Installing required packages for {{ .osid }}"
+bdb_begin_section "Installing Required Packages for {{ .osid }}"
 
 {{- /* ------------------------------------------------------------------------ */ -}}
 {{- /* Debian/Ubuntu APT Packages                                               */ -}}
@@ -70,44 +95,36 @@ APT_PACKAGES=(
 )
 
 # Install APT packages
-bdb_command "Installing APT packages"
-sudo apt-get update
-sudo apt-get install -y "${APT_PACKAGES[@]}"
-bdb_success "APT packages installed"
+bdb_exec "Updating package lists" sudo apt-get update
+bdb_exec "Installing APT packages" sudo apt-get install -y "${APT_PACKAGES[@]}"
 
 # Install eza (modern ls) - requires manual repository setup
-bdb_command "Installing eza from custom repository"
-if ! command -v eza >/dev/null 2>&1; then
+if ! bdb_test_cmd "eza"; then
+    bdb_action "Setting up eza repository"
     sudo mkdir -p /etc/apt/keyrings
     wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | \
         sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
     echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | \
         sudo tee /etc/apt/sources.list.d/eza.list
     sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/eza.list
-    sudo apt-get update
-    sudo apt-get install -y eza
-    bdb_outcome "eza installed"
+
+    bdb_exec "Installing eza" sudo apt-get update && sudo apt-get install -y eza
 else
-    bdb_outcome "eza already installed"
+    bdb_success "eza already installed"
 fi
 
 # Install btop (system monitor) - may not be in older repos
-bdb_command "Installing btop"
 if apt-cache show btop >/dev/null 2>&1; then
-    sudo apt-get install -y btop
-    bdb_outcome "btop installed"
+    bdb_exec "Installing btop" sudo apt-get install -y btop
 else
-    bdb_alert "btop not available in repositories, skipping"
+    bdb_warn "btop not available in repositories, skipping"
 fi
 
 # Install lazygit - may need snap on older Ubuntu
 {{- if eq .osid "linux-ubuntu" }}
-if ! command -v lazygit >/dev/null 2>&1; then
-    bdb_command "Installing lazygit via snap"
-    sudo snap install lazygit
-    bdb_outcome "lazygit installed via snap"
+if ! bdb_test_cmd "lazygit"; then
+    bdb_exec "Installing lazygit via snap" sudo snap install lazygit
 fi
-
 {{- end }}
 
 {{- /* ------------------------------------------------------------------------ */ -}}
@@ -136,17 +153,16 @@ DNF_PACKAGES=(
 )
 
 # Enable COPR repositories for additional packages
-bdb_command "Enabling COPR repositories"
+bdb_action "Enabling COPR repositories"
 sudo dnf copr enable -y alternateved/eza 2>/dev/null || true
 sudo dnf copr enable -y atim/lazygit 2>/dev/null || true
 sudo dnf copr enable -y atim/starship 2>/dev/null || true
 sudo dnf copr enable -y awood/bat-extras 2>/dev/null || true
 sudo dnf copr enable -y pennbauman/ports 2>/dev/null || true
+bdb_success "COPR repositories enabled"
 
 # Install DNF packages
-bdb_command "Installing DNF packages"
-sudo dnf install -y "${DNF_PACKAGES[@]}"
-bdb_success "DNF packages installed"
+bdb_exec "Installing DNF packages" sudo dnf install -y "${DNF_PACKAGES[@]}"
 
 {{- /* ------------------------------------------------------------------------ */ -}}
 {{- /* Arch/Manjaro Pacman Packages                                             */ -}}
@@ -173,29 +189,24 @@ PACMAN_PACKAGES=(
 )
 
 # Install Pacman packages
-bdb_command "Installing Pacman packages"
-sudo pacman -S --needed --noconfirm "${PACMAN_PACKAGES[@]}"
-bdb_success "Pacman packages installed"
+bdb_exec "Installing Pacman packages" sudo pacman -S --needed --noconfirm "${PACMAN_PACKAGES[@]}"
 
 # Install yay (AUR helper) if not present
-bdb_command "Checking for yay (AUR helper)"
-if ! command -v yay >/dev/null 2>&1; then
-    bdb_run "Installing yay from AUR"
+if ! bdb_test_cmd "yay"; then
+    bdb_action "Installing yay (AUR helper)"
     git clone https://aur.archlinux.org/yay.git /tmp/yay
     (cd /tmp/yay && makepkg -si --noconfirm)
     rm -rf /tmp/yay
-    bdb_outcome "yay installed"
+    bdb_success "yay installed"
 else
-    bdb_outcome "yay already installed"
+    bdb_success "yay already installed"
 fi
 
 # Install bat-extras from AUR
-bdb_command "Installing bat-extras"
-if ! command -v batman >/dev/null 2>&1; then
-    yay -S --noconfirm bat-extras
-    bdb_outcome "bat-extras installed"
+if ! bdb_test_cmd "batman"; then
+    bdb_exec "Installing bat-extras from AUR" yay -S --noconfirm bat-extras
 else
-    bdb_outcome "bat-extras already installed"
+    bdb_success "bat-extras already installed"
 fi
 
 {{- end }}
@@ -205,9 +216,11 @@ fi
 # -----------------------------------------------------------------------------
 {{- if eq .packageManager "pacman" }}
 # Arch/Manjaro: Install JetBrains Mono Nerd Font from repository
-bdb_command "Installing JetBrains Mono Nerd Font"
-sudo pacman -S --needed --noconfirm ttf-jetbrains-mono-nerd
-bdb_success "JetBrains Mono Nerd Font installed"
+if ! fc-list | grep -q "JetBrainsMono Nerd Font"; then
+    bdb_exec "Installing JetBrains Mono Nerd Font" sudo pacman -S --needed --noconfirm ttf-jetbrains-mono-nerd
+else
+    bdb_success "JetBrains Mono Nerd Font already installed"
+fi
 
 {{- else }}
 # Other distros: Font installed via .chezmoiexternal.toml
@@ -223,27 +236,35 @@ bdb_info "JetBrains Mono Nerd Font will be installed via external resources"
 # MACOS PACKAGE INSTALLATION
 # =============================================================================
 
-bdb_info_in "Installing required packages for macOS"
+bdb_begin_section "Installing Required Packages for macOS"
 
-# -----------------------------------------------------------------------------
-# Homebrew Package List
-# -----------------------------------------------------------------------------
-# See list in "${HOME}/.config/homebrew/brewfile"
+# Homebrew bundle file location
+BREWFILE="${HOME}/.config/homebrew/brewfile"
+
+# Verify Brewfile exists
+if [[ ! -f "${BREWFILE}" ]]; then
+    bdb_error "Brewfile not found at ${BREWFILE}"
+    exit 1
+fi
+
+bdb_var "Brewfile" "${BREWFILE}"
 
 # Install Homebrew packages
-bdb_command "Installing Homebrew packages"
-brew bundle --file="${HOME}/.config/homebrew/brewfile"
-bdb_success "Homebrew packages installed"
+bdb_exec "Installing Homebrew packages" brew bundle --file="${BREWFILE}"
 
 {{- end }}
 
 # =============================================================================
-# CROSS-PLATFORM: ADDITIONAL TOOLS
+# COMPLETION
 # =============================================================================
 
-# -----------------------------------------------------------------------------
-# Completion
-# -----------------------------------------------------------------------------
-bdb_info_out "Required packages installed successfully"
+bdb_success "Required packages installed successfully"
+
+# Show log file location (either bootstrap log or script-specific log)
+if [[ -n "${BDB_LOG_FILE:-}" ]]; then
+    bdb_var "Log file" "${BDB_LOG_FILE}"
+fi
+
+bdb_end_section
 
 exit 0

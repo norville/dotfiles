@@ -9,58 +9,85 @@
 # Location: .chezmoiscripts/run_onchange_after_02-env-setup.sh.tmpl
 # =============================================================================
 
-# Source helper functions
-# shellcheck disable=SC1090,SC1091
+# -----------------------------------------------------------------------------
+# Source Helper Functions
+# -----------------------------------------------------------------------------
 source "${HELPERS}"
+
+# -----------------------------------------------------------------------------
+# Initialize Logging
+# -----------------------------------------------------------------------------
+# Set up logging for this script
+# If running under bootstrap, this will detect existing logging and continue with it
+# If running standalone, this will create a new log file
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl)"
+SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/${SCRIPT_NAME}_$(date +%Y%m%d_%H%M%S).log"
+
+# Ensure log directory exists
+mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
+
+# Initialize BDB logging system
+# This will detect if already initialized by bootstrap and skip re-initialization
+bdb_init_logging "${SCRIPT_LOG_FILE}"
+
+# Add a marker to the log to identify this script
+_bdb_log "========================================="
+_bdb_log "Script: ${SCRIPT_NAME}"
+_bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
+_bdb_log "========================================="
 
 # -----------------------------------------------------------------------------
 # Error Handling Configuration
 # -----------------------------------------------------------------------------
-set -euo pipefail              # Strict error handling
-trap 'bdb_handle_error' ERR    # Handle errors automatically
+set -euo pipefail
+trap 'bdb_handle_error' ERR
+trap 'bdb_cleanup' EXIT
 
 # =============================================================================
 # ENVIRONMENT SETUP
 # =============================================================================
+
+bdb_begin_section "Environment Setup"
 
 # -----------------------------------------------------------------------------
 # Application Configuration
 # -----------------------------------------------------------------------------
 
 # Configure bat (syntax highlighting tool)
-bdb_command "Building bat theme cache"
 {{- if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") }}
 # Debian/Ubuntu uses 'batcat' command name
-if command -v batcat >/dev/null 2>&1; then
-    batcat cache --build >/dev/null 2>&1
-    bdb_outcome "bat cache built (batcat)"
+if bdb_test_cmd "batcat"; then
+    bdb_exec "Building bat theme cache" batcat cache --build >/dev/null 2>&1
+else
+    bdb_warn "batcat not found"
 fi
 {{- else }}
 # Other systems use 'bat' command name
-if command -v bat >/dev/null 2>&1; then
-    bat cache --build >/dev/null 2>&1
-    bdb_outcome "bat cache built"
+if bdb_test_cmd "bat"; then
+    bdb_exec "Building bat theme cache" bat cache --build >/dev/null 2>&1
+else
+    bdb_warn "bat not found"
 fi
 {{- end }}
 
 # Configure eza (modern ls replacement)
-bdb_command "Verifying eza theme installation"
+bdb_action "Verifying eza theme installation"
 if [[ -f "${HOME}/.config/eza/theme.yml" ]]; then
-    bdb_outcome "eza theme configured"
+    bdb_success "eza theme configured"
 else
-    bdb_alert "eza theme not found - will be downloaded by chezmoi external"
+    bdb_warn "eza theme not found - will be downloaded by chezmoi external"
 fi
 
 # Configure btop (system monitor)
-bdb_command "Verifying btop theme installation"
+bdb_action "Verifying btop theme installation"
 if [[ -f "${HOME}/.config/btop/themes/tokyonight_moon.theme" ]]; then
     # Set theme in btop config if it exists
     if [[ -f "${HOME}/.config/btop/btop.conf" ]]; then
-        sed -i 's/^color_theme = .*/color_theme = "tokyonight_moon"/' "${HOME}/.config/btop/btop.conf" 2>/dev/null || true
+        bdb_exec "Setting btop theme" sed -i 's/^color_theme = .*/color_theme = "tokyonight_moon"/' "${HOME}/.config/btop/btop.conf" 2>/dev/null || true
     fi
-    bdb_outcome "btop theme configured"
+    bdb_success "btop theme configured"
 else
-    bdb_alert "btop theme not found - will be downloaded by chezmoi external"
+    bdb_warn "btop theme not found - will be downloaded by chezmoi external"
 fi
 
 {{- /* ========================================================================== */ -}}
@@ -72,25 +99,25 @@ fi
 # Shell Configuration
 # -----------------------------------------------------------------------------
 
-bdb_info_in "Configuring shell environment"
+bdb_action "Configuring shell environment"
 
 # Set ZSH as default login shell
-bdb_run "Setting ZSH as default shell"
-if command -v zsh >/dev/null 2>&1; then
+if bdb_test_cmd "zsh"; then
     zsh_path="$(command -v zsh)"
+    bdb_var "ZSH path" "${zsh_path}"
 
     # Check if ZSH is already the default shell
     if [[ "${SHELL}" != "${zsh_path}" ]]; then
         # Ensure ZSH is in /etc/shells
         if ! grep -Fxq "${zsh_path}" /etc/shells 2>/dev/null; then
-            echo "${zsh_path}" | sudo tee -a /etc/shells >/dev/null
+            bdb_exec "Adding ZSH to /etc/shells" bash -c "echo '${zsh_path}' | sudo tee -a /etc/shells >/dev/null"
         fi
 
         # Change default shell
-        sudo chsh -s "${zsh_path}" "${USER}"
-        bdb_outcome "shell changed to ${zsh_path}"
+        bdb_exec "Setting ZSH as default shell" sudo chsh -s "${zsh_path}" "${USER}"
+        bdb_success "Shell changed to ZSH"
     else
-        bdb_outcome "already using ${zsh_path}"
+        bdb_success "Already using ZSH as default shell"
     fi
 else
     bdb_error "ZSH not found - cannot set as default shell"
@@ -101,38 +128,34 @@ fi
 # -----------------------------------------------------------------------------
 
 {{- if eq .packageManager "pacman" }}
-# Arch/Manjaro: Install JetBrains Mono Nerd Font
-bdb_command "Verifying JetBrains Mono Nerd Font"
+# Arch/Manjaro: Verify JetBrains Mono Nerd Font
+bdb_action "Verifying JetBrains Mono Nerd Font"
 if fc-list | grep -q "JetBrainsMono Nerd Font"; then
-    bdb_outcome "font already installed"
+    bdb_success "Font installed"
 else
-    bdb_run "Installing font"
-    sudo pacman -S --needed --noconfirm ttf-jetbrains-mono-nerd
-    fc-cache -fv >/dev/null 2>&1
-    bdb_outcome "font installed and cache updated"
+    bdb_warn "Font not found - should have been installed with packages"
 fi
 {{- else }}
 # Other distros: Font installed via .chezmoiexternal.toml
-bdb_command "Verifying JetBrains Mono Nerd Font installation"
+bdb_action "Verifying JetBrains Mono Nerd Font installation"
 if [[ -f "${HOME}/.local/share/fonts/JetBrainsMonoNerdFont-Regular.ttf" ]]; then
-    bdb_outcome "font file found"
-    bdb_command "Updating font cache"
-    if command -v fc-cache >/dev/null 2>&1; then
-        fc-cache -fv >/dev/null 2>&1 || true
-        bdb_outcome "font cache updated"
+    bdb_success "Font file found"
+    # Update font cache
+    if bdb_test_cmd "fc-cache"; then
+        bdb_exec "Updating font cache" fc-cache -fv >/dev/null 2>&1 || true
     fi
 else
-    bdb_alert "Font not yet downloaded - chezmoi will install it via external resources"
+    bdb_warn "Font not yet downloaded - chezmoi will install it via external resources"
     bdb_info "Run 'chezmoi apply' again to complete font installation"
 fi
 {{- end }}
 
 # Configure terminal emulator (Kitty)
-bdb_command "Verifying Kitty terminal configuration"
+bdb_action "Verifying Kitty terminal configuration"
 if [[ -f "${HOME}/.config/kitty/kitty.conf" ]]; then
-    bdb_outcome "kitty configured"
+    bdb_success "Kitty configured"
 else
-    bdb_alert "kitty config not found - ensure dotfiles include kitty.conf"
+    bdb_warn "Kitty config not found - ensure dotfiles include kitty.conf"
 fi
 
 {{- /* ========================================================================== */ -}}
@@ -144,84 +167,97 @@ fi
 # macOS-Specific Configuration
 # -----------------------------------------------------------------------------
 
-# Configure macOS defaults
-#bdb_command "Configuring macOS system defaults"
+# Configure macOS defaults (commented out - uncomment to enable)
+#bdb_action "Configuring macOS system defaults"
 
 # Show hidden files in Finder
-#defaults write com.apple.finder AppleShowAllFiles -bool true
+#bdb_exec "Show hidden files" defaults write com.apple.finder AppleShowAllFiles -bool true
 
 # Show path bar in Finder
-#defaults write com.apple.finder ShowPathbar -bool true
+#bdb_exec "Show path bar" defaults write com.apple.finder ShowPathbar -bool true
 
 # Show status bar in Finder
-#defaults write com.apple.finder ShowStatusBar -bool true
+#bdb_exec "Show status bar" defaults write com.apple.finder ShowStatusBar -bool true
 
 # Disable press-and-hold for keys in favor of key repeat
-#defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+#bdb_exec "Disable press-and-hold" defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
 # Set fast key repeat rate
-#defaults write NSGlobalDomain KeyRepeat -int 2
-#defaults write NSGlobalDomain InitialKeyRepeat -int 15
+#bdb_exec "Set key repeat rate" defaults write NSGlobalDomain KeyRepeat -int 2
+#bdb_exec "Set initial key repeat" defaults write NSGlobalDomain InitialKeyRepeat -int 15
 
 # Restart Finder to apply changes
-#killall Finder 2>/dev/null || true
+#bdb_exec "Restarting Finder" killall Finder 2>/dev/null || true
 
-#bdb_outcome "macOS defaults configured"
+#bdb_success "macOS defaults configured"
 
 # Configure Homebrew
-bdb_command "Configuring Homebrew"
-if command -v brew >/dev/null 2>&1; then
+bdb_action "Configuring Homebrew"
+if bdb_test_cmd "brew"; then
     # Disable analytics
-    brew analytics off 2>/dev/null || true
-    bdb_outcome "Homebrew configured"
+    bdb_exec "Disabling Homebrew analytics" brew analytics off 2>/dev/null || true
+    bdb_success "Homebrew configured"
+else
+    bdb_warn "Homebrew not found"
 fi
 
 {{- end }}
 
 # -----------------------------------------------------------------------------
-# Git Configuration
+# Git Configuration (Commented - Handled by git config files)
 # -----------------------------------------------------------------------------
 
-#bdb_command "Configuring Git"
+# Git configuration is handled by ~/.config/git/config managed by chezmoi
+# Uncomment below if you want to set these via script instead
+
+#bdb_action "Configuring Git"
 
 # Set global Git configuration
-#git config --global user.name "{{ .name }}"
-#git config --global user.email "{{ .email }}"
-#git config --global init.defaultBranch main
-#git config --global pull.rebase false
-#git config --global core.editor "nvim"
+#bdb_exec "Setting Git user name" git config --global user.name "{{ .name }}"
+#bdb_exec "Setting Git user email" git config --global user.email "{{ .email }}"
+#bdb_exec "Setting default branch" git config --global init.defaultBranch main
+#bdb_exec "Setting pull strategy" git config --global pull.rebase false
+#bdb_exec "Setting editor" git config --global core.editor "nvim"
 
 # Configure Git to use 1Password for SSH if available
 #if [[ -S "${SSH_AUTH_SOCK:-}" ]]; then
-#    git config --global gpg.format ssh
-#    bdb_outcome "Git configured with 1Password SSH"
+#    bdb_exec "Configuring Git SSH signing" git config --global gpg.format ssh
+#    bdb_success "Git configured with 1Password SSH"
 #else
-#    bdb_outcome "Git configured (1Password SSH not detected)"
+#    bdb_success "Git configured"
 #fi
 
 # -----------------------------------------------------------------------------
-# Neovim Configuration
+# Neovim Configuration (Commented - Lazy.nvim handles this)
 # -----------------------------------------------------------------------------
 
-#bdb_command "Initializing Neovim configuration"
-#if command -v nvim >/dev/null 2>&1; then
-#    # Create necessary directories
-#    mkdir -p "${HOME}/.config/nvim"
-#    mkdir -p "${HOME}/.local/share/nvim"
-#    mkdir -p "${HOME}/.local/state/nvim"
+# Neovim plugin initialization is handled automatically by Lazy.nvim
+# on first nvim run. We just ensure directories exist.
 
-#    # Initialize Neovim plugins (headless)
-#    # This will be done on first nvim run, but we prepare the directories
-#    bdb_outcome "Neovim directories created"
+#bdb_action "Initializing Neovim configuration"
+#if bdb_test_cmd "nvim"; then
+#    # Create necessary directories
+#    bdb_mkdir "${HOME}/.config/nvim" "Failed to create nvim config dir"
+#    bdb_mkdir "${HOME}/.local/share/nvim" "Failed to create nvim data dir"
+#    bdb_mkdir "${HOME}/.local/state/nvim" "Failed to create nvim state dir"
+#
+#    bdb_success "Neovim directories created"
 #else
-#    bdb_alert "Neovim not installed"
+#    bdb_warn "Neovim not installed"
 #fi
 
 # =============================================================================
 # COMPLETION
 # =============================================================================
 
-bdb_info_out "Environment setup complete"
+bdb_success "Environment setup complete"
+
+# Show log file location (either bootstrap log or script-specific log)
+if [[ -n "${BDB_LOG_FILE:-}" ]]; then
+    bdb_var "Log file" "${BDB_LOG_FILE}"
+fi
+
 bdb_info "NOTE: Please log out and log back in for all changes to take effect"
+bdb_end_section
 
 exit 0

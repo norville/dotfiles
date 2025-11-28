@@ -9,21 +9,46 @@
 # Location: .chezmoiscripts/run_onchange_after_01-optional-packages.sh.tmpl
 # =============================================================================
 
-# Source helper functions
+# -----------------------------------------------------------------------------
+# Source Helper Functions
+# -----------------------------------------------------------------------------
 # shellcheck disable=SC1090,SC1091
 source "${HELPERS}"
 
 # -----------------------------------------------------------------------------
+# Initialize Logging
+# -----------------------------------------------------------------------------
+# Set up logging for this script
+# If running under bootstrap, this will detect existing logging and continue with it
+# If running standalone, this will create a new log file
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl)"
+SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/${SCRIPT_NAME}_$(date +%Y%m%d_%H%M%S).log"
+
+# Ensure log directory exists
+mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
+
+# Initialize BDB logging system
+# This will detect if already initialized by bootstrap and skip re-initialization
+bdb_init_logging "${SCRIPT_LOG_FILE}"
+
+# Add a marker to the log to identify this script
+_bdb_log "========================================="
+_bdb_log "Script: ${SCRIPT_NAME}"
+_bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
+_bdb_log "========================================="
+
+# -----------------------------------------------------------------------------
 # Error Handling Configuration
 # -----------------------------------------------------------------------------
-set -euo pipefail              # Strict error handling
-trap 'bdb_handle_error' ERR    # Handle errors automatically
+set -euo pipefail
+trap 'bdb_handle_error' ERR
+trap 'bdb_cleanup' EXIT
 
 # =============================================================================
 # OPTIONAL PACKAGES INSTALLATION
 # =============================================================================
 
-bdb_info_in "Optional packages installation"
+bdb_begin_section "Optional Packages Installation"
 
 # -----------------------------------------------------------------------------
 # 1Password - Password Manager
@@ -31,46 +56,42 @@ bdb_info_in "Optional packages installation"
 if bdb_ask "Do you want to install 1Password"; then
 
 {{- if eq .chezmoi.os "darwin" }}
-    # macOS: 1Password settings
+    bdb_info "1Password should be installed via Homebrew Cask"
+    bdb_info "It may already be in your Brewfile"
 
 {{- else if eq .chezmoi.os "linux" }}
 
 {{- if .isARM }}
     # ARM Architecture: Install from .tar.gz
-    bdb_command "Installing 1Password for ARM architecture"
+    bdb_action "Installing 1Password for ARM architecture"
 
     # Determine ARM architecture variant
     if [[ "{{ .cpuArch }}" == "aarch64" ]] || [[ "{{ .cpuArch }}" == "arm64" ]]; then
         ARCH_URL="https://downloads.1password.com/linux/tar/stable/aarch64/1password-latest.tar.gz"
-        bdb_run "Downloading 1Password (arm64)"
+        bdb_var "Architecture" "arm64"
     else
         bdb_error "Unsupported ARM architecture: {{ .cpuArch }}"
         exit 1
     fi
 
     # Download 1Password tarball
-    curl -sSO "${ARCH_URL}"
-    bdb_outcome "downloaded"
+    bdb_exec "Downloading 1Password" curl -sSO "${ARCH_URL}"
 
     # Extract files
-    bdb_run "Extracting 1Password"
-    tar -xf 1password-latest.tar.gz
-    bdb_outcome "extracted"
+    bdb_exec "Extracting 1Password" tar -xf 1password-latest.tar.gz
 
     # Move to /opt directory
-    bdb_run "Installing to /opt/1Password"
+    bdb_action "Installing to /opt/1Password"
     sudo mkdir -p /opt/1Password
     sudo mv 1password-*/* /opt/1Password/
-    bdb_outcome "files moved"
+    bdb_success "Files moved to /opt/1Password"
 
     # Run installation script
-    bdb_run "Running post-install script"
-    sudo /opt/1Password/after-install.sh
-    bdb_outcome "post-install complete"
+    bdb_exec "Running post-install script" sudo /opt/1Password/after-install.sh
 
     # Create symlink for easy access
     if [[ ! -f /usr/local/bin/1password ]]; then
-        sudo ln -s /opt/1Password/1password /usr/local/bin/1password
+        bdb_exec "Creating symlink" sudo ln -s /opt/1Password/1password /usr/local/bin/1password
     fi
 
     # Clean up downloaded files
@@ -85,37 +106,37 @@ if bdb_ask "Do you want to install 1Password"; then
 
 {{- if eq .packageManager "apt" }}
     # Debian/Ubuntu: Install from official repository
-    bdb_command "Installing 1Password (Debian/Ubuntu)"
+    bdb_action "Installing 1Password (Debian/Ubuntu)"
 
     # Add the key for the 1Password apt repository
-    curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
-        sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg
+    bdb_exec "Adding 1Password GPG key" bash -c "curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
+        sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg"
 
     # Add the 1Password apt repository
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | \
-        sudo tee /etc/apt/sources.list.d/1password.list
+    bdb_exec "Adding 1Password repository" bash -c "echo 'deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main' | \
+        sudo tee /etc/apt/sources.list.d/1password.list"
 
     # Add the debsig-verify policy
-    sudo mkdir -p /etc/debsig/policies/AC2D62742012EA22/
+    bdb_exec "Adding debsig-verify policy" bash -c "sudo mkdir -p /etc/debsig/policies/AC2D62742012EA22/ && \
     curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | \
-        sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol
-    sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22
+        sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol"
+    bdb_exec "Adding debsig keyring" bash -c "sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22 && \
     curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
-        sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg
+        sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg"
 
     # Install packages
-    sudo apt-get update
-    sudo apt-get install -y 1password 1password-cli
+    bdb_exec "Updating package lists" sudo apt-get update
+    bdb_exec "Installing 1Password packages" sudo apt-get install -y 1password 1password-cli
     bdb_success "1Password installed"
 
 {{- else if eq .packageManager "dnf" }}
     # Fedora/RHEL: Install from official repository
-    bdb_command "Installing 1Password (Fedora/RHEL)"
+    bdb_action "Installing 1Password (Fedora/RHEL)"
 
     # Add 1Password repository
-    sudo rpm --import https://downloads.1password.com/linux/keys/1password.asc
+    bdb_exec "Importing 1Password GPG key" sudo rpm --import https://downloads.1password.com/linux/keys/1password.asc
 
-    sudo sh -c 'cat > /etc/yum.repos.d/1password.repo <<EOF
+    bdb_exec "Adding 1Password repository" sudo sh -c 'cat > /etc/yum.repos.d/1password.repo <<EOF
 [1password]
 name=1Password Stable Channel
 baseurl=https://downloads.1password.com/linux/rpm/stable/\$basearch
@@ -126,13 +147,12 @@ gpgkey=https://downloads.1password.com/linux/keys/1password.asc
 EOF'
 
     # Install packages
-    sudo dnf install -y 1password 1password-cli
+    bdb_exec "Installing 1Password packages" sudo dnf install -y 1password 1password-cli
     bdb_success "1Password installed"
 
 {{- else if eq .packageManager "pacman" }}
     # Arch/Manjaro: Install from AUR
-    bdb_command "Installing 1Password (Arch/Manjaro)"
-    yay -S --noconfirm 1password 1password-cli
+    bdb_exec "Installing 1Password (Arch/Manjaro)" yay -S --noconfirm 1password 1password-cli
     bdb_success "1Password installed"
 
 {{- end }}
@@ -140,7 +160,7 @@ EOF'
 {{- end }}
 
 else
-    bdb_alert "Skipping 1Password installation"
+    bdb_warn "Skipping 1Password installation"
 fi
 
 # -----------------------------------------------------------------------------
@@ -149,81 +169,80 @@ fi
 if bdb_ask "Do you want to install Docker"; then
 
 {{- if eq .chezmoi.os "darwin" }}
-    # macOS: Docker settings
+    bdb_info "Docker Desktop should be installed manually from docker.com"
+    bdb_info "Or via Homebrew Cask if in your Brewfile"
 
 {{- else if eq .chezmoi.os "linux" }}
 
 {{- if eq .packageManager "apt" }}
     # Debian/Ubuntu: Install from official Docker repository
-    bdb_command "Installing Docker (Debian/Ubuntu)"
+    bdb_action "Installing Docker (Debian/Ubuntu)"
 
     # Remove old versions
-    sudo apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
+    bdb_exec "Removing old Docker versions" sudo apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
 
     # Add Docker repository
-    sudo apt-get update
-    sudo apt-get install -y ca-certificates curl gnupg lsb-release
-    sudo mkdir -p /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/$(. /etc/os-release && echo "$ID")/gpg | \
-        sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$(. /etc/os-release && echo "$ID") $(lsb_release -cs) stable" | \
-        sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    bdb_exec "Installing prerequisites" sudo apt-get install -y ca-certificates curl gnupg lsb-release
+    bdb_exec "Adding Docker GPG key" bash -c "sudo mkdir -p /etc/apt/keyrings && \
+        curl -fsSL https://download.docker.com/linux/$(. /etc/os-release && echo \"\$ID\")/gpg | \
+        sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
+    bdb_exec "Adding Docker repository" bash -c "echo \
+      'deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$(. /etc/os-release && echo \"\$ID\") \
+      $(lsb_release -cs) stable' | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null"
 
     # Install Docker
-    sudo apt-get update
-    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    bdb_exec "Updating package lists" sudo apt-get update
+    bdb_exec "Installing Docker" sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
     # Add user to docker group
-    sudo usermod -aG docker "${USER}"
+    bdb_exec "Adding user to docker group" sudo usermod -aG docker "${USER}"
 
     bdb_success "Docker installed"
-    bdb_alert "Please log out and back in for group membership to take effect"
+    bdb_warn "Please log out and back in for group membership to take effect"
 
 {{- else if eq .packageManager "dnf" }}
     # Fedora/RHEL: Install from official Docker repository
-    bdb_command "Installing Docker (Fedora/RHEL)"
+    bdb_action "Installing Docker (Fedora/RHEL)"
 
     # Remove old versions
-    sudo dnf remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine 2>/dev/null || true
+    bdb_exec "Removing old Docker versions" sudo dnf remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine 2>/dev/null || true
 
     # Add Docker repository
-    sudo dnf -y install dnf-plugins-core
-    sudo dnf-3 config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+    bdb_exec "Installing DNF plugins" sudo dnf -y install dnf-plugins-core
+    bdb_exec "Adding Docker repository" sudo dnf-3 config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
 
     # Install Docker
-    sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    bdb_exec "Installing Docker" sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
     # Start and enable Docker
-    sudo systemctl start docker
-    sudo systemctl enable docker
+    bdb_exec "Starting Docker service" sudo systemctl start docker
+    bdb_exec "Enabling Docker service" sudo systemctl enable docker
 
     # Add user to docker group
-    sudo usermod -aG docker "${USER}"
+    bdb_exec "Adding user to docker group" sudo usermod -aG docker "${USER}"
 
     bdb_success "Docker installed"
-    bdb_alert "Please log out and back in for group membership to take effect"
+    bdb_warn "Please log out and back in for group membership to take effect"
 
 {{- else if eq .packageManager "pacman" }}
     # Arch/Manjaro: Install from official repositories
-    bdb_command "Installing Docker (Arch/Manjaro)"
-    sudo pacman -S --needed --noconfirm docker docker-compose
+    bdb_exec "Installing Docker (Arch/Manjaro)" sudo pacman -S --needed --noconfirm docker docker-compose
 
     # Start and enable Docker
-    sudo systemctl start docker.service
-    sudo systemctl enable docker.service
+    bdb_exec "Starting Docker service" sudo systemctl start docker.service
+    bdb_exec "Enabling Docker service" sudo systemctl enable docker.service
 
     # Add user to docker group
-    sudo usermod -aG docker "${USER}"
+    bdb_exec "Adding user to docker group" sudo usermod -aG docker "${USER}"
 
     bdb_success "Docker installed"
-    bdb_alert "Please log out and back in for group membership to take effect"
+    bdb_warn "Please log out and back in for group membership to take effect"
 
 {{- end }}
 {{- end }}
 
 else
-    bdb_alert "Skipping Docker installation"
+    bdb_warn "Skipping Docker installation"
 fi
 
 # -----------------------------------------------------------------------------
@@ -232,34 +251,33 @@ fi
 if bdb_ask "Do you want to install Visual Studio Code"; then
 
 {{- if eq .chezmoi.os "darwin" }}
-    # macOS: VSCode settings
+    bdb_info "VS Code should be installed via Homebrew Cask"
 
 {{- else if eq .chezmoi.os "linux" }}
 
 {{- if eq .packageManager "apt" }}
     # Debian/Ubuntu: Install from Microsoft repository
-    bdb_command "Installing Visual Studio Code (Debian/Ubuntu)"
+    bdb_action "Installing Visual Studio Code (Debian/Ubuntu)"
 
-    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | \
-        gpg --dearmor > packages.microsoft.gpg
-    sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
+    bdb_exec "Adding Microsoft GPG key" bash -c "wget -qO- https://packages.microsoft.com/keys/microsoft.asc | \
+        gpg --dearmor > packages.microsoft.gpg && \
+        sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg && \
+        rm -f packages.microsoft.gpg"
 
-    echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" | \
-        sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
+    bdb_exec "Adding VS Code repository" bash -c "echo \
+      'deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main' | \
+      sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null"
 
-    rm -f packages.microsoft.gpg
-
-    sudo apt-get update
-    sudo apt-get install -y code
+    bdb_exec "Installing VS Code" bash -c "sudo apt-get update && sudo apt-get install -y code"
     bdb_success "Visual Studio Code installed"
 
 {{- else if eq .packageManager "dnf" }}
     # Fedora/RHEL: Install from Microsoft repository
-    bdb_command "Installing Visual Studio Code (Fedora/RHEL)"
+    bdb_action "Installing Visual Studio Code (Fedora/RHEL)"
 
-    sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+    bdb_exec "Importing Microsoft GPG key" sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
 
-    sudo sh -c 'cat > /etc/yum.repos.d/vscode.repo <<EOF
+    bdb_exec "Adding VS Code repository" sudo sh -c 'cat > /etc/yum.repos.d/vscode.repo <<EOF
 [code]
 name=Visual Studio Code
 baseurl=https://packages.microsoft.com/yumrepos/vscode
@@ -268,20 +286,19 @@ gpgcheck=1
 gpgkey=https://packages.microsoft.com/keys/microsoft.asc
 EOF'
 
-    sudo dnf install -y code
+    bdb_exec "Installing VS Code" sudo dnf install -y code
     bdb_success "Visual Studio Code installed"
 
 {{- else if eq .packageManager "pacman" }}
     # Arch/Manjaro: Install from AUR
-    bdb_command "Installing Visual Studio Code (Arch/Manjaro)"
-    yay -S --noconfirm visual-studio-code-bin
+    bdb_exec "Installing Visual Studio Code (Arch/Manjaro)" yay -S --noconfirm visual-studio-code-bin
     bdb_success "Visual Studio Code installed"
 
 {{- end }}
 {{- end }}
 
 else
-    bdb_alert "Skipping Visual Studio Code installation"
+    bdb_warn "Skipping Visual Studio Code installation"
 fi
 
 # -----------------------------------------------------------------------------
@@ -291,53 +308,46 @@ if bdb_ask "Do you want to install Ansible"; then
 
 {{- if eq .chezmoi.os "darwin" }}
     # macOS: Install via Homebrew
-    bdb_command "Installing Ansible (macOS)"
-    brew install ansible
+    bdb_exec "Installing Ansible (macOS)" brew install ansible
     bdb_success "Ansible installed"
 
 {{- else if eq .chezmoi.os "linux" }}
 
 {{- if eq .packageManager "apt" }}
     # Debian/Ubuntu: Install from official PPA
-    bdb_command "Installing Ansible (Debian/Ubuntu)"
+    bdb_action "Installing Ansible (Debian/Ubuntu)"
 
     # Add Ansible PPA
-    sudo apt-get install -y software-properties-common
-    sudo add-apt-repository --yes --update ppa:ansible/ansible
+    bdb_exec "Adding Ansible PPA" sudo apt-get install -y software-properties-common
+    bdb_exec "Adding Ansible repository" sudo add-apt-repository --yes --update ppa:ansible/ansible
 
     # Install Ansible
-    sudo apt-get update
-    sudo apt-get install -y ansible
+    bdb_exec "Installing Ansible" sudo apt-get install -y ansible python3-pip python3-argcomplete
 
-    # Install additional Python dependencies for Ansible
-    sudo apt-get install -y python3-pip python3-argcomplete
-
-    # Enable Ansible command completion
-    sudo activate-global-python-argcomplete3 2>/dev/null || true
+    # Enable command completion
+    bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete3 2>/dev/null || true
 
     bdb_success "Ansible installed"
 
 {{- else if eq .packageManager "dnf" }}
     # Fedora/RHEL: Install from official repositories
-    bdb_command "Installing Ansible (Fedora/RHEL)"
+    bdb_action "Installing Ansible (Fedora/RHEL)"
 
-    # Install Ansible and dependencies
-    sudo dnf install -y ansible python3-pip python3-argcomplete
+    bdb_exec "Installing Ansible" sudo dnf install -y ansible python3-pip python3-argcomplete
 
-    # Enable Ansible command completion
-    sudo activate-global-python-argcomplete 2>/dev/null || true
+    # Enable command completion
+    bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete 2>/dev/null || true
 
     bdb_success "Ansible installed"
 
 {{- else if eq .packageManager "pacman" }}
     # Arch/Manjaro: Install from official repositories
-    bdb_command "Installing Ansible (Arch/Manjaro)"
+    bdb_action "Installing Ansible (Arch/Manjaro)"
 
-    # Install Ansible and dependencies
-    sudo pacman -S --needed --noconfirm ansible python-pip python-argcomplete
+    bdb_exec "Installing Ansible" sudo pacman -S --needed --noconfirm ansible python-pip python-argcomplete
 
-    # Enable Ansible command completion
-    sudo activate-global-python-argcomplete 2>/dev/null || true
+    # Enable command completion
+    bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete 2>/dev/null || true
 
     bdb_success "Ansible installed"
 
@@ -346,35 +356,39 @@ if bdb_ask "Do you want to install Ansible"; then
 
     # Post-installation: Install common Ansible collections
     if bdb_ask "Install common Ansible collections (community.general, ansible.posix)"; then
-        bdb_command "Installing Ansible collections"
+        bdb_action "Installing Ansible collections"
 
-        # Install commonly used Ansible collections
-        ansible-galaxy collection install community.general --upgrade 2>/dev/null || true
-        ansible-galaxy collection install ansible.posix --upgrade 2>/dev/null || true
-        ansible-galaxy collection install community.docker --upgrade 2>/dev/null || true
+        # Install commonly used collections
+        bdb_exec "Installing community.general" ansible-galaxy collection install community.general --upgrade 2>/dev/null || true
+        bdb_exec "Installing ansible.posix" ansible-galaxy collection install ansible.posix --upgrade 2>/dev/null || true
+        bdb_exec "Installing community.docker" ansible-galaxy collection install community.docker --upgrade 2>/dev/null || true
 
         bdb_success "Ansible collections installed"
     else
-        bdb_alert "Skipping Ansible collections installation"
+        bdb_warn "Skipping Ansible collections installation"
     fi
 
     # Verify Ansible installation
-    bdb_command "Verifying Ansible installation"
-    if command -v ansible >/dev/null 2>&1; then
+    if bdb_test_cmd "ansible"; then
         ansible_version="$(ansible --version | head -n1)"
-        bdb_outcome "${ansible_version}"
-    else
-        bdb_error "Ansible installation verification failed"
+        bdb_var "Ansible version" "${ansible_version}"
     fi
 
 else
-    bdb_alert "Skipping Ansible installation"
+    bdb_warn "Skipping Ansible installation"
 fi
 
 # =============================================================================
 # COMPLETION
 # =============================================================================
 
-bdb_info_out "Optional packages installation complete"
+bdb_success "Optional packages installation complete"
+
+# Show log file location (either bootstrap log or script-specific log)
+if [[ -n "${BDB_LOG_FILE:-}" ]]; then
+    bdb_var "Log file" "${BDB_LOG_FILE}"
+fi
+
+bdb_end_section
 
 exit 0

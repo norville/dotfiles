@@ -6,32 +6,48 @@
 # Only runs after chezmoi update command, not on regular apply
 #
 # Execution: Runs after 'chezmoi update' via hooks configuration
-# Location: .chezmoiscripts/run_after_update_env.sh.tmpl
+# Location: .chezmoiscripts/run_after_03-env-update.sh.tmpl
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Setup File Descriptors for Helper Functions
+# Source Helper Functions
 # -----------------------------------------------------------------------------
-# The BDB helper functions use FD3 for user-facing output
-# We need to set this up before sourcing the helpers
-if [[ ! -t 3 ]]; then
-    exec 3>&1  # Redirect FD3 to stdout if not already set
-fi
-
-# Source helper functions
 source "${HELPERS}"
+
+# -----------------------------------------------------------------------------
+# Initialize Logging
+# -----------------------------------------------------------------------------
+# Set up logging for this script
+# If running under bootstrap, this will detect existing logging and continue with it
+# If running standalone, this will create a new log file
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl)"
+SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/${SCRIPT_NAME}_$(date +%Y%m%d_%H%M%S).log"
+
+# Ensure log directory exists
+mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
+
+# Initialize BDB logging system
+# This will detect if already initialized by bootstrap and skip re-initialization
+bdb_init_logging "${SCRIPT_LOG_FILE}"
+
+# Add a marker to the log to identify this script
+_bdb_log "========================================="
+_bdb_log "Script: ${SCRIPT_NAME}"
+_bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
+_bdb_log "========================================="
 
 # -----------------------------------------------------------------------------
 # Error Handling Configuration
 # -----------------------------------------------------------------------------
-set -euo pipefail              # Strict error handling
-trap 'bdb_handle_error' ERR    # Handle errors automatically
+set -euo pipefail
+trap 'bdb_handle_error' ERR
+trap 'bdb_cleanup' EXIT
 
 # =============================================================================
 # SYSTEM UPDATE
 # =============================================================================
 
-bdb_info_in "Running environment update after chezmoi update"
+bdb_begin_section "Environment Update After Chezmoi Update"
 
 {{- /* ========================================================================== */ -}}
 {{- /* macOS Updates                                                              */ -}}
@@ -44,26 +60,24 @@ bdb_info_in "Running environment update after chezmoi update"
 
 # Optional cleanup before upgrade
 if bdb_ask "Remove unused Homebrew formulae before upgrading"; then
-    bdb_command "Cleaning up Homebrew"
+    bdb_action "Cleaning up Homebrew"
 
     if [[ -f "${HOME}/.config/homebrew/Brewfile" ]]; then
-        brew bundle cleanup --force --file="${HOME}/.config/homebrew/Brewfile"
+        bdb_exec "Running bundle cleanup" brew bundle cleanup --force --file="${HOME}/.config/homebrew/Brewfile"
     fi
 
-    brew autoremove
-    brew cleanup --prune=all
+    bdb_exec "Removing unused formulae" brew autoremove
+    bdb_exec "Cleaning cache" brew cleanup --prune=all
     bdb_success "Homebrew cleanup complete"
 fi
 
 # Update and upgrade Homebrew packages
-bdb_command "Updating Homebrew packages"
-brew update
-brew upgrade
+bdb_exec "Updating Homebrew" brew update
+bdb_exec "Upgrading Homebrew packages" brew upgrade
 bdb_success "Homebrew packages updated"
 
 # Update Homebrew casks
-bdb_command "Updating Homebrew casks"
-brew upgrade --cask --greedy
+bdb_exec "Upgrading Homebrew casks" brew upgrade --cask --greedy
 bdb_success "Homebrew casks updated"
 
 {{- /* ========================================================================== */ -}}
@@ -78,56 +92,50 @@ bdb_success "Homebrew casks updated"
 {{- if eq .packageManager "apt" }}
 
 # Debian/Ubuntu: APT updates
-bdb_command "Updating APT packages"
-sudo apt-get update
-sudo apt-get full-upgrade -y
-sudo apt-get autoremove --purge -y
-sudo apt-get clean
+bdb_exec "Updating package lists" sudo apt-get update
+bdb_exec "Upgrading packages" sudo apt-get full-upgrade -y
+bdb_exec "Removing unused packages" sudo apt-get autoremove --purge -y
+bdb_exec "Cleaning package cache" sudo apt-get clean
 bdb_success "APT packages updated"
 
 # Update Snap packages if installed
-if command -v snap >/dev/null 2>&1; then
-    bdb_command "Updating Snap packages"
-    sudo snap refresh
+if bdb_test_cmd "snap"; then
+    bdb_exec "Updating Snap packages" sudo snap refresh
     bdb_success "Snap packages updated"
 fi
 
 {{- else if eq .packageManager "dnf" }}
 
 # Fedora/RHEL: DNF updates
-bdb_command "Updating DNF packages"
-sudo dnf upgrade --refresh -y
-sudo dnf autoremove -y
-sudo dnf clean all
+bdb_exec "Upgrading packages" sudo dnf upgrade --refresh -y
+bdb_exec "Removing unused packages" sudo dnf autoremove -y
+bdb_exec "Cleaning package cache" sudo dnf clean all
 bdb_success "DNF packages updated"
 
 # Update Flatpak if installed
-if command -v flatpak >/dev/null 2>&1; then
-    bdb_command "Updating Flatpak packages"
-    flatpak update -y
+if bdb_test_cmd "flatpak"; then
+    bdb_exec "Updating Flatpak packages" flatpak update -y
     bdb_success "Flatpak packages updated"
 fi
 
 {{- else if eq .packageManager "pacman" }}
 
 # Arch/Manjaro: Pacman updates
-bdb_command "Updating Pacman packages"
-sudo pacman -Syu --noconfirm
+bdb_exec "Updating system packages" sudo pacman -Syu --noconfirm
 
 # Clean orphaned packages
 orphans="$(pacman -Qdtq 2>/dev/null || true)"
 if [[ -n "${orphans}" ]]; then
-    echo "${orphans}" | sudo pacman -Rns --noconfirm -
+    bdb_exec "Removing orphaned packages" bash -c "echo '${orphans}' | sudo pacman -Rns --noconfirm -"
 fi
 
 # Clean package cache
-sudo pacman -Scc --noconfirm
+bdb_exec "Cleaning package cache" sudo pacman -Scc --noconfirm
 bdb_success "Pacman packages updated"
 
 # Update AUR packages if yay is installed
-if command -v yay >/dev/null 2>&1; then
-    bdb_command "Updating AUR packages"
-    yay -Syu --noconfirm
+if bdb_test_cmd "yay"; then
+    bdb_exec "Updating AUR packages" yay -Syu --noconfirm
     bdb_success "AUR packages updated"
 fi
 
@@ -141,21 +149,21 @@ fi
 # -----------------------------------------------------------------------------
 # Update ZSH Plugins (Antidote)
 # -----------------------------------------------------------------------------
-bdb_command "Updating ZSH plugins"
+bdb_action "Updating ZSH plugins"
 
-if command -v antidote >/dev/null 2>&1; then
+if bdb_test_cmd "antidote"; then
     # Update Antidote itself
     antidote_dir="${ZDOTDIR:-$HOME}/.antidote"
     if [[ -d "${antidote_dir}" ]]; then
-        (cd "${antidote_dir}" && git pull --quiet) || true
+        bdb_exec "Updating Antidote" bash -c "(cd '${antidote_dir}' && git pull --quiet)" || true
     fi
 
     # Update plugins
-    antidote update 2>/dev/null || true
+    bdb_exec "Updating ZSH plugins" antidote update 2>/dev/null || true
 
     bdb_success "ZSH plugins updated"
 else
-    bdb_alert "Antidote not found - skipping plugin updates"
+    bdb_warn "Antidote not found - skipping plugin updates"
 fi
 
 # =============================================================================
@@ -165,17 +173,13 @@ fi
 # -----------------------------------------------------------------------------
 # Update bat Themes
 # -----------------------------------------------------------------------------
-bdb_command "Rebuilding bat theme cache"
-
 {{- if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") }}
-if command -v batcat >/dev/null 2>&1; then
-    batcat cache --build >/dev/null 2>&1
-    bdb_outcome "bat cache rebuilt"
+if bdb_test_cmd "batcat"; then
+    bdb_exec "Rebuilding bat theme cache" batcat cache --build >/dev/null 2>&1
 fi
 {{- else }}
-if command -v bat >/dev/null 2>&1; then
-    bat cache --build >/dev/null 2>&1
-    bdb_outcome "bat cache rebuilt"
+if bdb_test_cmd "bat"; then
+    bdb_exec "Rebuilding bat theme cache" bat cache --build >/dev/null 2>&1
 fi
 {{- end }}
 
@@ -187,10 +191,8 @@ fi
 # -----------------------------------------------------------------------------
 # Update Font Cache (Linux)
 # -----------------------------------------------------------------------------
-bdb_command "Updating font cache"
-if command -v fc-cache >/dev/null 2>&1; then
-    fc-cache -fv >/dev/null 2>&1
-    bdb_outcome "font cache updated"
+if bdb_test_cmd "fc-cache"; then
+    bdb_exec "Updating font cache" fc-cache -fv >/dev/null 2>&1
 fi
 
 {{- end }}
@@ -199,15 +201,14 @@ fi
 # COMPLETION
 # =============================================================================
 
-bdb_info_out "Environment update complete"
-bdb_info "All packages and tools have been updated successfully"
+bdb_success "Environment update complete"
 
-# -----------------------------------------------------------------------------
-# Cleanup File Descriptors
-# -----------------------------------------------------------------------------
-# Close FD3 if we opened it
-if [[ -t 3 ]]; then
-    exec 3>&-
+# Show log file location (either bootstrap log or script-specific log)
+if [[ -n "${BDB_LOG_FILE:-}" ]]; then
+    bdb_var "Log file" "${BDB_LOG_FILE}"
 fi
+
+bdb_info "All packages and tools have been updated successfully"
+bdb_end_section
 
 exit 0
