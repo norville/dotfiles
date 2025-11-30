@@ -483,18 +483,16 @@ if bdb_ask "Do you want to install Ansible"; then
 {{- end }}
 {{- end }}
 
-    # Post-installation: Install common Ansible collections
-    if bdb_ask "Install common Ansible collections (community.general, ansible.posix)"; then
-        bdb_action "Installing Ansible collections"
+    # Post-installation: Install Ansible extra collections
+    if bdb_ask "Install Ansible extra collections (community.docker)"; then
+        bdb_action "Installing Ansible extra collections"
 
-        # Install commonly used collections
-        bdb_exec "Installing community.general" ansible-galaxy collection install community.general --upgrade 2>/dev/null || true
-        bdb_exec "Installing ansible.posix" ansible-galaxy collection install ansible.posix --upgrade 2>/dev/null || true
+        # Install extra collections
         bdb_exec "Installing community.docker" ansible-galaxy collection install community.docker --upgrade 2>/dev/null || true
 
-        bdb_success "Ansible collections installed"
+        bdb_success "Ansible extra collections installed"
     else
-        bdb_warn "Skipping Ansible collections installation"
+        bdb_warn "Skipping Ansible extra collections installation"
     fi
 
     # Verify Ansible installation
