@@ -239,24 +239,20 @@ if bdb_ask "Do you want to install Docker"; then
 
 {{- if eq .osid "linux-ubuntu" }}
     # Ubuntu: Use UBUNTU_CODENAME with VERSION_CODENAME fallback
-    DOCKER_CODENAME="$(. /etc/os-release && echo ${UBUNTU_CODENAME:-$VERSION_CODENAME})"
-
-    bdb_exec "Adding Docker repository (Ubuntu)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<'DOCKER_REPO_EOF'
+    bdb_exec "Adding Docker repository (Ubuntu)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<DOCKER_REPO_EOF
 Types: deb
 URIs: https://download.docker.com/linux/ubuntu
-Suites: "${DOCKER_CODENAME}"
+Suites: $(. /etc/os-release && echo ${UBUNTU_CODENAME:-$VERSION_CODENAME})
 Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
 DOCKER_REPO_EOF
 
 {{- else if eq .osid "linux-debian" }}
     # Debian: Use VERSION_CODENAME from /etc/os-release
-    DOCKER_CODENAME="$(. /etc/os-release && echo ${VERSION_CODENAME})"
-
-    bdb_exec "Adding Docker repository (Debian)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<'DOCKER_REPO_EOF'
+    bdb_exec "Adding Docker repository (Debian)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<DOCKER_REPO_EOF
 Types: deb
 URIs: https://download.docker.com/linux/debian
-Suites: "${DOCKER_CODENAME}"
+Suites: $(. /etc/os-release && echo ${VERSION_CODENAME})
 Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
 DOCKER_REPO_EOF
