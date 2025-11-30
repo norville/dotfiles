@@ -439,7 +439,7 @@ if bdb_ask "Do you want to install Ansible"; then
         fi
 
         # Enable command completion
-        bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete3 2>/dev/null || true
+        bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete 2>/dev/null || true
 
         bdb_success "Ansible installed via pipx"
         bdb_info "You may need to restart your shell for pipx PATH to take effect"
