@@ -191,7 +191,8 @@ if bdb_ask "Do you want to install Docker"; then
     # --------------------------------------------------------------------------
     # Remove Old/Conflicting Versions
     # --------------------------------------------------------------------------
-    bdb_exec "Removing old Docker versions" sudo apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
+    bdb_exec "Removing old Docker versions" sudo apt remove $(dpkg --get-selections \
+        docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1)
 
     # --------------------------------------------------------------------------
     # Install Prerequisites
@@ -216,9 +217,6 @@ if bdb_ask "Do you want to install Docker"; then
 {{- else if eq .osid "linux-debian" }}
     # Debian: Download GPG key from Debian-specific repository
     bdb_exec "Adding Docker GPG key (Debian)" sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-{{- else }}
-    # Other Debian derivatives: Auto-detect from /etc/os-release ID field
-    bdb_exec "Adding Docker GPG key" sudo curl -fsSL https://download.docker.com/linux/$(. /etc/os-release && echo "$ID")/gpg -o /etc/apt/keyrings/docker.asc
 {{- end }}
 
     # Set proper permissions on GPG key
@@ -241,33 +239,28 @@ if bdb_ask "Do you want to install Docker"; then
 
 {{- if eq .osid "linux-ubuntu" }}
     # Ubuntu: Use UBUNTU_CODENAME with VERSION_CODENAME fallback
+    DOCKER_CODENAME="$(. /etc/os-release && echo ${UBUNTU_CODENAME:-$VERSION_CODENAME})"
+
     bdb_exec "Adding Docker repository (Ubuntu)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<'DOCKER_REPO_EOF'
 Types: deb
 URIs: https://download.docker.com/linux/ubuntu
-Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Suites: "${DOCKER_CODENAME}"
 Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
 DOCKER_REPO_EOF
 
 {{- else if eq .osid "linux-debian" }}
     # Debian: Use VERSION_CODENAME from /etc/os-release
+    DOCKER_CODENAME="$(. /etc/os-release && echo ${VERSION_CODENAME})"
+
     bdb_exec "Adding Docker repository (Debian)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<'DOCKER_REPO_EOF'
 Types: deb
 URIs: https://download.docker.com/linux/debian
-Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
+Suites: "${DOCKER_CODENAME}"
 Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
 DOCKER_REPO_EOF
 
-{{- else }}
-    # Other Debian derivatives: Auto-detect distribution ID
-    bdb_exec "Adding Docker repository" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<'DOCKER_REPO_EOF'
-Types: deb
-URIs: https://download.docker.com/linux/$(. /etc/os-release && echo "$ID")
-Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
-Components: stable
-Signed-By: /etc/apt/keyrings/docker.asc
-DOCKER_REPO_EOF
 {{- end }}
 
     # --------------------------------------------------------------------------
