@@ -175,53 +175,140 @@ if bdb_ask "Do you want to install Docker"; then
 {{- else if eq .chezmoi.os "linux" }}
 
 {{- if eq .packageManager "apt" }}
-    # Debian/Ubuntu: Install from official Docker repository
-    bdb_action "Installing Docker (Debian/Ubuntu)"
+    # ==========================================================================
+    # Debian/Ubuntu: Install from Official Docker Repository
+    # ==========================================================================
+    # Official documentation:
+    #   Ubuntu: https://docs.docker.com/engine/install/ubuntu/
+    #   Debian: https://docs.docker.com/engine/install/debian/
+    #
+    # Uses modern DEB822 repository format (.sources file)
+    # Uses /etc/os-release variables instead of lsb_release command
+    # ==========================================================================
 
-    # Remove old versions
-    bdb_exec "Removing old Docker versions" sudo apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
+    bdb_command "Installing Docker (Debian/Ubuntu)"
 
-    # Install prerequisites
-    bdb_exec "Installing prerequisites" sudo apt-get install -y ca-certificates curl gnupg
+    # --------------------------------------------------------------------------
+    # Remove Old/Conflicting Versions
+    # --------------------------------------------------------------------------
+    # Remove unofficial packages that may conflict with official Docker packages
+    # Packages to remove: docker.io, docker-compose, docker-doc, podman-docker, containerd, runc
+    sudo apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
 
-    # Add Docker's official GPG key
-    bdb_action "Adding Docker GPG key"
+    # --------------------------------------------------------------------------
+    # Install Prerequisites
+    # --------------------------------------------------------------------------
+    sudo apt-get update
+    sudo apt-get install -y ca-certificates curl
+
+    # Create directory for apt keyrings (modern Debian/Ubuntu practice)
+    # install -m 0755 -d creates directory with specific permissions
     sudo install -m 0755 -d /etc/apt/keyrings
 
+    # --------------------------------------------------------------------------
+    # Add Docker's GPG Key
+    # --------------------------------------------------------------------------
+    # GPG key location differs between Ubuntu and Debian:
+    #   - Ubuntu: https://download.docker.com/linux/ubuntu/gpg
+    #   - Debian: https://download.docker.com/linux/debian/gpg
+    #
+    # Using .asc extension (ASCII-armored) as per official documentation
+    # --------------------------------------------------------------------------
+
 {{- if eq .osid "linux-ubuntu" }}
-    # Ubuntu specific GPG key URL
-    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-    sudo chmod a+r /etc/apt/keyrings/docker.asc
-    bdb_success "Docker GPG key added for Ubuntu"
-
-    # Add Docker repository for Ubuntu
-    bdb_exec "Adding Docker repository" bash -c "echo \
-      'deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-      $(. /etc/os-release && echo \"\$VERSION_CODENAME\") stable' | \
-      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null"
-
+    # Ubuntu: Download GPG key from Ubuntu-specific repository
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+        -o /etc/apt/keyrings/docker.asc
 {{- else if eq .osid "linux-debian" }}
-    # Debian specific GPG key URL
-    sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-    sudo chmod a+r /etc/apt/keyrings/docker.asc
-    bdb_success "Docker GPG key added for Debian"
-
-    # Add Docker repository for Debian
-    bdb_exec "Adding Docker repository" bash -c "echo \
-      'deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
-      $(. /etc/os-release && echo \"\$VERSION_CODENAME\") stable' | \
-      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null"
+    # Debian: Download GPG key from Debian-specific repository
+    sudo curl -fsSL https://download.docker.com/linux/debian/gpg \
+        -o /etc/apt/keyrings/docker.asc
+{{- else }}
+    # Other Debian derivatives: Auto-detect from /etc/os-release ID field
+    # This covers Pop!_OS, Linux Mint, and other Ubuntu/Debian derivatives
+    sudo curl -fsSL https://download.docker.com/linux/$(. /etc/os-release && echo "$ID")/gpg \
+        -o /etc/apt/keyrings/docker.asc
 {{- end }}
 
-    # Install Docker
-    bdb_exec "Updating package lists" sudo apt-get update
-    bdb_exec "Installing Docker" sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    # Set proper permissions on GPG key (readable by all)
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-    # Add user to docker group
-    bdb_exec "Adding user to docker group" sudo usermod -aG docker "${USER}"
+    # --------------------------------------------------------------------------
+    # Add Docker Repository (DEB822 Format)
+    # --------------------------------------------------------------------------
+    # Modern DEB822 format (.sources file) instead of old one-line format
+    # Official Docker documentation uses this format as of 2024
+    #
+    # Codename detection:
+    #   - Ubuntu: ${UBUNTU_CODENAME:-$VERSION_CODENAME}
+    #     * Tries UBUNTU_CODENAME first (e.g., "noble", "jammy")
+    #     * Falls back to VERSION_CODENAME for Ubuntu derivatives
+    #   - Debian: $VERSION_CODENAME (e.g., "bookworm", "bullseye")
+    #
+    # IMPORTANT: Variables must be escaped (\$) in Chezmoi templates
+    # so they are evaluated at runtime, not during template processing
+    # --------------------------------------------------------------------------
+
+{{- if eq .osid "linux-ubuntu" }}
+    # Ubuntu: Use UBUNTU_CODENAME with VERSION_CODENAME fallback
+    sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<'EOF'
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+{{- else if eq .osid "linux-debian" }}
+    # Debian: Use VERSION_CODENAME from /etc/os-release
+    sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<'EOF'
+Types: deb
+URIs: https://download.docker.com/linux/debian
+Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+{{- else }}
+    # Other Debian derivatives (Pop!_OS, Linux Mint, Kali, etc.)
+    # Auto-detect distribution ID and use VERSION_CODENAME
+    sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<'EOF'
+Types: deb
+URIs: https://download.docker.com/linux/$(. /etc/os-release && echo "$ID")
+Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+{{- end }}
+
+    # --------------------------------------------------------------------------
+    # Install Docker Packages
+    # --------------------------------------------------------------------------
+    # Update package index to include Docker repository
+    sudo apt-get update
+
+    # Install Docker Engine and all components:
+    #   - docker-ce: Docker Engine (Community Edition)
+    #   - docker-ce-cli: Docker command-line interface
+    #   - containerd.io: Container runtime
+    #   - docker-buildx-plugin: Extended build capabilities
+    #   - docker-compose-plugin: Docker Compose V2
+    sudo apt-get install -y \
+        docker-ce \
+        docker-ce-cli \
+        containerd.io \
+        docker-buildx-plugin \
+        docker-compose-plugin
+
+    # --------------------------------------------------------------------------
+    # Post-Installation: Add User to Docker Group
+    # --------------------------------------------------------------------------
+    # Allows running docker commands without sudo
+    # Note: User must log out and back in for group membership to take effect
+    sudo usermod -aG docker "${USER}"
 
     bdb_success "Docker installed"
-    bdb_warn "Please log out and back in for group membership to take effect"
+    bdb_alert "Please log out and back in for group membership to take effect"
 
 {{- else if eq .packageManager "dnf" }}
     # Fedora/RHEL: Install from official Docker repository
