@@ -432,6 +432,12 @@ if bdb_ask "Do you want to install Ansible"; then
         # Install Ansible via pipx
         bdb_exec "Installing Ansible via pipx" pipx install --include-deps ansible
 
+        # Ensure ~/.local/bin is in PATH for current session
+        if [[ -d "${HOME}/.local/bin" ]] && [[ ":$PATH:" != *":${HOME}/.local/bin:"* ]]; then
+            export PATH="${HOME}/.local/bin:$PATH"
+            bdb_info "Added ~/.local/bin to PATH for current session"
+        fi
+
         # Enable command completion
         bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete3 2>/dev/null || true
 
