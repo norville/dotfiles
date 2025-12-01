@@ -16,44 +16,22 @@
 [".config/bat/themes/tokyonight_moon.tmTheme"]
     type = "file"
     url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/sublime/tokyonight_moon.tmTheme"
-    refreshPeriod = "168h"  # Refresh weekly
+    refreshPeriod = "720h"  # Refresh weekly
     executable = false
 
 # Tokyo Night theme for eza (ls replacement)
 [".config/eza/theme.yml"]
     type = "file"
     url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/eza/tokyonight_moon.yml"
-    refreshPeriod = "168h"
+    refreshPeriod = "720h"
     executable = false
 
 # Tokyo Night theme for btop (system monitor)
 [".config/btop/themes/tokyonight_moon.theme"]
     type = "file"
     url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/btop/tokyonight_moon.theme"
-    refreshPeriod = "168h"
+    refreshPeriod = "720h"
     executable = false
-
-# -----------------------------------------------------------------------------
-# Neovim Configuration (LazyVim)
-# -----------------------------------------------------------------------------
-# LazyVim starter configuration (optional - uncomment if needed)
-# [".config/nvim"]
-#     type = "archive"
-#     url = "https://github.com/LazyVim/starter/archive/main.tar.gz"
-#     stripComponents = 1
-#     refreshPeriod = "168h"
-
-# -----------------------------------------------------------------------------
-# Shell Plugins and Tools
-# -----------------------------------------------------------------------------
-# Additional shell enhancements
-
-# Starship prompt configuration examples (optional)
-# [".config/starship/presets/tokyo-night.toml"]
-#     type = "file"
-#     url = "https://starship.rs/presets/toml/tokyo-night.toml"
-#     refreshPeriod = "168h"
-#     executable = false
 
 {{- /* ========================================================================== */ -}}
 {{- /* macOS-Specific External Files                                              */ -}}
@@ -78,11 +56,13 @@
 # Nerd Font (JetBrains Mono)
 {{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
 # For distributions without Nerd Fonts in repositories
-[".local/share/fonts/JetBrainsMonoNerdFont-Regular.ttf"]
-    type = "file"
-    url = "https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/JetBrainsMono/Ligatures/Regular/JetBrainsMonoNerdFont-Regular.ttf"
+[".local/share/fonts"]
+    type = "archive"
+    url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
+    exact = true
+    stripComponents = 1
     refreshPeriod = "720h"  # Refresh monthly
-    executable = false
+    include = ["*.ttf"]     # Extract only TTF files
 {{- end }}
 
 {{- end }}

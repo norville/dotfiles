@@ -191,6 +191,9 @@ PACMAN_PACKAGES=(
 # Install Pacman packages
 bdb_exec "Installing Pacman packages" sudo pacman -S --needed --noconfirm "${PACMAN_PACKAGES[@]}"
 
+# -----------------------------------------------------------------------------
+# AUR Package List (Arch/Manjaro)
+# -----------------------------------------------------------------------------
 # Install yay (AUR helper) if not present
 if ! bdb_test_cmd "yay"; then
     bdb_action "Installing yay (AUR helper)"

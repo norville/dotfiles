@@ -70,24 +70,20 @@ else
 fi
 {{- end }}
 
-# Configure eza (modern ls replacement)
+# Verify eza (modern ls replacement) theme installation
 bdb_action "Verifying eza theme installation"
 if [[ -f "${HOME}/.config/eza/theme.yml" ]]; then
     bdb_success "eza theme configured"
 else
-    bdb_warn "eza theme not found - will be downloaded by chezmoi external"
+    bdb_warn "eza theme not found, check chezmoi external"
 fi
 
-# Configure btop (system monitor)
+# Verify btop (system monitor) theme installation
 bdb_action "Verifying btop theme installation"
 if [[ -f "${HOME}/.config/btop/themes/tokyonight_moon.theme" ]]; then
-    # Set theme in btop config if it exists
-    if [[ -f "${HOME}/.config/btop/btop.conf" ]]; then
-        bdb_exec "Setting btop theme" sed -i 's/^color_theme = .*/color_theme = "tokyonight_moon"/' "${HOME}/.config/btop/btop.conf" 2>/dev/null || true
-    fi
     bdb_success "btop theme configured"
 else
-    bdb_warn "btop theme not found - will be downloaded by chezmoi external"
+    bdb_warn "btop theme not found, check chezmoi external"
 fi
 
 {{- /* ========================================================================== */ -}}
@@ -96,12 +92,12 @@ fi
 {{- if eq .chezmoi.os "linux" }}
 
 # -----------------------------------------------------------------------------
-# Shell Configuration
+# Linux-Specific Configuration
 # -----------------------------------------------------------------------------
 
+# Verify ZSH as default login shell
 bdb_action "Configuring shell environment"
 
-# Set ZSH as default login shell
 if bdb_test_cmd "zsh"; then
     zsh_path="$(command -v zsh)"
     bdb_var "ZSH path" "${zsh_path}"
@@ -123,22 +119,19 @@ else
     bdb_error "ZSH not found - cannot set as default shell"
 fi
 
-# -----------------------------------------------------------------------------
-# Linux-Specific Configuration
-# -----------------------------------------------------------------------------
+# Verify JetBrains Mono Nerd Font installation
+bdb_action "Verifying JetBrains Mono Nerd Font installation"
 
 {{- if eq .packageManager "pacman" }}
 # Arch/Manjaro: Verify JetBrains Mono Nerd Font
-bdb_action "Verifying JetBrains Mono Nerd Font"
-if fc-list | grep -q "JetBrainsMono Nerd Font"; then
+if fc-list | grep "JetBrainsMono Nerd Font"; then
     bdb_success "Font installed"
 else
-    bdb_warn "Font not found - should have been installed with packages"
+    bdb_warn "Font not found, check chezmoi logs for installation issues"
 fi
 {{- else }}
 # Other distros: Font installed via .chezmoiexternal.toml
-bdb_action "Verifying JetBrains Mono Nerd Font installation"
-if [[ -f "${HOME}/.local/share/fonts/JetBrainsMonoNerdFont-Regular.ttf" ]]; then
+if [[ -f "${HOME}/.local/share/fonts/JetBrainsMonoNerdFontMono-Regular.ttf" ]]; then
     bdb_success "Font file found"
     # Update font cache
     if bdb_test_cmd "fc-cache"; then
@@ -149,14 +142,6 @@ else
     bdb_info "Run 'chezmoi apply' again to complete font installation"
 fi
 {{- end }}
-
-# Configure terminal emulator (Kitty)
-bdb_action "Verifying Kitty terminal configuration"
-if [[ -f "${HOME}/.config/kitty/kitty.conf" ]]; then
-    bdb_success "Kitty configured"
-else
-    bdb_warn "Kitty config not found - ensure dotfiles include kitty.conf"
-fi
 
 {{- /* ========================================================================== */ -}}
 {{- /* macOS-Specific Configuration                                               */ -}}
