@@ -57,10 +57,10 @@
 [".local/share/fonts"]
     type = "archive"
     url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
-    exact = true
+    #exact = true
     stripComponents = 1
     refreshPeriod = "720h"  # Refresh monthly
-    #include = ["*.ttf"]     # Extract only TTF files
+    include = ["*.ttf"]     # Extract only TTF files
 {{- end }}
 
 {{- end }}
