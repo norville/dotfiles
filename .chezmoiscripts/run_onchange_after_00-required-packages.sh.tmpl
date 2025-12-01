@@ -125,7 +125,7 @@ SNAP_PACKAGES=(
 
 # Install SNAP packages
 bdb_exec "Updating SNAPS package lists" sudo snap refresh
-bdb_exec "Installing SNAP packages" sudo snap install --classic "${SNAP_PACKAGES[@]}"
+bdb_exec "Installing SNAP packages" sudo snap install "${SNAP_PACKAGES[@]}"
 
 {{- /* ------------------------------------------------------------------------ */ -}}
 {{- /* Fedora/RHEL DNF Packages                                                 */ -}}
