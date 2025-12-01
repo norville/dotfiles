@@ -12,8 +12,9 @@
 # -----------------------------------------------------------------------------
 # Documentation and bootstrap scripts that should remain in the repository
 
+ARCHITECTURE.md
 README.md
-LICENSE
+TODO.md
 
 # Bootstrap script (only used for initial setup)
 .config/bdb/bdb_bootstrap.sh

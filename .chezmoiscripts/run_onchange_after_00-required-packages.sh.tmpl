@@ -87,15 +87,13 @@ APT_PACKAGES=(
     "fzf"              # Fuzzy finder
     "gpg"              # GNU Privacy Guard
     "kitty"            # Modern GPU-accelerated terminal
-    "lazygit"          # Terminal UI for git
-    "neovim"           # Modern vim replacement
     "ripgrep"          # Fast grep alternative
     "starship"          # Command line prompt
     "tree-sitter-cli"  # Parser generator tool
 )
 
 # Install APT packages
-bdb_exec "Updating package lists" sudo apt-get update
+bdb_exec "Updating APT package lists" sudo apt-get update
 bdb_exec "Installing APT packages" sudo apt-get install -y "${APT_PACKAGES[@]}"
 
 # Install eza (modern ls) - requires manual repository setup
@@ -120,12 +118,17 @@ else
     bdb_warn "btop not available in repositories, skipping"
 fi
 
-# Install lazygit - may need snap on older Ubuntu
-{{- if eq .osid "linux-ubuntu" }}
-if ! bdb_test_cmd "lazygit"; then
-    bdb_exec "Installing lazygit via snap" sudo snap install lazygit
-fi
-{{- end }}
+# -----------------------------------------------------------------------------
+# SNAP Package List (Ubuntu)
+# -----------------------------------------------------------------------------
+SNAP_PACKAGES=(
+    "lazygit"          # Terminal UI for git
+    "neovim"           # Modern vim editor
+)
+
+# Install SNAP packages
+bdb_exec "Updating SNAPS package lists" sudo snap refresh
+bdb_exec "Installing SNAP packages" sudo snap install --classic "${SNAP_PACKAGES[@]}"
 
 {{- /* ------------------------------------------------------------------------ */ -}}
 {{- /* Fedora/RHEL DNF Packages                                                 */ -}}
