@@ -35,14 +35,7 @@ fi
 # Drop-in replacement for vim with better performance and extensibility
 # Documentation: https://neovim.io
 if command -v nvim >/dev/null 2>&1; then
-    alias vim='nvim'
-    alias vi='nvim'
-
-    # Create additional convenience aliases
-    alias v='nvim'
     alias nv='nvim'
-
-    # Use neovim for vimdiff
     alias vimdiff='nvim -d'
 fi
 
