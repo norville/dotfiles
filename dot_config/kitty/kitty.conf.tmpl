@@ -1,5 +1,4 @@
 ## Fonts
-
 bold_font           auto
 bold_italic_font    auto
 disable_ligatures   always
@@ -13,76 +12,77 @@ font_size           14.0
 italic_font         auto
 
 ## Text cursor customization
-
 cursor_shape            block
 cursor_shape_unfocused  hollow
 
 ## Scrollback
-
 scrollback_lines	            5000
 scrollback_pager_history_size   10
 scrollbar                       never
 
 ## Mouse
-
 strip_trailing_spaces smart
 
 ## Mouse actions
+#
 
 ## Performance tuning
+#
 
 ## Terminal bell
+#
 
 ## Window layout
-
 enabled_layouts             tall:bias=50;full_size=1;mirrored=false
 remember_window_size        yes
 remember_window_position    yes
 window_margin_width         5
-
-{{- if eq .chezmoi.os "linux" }}
+{{ if eq .chezmoi.os "linux" -}}
 hide_window_decorations     yes
-{{- else if eq .chezmoi.os "darwin" }}
+{{ else if eq .chezmoi.os "darwin" -}}
 hide_window_decorations     titlebar-only
 {{- end }}
 
 ## Tab bar
-
 tab_bar_edge        top
 tab_bar_style       powerline
 tab_powerline_style slanted
 
 ## Color scheme
-
 background_opacity  0.95
 include             Tokyo-Night-Moon.conf
 
 ## The color table
+#
 
 ## Advanced
-
 shell_integration no-cursor
 
 ## OS specific tweaks
+#
 
 ## Keyboard shortcuts
+#
 
 ## Clipboard
+#
 
 ## Scrolling
+#
 
 ## Window management
+#
 
 ## Tab management
+#
 
 ## Layout management
-
 # switch to next layout
 # next/prev window
 
 ## Font sizes
+#
 
 ## Miscellaneous
-
 # close ssh connections
 map ctrl+alt+super+k    close_shared_ssh_connections

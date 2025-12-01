@@ -11,7 +11,6 @@
 # Repository Files (Never Install)
 # -----------------------------------------------------------------------------
 # Documentation and bootstrap scripts that should remain in the repository
-
 ARCHITECTURE.md
 README.md
 TODO.md
