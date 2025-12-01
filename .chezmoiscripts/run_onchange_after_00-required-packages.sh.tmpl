@@ -82,6 +82,7 @@ bdb_begin_section "Installing Required Packages for {{ .osid }}"
 # -----------------------------------------------------------------------------
 APT_PACKAGES=(
     "${CORE_PACKAGES[@]}"
+    "btop"               # System monitor
     "build-essential"   # Compilation tools (gcc, make, etc.)
     "fd-find"          # Fast file finder (modern find)
     "fzf"              # Fuzzy finder
@@ -96,6 +97,9 @@ APT_PACKAGES=(
 bdb_exec "Updating APT package lists" sudo apt-get update
 bdb_exec "Installing APT packages" sudo apt-get install -y "${APT_PACKAGES[@]}"
 
+# -----------------------------------------------------------------------------
+# Additional APT Repositories and Packages
+# -----------------------------------------------------------------------------
 # Install eza (modern ls) - requires manual repository setup
 if ! bdb_test_cmd "eza"; then
     bdb_action "Setting up eza repository"
@@ -109,13 +113,6 @@ if ! bdb_test_cmd "eza"; then
     bdb_exec "Installing eza" sudo apt-get update && sudo apt-get install -y eza
 else
     bdb_success "eza already installed"
-fi
-
-# Install btop (system monitor) - may not be in older repos
-if apt-cache show btop >/dev/null 2>&1; then
-    bdb_exec "Installing btop" sudo apt-get install -y btop
-else
-    bdb_warn "btop not available in repositories, skipping"
 fi
 
 # -----------------------------------------------------------------------------
