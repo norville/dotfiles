@@ -101,6 +101,19 @@ if bdb_ask "Do you want to install 1Password"; then
     bdb_success "1Password installed (ARM .tar.gz)"
     bdb_info "Launch 1Password with: 1password"
 
+    bdb_action "Installing 1Password CLI for ARM architecture"
+    ARCH="arm64"
+    wget "https://cache.agilebits.com/dist/1P/op2/pkg/v2.32.0/op_linux_${ARCH}_v2.32.0.zip" -O op.zip
+    unzip -d op op.zip
+    sudo mv op/op /usr/local/bin/
+    rm -r op.zip op
+    sudo groupadd -f onepassword-cli
+    sudo chgrp onepassword-cli /usr/local/bin/op
+    sudo chmod g+s /usr/local/bin/op
+
+    bdb_success "1Password CLI installed (ARM)"
+    bdb_info "Launch 1Password CLI with: op"
+
 {{- else }}
     # x86_64 Architecture: Use package managers
 
