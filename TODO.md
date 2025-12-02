@@ -1,6 +1,8 @@
+- fix docker completions
 - config fd and fzf
 - add snap/flatpack/yay update in bootstrap
 - after chezmoi update print list of extra formulae/packages and ask for removal
 - explore delta as diff viewer
 - try most instead of less
 - indent go templates
+- integrate 1password and ssh keys

@@ -1,14 +1,16 @@
 ## Fonts
-bold_font           auto
-bold_italic_font    auto
-disable_ligatures   always
-font_family         family='JetBrainsMono Nerd Font' style=Regular
-font_features       none
 {{ if eq .chezmoi.os "linux" -}}
+font_family         family='JetBrainsMono Nerd Font' style=Regular
 font_size           12.0
 {{ else if eq .chezmoi.os "darwin" -}}
-font_size           14.0
+font_family         family='JetBrainsMono Nerd Font Mono' style=Regular
+font_size           15.0
 {{ end -}}
+
+bold_font           auto
+bold_italic_font    auto
+disable_ligatures   cursor
+font_features       none
 italic_font         auto
 
 ## Text cursor customization

@@ -53,6 +53,22 @@ for dir in "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_CACHE_HOME"; do
     [[ ! -d "$dir" ]] && mkdir -p "$dir" 2>/dev/null
 done
 
+{{ if eq .chezmoi.os "darwin" -}}
+# -----------------------------------------------------------------------------
+# Eza config folder
+# -----------------------------------------------------------------------------
+# Set custom location for eza config folder (https://github.com/eza-community/eza-themes)
+# Eza: a modern replacement for ls (https://github.com/eza-community/eza)
+export EZA_CONFIG_DIR="${XDG_CONFIG_HOME}/eza"
+{{ end -}}
+
+# -----------------------------------------------------------------------------
+# Starship Configuration
+# -----------------------------------------------------------------------------
+# Set custom location for Starship prompt configuration file
+# Starship: Cross-shell prompt written in Rust (https://starship.rs)
+export STARSHIP_CONFIG="${XDG_CONFIG_HOME}/starship/config.toml"
+
 # -----------------------------------------------------------------------------
 # SSH Agent Configuration (1Password)
 # -----------------------------------------------------------------------------
@@ -83,13 +99,6 @@ fi
 
 # Cleanup temporary variables
 unset _onepassword_sock _os_type
-
-# -----------------------------------------------------------------------------
-# Starship Prompt Configuration
-# -----------------------------------------------------------------------------
-# Set custom location for Starship prompt configuration file
-# Starship: Cross-shell prompt written in Rust (https://starship.rs)
-export STARSHIP_CONFIG="${XDG_CONFIG_HOME}/starship/config.toml"
 
 # =============================================================================
 # ZSH CORE SETTINGS
