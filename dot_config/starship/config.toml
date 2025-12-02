@@ -1,152 +1,116 @@
-#format = """
-#[╭─user───❯](bold blue) $username
-#[┣─system─❯](bold yellow) $hostname
-#[┣─project❯](bold red) $directory$rust$git_branch$git_state$git_status$package$golang$terraform$docker_context$python$docker_context$nodejs
-#[╰─cmd────❯](bold green)
-#"""
+# Tokyo Night Moon themed Starship config
+# Color palette from: https://github.com/folke/tokyonight.nvim/blob/main/extras/lua/tokyonight_moon.lua
+
+format = """$username$hostname$directory$character"""
+right_format = """$all"""
+
 [username]
-style_user = "green bold"
-style_root = "red bold"
-format = "[$user]($style) "
+style_user = "#c3e88d bold"  # green
+style_root = "#ff757f bold"  # red
+format = "[$user]($style)"
 disabled = false
-show_always = true
+show_always = false
 
 [hostname]
-ssh_only = false
-format = 'on [$hostname](bold purple) '
+ssh_only = true
+format = '@[$hostname](bold #c099ff) '  # purple
 trim_at = "."
 disabled = false
 
-# Replace the "❯" symbol in the prompt with "➜"
-[character]                            # The name of the module we are configuring is "character"
-success_symbol = "[➜](bold green)"     # The "success_symbol" segment is being set to "➜" with the color "bold green"
-error_symbol = "[✗](bold red)"
-
-#  
-# configure directory
 [directory]
-read_only = " "
+read_only = " "
 truncation_length = 10
-truncate_to_repo = true # truncates directory to root folder if in github repo
-style = "bold italic blue"
+truncate_to_repo = true
+style = "bold italic #82aaff"  # blue
+
+[character]
+success_symbol = "[➜](bold #c3e88d)"  # green
+error_symbol = "[✗](bold #ff757f)"  # red
 
 [cmd_duration]
 min_time = 4
 show_milliseconds = false
 disabled = false
-style = "bold italic red"
-
-[aws]
-symbol = "  "
+style = "bold italic #ff757f"
 
 [conda]
-symbol = " "
+symbol = " "
 
-[dart]
-symbol = " "
+# ~/.config/starship.toml
 
-#[directory]
-#read_only = " "
+[container]
+format = '[$symbol \[$name\]]($style) '
 
 [docker_context]
-symbol = " "
+symbol = " "
 format = "via [$symbol$context]($style) "
-style = "blue bold"
+style = "#82aaff bold"  # blue
 only_with_files = true
 detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
 detect_folders = []
 disabled = false
 
-[elixir]
-symbol = " "
-
-[elm]
-symbol = " "
-
 [git_branch]
-symbol = " "
+symbol = " "
+style = "#c099ff"  # purple/magenta
 
 [git_status]
 format = '([\[$all_status$ahead_behind\]]($style) )'
-stashed = "[${count}*](green)" 
-modified = "[${count}+](yellow)" 
-deleted =  "[${count}-](red)" 
-conflicted =  "[${count}~](red)" 
+style = "#82aaff"  # blue
+stashed = "[${count}*](#c3e88d)"  # green
+modified = "[${count}+](#ffc777)"  # yellow
+deleted =  "[${count}-](#ff757f)"  # red
+conflicted =  "[${count}~](#ff757f)"  # red
 ahead = "⇡${count}"
 behind = "⇣${count}"
-untracked = "[${count}?](blue)" 
-staged = "[${count}+](green)" 
+untracked = "[${count}?](#82aaff)"  # blue
+staged = "[${count}+](#c3e88d)"  # green
 
 [git_state]
-style =	"bold red"
+style = "bold #ff757f"  # red
 format = "[$state( $progress_current/$progress_total) ]($style)"
 rebase = "rebase"
-merge = "merge"	
-revert = "revert"	
+merge = "merge"
+revert = "revert"
 cherry_pick = "cherry"
-bisect = "bisect"	
-am = "am"	
+bisect = "bisect"
+am = "am"
 am_or_rebase = "am/rebase"
 
 [golang]
-symbol = " "
-
-[hg_branch]
-symbol = " "
+symbol = " "
+style = "#82aaff"  # blue
 
 [java]
-symbol = " "
-
-[julia]
-symbol = " "
-
-[haskell]
-symbol = "λ "
+symbol = " "
+style = "#ff966c"  # orange
 
 [memory_usage]
-symbol = " "
-
-[nim]
-symbol = " "
-
-[nix_shell]
-symbol = " "
+symbol = " "
+style = "#c099ff"  # purple
 
 [package]
-symbol = " "
-
-[perl]
-symbol = " "
-
-[php]
-symbol = " "
+symbol = " "
+style = "#86e1fc"  # cyan
 
 [python]
 symbol = "🐍 "
-#pyenv_version_name = true
 format = 'via [${symbol}python (${version} )(\($virtualenv\) )]($style)'
-style = "bold yellow"
+style = "bold #ffc777"  # yellow
 pyenv_prefix = "venv "
 python_binary = ["./venv/bin/python", "python", "python3", "python2"]
 detect_extensions = ["py"]
 version_format = "v${raw}"
 
 [ruby]
-symbol = " "
+symbol = " "
+style = "#ff757f"  # red
 
 [rust]
-symbol = " "
-
-[scala]
-symbol = " "
-
-[shlvl]
-symbol = " "
-
-[swift]
-symbol = "ﯣ "
+symbol = " "
+style = "#ff966c"  # orange
 
 [nodejs]
-format = "via [ Node.js $version](bold green) "
+format = "via [ Node.js $version](bold #c3e88d) "  # green
 detect_files = ["package.json", ".node-version"]
 detect_folders = ["node_modules"]

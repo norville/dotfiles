@@ -1,3 +1,4 @@
+- mv kitty to optional apps
 - fix docker completions
 - config fd and fzf
 - add snap/flatpack/yay update in bootstrap
