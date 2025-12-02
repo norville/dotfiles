@@ -90,7 +90,6 @@ fi
 {{- /* Linux-Specific Configuration                                               */ -}}
 {{- /* ========================================================================== */ -}}
 {{- if eq .chezmoi.os "linux" }}
-
 # -----------------------------------------------------------------------------
 # Linux-Specific Configuration
 # -----------------------------------------------------------------------------
@@ -133,13 +132,9 @@ fi
 # Other distros: Font installed via .chezmoiexternal.toml
 if [[ -f "${HOME}/.local/share/fonts/JetBrainsMonoNerdFontMono-Regular.ttf" ]]; then
     bdb_success "Font file found"
-    # Update font cache
-    if bdb_test_cmd "fc-cache"; then
-        bdb_exec "Updating font cache" fc-cache -fv >/dev/null 2>&1 || true
-    fi
 else
     bdb_warn "Font not yet downloaded - chezmoi will install it via external resources"
-    bdb_info "Run 'chezmoi apply' again to complete font installation"
+    bdb_info "Run 'chezmoi -R apply' again to force download of external resources"
 fi
 {{- end }}
 
@@ -147,7 +142,6 @@ fi
 {{- /* macOS-Specific Configuration                                               */ -}}
 {{- /* ========================================================================== */ -}}
 {{- else if eq .chezmoi.os "darwin" }}
-
 # -----------------------------------------------------------------------------
 # macOS-Specific Configuration
 # -----------------------------------------------------------------------------
@@ -197,13 +191,6 @@ fi
 
 #bdb_action "Configuring Git"
 
-# Set global Git configuration
-#bdb_exec "Setting Git user name" git config --global user.name "{{ .name }}"
-#bdb_exec "Setting Git user email" git config --global user.email "{{ .email }}"
-#bdb_exec "Setting default branch" git config --global init.defaultBranch main
-#bdb_exec "Setting pull strategy" git config --global pull.rebase false
-#bdb_exec "Setting editor" git config --global core.editor "nvim"
-
 # Configure Git to use 1Password for SSH if available
 #if [[ -S "${SSH_AUTH_SOCK:-}" ]]; then
 #    bdb_exec "Configuring Git SSH signing" git config --global gpg.format ssh
@@ -218,18 +205,16 @@ fi
 
 # Neovim plugin initialization is handled automatically by Lazy.nvim
 # on first nvim run. We just ensure directories exist.
+bdb_action "Initializing Neovim configuration"
 
-#bdb_action "Initializing Neovim configuration"
-#if bdb_test_cmd "nvim"; then
-#    # Create necessary directories
-#    bdb_mkdir "${HOME}/.config/nvim" "Failed to create nvim config dir"
-#    bdb_mkdir "${HOME}/.local/share/nvim" "Failed to create nvim data dir"
-#    bdb_mkdir "${HOME}/.local/state/nvim" "Failed to create nvim state dir"
-#
-#    bdb_success "Neovim directories created"
-#else
-#    bdb_warn "Neovim not installed"
-#fi
+if bdb_test_cmd "nvim"; then
+    # Create necessary directories
+    bdb_mkdir "${HOME}/.local/share/nvim" "Failed to create nvim data dir"
+    bdb_mkdir "${HOME}/.local/state/nvim" "Failed to create nvim state dir"
+    bdb_success "Neovim directories created"
+else
+    bdb_warn "Neovim not installed"
+fi
 
 # =============================================================================
 # COMPLETION

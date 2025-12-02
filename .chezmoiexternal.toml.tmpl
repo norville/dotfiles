@@ -54,11 +54,10 @@
 # Nerd Font (JetBrains Mono)
 {{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
 # For distributions without Nerd Fonts in repositories
-[".local/share/fonts"]
+[".local/share/fonts/JetBrainsMono/nerd"]
     type = "archive"
     url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
     exact = true
-    #stripComponents = 1
     refreshPeriod = "720h"  # Refresh monthly
     include = ["*.ttf"]     # Extract only TTF files
 {{- end }}
