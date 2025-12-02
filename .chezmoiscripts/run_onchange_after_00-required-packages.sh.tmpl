@@ -170,18 +170,20 @@ bdb_exec "Installing DNF packages" sudo dnf install -y "${DNF_PACKAGES[@]}"
 # -----------------------------------------------------------------------------
 PACMAN_PACKAGES=(
     "${CORE_PACKAGES[@]}"
-    "base-devel"        # Base development tools
-    "btop"              # System monitor
-    "eza"               # Modern ls replacement
-    "fd"                # Fast file finder
-    "fzf"               # Fuzzy finder
-    "gnupg"             # GNU Privacy Guard
-    "kitty"             # Modern terminal
-    "lazygit"           # Terminal UI for git
-    "neovim"            # Modern vim
-    "ripgrep"           # Fast grep alternative
-    "starship"          # Command line prompt
-    "tree-sitter"       # Parser generator
+    "base-devel"                # Base development tools
+    "btop"                      # System monitor
+    "eza"                       # Modern ls replacement
+    "fd"                        # Fast file finder
+    "fzf"                       # Fuzzy finder
+    "gnupg"                     # GNU Privacy Guard
+    "kitty"                     # Modern terminal
+    "lazygit"                   # Terminal UI for git
+    "neovim"                    # Modern vim
+    "ripgrep"                   # Fast grep alternative
+    "starship"                  # Command line prompt
+    "tree-sitter"               # Parser generator
+    "ttf-jetbrains-mono"        # JetBrains Mono Font
+    "ttf-jetbrains-mono-nerd"   # JetBrains Mono Nerd Font
 )
 
 # Install Pacman packages
@@ -209,22 +211,6 @@ else
 fi
 
 {{- end }}
-
-# -----------------------------------------------------------------------------
-# Post-Installation: Font Configuration (Linux)
-# -----------------------------------------------------------------------------
-{{- if eq .packageManager "pacman" }}
-# Arch/Manjaro: Install JetBrains Mono Font (normal and nerd) from repository
-bdb_exec "Installing JetBrains Mono Font" sudo pacman -S --needed --noconfirm \
-    ttf-jetbrains-mono \
-    ttf-jetbrains-mono-nerd
-{{- else }}
-# Other distros: Font installed via official Github repo
-bdb_action "Installing JetBrains Mono Font"
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/install_manual.sh)"
-mv "${HOME}"/.local/share/fonts/fonts "${HOME}"/.local/share/fonts/JetBrainsMono
-{{- end }}
-bdb_success "Installing JetBrains Mono Font"
 
 {{- /* ========================================================================== */ -}}
 {{- /* macOS Package Installation                                                 */ -}}

@@ -118,25 +118,28 @@ else
     bdb_error "ZSH not found - cannot set as default shell"
 fi
 
-# Verify JetBrains Mono Nerd Font installation
-bdb_action "Verifying JetBrains Mono Nerd Font installation"
+# Configure JetBrainsMono fonts
 
-{{- if eq .packageManager "pacman" }}
-# Arch/Manjaro: Verify JetBrains Mono Nerd Font
-if fc-list | grep "JetBrainsMono Nerd Font"; then
-    bdb_success "Font installed"
-else
-    bdb_warn "Font not found, check chezmoi logs for installation issues"
-fi
-{{- else }}
-# Other distros: Font installed via .chezmoiexternal.toml
-if [[ -f "${HOME}/.local/share/fonts/JetBrainsMonoNerdFontMono-Regular.ttf" ]]; then
-    bdb_success "Font file found"
-else
-    bdb_warn "Font not yet downloaded - chezmoi will install it via external resources"
-    bdb_info "Run 'chezmoi -R apply' again to force download of external resources"
-fi
+{{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
+# Debian/Ubuntu/Fedora: Fonts installed via chezmoiexternal, just update font cache
+bdb_exec "Updating font cache" fc-cache -fv >/dev/null 2>&1
 {{- end }}
+
+# Verify JetBrainsMono fonts installation
+bdb_action "Verifying JetBrainsMono fonts installation"
+if fc-list | grep -E "JetBrainsMono[A-Z]{,2}-[a-zA-Z]+\.ttf"; then
+    bdb_success "JetBrainsMono fonts installed"
+else
+    bdb_warn "JetBrainsMono fonts not found, check chezmoi logs for installation issues"
+fi
+
+# Verify JetBrainsMono Nerd fonts installation
+bdb_action "Verifying JetBrains Mono Nerd fonts installation"
+if fc-list | grep -E "JetBrainsMono[A-Z]{,2}NerdFont[a-zA-Z]*-[a-zA-Z]+\.ttf"; then
+    bdb_success "JetBrainsMono Nerd fonts installed"
+else
+    bdb_warn "JetBrainsMono Nerd fonts not found, check chezmoi logs for installation issues"
+fi
 
 {{- /* ========================================================================== */ -}}
 {{- /* macOS-Specific Configuration                                               */ -}}

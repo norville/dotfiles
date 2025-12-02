@@ -1,6 +1,3 @@
-- review env setup
-- fix nerdfonts download and installation script
-- review chezmoiexternal
 - config fd and fzf
 - config lazygit and theme
 - add snap/flatpack/yay update in bootstrap
