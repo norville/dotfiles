@@ -114,16 +114,14 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# SNAP Package List (Ubuntu)
+# SNAP Packages (Ubuntu)
 # -----------------------------------------------------------------------------
-SNAP_PACKAGES=(
-    "lazygit"          # Terminal UI for git
-    "nvim"           # Modern vim editor
-)
 
 # Install SNAP packages
-bdb_exec "Updating SNAPS package lists" sudo snap refresh
-bdb_exec "Installing SNAP packages" sudo snap install "${SNAP_PACKAGES[@]}"
+bdb_exec "Updating SNAP packages" sudo snap refresh
+bdb_action "Installing SNAP packages"
+sudo snap install --classic lazygit && bdb_success "lazygit installed"
+sudo snap install --classic nvim && bdb_success "nvim installed"
 
 {{- /* ------------------------------------------------------------------------ */ -}}
 {{- /* Fedora/RHEL DNF Packages                                                 */ -}}
