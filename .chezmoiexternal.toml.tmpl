@@ -8,6 +8,18 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
+# ZSH Plugin Manager
+# -----------------------------------------------------------------------------
+
+# Antidote - ZSH plugin manager (from GitHub)
+[".local/share/antidote"]
+    type = "git-repo"
+    url = "https://github.com/mattmc3/antidote.git"
+    refreshPeriod = "0"      # Never refresh
+    [".local/share/antidote".clone]
+        args = ["--depth=1"]
+
+# -----------------------------------------------------------------------------
 # Color Schemes and Themes
 # -----------------------------------------------------------------------------
 # Download and manage color schemes for various applications
@@ -16,7 +28,7 @@
 [".config/bat/themes/tokyonight_moon.tmTheme"]
     type = "file"
     url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/sublime/tokyonight_moon.tmTheme"
-    refreshPeriod = "720h"  # Refresh weekly
+    refreshPeriod = "720h"
     executable = false
 
 # Tokyo Night theme for eza (ls replacement)
@@ -61,7 +73,7 @@
     url = "https://github.com/JetBrains/JetBrainsMono/releases/download/v2.304/JetBrainsMono-2.304.zip"
     stripComponents = 2             # Ignore top two directories
     include = ["fonts/ttf/*.ttf"]   # Only include TTF files
-    refreshPeriod = "720h"          # Refresh monthly
+    refreshPeriod = "720h"
 
 # JetBrains Mono Nerd Font - Patched with Nerd Font icons
 [".local/share/fonts/JetBrainsMono/nerd"]
@@ -69,7 +81,7 @@
     url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
     stripComponents = 0     # Keep directory structure
     include = ["*.ttf"]     # Only include TTF files
-    refreshPeriod = "720h"  # Refresh monthly
+    refreshPeriod = "720h"
 
 {{- end }}
 {{- end }}
