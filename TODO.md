@@ -1,7 +1,5 @@
 - config fd and fzf
-- config lazygit and theme
 - add snap/flatpack/yay update in bootstrap
-- check antidote update in env update
 - after chezmoi update print list of extra formulae/packages and ask for removal
 - explore delta as diff viewer
 - try most instead of less
