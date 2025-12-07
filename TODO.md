@@ -7,3 +7,4 @@
 - try most instead of less
 - indent go templates
 - integrate 1password and ssh keys
+- macos: when updating env do not update brew casks, only formulae
