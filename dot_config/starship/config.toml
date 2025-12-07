@@ -1,27 +1,9 @@
 # Tokyo Night Moon themed Starship config
 # Color palette from: https://github.com/folke/tokyonight.nvim/blob/main/extras/lua/tokyonight_moon.lua
 
-format = """$username$hostname$directory$character"""
-right_format = """$all"""
-
-[username]
-style_user = "#c3e88d bold"  # green
-style_root = "#ff757f bold"  # red
-format = "[$user]($style)"
-disabled = false
-show_always = false
-
-[hostname]
-ssh_only = true
-format = '@[$hostname](bold #c099ff) '  # purple
-trim_at = "."
-disabled = false
-
-[directory]
-read_only = " "
-truncation_length = 10
-truncate_to_repo = true
-style = "bold italic #82aaff"  # blue
+# Right prompt example
+#format = """$username$hostname$directory$character"""
+#right_format = """$all"""
 
 [character]
 success_symbol = "[➜](bold #c3e88d)"  # green
@@ -30,45 +12,52 @@ error_symbol = "[✗](bold #ff757f)"  # red
 [cmd_duration]
 min_time = 4
 show_milliseconds = false
-disabled = false
-style = "bold italic #ff757f"
+style = "bold italic #ff757f"  # red
+format = "󱦟 [$duration]($style) "
 
 [conda]
-symbol = " "
-
-# ~/.config/starship.toml
+symbol = " "
 
 [container]
-format = '[$symbol \[$name\]]($style) '
+format = "[$symbol \\[$name\\]]($style) "
+
+[directory]
+read_only = " 󰌾"
+truncation_length = 10
+truncate_to_repo = true
+style = "bold italic #82aaff"  # blue
 
 [docker_context]
-symbol = " "
-format = "via [$symbol$context]($style) "
-style = "#82aaff bold"  # blue
 only_with_files = true
 detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
 detect_folders = []
-disabled = false
+symbol = " "
+style = "#82aaff bold"  # blue
+format = "[$symbol$context]($style) "
 
 [git_branch]
-symbol = " "
-style = "#c099ff"  # purple/magenta
+symbol = " "
+style = "#c099ff"  # purple
+format = "[$symbol$branch]($style) "
+
+[git_commit]
+tag_symbol = "  "
+style = "#ffc777"  # yellow
+format = "[$tag_symbol$tag]($style) "
 
 [git_status]
-format = '([\[$all_status$ahead_behind\]]($style) )'
-style = "#82aaff"  # blue
 stashed = "[${count}*](#c3e88d)"  # green
 modified = "[${count}+](#ffc777)"  # yellow
-deleted =  "[${count}-](#ff757f)"  # red
-conflicted =  "[${count}~](#ff757f)"  # red
+deleted = "[${count}-](#ff757f)"  # red
+conflicted = "[${count}~](#ff757f)"  # red
 ahead = "⇡${count}"
 behind = "⇣${count}"
 untracked = "[${count}?](#82aaff)"  # blue
 staged = "[${count}+](#c3e88d)"  # green
+style = "#82aaff"  # blue
+format = "(\\[[$all_status$ahead_behind]($style)\\] )"
 
 [git_state]
-style = "bold #ff757f"  # red
-format = "[$state( $progress_current/$progress_total) ]($style)"
 rebase = "rebase"
 merge = "merge"
 revert = "revert"
@@ -76,41 +65,79 @@ cherry_pick = "cherry"
 bisect = "bisect"
 am = "am"
 am_or_rebase = "am/rebase"
+style = "bold #ff757f"  # red
+format = "[$state( $progress_current/$progress_total) ]($style)"
 
 [golang]
-symbol = " "
+symbol = "󰟓 "
 style = "#82aaff"  # blue
 
+[hostname]
+ssh_only = true
+ssh_symbol = " "
+trim_at = "."
+style = "#c099ff"  # purple
+format = "@[$hostname]($style) "
+
 [java]
-symbol = " "
+symbol = " "
 style = "#ff966c"  # orange
 
+[lua]
+symbol = " "
+style = "#86e1fc"  # cyan
+
 [memory_usage]
-symbol = " "
+symbol = "󰍛 "
 style = "#c099ff"  # purple
 
+[nodejs]
+detect_files = ["package.json", ".node-version"]
+detect_folders = ["node_modules"]
+symbol = " "
+style = "#c3e88d"  # green
+format = "[$symbol$version]($style) "
+
 [package]
-symbol = " "
+symbol = "󰏗 "
 style = "#86e1fc"  # cyan
 
 [python]
-symbol = "🐍 "
-format = 'via [${symbol}python (${version} )(\($virtualenv\) )]($style)'
-style = "bold #ffc777"  # yellow
 pyenv_prefix = "venv "
 python_binary = ["./venv/bin/python", "python", "python3", "python2"]
 detect_extensions = ["py"]
 version_format = "v${raw}"
+symbol = " "
+style = "bold #ffc777"  # yellow
+format = "[${symbol}python (${version} )(\\($virtualenv\\) )]($style)"
 
 [ruby]
-symbol = " "
+symbol = " "
 style = "#ff757f"  # red
 
 [rust]
-symbol = " "
+symbol = "󱘗 "
 style = "#ff966c"  # orange
 
-[nodejs]
-format = "via [ Node.js $version](bold #c3e88d) "  # green
-detect_files = ["package.json", ".node-version"]
-detect_folders = ["node_modules"]
+[shlvl]
+disabled = false
+repeat = true
+repeat_offset = 1
+symbol = '❯ '
+format = "[$symbol]($style)"
+
+[sudo]
+disabled = false
+symbol = " "
+style = "#ff757f"  # red
+format = "[$symbol]($style)"
+
+[terraform]
+symbol = "💠 "
+format = "[$symbol$workspace]($style) "
+
+[username]
+show_always = false
+style_user = "#c3e88d bold"  # green
+style_root = "#ff757f bold"  # red
+format = "[$user]($style)"
