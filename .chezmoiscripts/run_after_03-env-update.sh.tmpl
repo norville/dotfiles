@@ -77,7 +77,10 @@ bdb_exec "Upgrading Homebrew packages" brew upgrade
 bdb_success "Homebrew packages updated"
 
 # Update Homebrew casks
-bdb_exec "Upgrading Homebrew casks" brew upgrade --cask --greedy
+bdb_exec "Upgrading Homebrew casks" brew upgrade --cask \
+    font-jetbrains-mono \
+    font-jetbrains-mono-nerd-font \
+    kitty
 bdb_success "Homebrew casks updated"
 
 {{- /* ========================================================================== */ -}}
