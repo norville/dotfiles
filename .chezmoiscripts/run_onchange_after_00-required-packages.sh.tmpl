@@ -114,14 +114,17 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# SNAP Packages (Ubuntu)
+# SNAP Packages
 # -----------------------------------------------------------------------------
-
 # Install SNAP packages
-bdb_exec "Updating SNAP packages" sudo snap refresh
-bdb_action "Installing SNAP packages"
-sudo snap install --classic lazygit && bdb_success "lazygit installed"
-sudo snap install --classic nvim && bdb_success "nvim installed"
+if bdb_test_cmd "snap"; then
+    bdb_exec "Updating SNAP packages" sudo snap refresh
+    bdb_action "Installing SNAP packages"
+    sudo snap install --classic lazygit && bdb_success "lazygit installed"
+    sudo snap install --classic nvim && bdb_success "nvim installed"
+else
+    bdb_warn "snapd is not installed"
+fi
 
 {{- /* ------------------------------------------------------------------------ */ -}}
 {{- /* Fedora/RHEL DNF Packages                                                 */ -}}
