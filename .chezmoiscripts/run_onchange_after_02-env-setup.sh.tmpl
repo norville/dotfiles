@@ -122,23 +122,35 @@ fi
 
 {{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
 # Debian/Ubuntu/Fedora: Fonts installed via chezmoiexternal, just update font cache
-bdb_exec "Updating font cache" fc-cache -fv >/dev/null 2>&1
+bdb_action "Updating font cache"
+if bdb_test_cmd "fc-cache"; then
+    fc-cache -fv >/dev/null 2>&1
+    bdb_success "Font cache updated"
+else
+    bdb_warn "fc-cache command not found, cannot update font cache"
+fi
 {{- end }}
 
-# Verify JetBrainsMono fonts installation
-bdb_action "Verifying JetBrainsMono fonts installation"
-if fc-list | grep -E "JetBrainsMono[A-Z]{,2}-[a-zA-Z]+\.ttf"; then
-    bdb_success "JetBrainsMono fonts installed"
-else
-    bdb_warn "JetBrainsMono fonts not found, check chezmoi logs for installation issues"
-fi
+# Verify fonts installation
+bdb_action "Verifying fonts installation"
+if bdb_test_cmd "fc-list"; then
 
-# Verify JetBrainsMono Nerd fonts installation
-bdb_action "Verifying JetBrains Mono Nerd fonts installation"
-if fc-list | grep -E "JetBrainsMono[A-Z]{,2}NerdFont[a-zA-Z]*-[a-zA-Z]+\.ttf"; then
-    bdb_success "JetBrainsMono Nerd fonts installed"
+    # Verify JetBrainsMono fonts installation:
+    if fc-list | grep -E "JetBrainsMono[A-Z]{,2}-[a-zA-Z]+\.ttf"; then
+        bdb_success "JetBrainsMono fonts installed"
+    else
+        bdb_warn "JetBrainsMono fonts not found, check chezmoi logs for installation issues"
+    fi
+
+    # Verify JetBrainsMono Nerd fonts installation
+    if fc-list | grep -E "JetBrainsMono[A-Z]{,2}NerdFont[a-zA-Z]*-[a-zA-Z]+\.ttf"; then
+        bdb_success "JetBrainsMono Nerd fonts installed"
+    else
+        bdb_warn "JetBrainsMono Nerd fonts not found, check chezmoi logs for installation issues"
+    fi
+
 else
-    bdb_warn "JetBrainsMono Nerd fonts not found, check chezmoi logs for installation issues"
+    bdb_warn "fc-list command not found, cannot verify fonts"
 fi
 
 {{- /* ========================================================================== */ -}}
