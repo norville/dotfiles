@@ -1,4 +1,6 @@
-- mv kitty to optional apps
+# Dotfiles TODO
+
+- define installation type and
 - fix docker completions
 - config fd and fzf
 - add snap/flatpack/yay update in bootstrap
