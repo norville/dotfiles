@@ -268,13 +268,13 @@ export PATH
 # -----------------------------------------------------------------------------
 # Load ZSH Plugins
 # -----------------------------------------------------------------------------
-# Source external plugin manager or plugin definitions
-# Common plugins: syntax-highlighting, autosuggestions, history-substring-search
-_plugin_file="${HOME}/.zsh/antidote.zsh"
+# Source Antigen plugin manager
+# Antigen provides simple plugin management with automatic installation
+_plugin_file="${HOME}/.zsh/antigen.zsh"
 if [[ -f "$_plugin_file" ]]; then
     source "$_plugin_file"
-elif [[ -f "${ZDOTDIR:-$HOME}/.zsh/antidote.zsh" ]]; then
-    source "${ZDOTDIR:-$HOME}/.zsh/antidote.zsh"
+elif [[ -f "${ZDOTDIR:-$HOME}/.zsh/antigen.zsh" ]]; then
+    source "${ZDOTDIR:-$HOME}/.zsh/antigen.zsh"
 fi
 unset _plugin_file
 
