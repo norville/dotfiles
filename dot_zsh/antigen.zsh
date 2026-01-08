@@ -23,32 +23,39 @@
 # Antigen Installation Directory
 # -----------------------------------------------------------------------------
 # Store Antigen in XDG data directory
-ANTIGEN_DIR="${XDG_DATA_HOME:-${HOME}/.local/share}/antigen"
-ANTIGEN="${ANTIGEN_DIR}/antigen.zsh"
+export ADOTDIR="${XDG_DATA_HOME:-${HOME}/.local/share}/antigen"
+ANTIGEN="${ADOTDIR}/antigen.zsh"
 
 # -----------------------------------------------------------------------------
 # Auto-Install Antigen if Missing
 # -----------------------------------------------------------------------------
-# Automatically download Antigen from GitHub if it's not already installed
-# This ensures the configuration works on fresh systems without manual setup
+# Automatically clone Antigen from GitHub if it's not already installed
+# Using git clone (not curl) to support 'antigen selfupdate' command
 if [[ ! -f "${ANTIGEN}" ]]; then
-    echo "Antigen not found. Installing to ${ANTIGEN_DIR}..."
+    echo "Antigen not found. Installing to ${ADOTDIR}..."
 
-    # Check if curl is available
-    if ! command -v curl >/dev/null 2>&1; then
-        echo "Error: curl is required to install Antigen. Please install curl first."
+    # Reset any existing incomplete installation
+    [[ -d "${ADOTDIR}" ]] && rm -rf "${ADOTDIR}"
+    mkdir -p "${ADOTDIR}"
+
+    # Check if git is available
+    if ! command -v git >/dev/null 2>&1; then
+        echo "Error: git is required to install Antigen. Please install git first."
         return 1
     fi
 
-    # Create directory and download Antigen
-    mkdir -p "${ANTIGEN_DIR}"
-    if curl -fsSL https://git.io/antigen -o "${ANTIGEN}"; then
+    # Clone Antigen repository (enables selfupdate functionality)
+    if git clone --depth=1 https://github.com/zsh-users/antigen.git "${ADOTDIR}"; then
         echo "Antigen installed successfully!"
     else
-        echo "Error: Failed to download Antigen."
+        echo "Error: Failed to clone Antigen repository."
         echo "Please check your internet connection and try again."
         return 1
     fi
+
+    # Create default log file to prevents warnings
+    touch "${ADOTDIR}/debug.log"
+
 fi
 
 # -----------------------------------------------------------------------------
@@ -58,7 +65,7 @@ fi
 if [[ -f "${ANTIGEN}" ]]; then
     source "${ANTIGEN}"
 else
-    echo "Error: Antigen installation incomplete. Please remove ${ANTIGEN_DIR} and restart your shell."
+    echo "Error: Antigen installation incomplete. Please remove ${ADOTDIR} and restart your shell."
     return 1
 fi
 
@@ -67,8 +74,15 @@ fi
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Load Oh-My-ZSH as the base framework
+# Set up Oh-My-ZSH Framework
 # -----------------------------------------------------------------------------
+# Set up cache directory to avoid polluting home directory
+export ZSH_CACHE_DIR="${XDG_CACHE_HOME:-${HOME}/.cache}/oh-my-zsh"
+
+# Create cache and completions directories
+mkdir -p "${ZSH_CACHE_DIR}/completions"
+
+# Load Oh-My-ZSH as the base framework
 antigen use oh-my-zsh
 
 # -----------------------------------------------------------------------------
