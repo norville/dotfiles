@@ -80,15 +80,16 @@ bdb_begin_section "Installing Required Packages for {{ .osid }}"
 # -----------------------------------------------------------------------------
 APT_PACKAGES=(
     "${CORE_PACKAGES[@]}"
-    "btop"               # System monitor
+    "btop"              # System monitor
     "build-essential"   # Compilation tools (gcc, make, etc.)
-    "fd-find"          # Fast file finder (modern find)
-    "fzf"              # Fuzzy finder
-    "gpg"              # GNU Privacy Guard
-    "kitty"            # Modern GPU-accelerated terminal
-    "ripgrep"          # Fast grep alternative
+    "fd-find"           # Fast file finder (modern find)
+    "fzf"               # Fuzzy finder
+    "git-delta"         # Modern diff viewer with syntax highlighting
+    "gpg"               # GNU Privacy Guard
+    "kitty"             # Modern GPU-accelerated terminal
+    "ripgrep"           # Fast grep alternative
     "starship"          # Command line prompt
-    "tree-sitter-cli"  # Parser generator tool
+    "tree-sitter-cli"   # Parser generator tool
 )
 
 # Install APT packages
@@ -135,19 +136,20 @@ fi
 # -----------------------------------------------------------------------------
 DNF_PACKAGES=(
     "${CORE_PACKAGES[@]}"
-    "@development-tools"  # Compilation tools group
-    "bat-extras"       # Additional bat utilities
-    "btop"               # System monitor
-    "eza"                # Modern ls replacement
-    "fd-find"            # Fast file finder
-    "fzf"                # Fuzzy finder
-    "gnupg2"             # GNU Privacy Guard
-    "kitty"              # Modern terminal
-    "lazygit"            # Terminal UI for git
-    "neovim"             # Modern vim
-    "python3-neovim"     # Python support for neovim
-    "ripgrep"            # Fast grep alternative
-    "starship"          # Command line prompt
+    "@development-tools"    # Compilation tools group
+    "bat-extras"            # Additional bat utilities
+    "btop"                  # System monitor
+    "eza"                   # Modern ls replacement
+    "fd-find"               # Fast file finder
+    "fzf"                   # Fuzzy finder
+    "git-delta"             # Modern diff viewer with syntax highlighting
+    "gnupg2"                # GNU Privacy Guard
+    "kitty"                 # Modern terminal
+    "lazygit"               # Terminal UI for git
+    "neovim"                # Modern vim
+    "python3-neovim"        # Python support for neovim
+    "ripgrep"               # Fast grep alternative
+    "starship"              # Command line prompt
 )
 
 # Enable COPR repositories for additional packages
@@ -176,6 +178,7 @@ PACMAN_PACKAGES=(
     "eza"                       # Modern ls replacement
     "fd"                        # Fast file finder
     "fzf"                       # Fuzzy finder
+    "git-delta"                 # Modern diff viewer with syntax highlighting
     "gnupg"                     # GNU Privacy Guard
     "kitty"                     # Modern terminal
     "lazygit"                   # Terminal UI for git

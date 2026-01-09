@@ -1,0 +1,82 @@
+# =============================================================================
+# Delta Configuration - Tokyo Night Moon Theme
+# =============================================================================
+# Color scheme matching Tokyo Night Moon for beautiful git diffs
+# Documentation: https://dandavison.github.io/delta/
+#
+# Tokyo Night Moon Colors:
+# - Background:     #222436
+# - Foreground:     #c8d3f5
+# - Blue:           #82aaff
+# - Cyan:           #86e1fc
+# - Green:          #c3e88d
+# - Yellow:         #ffc777
+# - Orange:         #ff966c
+# - Red:            #ff757f
+# - Magenta:        #c099ff
+# - Comment:        #636da6
+# - Selection:      #2d3f76
+# - Line highlight: #2f334d
+# =============================================================================
+
+[delta]
+    # Use Tokyo Night Moon colors
+    syntax-theme = tokyonight_moon
+
+    # File metadata styling
+    file-style = bold "#ffc777"
+    file-decoration-style = bold "#ffc777" ul
+
+    # Hunk headers (@@...@@)
+    hunk-header-style = file line-number syntax
+    hunk-header-decoration-style = "#636da6" box
+    hunk-header-file-style = "#86e1fc"
+    hunk-header-line-number-style = "#ffc777"
+
+    # Line numbers
+    line-numbers-minus-style = "#ff757f"
+    line-numbers-zero-style = "#636da6"
+    line-numbers-plus-style = "#c3e88d"
+    line-numbers-left-format = "{nm:>4}┊"
+    line-numbers-right-format = "{np:>4}│"
+
+    # Diff content - additions
+    plus-style = syntax "#1e3a20"
+    plus-emph-style = syntax "#2d5a2e"
+
+    # Diff content - deletions
+    minus-style = syntax "#3a1e1e"
+    minus-emph-style = syntax "#5a2d2d"
+
+    # Diff content - unchanged context
+    zero-style = syntax
+    whitespace-error-style = reverse "#ff757f"
+
+    # Commit styling
+    commit-decoration-style = bold "#82aaff" box
+    commit-style = "#82aaff" bold
+
+    # Merge conflict markers
+    merge-conflict-begin-symbol = ⌃
+    merge-conflict-end-symbol = ⌄
+    merge-conflict-ours-diff-header-style = "#ffc777" bold
+    merge-conflict-ours-diff-header-decoration-style = "#ffc777" box
+    merge-conflict-theirs-diff-header-style = "#82aaff" bold
+    merge-conflict-theirs-diff-header-decoration-style = "#82aaff" box
+
+    # Blame
+    blame-palette = "#222436" "#2f334d" "#3b4261" "#444a73"
+    blame-code-style = syntax
+    blame-format = "{author:<18} {commit:<8} {timestamp:^12} "
+
+    # Misc
+    hyperlinks = true
+    hyperlinks-file-link-format = "file://{path}"
+    keep-plus-minus-markers = false
+
+    # Grep styling
+    grep-file-style = "#ffc777" bold
+    grep-line-number-style = "#636da6"
+    grep-match-line-style = syntax
+    grep-match-word-style = "#222436" "#ffc777"
+    grep-separator-symbol = " "

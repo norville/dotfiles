@@ -1,8 +1,9 @@
 [user]
-    name = norville
+    name = {{ .name }}
     email = {{ .email }}
 [core]
     editor = vim
+    pager = delta
     excludesfile = ~/.config/git/ignore
 [init]
     defaultBranch = main
@@ -15,4 +16,13 @@
     clean = git-lfs clean %f
     smudge = git-lfs smudge %f
     required = true
-    
+[interactive]
+    diffFilter = delta --color-only
+[include]
+    path = ~/.config/delta/tokyonight_moon.gitconfig
+[delta]
+    navigate = true       # Use n and N to move between diff sections
+    line-numbers = true   # Show line numbers
+    side-by-side = true   # Show diffs side-by-side
+[merge]
+    conflictStyle = zdiff3
