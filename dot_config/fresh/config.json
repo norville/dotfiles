@@ -1,0 +1,32 @@
+{
+  "check_for_updates": true,
+  "editor": {
+    "tab_size": 4,
+    "auto_indent": true,
+    "line_numbers": true,
+    "relative_line_numbers": true,
+    "scroll_offset": 5,
+    "syntax_highlighting": true,
+    "line_wrap": true,
+    "highlight_timeout_ms": 5,
+    "snapshot_interval": 100,
+    "large_file_threshold_bytes": 1048576,
+    "estimated_line_length": 80,
+    "enable_inlay_hints": true,
+    "recovery_enabled": true,
+    "auto_save_interval_secs": 2,
+    "highlight_context_bytes": 10000,
+    "mouse_hover_enabled": true,
+    "mouse_hover_delay_ms": 500,
+    "double_click_time_ms": 500,
+    "auto_revert_poll_interval_ms": 2000,
+    "file_tree_poll_interval_ms": 3000
+  },
+  "file_explorer": {
+    "respect_gitignore": true,
+    "show_hidden": true,
+    "show_gitignored": true,
+    "custom_ignore_patterns": [],
+    "width": 0.3
+  }
+}
