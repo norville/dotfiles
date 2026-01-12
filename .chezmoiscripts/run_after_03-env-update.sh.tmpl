@@ -150,23 +150,23 @@ fi
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Update ZSH Plugins (Antidote)
+# Update ZSH Plugins (Antigen)
 # -----------------------------------------------------------------------------
 bdb_action "Updating ZSH plugins"
 
-if bdb_test_cmd "antidote"; then
-    # Update Antidote itself
-    antidote_dir="${ZDOTDIR:-$HOME}/.antidote"
-    if [[ -d "${antidote_dir}" ]]; then
-        bdb_exec "Updating Antidote" bash -c "(cd '${antidote_dir}' && git pull --quiet)" || true
-    fi
+# Check if Antigen is available
+antigen_dir="${XDG_DATA_HOME:-${HOME}/.local/share}/antigen"
+if [[ -f "${antigen_dir}/antigen.zsh" ]]; then
 
-    # Update plugins
-    bdb_exec "Updating ZSH plugins" antidote update 2>/dev/null || true
+    # Update Antigen itself via selfupdate
+    bdb_exec "Updating Antigen" antigen selfupdate || true
+
+    # Update all plugins
+    bdb_exec "Updating ZSH plugins" antigen update || true
 
     bdb_success "ZSH plugins updated"
 else
-    bdb_warn "Antidote not found - skipping plugin updates"
+    bdb_warn "Antigen not found - skipping plugin updates"
 fi
 
 # =============================================================================
