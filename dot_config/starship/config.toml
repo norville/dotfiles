@@ -127,10 +127,10 @@ symbol = '❯ '
 format = "[$symbol]($style)"
 
 [sudo]
-disabled = false
-symbol = " "
-style = "#ff757f"  # red
-format = "[$symbol]($style)"
+disabled = true
+#symbol = " "
+#style = "#ff757f"  # red
+#format = "[$symbol]($style)"
 
 [terraform]
 symbol = "💠 "

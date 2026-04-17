@@ -40,6 +40,13 @@ if command -v nvim >/dev/null 2>&1; then
 fi
 
 # -----------------------------------------------------------------------------
+# Text Editor: Fresh
+# -----------------------------------------------------------------------------
+if command -v fresh >/dev/null 2>&1; then
+    alias fr='fresh'
+fi
+
+# -----------------------------------------------------------------------------
 # File Listing: eza (modern ls replacement)
 # -----------------------------------------------------------------------------
 # eza: Modern replacement for ls with colors, git integration, and icons
