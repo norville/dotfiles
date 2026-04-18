@@ -253,8 +253,8 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/norville/dotfiles/main/d
 │    - Flatpak (Fedora)                                       │
 │    - AUR/yay (Arch)                                         │
 │  • Update ZSH Plugins:                                      │
-│    - Update Antidote itself                                 │
-│    - Run: antidote update                                   │
+│    - Update Antigen itself                                  │
+│    - Run: antigen update                                    │
 │  • Rebuild Caches:                                          │
 │    - bat cache --build                                      │
 │    - fc-cache (font cache on Linux)                         │
@@ -730,7 +730,7 @@ dotfiles/
 │   └── starship/                   # Starship prompt config
 ├── dot_zsh/                        # ZSH configurations
 │   ├── aliases.zsh                 # Shell aliases
-│   └── antidote.zsh                # Plugin manager
+│   └── antigen.zsh                 # Plugin manager
 ├── dot_zshrc.tmpl                  # Main ZSH config
 ├── dot_ssh/                        # SSH configuration
 ├── README.md                       # User documentation
@@ -899,7 +899,7 @@ chezmoi diff        # See what would change
 ### Optimization Strategies
 
 1. **Package Cache**: Updates run once, installations reuse cache
-2. **Static Plugin Loading**: Antidote generates fast static files
+2. **Static Plugin Loading**: Antigen caches plugin bundles for faster startup
 3. **Minimal Dependencies**: Bootstrap installs only git + chezmoi
 4. **Idempotent Scripts**: Skip already-installed packages
 5. **Parallel Execution**: Future enhancement opportunity
@@ -987,9 +987,9 @@ chezmoi execute-template '{{ .packageManager }}'
 
 ### Plugins Not Loading
 
-**Check**: Antidote installed
+**Check**: Antigen installed
 ```bash
-ls ~/.local/share/antidote
+ls ~/.local/share/antigen
 ```
 
 **Check**: Static file generated
@@ -1031,7 +1031,7 @@ zsh-clean-plugins
 ### Official Documentation
 
 - [Chezmoi](https://www.chezmoi.io/) - Dotfiles management
-- [Antidote](https://github.com/mattmc3/antidote) - ZSH plugin manager
+- [Antigen](https://github.com/zsh-users/antigen) - ZSH plugin manager
 - [Starship](https://starship.rs/) - Cross-shell prompt
 - [Tokyo Night](https://github.com/folke/tokyonight.nvim) - Color scheme
 

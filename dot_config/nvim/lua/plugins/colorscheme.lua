@@ -3,6 +3,8 @@ return {
   -- config tokyonight theme
   {
     "folke/tokyonight.nvim",
+    lazy = false,    -- must load at startup so the colorscheme is set before any UI renders
+    priority = 1000, -- load before all other plugins
     opts = {
       style = "moon",
       transparent = true,

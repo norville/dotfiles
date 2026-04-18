@@ -7,7 +7,7 @@ A comprehensive, cross-platform dotfiles management system using [Chezmoi](https
 - **Cross-Platform Support**: macOS, Debian, Ubuntu, Fedora, RHEL, Arch, and Manjaro
 - **Automated Bootstrap**: One-command installation script for fresh systems
 - **Package Management**: Automatic installation of essential development tools
-- **Shell Configuration**: Enhanced ZSH setup with Antidote plugin manager
+- **Shell Configuration**: Enhanced ZSH setup with Antigen plugin manager
 - **Modern CLI Tools**: eza, bat, fzf, ripgrep, neovim, and more
 - **Consistent Themes**: Tokyo Night color scheme across all applications
 - **SSH Management**: Integrated 1Password SSH agent support
@@ -96,9 +96,8 @@ These scripts run automatically during `chezmoi apply`:
 | File | Description |
 |------|-------------|
 | `.zshrc` | Main ZSH configuration with XDG compliance, Homebrew setup, and plugin loading |
-| `plugins.zsh` | Antidote plugin manager configuration with auto-installation |
+| `antigen.zsh` | Antigen plugin manager configuration with auto-installation |
 | `aliases.zsh` | Shell aliases for modern CLI tools and convenience shortcuts |
-| `.zsh_plugins.txt` | List of ZSH plugins to install via Antidote |
 
 ### Application Configurations
 
@@ -116,7 +115,7 @@ These scripts run automatically during `chezmoi apply`:
 
 ### Core Tools (All Systems)
 
-- **Shell**: ZSH with Antidote plugin manager
+- **Shell**: ZSH with Antigen plugin manager
 - **Editor**: Neovim with modern configuration
 - **Terminal**: Kitty (GPU-accelerated)
 - **Prompt**: Starship (cross-shell prompt)
@@ -316,12 +315,9 @@ chezmoi verify
 ### Plugin Issues
 
 ```bash
-# Regenerate plugin cache
-zsh-clean-plugins
-
 # Manually update plugins
-cd ~/.antidote && git pull
-antidote update
+cd ~/.local/share/antigen && git pull
+antigen update
 ```
 
 ### Font Issues (Linux)
@@ -345,14 +341,14 @@ This is a personal dotfiles repository, but suggestions and improvements are wel
 ## 🔗 Resources
 
 - [Chezmoi Documentation](https://www.chezmoi.io/)
-- [Antidote Plugin Manager](https://github.com/mattmc3/antidote)
+- [Antigen Plugin Manager](https://github.com/zsh-users/antigen)
 - [Starship Prompt](https://starship.rs/)
 - [Tokyo Night Theme](https://github.com/folke/tokyonight.nvim)
 
 ## ✨ Acknowledgments
 
 - Built with [Chezmoi](https://www.chezmoi.io/) for dotfile management
-- Powered by [Antidote](https://github.com/mattmc3/antidote) for ZSH plugins
+- Powered by [Antigen](https://github.com/zsh-users/antigen) for ZSH plugins
 - Themed with [Tokyo Night](https://github.com/folke/tokyonight.nvim)
 - Inspired by the dotfiles community
 

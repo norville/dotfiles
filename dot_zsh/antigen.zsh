@@ -22,9 +22,19 @@
 # -----------------------------------------------------------------------------
 # Antigen Installation Directory
 # -----------------------------------------------------------------------------
-# Store Antigen in XDG data directory
+# Store Antigen source in XDG data directory (persistent)
 export ADOTDIR="${XDG_DATA_HOME:-${HOME}/.local/share}/antigen"
 ANTIGEN="${ADOTDIR}/antigen.zsh"
+
+# Redirect regeneratable cache files to XDG cache directory.
+# These must be set before sourcing antigen.zsh so Antigen picks them up.
+# ANTIGEN_CACHE: compiled bundle file — sourced directly on subsequent shells
+#                instead of re-evaluating all `antigen bundle` calls (fast path)
+# ANTIGEN_COMPDUMP: zsh completion dump — regeneratable, belongs in cache
+_ANTIGEN_CACHE_DIR="${XDG_CACHE_HOME:-${HOME}/.cache}/antigen"
+mkdir -p "${_ANTIGEN_CACHE_DIR}"
+export ANTIGEN_CACHE="${_ANTIGEN_CACHE_DIR}/init.zsh"
+export ANTIGEN_COMPDUMP="${_ANTIGEN_CACHE_DIR}/zcompdump"
 
 # -----------------------------------------------------------------------------
 # Auto-Install Antigen if Missing
@@ -79,8 +89,7 @@ fi
 # Set up cache directory to avoid polluting home directory
 export ZSH_CACHE_DIR="${XDG_CACHE_HOME:-${HOME}/.cache}/oh-my-zsh"
 
-# Create cache and completions directories
-mkdir -p "${ZSH_CACHE_DIR}/completions"
+[[ -d "${ZSH_CACHE_DIR}/completions" ]] || mkdir -p "${ZSH_CACHE_DIR}/completions"
 
 # Load Oh-My-ZSH as the base framework
 antigen use oh-my-zsh
@@ -95,7 +104,6 @@ antigen bundle Aloxaf/fzf-tab               # Fuzzy autocomplete for ZSH using f
 antigen bundle archlinux                    # Arch Linux shortcuts and aliases
 antigen bundle chezmoi                      # Chezmoi shortcuts
 antigen bundle colorize                     # Colorize command output
-antigen bundle eza                          # Enhanced ls command
 antigen bundle git                          # Git shortcuts and aliases
 antigen bundle kitty                        # Kitty terminal shortcuts
 antigen bundle ssh                          # SSH shortcuts and completions
@@ -267,7 +275,7 @@ fi
 # antigen selfupdate     - Update Antigen itself
 # antigen list           - List loaded plugins
 # antigen purge <repo>   - Remove a specific plugin
-# antigen reset          - Clear cache and reload
+# antigen reset          - Clear cache and reload (run after adding/removing plugins)
 #
 # To add a new plugin:
 # 1. Edit this file (~/.zsh/antigen.zsh)

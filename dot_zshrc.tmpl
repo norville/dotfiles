@@ -308,14 +308,32 @@ if command -v fzf >/dev/null 2>&1; then
         eval "$(fzf --zsh 2>/dev/null)" || true
     fi
 
-    # FZF configuration options
-    export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
+    # FZF configuration options — Tokyo Night Moon colors
+    export FZF_DEFAULT_OPTS="
+        --height 40% --layout=reverse --border
+        --color=bg+:#2f334d,bg:#222436,spinner:#c3e88d,hl:#82aaff
+        --color=fg:#c8d3f5,header:#82aaff,info:#cfc9c2,pointer:#ff757f
+        --color=marker:#c3e88d,fg+:#c8d3f5,prompt:#86e1fc,hl+:#82aaff
+    "
 
     # Use fd for file listing if available (faster and respects .gitignore)
     if command -v fd >/dev/null 2>&1; then
         export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
         export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
     fi
+
+    # Ctrl-T: preview files with bat
+    if command -v bat >/dev/null 2>&1; then
+        export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:200 {}' --preview-window=right:55%:wrap"
+    fi
+
+    # Alt-C: preview directories with eza tree
+    if command -v eza >/dev/null 2>&1; then
+        export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always --level=2 {}' --preview-window=right:55%"
+    fi
+
+    # Ctrl-R: show full command in preview (useful for long history entries)
+    export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window=down:2:wrap"
 fi
 
 # -----------------------------------------------------------------------------
@@ -331,4 +349,4 @@ fi
 # END OF CONFIGURATION
 # =============================================================================
 
-. "$HOME/.local/share/../bin/env"
+[[ -f "$HOME/.local/bin/env" ]] && source "$HOME/.local/bin/env"
