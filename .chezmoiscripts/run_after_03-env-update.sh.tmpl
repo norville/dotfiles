@@ -101,12 +101,6 @@ bdb_exec "Removing unused packages" sudo apt-get autoremove --purge -y
 bdb_exec "Cleaning package cache" sudo apt-get clean
 bdb_success "APT packages updated"
 
-# Update Snap packages if installed
-if bdb_test_cmd "snap"; then
-    bdb_exec "Updating Snap packages" sudo snap refresh
-    bdb_success "Snap packages updated"
-fi
-
 {{- else if eq .packageManager "dnf" }}
 
 # Fedora/RHEL: DNF updates
@@ -143,6 +137,13 @@ if bdb_test_cmd "yay"; then
 fi
 
 {{- end }}
+
+# Update Snap packages if installed (any Linux distro)
+if bdb_test_cmd "snap"; then
+    bdb_exec "Updating Snap packages" sudo snap refresh
+    bdb_success "Snap packages updated"
+fi
+
 {{- end }}
 
 # =============================================================================

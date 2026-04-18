@@ -249,6 +249,12 @@ update_arch() {
 
     # Clean the package cache to free up disk space
     bdb_exec "Cleaning package cache" sudo pacman -Scc --noconfirm
+
+    # Update AUR packages if yay is installed
+    if bdb_test_cmd "yay"; then
+        bdb_exec "Updating AUR packages" yay -Syu --noconfirm
+        bdb_success "AUR packages updated"
+    fi
 }
 
 # -----------------------------------------------------------------------------
@@ -277,6 +283,12 @@ update_debian() {
 
     # Remove downloaded package files to free up disk space
     bdb_exec "Cleaning package cache" sudo apt-get clean
+
+    # Update Snap packages if installed
+    if bdb_test_cmd "snap"; then
+        bdb_exec "Updating Snap packages" sudo snap refresh
+        bdb_success "Snap packages updated"
+    fi
 }
 
 # -----------------------------------------------------------------------------
@@ -301,6 +313,12 @@ update_fedora() {
 
     # Clean package cache and temporary files
     bdb_exec "Cleaning package cache" sudo dnf clean all
+
+    # Update Flatpak packages if installed
+    if bdb_test_cmd "flatpak"; then
+        bdb_exec "Updating Flatpak packages" flatpak update -y
+        bdb_success "Flatpak packages updated"
+    fi
 }
 
 # -----------------------------------------------------------------------------
