@@ -101,7 +101,7 @@ antigen bundle 1password                    # 1Password CLI integration
 antigen bundle akash329d/zsh-alias-finder   # Find useful aliases
 antigen bundle aliases                      # Provides 'acs' command to search aliases
 antigen bundle Aloxaf/fzf-tab               # Fuzzy autocomplete for ZSH using fzf
-antigen bundle archlinux                    # Arch Linux shortcuts and aliases
+[[ -f /etc/arch-release ]] && antigen bundle archlinux
 antigen bundle chezmoi                      # Chezmoi shortcuts
 antigen bundle colorize                     # Colorize command output
 antigen bundle git                          # Git shortcuts and aliases

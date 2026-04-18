@@ -7,7 +7,7 @@
 - [x] Fix or remove broken `. "$HOME/.local/share/../bin/env"` line in `dot_zshrc.tmpl:334`
 - [x] Add FZF + bat preview integration in `dot_zshrc.tmpl`
 - [x] Delete `dot_config/nvim/lua/plugins/example.lua` (dead code — guarded by `if true then return {} end`)
-- [ ] Gate `archlinux` plugin in `dot_zsh/antigen.zsh` to Arch-only
+- [x] Gate `archlinux` plugin in `dot_zsh/antigen.zsh` to Arch-only
 - [ ] Verify `run_after_03-env-update.sh.tmpl` covers all secondary package managers per distro (snap on apt, flatpak on dnf, yay on pacman); move snap check outside apt block if needed
 - [ ] After `chezmoi update`, diff installed packages against the managed list in `run_onchange_after_00` and prompt to remove unrecognised ones (add to `run_after_03-env-update.sh.tmpl`)
 - [ ] Indent Go template directives (`{{- if ... }}`) consistently across all `.tmpl` files for readability
