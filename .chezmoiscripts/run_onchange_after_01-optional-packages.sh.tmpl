@@ -61,7 +61,7 @@ if bdb_ask "Do you want to install 1Password"; then
 
 {{- else if eq .chezmoi.os "linux" }}
 
-{{- if .isARM }}
+    {{- if .isARM }}
     # ARM Architecture: Install from .tar.gz
     bdb_action "Installing 1Password for ARM architecture"
 
@@ -114,10 +114,10 @@ if bdb_ask "Do you want to install 1Password"; then
     bdb_success "1Password CLI installed (ARM)"
     bdb_info "Launch 1Password CLI with: op"
 
-{{- else }}
+    {{- else }}
     # x86_64 Architecture: Use package managers
 
-{{- if eq .packageManager "apt" }}
+        {{- if eq .packageManager "apt" }}
     # Debian/Ubuntu: Install from official repository
     bdb_action "Installing 1Password (Debian/Ubuntu)"
 
@@ -142,7 +142,7 @@ if bdb_ask "Do you want to install 1Password"; then
     bdb_exec "Installing 1Password packages" sudo apt-get install -y 1password 1password-cli
     bdb_success "1Password installed"
 
-{{- else if eq .packageManager "dnf" }}
+        {{- else if eq .packageManager "dnf" }}
     # Fedora/RHEL: Install from official repository
     bdb_action "Installing 1Password (Fedora/RHEL)"
 
@@ -163,14 +163,14 @@ EOF'
     bdb_exec "Installing 1Password packages" sudo dnf install -y 1password 1password-cli
     bdb_success "1Password installed"
 
-{{- else if eq .packageManager "pacman" }}
+        {{- else if eq .packageManager "pacman" }}
     # Arch/Manjaro: Install from AUR
     bdb_exec "Installing 1Password (Arch/Manjaro)" yay -S --noconfirm 1password 1password-cli
     bdb_success "1Password installed"
 
-{{- end }}
-{{- end }}
-{{- end }}
+        {{- end }}{{- /* end packageManager */ -}}
+    {{- end }}{{- /* end isARM */ -}}
+{{- end }}{{- /* end os */ -}}
 
 else
     bdb_warn "Skipping 1Password installation"
@@ -187,7 +187,7 @@ if bdb_ask "Do you want to install Docker"; then
 
 {{- else if eq .chezmoi.os "linux" }}
 
-{{- if eq .packageManager "apt" }}
+    {{- if eq .packageManager "apt" }}
     # ==========================================================================
     # Debian/Ubuntu: Install from Official Docker Repository
     # ==========================================================================
@@ -224,13 +224,13 @@ if bdb_ask "Do you want to install Docker"; then
     #   - Debian: https://download.docker.com/linux/debian/gpg
     # --------------------------------------------------------------------------
 
-{{- if eq .osid "linux-ubuntu" }}
+        {{- if eq .osid "linux-ubuntu" }}
     # Ubuntu: Download GPG key from Ubuntu-specific repository
     bdb_exec "Adding Docker GPG key (Ubuntu)" sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-{{- else if eq .osid "linux-debian" }}
+        {{- else if eq .osid "linux-debian" }}
     # Debian: Download GPG key from Debian-specific repository
     bdb_exec "Adding Docker GPG key (Debian)" sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-{{- end }}
+        {{- end }}{{- /* end osid */ -}}
 
     # Set proper permissions on GPG key
     bdb_exec "Setting GPG key permissions" sudo chmod a+r /etc/apt/keyrings/docker.asc
@@ -250,7 +250,7 @@ if bdb_ask "Do you want to install Docker"; then
     # and the variables will be evaluated at script execution time.
     # --------------------------------------------------------------------------
 
-{{- if eq .osid "linux-ubuntu" }}
+        {{- if eq .osid "linux-ubuntu" }}
     # Ubuntu: Use UBUNTU_CODENAME with VERSION_CODENAME fallback
     bdb_exec "Adding Docker repository (Ubuntu)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<DOCKER_REPO_EOF
 Types: deb
@@ -260,7 +260,7 @@ Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
 DOCKER_REPO_EOF
 
-{{- else if eq .osid "linux-debian" }}
+        {{- else if eq .osid "linux-debian" }}
     # Debian: Use VERSION_CODENAME from /etc/os-release
     bdb_exec "Adding Docker repository (Debian)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<DOCKER_REPO_EOF
 Types: deb
@@ -270,7 +270,7 @@ Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
 DOCKER_REPO_EOF
 
-{{- end }}
+        {{- end }}{{- /* end osid */ -}}
 
     # --------------------------------------------------------------------------
     # Install Docker Packages
@@ -291,7 +291,7 @@ DOCKER_REPO_EOF
     bdb_success "Docker installed"
     bdb_warn "Please log out and back in for group membership to take effect"
 
-{{- else if eq .packageManager "dnf" }}
+    {{- else if eq .packageManager "dnf" }}
     # Fedora/RHEL: Install from official Docker repository
     bdb_action "Installing Docker (Fedora/RHEL)"
 
@@ -315,7 +315,7 @@ DOCKER_REPO_EOF
     bdb_success "Docker installed"
     bdb_warn "Please log out and back in for group membership to take effect"
 
-{{- else if eq .packageManager "pacman" }}
+    {{- else if eq .packageManager "pacman" }}
     # Arch/Manjaro: Install from official repositories
     bdb_exec "Installing Docker (Arch/Manjaro)" sudo pacman -S --needed --noconfirm docker docker-compose
 
@@ -329,8 +329,8 @@ DOCKER_REPO_EOF
     bdb_success "Docker installed"
     bdb_warn "Please log out and back in for group membership to take effect"
 
-{{- end }}
-{{- end }}
+    {{- end }}{{- /* end packageManager */ -}}
+{{- end }}{{- /* end os */ -}}
 
 else
     bdb_warn "Skipping Docker installation"
@@ -346,7 +346,7 @@ if bdb_ask "Do you want to install Visual Studio Code"; then
 
 {{- else if eq .chezmoi.os "linux" }}
 
-{{- if eq .packageManager "apt" }}
+    {{- if eq .packageManager "apt" }}
     # Debian/Ubuntu: Install from Microsoft repository
     bdb_action "Installing Visual Studio Code (Debian/Ubuntu)"
 
@@ -362,7 +362,7 @@ if bdb_ask "Do you want to install Visual Studio Code"; then
     bdb_exec "Installing VS Code" bash -c "sudo apt-get update && sudo apt-get install -y code"
     bdb_success "Visual Studio Code installed"
 
-{{- else if eq .packageManager "dnf" }}
+    {{- else if eq .packageManager "dnf" }}
     # Fedora/RHEL: Install from Microsoft repository
     bdb_action "Installing Visual Studio Code (Fedora/RHEL)"
 
@@ -380,13 +380,13 @@ EOF'
     bdb_exec "Installing VS Code" sudo dnf install -y code
     bdb_success "Visual Studio Code installed"
 
-{{- else if eq .packageManager "pacman" }}
+    {{- else if eq .packageManager "pacman" }}
     # Arch/Manjaro: Install from AUR
     bdb_exec "Installing Visual Studio Code (Arch/Manjaro)" yay -S --noconfirm visual-studio-code-bin
     bdb_success "Visual Studio Code installed"
 
-{{- end }}
-{{- end }}
+    {{- end }}{{- /* end packageManager */ -}}
+{{- end }}{{- /* end os */ -}}
 
 else
     bdb_warn "Skipping Visual Studio Code installation"
@@ -404,11 +404,11 @@ if bdb_ask "Do you want to install Ansible"; then
 
 {{- else if eq .chezmoi.os "linux" }}
 
-{{- if eq .packageManager "apt" }}
+    {{- if eq .packageManager "apt" }}
     # Debian/Ubuntu: Install Ansible
     bdb_action "Installing Ansible (Debian/Ubuntu)"
 
-{{- if eq .osid "linux-ubuntu" }}
+        {{- if eq .osid "linux-ubuntu" }}
     # Ubuntu: Check version to determine installation method
     # PPA ansible/ansible only supports LTS releases (20.04, 22.04, 24.04, etc.)
     # For interim releases or latest versions, use pipx instead
@@ -458,7 +458,7 @@ if bdb_ask "Do you want to install Ansible"; then
         bdb_info "You may need to restart your shell for pipx PATH to take effect"
     fi
 
-{{- else if eq .osid "linux-debian" }}
+        {{- else if eq .osid "linux-debian" }}
     # Debian: Install from default repositories or backports
     bdb_info "Installing Ansible on Debian"
 
@@ -469,9 +469,9 @@ if bdb_ask "Do you want to install Ansible"; then
     bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete3 2>/dev/null || true
 
     bdb_success "Ansible installed"
-{{- end }}
+        {{- end }}{{- /* end osid */ -}}
 
-{{- else if eq .packageManager "dnf" }}
+    {{- else if eq .packageManager "dnf" }}
     # Fedora/RHEL: Install from official repositories
     bdb_action "Installing Ansible (Fedora/RHEL)"
 
@@ -482,7 +482,7 @@ if bdb_ask "Do you want to install Ansible"; then
 
     bdb_success "Ansible installed"
 
-{{- else if eq .packageManager "pacman" }}
+    {{- else if eq .packageManager "pacman" }}
     # Arch/Manjaro: Install from official repositories
     bdb_action "Installing Ansible (Arch/Manjaro)"
 
@@ -493,8 +493,8 @@ if bdb_ask "Do you want to install Ansible"; then
 
     bdb_success "Ansible installed"
 
-{{- end }}
-{{- end }}
+    {{- end }}{{- /* end packageManager */ -}}
+{{- end }}{{- /* end os */ -}}
 
     # Post-installation: Install Ansible extra collections
     if bdb_ask "Install Ansible extra collections (community.docker)"; then

@@ -86,9 +86,9 @@ else
     bdb_warn "btop theme not found, check chezmoi external"
 fi
 
-{{- /* ========================================================================== */ -}}
-{{- /* Linux-Specific Configuration                                               */ -}}
-{{- /* ========================================================================== */ -}}
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- /* Linux-Specific Configuration                                         */ -}}
+{{- /* -------------------------------------------------------------------- */ -}}
 {{- if eq .chezmoi.os "linux" }}
 # -----------------------------------------------------------------------------
 # Linux-Specific Configuration
@@ -120,7 +120,7 @@ fi
 
 # Configure JetBrainsMono fonts
 
-{{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
+    {{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
 # Debian/Ubuntu/Fedora: Fonts installed via chezmoiexternal, just update font cache
 bdb_action "Updating font cache"
 if bdb_test_cmd "fc-cache"; then
@@ -129,7 +129,7 @@ if bdb_test_cmd "fc-cache"; then
 else
     bdb_warn "fc-cache command not found, cannot update font cache"
 fi
-{{- end }}
+    {{- end }}{{- /* end apt/dnf font cache */ -}}
 
 # Verify fonts installation
 bdb_action "Verifying fonts installation"
@@ -153,9 +153,9 @@ else
     bdb_warn "fc-list command not found, cannot verify fonts"
 fi
 
-{{- /* ========================================================================== */ -}}
-{{- /* macOS-Specific Configuration                                               */ -}}
-{{- /* ========================================================================== */ -}}
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- /* macOS-Specific Configuration                                         */ -}}
+{{- /* -------------------------------------------------------------------- */ -}}
 {{- else if eq .chezmoi.os "darwin" }}
 # -----------------------------------------------------------------------------
 # macOS-Specific Configuration
@@ -195,7 +195,7 @@ else
     bdb_warn "Homebrew not found"
 fi
 
-{{- end }}
+{{- end }}{{- /* end os */ -}}
 
 # -----------------------------------------------------------------------------
 # Git Configuration (Commented - Handled by git config files)

@@ -10,7 +10,7 @@
 - [x] 5. Gate `archlinux` plugin in `dot_zsh/antigen.zsh` to Arch-only
 - [x] 6. Verify `run_after_03-env-update.sh.tmpl` covers all secondary package managers per distro (snap on apt, flatpak on dnf, yay on pacman); move snap check outside apt block if needed
 - [x] 7. After `chezmoi update`, diff installed packages against the managed list in `run_onchange_after_00` and prompt to remove unrecognised ones (add to `run_after_03-env-update.sh.tmpl`)
-- [ ] 8. Indent Go template directives (`{{- if ... }}`) consistently across all `.tmpl` files for readability
+- [x] 8. Indent Go template directives (`{{- if ... }}`) consistently across all `.tmpl` files for readability
 - [ ] 9. Integrate 1Password SSH agent: configure `dot_ssh/private_config.tmpl` to point `IdentityAgent` to the 1Password socket, ensure the 1Password plugin in `antigen.zsh` is active, and verify private keys are not stored on disk
 - [x] 10. macOS: remove hardcoded `brew upgrade --cask` block from `run_after_03-env-update.sh.tmpl`; limit automated updates to formulae only (`brew upgrade` without `--cask`)
 - [x] 11. Verify `eza` plugin in `dot_zsh/antigen.zsh` vs manual aliases — remove if duplicate

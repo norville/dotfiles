@@ -92,7 +92,7 @@ bdb_success "Homebrew casks updated"
 # Linux: Package Manager Updates
 # -----------------------------------------------------------------------------
 
-{{- if eq .packageManager "apt" }}
+    {{- if eq .packageManager "apt" }}
 
 # Debian/Ubuntu: APT updates
 bdb_exec "Updating package lists" sudo apt-get update
@@ -107,7 +107,7 @@ if bdb_test_cmd "snap"; then
     bdb_success "Snap packages updated"
 fi
 
-{{- else if eq .packageManager "dnf" }}
+    {{- else if eq .packageManager "dnf" }}
 
 # Fedora/RHEL: DNF updates
 bdb_exec "Upgrading packages" sudo dnf upgrade --refresh -y
@@ -121,7 +121,7 @@ if bdb_test_cmd "flatpak"; then
     bdb_success "Flatpak packages updated"
 fi
 
-{{- else if eq .packageManager "pacman" }}
+    {{- else if eq .packageManager "pacman" }}
 
 # Arch/Manjaro: Pacman updates
 bdb_exec "Updating system packages" sudo pacman -Syu --noconfirm
@@ -142,7 +142,7 @@ if bdb_test_cmd "yay"; then
     bdb_success "AUR packages updated"
 fi
 
-{{- end }}
+    {{- end }}{{- /* end packageManager */ -}}
 
 # =============================================================================
 # PACKAGE AUDIT
@@ -153,7 +153,7 @@ fi
 # hundreds of base-OS packages making the diff too noisy — skipped.
 # pacman -Qqe reliably lists only explicitly user-installed packages.
 
-{{- if eq .packageManager "pacman" }}
+    {{- if eq .packageManager "pacman" }}
 
 _managed=(
     {{- range .corePackages }}
@@ -195,9 +195,9 @@ fi
 
 unset _managed _base_devel _unrecognised _pkg
 
-{{- end }}
+    {{- end }}{{- /* end pacman audit */ -}}
 
-{{- end }}
+{{- end }}{{- /* end linux */ -}}
 
 # =============================================================================
 # SHELL PLUGIN UPDATES
@@ -240,9 +240,9 @@ if bdb_test_cmd "bat"; then
 fi
 {{- end }}
 
-{{- /* ========================================================================== */ -}}
-{{- /* Linux Font Cache Update                                                    */ -}}
-{{- /* ========================================================================== */ -}}
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- /* Linux Font Cache Update                                              */ -}}
+{{- /* -------------------------------------------------------------------- */ -}}
 {{- if eq .chezmoi.os "linux" }}
 
 # -----------------------------------------------------------------------------
