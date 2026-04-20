@@ -156,6 +156,9 @@ fi
 {{- if eq .packageManager "pacman" }}
 
 _managed=(
+    {{- range .corePackages }}
+    "{{ . }}"
+    {{- end }}
     {{- range .pacmanPackages }}
     "{{ . }}"
     {{- end }}

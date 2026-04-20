@@ -67,6 +67,9 @@ bdb_begin_section "Installing Required Packages for {{ .osid }}"
 # APT Package List (Debian/Ubuntu)
 # -----------------------------------------------------------------------------
 APT_PACKAGES=(
+    {{- range .corePackages }}
+    "{{ . }}"
+    {{- end }}
     {{- range .aptPackages }}
     "{{ . }}"
     {{- end }}
@@ -127,6 +130,9 @@ fi
 # DNF Package List (Fedora/RHEL)
 # -----------------------------------------------------------------------------
 DNF_PACKAGES=(
+    {{- range .corePackages }}
+    "{{ . }}"
+    {{- end }}
     {{- range .dnfPackages }}
     "{{ . }}"
     {{- end }}
@@ -167,6 +173,9 @@ fi
 # Pacman Package List (Arch/Manjaro)
 # -----------------------------------------------------------------------------
 PACMAN_PACKAGES=(
+    {{- range .corePackages }}
+    "{{ . }}"
+    {{- end }}
     {{- range .pacmanPackages }}
     "{{ . }}"
     {{- end }}

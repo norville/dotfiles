@@ -105,27 +105,20 @@
     # Package lists — single source of truth for install and audit scripts.
     # eza, fresh, and snap packages on apt have special install logic and stay
     # inline in the scripts; only standard package-manager installs live here.
+    # corePackages is prepended to every distro-specific list in the scripts.
+    corePackages = [
+        "bat", "btop", "curl", "fzf", "git", "git-delta",
+        "kitty", "ripgrep", "starship", "vim", "wget", "zsh"
+    ]
     pacmanPackages = [
-        "base-devel", "bat", "btop", "curl", "eza", "fd", "fzf",
-        "git", "git-delta", "gnupg", "kitty", "lazygit", "neovim",
-        "ripgrep", "starship", "tree-sitter",
-        "ttf-jetbrains-mono", "ttf-jetbrains-mono-nerd",
-        "vim", "wget", "zsh"
+        "base-devel", "eza", "fd", "gnupg", "lazygit", "neovim",
+        "tree-sitter", "ttf-jetbrains-mono", "ttf-jetbrains-mono-nerd"
     ]
     pacmanAurPackages = ["bat-extras", "fresh-editor-bin"]
-    aptPackages = [
-        "bat", "btop", "build-essential", "curl",
-        "fd-find", "fzf", "git", "git-delta", "gpg",
-        "kitty", "ripgrep", "starship", "tree-sitter-cli",
-        "vim", "wget", "zsh"
-    ]
+    aptPackages = ["build-essential", "fd-find", "gpg", "tree-sitter-cli"]
     dnfPackages = [
-        "@development-tools",
-        "bat", "bat-extras", "btop", "curl", "eza",
-        "fd-find", "fzf", "git", "git-delta", "gnupg2",
-        "kitty", "lazygit", "neovim", "python3-neovim",
-        "ripgrep", "starship",
-        "vim", "wget", "zsh"
+        "@development-tools", "bat-extras", "eza",
+        "fd-find", "gnupg2", "lazygit", "neovim", "python3-neovim"
     ]
 
 # -----------------------------------------------------------------------------
