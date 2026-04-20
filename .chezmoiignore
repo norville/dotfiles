@@ -29,25 +29,18 @@ TODO.md
 # -----------------------------------------------------------------------------
 # Machine-Type Exclusions
 # -----------------------------------------------------------------------------
-# workstation: vim is only a fallback binary; its config files are unused
+# workstation: neovim replaces vim; vim config files are unused
 {{- if eq .machine "workstation" }}
 .vimrc
 .vim/
 {{- end }}
 
-# headless / vm: no terminal emulator or fancy prompt
-{{- if or (eq .machine "headless") (eq .machine "vm") }}
+# terminal: GUI/heavy tools are not installed
+{{- if eq .machine "terminal" }}
 .config/kitty/
-.config/starship/
-{{- end }}
-
-# vm: minimal install — skip configs for all tools not installed
-{{- if eq .machine "vm" }}
 .config/nvim/
 .config/lazygit/
 .config/btop/
-.config/eza/
-.config/bat/
 .config/fresh/
 {{- end }}
 

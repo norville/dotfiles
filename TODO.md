@@ -16,3 +16,14 @@
 - [x] 11. Verify `eza` plugin in `dot_zsh/antigen.zsh` vs manual aliases — remove if duplicate
 - [x] 12. Investigate Antigen cache behaviour for faster shell startup
 - [x] 13. Enable `lazy = true` in `dot_config/nvim/lua/config/lazy.lua`
+- [x] 14. Redefine and auto-infere $machine:
+  - if `.chezmoi.os` is `darwin` -> `workstation`
+  - else if `.osid` is `linux-arch` -> `workstation`
+  - else -> `terminal`
+- [x] 15. Redefine machine exclusions
+  - `terminal`: `kitty`, `*neovim`, `fresh`, `lazygit`, `tree-sitter*`, `ripgrep`, `fd*`, `btop`
+  - `workstation`: `vim`
+- [ ] 16. Rename package lists:
+  - pacmanAur -> aur
+  - brewFormulae -> formula
+  - brewCasks -> cask
