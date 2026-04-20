@@ -223,4 +223,13 @@
     # Template options
     options = ["missingkey=error"]
 
+# -----------------------------------------------------------------------------
+# 1Password Configuration
+# -----------------------------------------------------------------------------
+# Enables onepasswordRead / onepassword* template functions.
+# prompt = true: re-prompts for biometric/password auth if the session expires
+# instead of erroring out. Requires op CLI and an active account.
+[onepassword]
+    prompt = true
+
 # =============================================================================
