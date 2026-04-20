@@ -1,0 +1,8 @@
+# Formulae
+{{ range .brewFormulae -}}
+brew "{{ . }}"
+{{ end }}
+# Casks
+{{ range .brewCasks -}}
+cask "{{ . }}"
+{{ end -}}
