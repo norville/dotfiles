@@ -155,13 +155,14 @@ fi
 
 {{- if eq .packageManager "pacman" }}
 
-PACMAN_MANAGED=(
-    "bat" "btop" "curl" "eza" "fd" "fzf"
-    "git" "git-delta" "gnupg" "kitty" "lazygit" "neovim"
-    "ripgrep" "starship" "tree-sitter"
-    "ttf-jetbrains-mono" "ttf-jetbrains-mono-nerd"
-    "vim" "wget" "yay" "zsh"
-    "bat-extras" "fresh-editor-bin"
+_managed=(
+    {{- range .pacmanPackages }}
+    "{{ . }}"
+    {{- end }}
+    {{- range .pacmanAurPackages }}
+    "{{ . }}"
+    {{- end }}
+    "yay"
 )
 
 # Expand base-devel group members to avoid false positives
@@ -170,7 +171,7 @@ mapfile -t _base_devel < <(pacman -Qgq base-devel 2>/dev/null | sort)
 mapfile -t _unrecognised < <(
     comm -23 \
         <(pacman -Qqe 2>/dev/null | sort) \
-        <({ printf '%s\n' "${PACMAN_MANAGED[@]}"; printf '%s\n' "${_base_devel[@]}"; } | sort -u)
+        <({ printf '%s\n' "${_managed[@]}"; printf '%s\n' "${_base_devel[@]}"; } | sort -u)
 )
 
 if [[ ${#_unrecognised[@]} -gt 0 ]]; then
@@ -189,7 +190,7 @@ else
     bdb_success "All explicitly installed packages are in the managed list"
 fi
 
-unset _base_devel _unrecognised _pkg
+unset _managed _base_devel _unrecognised _pkg
 
 {{- end }}
 

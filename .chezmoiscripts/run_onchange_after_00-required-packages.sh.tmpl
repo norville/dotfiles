@@ -49,18 +49,6 @@ trap 'bdb_cleanup' EXIT        # Cleanup on exit
 # PACKAGE DEFINITIONS
 # =============================================================================
 
-# -----------------------------------------------------------------------------
-# Core packages required on all systems
-# -----------------------------------------------------------------------------
-CORE_PACKAGES=(
-    "bat"           # Modern cat with syntax highlighting
-    "curl"          # HTTP client
-    "git"           # Version control
-    "vim"           # Text editor (fallback)
-    "wget"          # File downloader
-    "zsh"           # Z shell
-)
-
 {{- /* ========================================================================== */ -}}
 {{- /* Linux Package Installation                                                 */ -}}
 {{- /* ========================================================================== */ -}}
@@ -79,17 +67,9 @@ bdb_begin_section "Installing Required Packages for {{ .osid }}"
 # APT Package List (Debian/Ubuntu)
 # -----------------------------------------------------------------------------
 APT_PACKAGES=(
-    "${CORE_PACKAGES[@]}"
-    "btop"              # System monitor
-    "build-essential"   # Compilation tools (gcc, make, etc.)
-    "fd-find"           # Fast file finder (modern find)
-    "fzf"               # Fuzzy finder
-    "git-delta"         # Modern diff viewer with syntax highlighting
-    "gpg"               # GNU Privacy Guard
-    "kitty"             # Modern GPU-accelerated terminal
-    "ripgrep"           # Fast grep alternative
-    "starship"          # Command line prompt
-    "tree-sitter-cli"   # Parser generator tool
+    {{- range .aptPackages }}
+    "{{ . }}"
+    {{- end }}
 )
 
 # Install APT packages
@@ -147,21 +127,9 @@ fi
 # DNF Package List (Fedora/RHEL)
 # -----------------------------------------------------------------------------
 DNF_PACKAGES=(
-    "${CORE_PACKAGES[@]}"
-    "@development-tools"    # Compilation tools group
-    "bat-extras"            # Additional bat utilities
-    "btop"                  # System monitor
-    "eza"                   # Modern ls replacement
-    "fd-find"               # Fast file finder
-    "fzf"                   # Fuzzy finder
-    "git-delta"             # Modern diff viewer with syntax highlighting
-    "gnupg2"                # GNU Privacy Guard
-    "kitty"                 # Modern terminal
-    "lazygit"               # Terminal UI for git
-    "neovim"                # Modern vim
-    "python3-neovim"        # Python support for neovim
-    "ripgrep"               # Fast grep alternative
-    "starship"              # Command line prompt
+    {{- range .dnfPackages }}
+    "{{ . }}"
+    {{- end }}
 )
 
 # Enable COPR repositories for additional packages
@@ -199,22 +167,9 @@ fi
 # Pacman Package List (Arch/Manjaro)
 # -----------------------------------------------------------------------------
 PACMAN_PACKAGES=(
-    "${CORE_PACKAGES[@]}"
-    "base-devel"                # Base development tools
-    "btop"                      # System monitor
-    "eza"                       # Modern ls replacement
-    "fd"                        # Fast file finder
-    "fzf"                       # Fuzzy finder
-    "git-delta"                 # Modern diff viewer with syntax highlighting
-    "gnupg"                     # GNU Privacy Guard
-    "kitty"                     # Modern terminal
-    "lazygit"                   # Terminal UI for git
-    "neovim"                    # Modern vim
-    "ripgrep"                   # Fast grep alternative
-    "starship"                  # Command line prompt
-    "tree-sitter"               # Parser generator
-    "ttf-jetbrains-mono"        # JetBrains Mono Font
-    "ttf-jetbrains-mono-nerd"   # JetBrains Mono Nerd Font
+    {{- range .pacmanPackages }}
+    "{{ . }}"
+    {{- end }}
 )
 
 # Install Pacman packages
@@ -234,11 +189,12 @@ else
     bdb_success "yay already installed"
 fi
 
-# Install bat-extras from AUR
-bdb_exec "Installing bat-extras from AUR" yay -S --noconfirm bat-extras
-
-# Install fresh file editor (https://github.com/sinelaw/fresh)
-bdb_exec "Installing fresh editor from AUR" yay -S --noconfirm fresh-editor-bin
+AUR_PACKAGES=(
+    {{- range .pacmanAurPackages }}
+    "{{ . }}"
+    {{- end }}
+)
+bdb_exec "Installing AUR packages" yay -S --noconfirm "${AUR_PACKAGES[@]}"
 
 {{- end }}
 
