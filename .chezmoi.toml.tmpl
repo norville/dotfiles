@@ -108,7 +108,10 @@
     # corePackages is prepended to every distro-specific list in the scripts.
     corePackages = [
         "bat", "btop", "curl", "fzf", "git", "git-delta",
-        "kitty", "ripgrep", "starship", "vim", "wget", "zsh"
+        {{- if ne $packageManager "brew" }}
+        "kitty",
+        {{- end }}
+        "ripgrep", "starship", "vim", "wget", "zsh"
     ]
     pacmanPackages = [
         "base-devel", "eza", "fd", "gnupg", "lazygit", "neovim",
@@ -120,11 +123,10 @@
         "@development-tools", "bat-extras", "eza",
         "fd-find", "gnupg2", "lazygit", "neovim", "python3-neovim"
     ]
+    # macOS-only formulae (corePackages covers the cross-distro ones)
     brewFormulae = [
-        "bat", "btop", "chezmoi", "coreutils", "curl", "eza",
-        "fd", "findutils", "fresh-editor", "fzf", "git", "git-delta",
-        "lazygit", "moreutils", "neovim", "ripgrep", "starship",
-        "tree-sitter-cli", "vim", "wget", "zsh"
+        "chezmoi", "coreutils", "eza", "fd", "findutils",
+        "fresh-editor", "lazygit", "moreutils", "neovim", "tree-sitter-cli"
     ]
     brewCasks = [
         "1password", "1password-cli", "brave-browser",
