@@ -184,6 +184,7 @@ PACMAN_PACKAGES=(
 # Install Pacman packages
 bdb_exec "Installing Pacman packages" sudo pacman -S --needed --noconfirm "${PACMAN_PACKAGES[@]}"
 
+{{- if .pacmanAurPackages }}
 # -----------------------------------------------------------------------------
 # AUR Package List (Arch/Manjaro)
 # -----------------------------------------------------------------------------
@@ -204,6 +205,7 @@ AUR_PACKAGES=(
     {{- end }}
 )
 bdb_exec "Installing AUR packages" yay -S --noconfirm "${AUR_PACKAGES[@]}"
+{{- end }}
 
 {{- end }}
 

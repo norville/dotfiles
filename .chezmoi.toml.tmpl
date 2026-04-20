@@ -67,12 +67,62 @@
 {{- end -}}
 
 {{- /* ========================================================================== */ -}}
+{{- /* Machine Type                                                                */ -}}
+{{- /* ========================================================================== */ -}}
+{{- /* Prompted once and stored in ~/.config/chezmoi/chezmoi.toml                 */ -}}
+{{- /* Values: workstation | headless | vm                                        */ -}}
+
+{{- $machine := promptStringOnce . "machine" "Machine type (workstation/vm/headless)" "workstation" -}}
+
+{{- /* ========================================================================== */ -}}
 {{- /* User Configuration                                                         */ -}}
 {{- /* ========================================================================== */ -}}
 {{- /* Personal information used in templates (e.g., git config)                  */ -}}
 
 {{- $email := "ing.norville@proton.me" -}}
 {{- $name := "Norville" -}}
+
+{{- /* ========================================================================== */ -}}
+{{- /* Package Lists                                                               */ -}}
+{{- /* ========================================================================== */ -}}
+{{- /* All package governance lives here. Scripts consume these via {{ range }}.  */ -}}
+
+{{- $core     := list "bat" "btop" "curl" "fzf" "git" "git-delta" "ripgrep" "starship" "vim" "wget" "zsh" -}}
+{{- $pacman   := list "base-devel" "eza" "fd" "gnupg" "lazygit" "neovim" "tree-sitter" "ttf-jetbrains-mono" "ttf-jetbrains-mono-nerd" -}}
+{{- $pacmanAur := list "bat-extras" "fresh-editor-bin" -}}
+{{- $apt      := list "build-essential" "fd-find" "gpg" "tree-sitter-cli" -}}
+{{- $dnf      := list "@development-tools" "bat-extras" "eza" "fd-find" "gnupg2" "lazygit" "neovim" "python3-neovim" -}}
+{{- $brewFormulae := list "chezmoi" "coreutils" "eza" "fd" "findutils" "fresh-editor" "lazygit" "moreutils" "neovim" "tree-sitter-cli" -}}
+{{- $brewCasks    := list "1password" "1password-cli" "brave-browser" "font-jetbrains-mono" "font-jetbrains-mono-nerd-font" "kitty" "logi-options-plus" "moom" "tor-browser" "visual-studio-code" "whatsapp" -}}
+
+{{- if eq $machine "headless" -}}
+    {{- $core   = without $core "starship" -}}
+    {{- $pacman = without $pacman "ttf-jetbrains-mono" "ttf-jetbrains-mono-nerd" -}}
+{{- else if eq $machine "vm" -}}
+    {{- $core      = list "curl" "vim" "wget" -}}
+    {{- $pacman    = list -}}
+    {{- $pacmanAur = list -}}
+    {{- $apt       = list -}}
+    {{- $dnf       = list -}}
+{{- end -}}
+
+{{- /* kitty is a cask on macOS; on Linux it belongs in corePackages for workstation only */ -}}
+{{- if and (ne $packageManager "brew") (eq $machine "workstation") -}}
+    {{- $core = append $core "kitty" -}}
+{{- end -}}
+
+{{- /* ========================================================================== */ -}}
+{{- /* Editor / Merge Commands                                                     */ -}}
+{{- /* ========================================================================== */ -}}
+
+{{- $mergeCmd := "vimdiff" -}}
+{{- $editCmd  := "vim" -}}
+{{- if eq $machine "workstation" -}}
+    {{- $mergeCmd = "nvim" -}}
+    {{- $editCmd  = "nvim" -}}
+{{- else if eq $machine "headless" -}}
+    {{- $editCmd  = "nvim" -}}
+{{- end -}}
 
 # =============================================================================
 # Chezmoi Configuration
@@ -102,38 +152,14 @@
     # User full name
     name = {{ $name | quote }}
 
-    # Package lists — single source of truth for install and audit scripts.
-    # eza, fresh, and snap packages on apt have special install logic and stay
-    # inline in the scripts; only standard package-manager installs live here.
-    # corePackages is prepended to every distro-specific list in the scripts.
-    corePackages = [
-        "bat", "btop", "curl", "fzf", "git", "git-delta",
-        {{- if ne $packageManager "brew" }}
-        "kitty",
-        {{- end }}
-        "ripgrep", "starship", "vim", "wget", "zsh"
-    ]
-    pacmanPackages = [
-        "base-devel", "eza", "fd", "gnupg", "lazygit", "neovim",
-        "tree-sitter", "ttf-jetbrains-mono", "ttf-jetbrains-mono-nerd"
-    ]
-    pacmanAurPackages = ["bat-extras", "fresh-editor-bin"]
-    aptPackages = ["build-essential", "fd-find", "gpg", "tree-sitter-cli"]
-    dnfPackages = [
-        "@development-tools", "bat-extras", "eza",
-        "fd-find", "gnupg2", "lazygit", "neovim", "python3-neovim"
-    ]
-    # macOS-only formulae (corePackages covers the cross-distro ones)
-    brewFormulae = [
-        "chezmoi", "coreutils", "eza", "fd", "findutils",
-        "fresh-editor", "lazygit", "moreutils", "neovim", "tree-sitter-cli"
-    ]
-    brewCasks = [
-        "1password", "1password-cli", "brave-browser",
-        "font-jetbrains-mono", "font-jetbrains-mono-nerd-font",
-        "kitty", "logi-options-plus", "moom",
-        "tor-browser", "visual-studio-code", "whatsapp"
-    ]
+    machine           = {{ $machine | quote }}
+    corePackages      = {{ $core | toJson }}
+    pacmanPackages    = {{ $pacman | toJson }}
+    pacmanAurPackages = {{ $pacmanAur | toJson }}
+    aptPackages       = {{ $apt | toJson }}
+    dnfPackages       = {{ $dnf | toJson }}
+    brewFormulae      = {{ $brewFormulae | toJson }}
+    brewCasks         = {{ $brewCasks | toJson }}
 
 # -----------------------------------------------------------------------------
 # Script Environment Variables
@@ -167,15 +193,17 @@
 # -----------------------------------------------------------------------------
 # Configure merge strategy for conflicts
 [merge]
-    # Use three-way merge
-    command = "vimdiff"
+    command = {{ $mergeCmd | quote }}
+{{- if eq $machine "workstation" }}
+    args = ["-d"]
+{{- end }}
 
 # -----------------------------------------------------------------------------
 # Editor Configuration
 # -----------------------------------------------------------------------------
 # Default editor for 'chezmoi edit'
 [edit]
-    command = "nvim"
+    command = {{ $editCmd | quote }}
     args = []
 
 # -----------------------------------------------------------------------------

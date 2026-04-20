@@ -1,9 +1,9 @@
 # Dotfiles TODO
 
-- [ ] 1. Define installation types (workstation / vm / headless): add `.machine` template variable to `.chezmoi.toml.tmpl`, gate package installs in `run_onchange_after_00` and `run_onchange_after_01`, exclude GUI-only configs via `.chezmoiignore`
-  - [ ] 1a. Remove `dot_vimrc` and `dot_vim/` for `workstation` only; keep as fallback editor for `vm` and `headless` where nvim is not installed
-  - [ ] 1b. Set `EDITOR=nvim VISUAL=nvim` in `dot_zshrc.tmpl:20–29` for `workstation`; keep vim fallback chain for `vm` and `headless`
-  - [ ] 1c. Set chezmoi merge command to `nvim -d` for `workstation`; keep `vimdiff` for `vm` and `headless`
+- [x] 1. Define installation types (workstation / vm / headless): add `.machine` template variable to `.chezmoi.toml.tmpl`, gate package installs in `run_onchange_after_00` and `run_onchange_after_01`, exclude GUI-only configs via `.chezmoiignore`
+  - [x] 1a. Remove `dot_vimrc` and `dot_vim/` for `workstation` only; keep as fallback editor for `vm` and `headless` where nvim is not installed
+  - [x] 1b. Set `EDITOR=nvim VISUAL=nvim` in `dot_zshrc.tmpl:20–29` for `workstation`; keep vim fallback chain for `vm` and `headless`
+  - [x] 1c. Set chezmoi merge command to `nvim -d` for `workstation`; keep `vimdiff` for `vm` and `headless`
 - [x] 2. Fix or remove broken `. "$HOME/.local/share/../bin/env"` line in `dot_zshrc.tmpl:334`
 - [x] 3. Add FZF + bat preview integration in `dot_zshrc.tmpl`
 - [x] 4. Delete `dot_config/nvim/lua/plugins/example.lua` (dead code — guarded by `if true then return {} end`)

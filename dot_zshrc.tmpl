@@ -15,8 +15,10 @@
 # -----------------------------------------------------------------------------
 # Default Programs
 # -----------------------------------------------------------------------------
-# Set default editor for command-line editing and visual tasks
-# Falls back to vi if vim is not available (POSIX compliance)
+{{- if eq .machine "workstation" }}
+export EDITOR="nvim"
+export VISUAL="nvim"
+{{- else }}
 if command -v vim >/dev/null 2>&1; then
     export EDITOR="vim"
     export VISUAL="vim"
@@ -27,6 +29,7 @@ else
     export EDITOR="nano"
     export VISUAL="nano"
 fi
+{{- end }}
 
 # -----------------------------------------------------------------------------
 # XDG Base Directory Specification

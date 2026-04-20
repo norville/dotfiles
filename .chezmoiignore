@@ -27,6 +27,31 @@ TODO.md
 {{- end }}
 
 # -----------------------------------------------------------------------------
+# Machine-Type Exclusions
+# -----------------------------------------------------------------------------
+# workstation: vim is only a fallback binary; its config files are unused
+{{- if eq .machine "workstation" }}
+.vimrc
+.vim/
+{{- end }}
+
+# headless / vm: no terminal emulator or fancy prompt
+{{- if or (eq .machine "headless") (eq .machine "vm") }}
+.config/kitty/
+.config/starship/
+{{- end }}
+
+# vm: minimal install — skip configs for all tools not installed
+{{- if eq .machine "vm" }}
+.config/nvim/
+.config/lazygit/
+.config/btop/
+.config/eza/
+.config/bat/
+.config/fresh/
+{{- end }}
+
+# -----------------------------------------------------------------------------
 # Linux-Specific Files
 # -----------------------------------------------------------------------------
 # Only install these files on Linux systems
