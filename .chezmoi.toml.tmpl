@@ -29,10 +29,10 @@
 {{- /* ========================================================================== */ -}}
 {{- /* Detect CPU architecture for platform-specific configurations               */ -}}
 
-{{- $cpuArch := .chezmoi.arch -}}
-{{- $isARM := false -}}
-{{- $isRPi := false -}}
-{{- $isIntel := false -}}
+{{- $cpuArch        := .chezmoi.arch -}}
+{{- $isARM          := false -}}
+{{- $isRPi          := false -}}
+{{- $isIntel        := false -}}
 {{- $isAppleSilicon := false -}}
 
 {{- /* Detect ARM-based processors */ -}}
@@ -87,8 +87,8 @@
 {{- /* ========================================================================== */ -}}
 {{- /* Personal information used in templates (e.g., git config)                  */ -}}
 
-{{- $email := "ing.norville@proton.me" -}}
-{{- $name := "Norville" -}}
+{{- $email  := "ing.norville@proton.me" -}}
+{{- $name   := "Norville" -}}
 
 {{- /* ========================================================================== */ -}}
 {{- /* Package Lists                                                               */ -}}
@@ -110,9 +110,9 @@
 
 {{- /* terminal: strip GUI/heavy tools not installed on minimal systems */ -}}
 {{- if eq $machine "terminal" -}}
-    {{- $core    = without $core "btop" "ripgrep" -}}
-    {{- $apt     = without $apt "fd-find" "tree-sitter-cli" -}}
-    {{- $dnf     = without $dnf "fd-find" "lazygit" "neovim" "python3-neovim" -}}
+    {{- $core = without $core "btop" "ripgrep" -}}
+    {{- $apt  = without $apt "fd-find" "tree-sitter-cli" -}}
+    {{- $dnf  = without $dnf "fd-find" "lazygit" "neovim" "python3-neovim" -}}
 {{- else -}}
     {{- /* workstation: strip vim (neovim installed instead) */ -}}
     {{- $core = without $core "vim" -}}
