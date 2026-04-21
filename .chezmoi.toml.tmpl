@@ -137,74 +137,74 @@
 # Data Section - Template Variables
 # -----------------------------------------------------------------------------
 [data]
-    # User email address
-    email = {{ $email | quote }}
+  # User email address
+  email = {{ $email | quote }}
 
-    # User full name
-    name = {{ $name | quote }}
+  # User full name
+  name = {{ $name | quote }}
 
-    # Operating system identifier (e.g., "darwin", "linux-ubuntu", "linux-fedora")
-    osid = {{ $osid | quote }}
+  # Operating system identifier (e.g., "darwin", "linux-ubuntu", "linux-fedora")
+  osid = {{ $osid | quote }}
 
-    # Machine identifier (e.g., "workstation", "terminal")
-    machine = {{ $machine | quote }}
+  # Machine identifier (e.g., "workstation", "terminal")
+  machine = {{ $machine | quote }}
 
-    # CPU architecture (e.g., "amd64", "arm64", "x86_64", "aarch64")
-    cpuArch = {{ $cpuArch | quote }}
+  # CPU architecture (e.g., "amd64", "arm64", "x86_64", "aarch64")
+  cpuArch = {{ $cpuArch | quote }}
 
-    # Architecture flags
-    isARM           = {{ $isARM }}
-    isRPi           = {{ $isRPi }}
-    isIntel         = {{ $isIntel }}
-    isAppleSilicon  = {{ $isAppleSilicon }}
+  # Architecture flags
+  isARM           = {{ $isARM }}
+  isRPi           = {{ $isRPi }}
+  isIntel         = {{ $isIntel }}
+  isAppleSilicon  = {{ $isAppleSilicon }}
 
-    # Package manager (e.g., "brew", "apt", "dnf", "pacman")
-    packageManager = {{ $packageManager | quote }}
+  # Package manager (e.g., "brew", "apt", "dnf", "pacman")
+  packageManager = {{ $packageManager | quote }}
 
-    # Required Package lists
-    corePackages    = {{ $core | toJson }}
-    pacmanPackages  = {{ $pacman | toJson }}
-    aurPackages     = {{ $aur | toJson }}
-    aptPackages     = {{ $apt | toJson }}
-    dnfPackages     = {{ $dnf | toJson }}
-    brewFormulae    = {{ $formula | toJson }}
-    brewCasks       = {{ $cask | toJson }}
+  # Required Package lists
+  corePackages    = {{ $core | toJson }}
+  pacmanPackages  = {{ $pacman | toJson }}
+  aurPackages     = {{ $aur | toJson }}
+  aptPackages     = {{ $apt | toJson }}
+  dnfPackages     = {{ $dnf | toJson }}
+  brewFormulae    = {{ $formula | toJson }}
+  brewCasks       = {{ $cask | toJson }}
 
 # -----------------------------------------------------------------------------
 # Script Environment Variables
 # -----------------------------------------------------------------------------
 # Environment variables available to all chezmoi scripts
 [scriptEnv]
-    # Path to BDB helper functions (relative to source directory)
-    HELPERS = "{{ .chezmoi.homeDir }}/.config/bdb/bdb_helpers.sh"
+  # Path to BDB helper functions (relative to source directory)
+  HELPERS = "{{ .chezmoi.homeDir }}/.config/bdb/bdb_helpers.sh"
 
 # -----------------------------------------------------------------------------
 # Git Configuration
 # -----------------------------------------------------------------------------
 # Configure how chezmoi interacts with the git repository
 [git]
-    # Automatically commit changes when applying
-    autoCommit = false
+  # Automatically commit changes when applying
+  autoCommit = false
 
-    # Automatically push changes after commit
-    autoPush = false
+  # Automatically push changes after commit
+  autoPush = false
 
 # -----------------------------------------------------------------------------
 # Diff Configuration
 # -----------------------------------------------------------------------------
 # Configure diff tool for reviewing changes
 [diff]
-    # Use external diff tool if available
-    pager = "delta"
+  # Use external diff tool if available
+  pager = "delta"
 
 # -----------------------------------------------------------------------------
 # Merge Configuration
 # -----------------------------------------------------------------------------
 # Configure merge strategy for conflicts
 [merge]
-    command = {{ $mergeCmd | quote }}
+  command = {{ $mergeCmd | quote }}
 {{- if eq $machine "workstation" }}
-    args = ["-d"]
+  args = ["-d"]
 {{- end }}
 
 # -----------------------------------------------------------------------------
@@ -212,16 +212,16 @@
 # -----------------------------------------------------------------------------
 # Default editor for 'chezmoi edit'
 [edit]
-    command = {{ $editCmd | quote }}
-    args = []
+  command = {{ $editCmd | quote }}
+  args = []
 
 # -----------------------------------------------------------------------------
 # Template Options
 # -----------------------------------------------------------------------------
 # Configure template rendering behavior
 [template]
-    # Template options
-    options = ["missingkey=error"]
+  # Template options
+  options = ["missingkey=error"]
 
 # -----------------------------------------------------------------------------
 # 1Password Configuration
@@ -230,6 +230,6 @@
 # prompt = true: re-prompts for biometric/password auth if the session expires
 # instead of erroring out. Requires op CLI and an active account.
 [onepassword]
-    prompt = true
+  prompt = true
 
 # =============================================================================

@@ -14,24 +14,24 @@
 
 # Tokyo Night theme for bat (syntax highlighting)
 [".config/bat/themes/tokyonight_moon.tmTheme"]
-    type = "file"
-    url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/sublime/tokyonight_moon.tmTheme"
-    refreshPeriod = "720h"
-    executable = false
+  type = "file"
+  url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/sublime/tokyonight_moon.tmTheme"
+  refreshPeriod = "720h"
+  executable = false
 
 # Tokyo Night theme for eza (ls replacement)
 [".config/eza/theme.yml"]
-    type = "file"
-    url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/eza/tokyonight_moon.yml"
-    refreshPeriod = "720h"
-    executable = false
+  type = "file"
+  url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/eza/tokyonight_moon.yml"
+  refreshPeriod = "720h"
+  executable = false
 
 # Tokyo Night theme for btop (system monitor)
 [".config/btop/themes/tokyonight_moon.theme"]
-    type = "file"
-    url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/btop/tokyonight_moon.theme"
-    refreshPeriod = "720h"
-    executable = false
+  type = "file"
+  url = "https://raw.githubusercontent.com/folke/tokyonight.nvim/main/extras/btop/tokyonight_moon.theme"
+  refreshPeriod = "720h"
+  executable = false
 
 {{- /* -------------------------------------------------------------------- */ -}}
 {{- /* Linux-specific external resources                                    */ -}}
@@ -42,26 +42,26 @@
 # -----------------------------------------------------------------------------
 
 # Nerd Font (JetBrains Mono) — for distros without Nerd Fonts in repositories
-    {{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
+  {{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
 # For distributions without Nerd Fonts in repositories
 
 # JetBrains Mono - Official Release (non-patched)
 [".local/share/fonts/JetBrainsMono/official"]
-    type = "archive"
-    url = "https://github.com/JetBrains/JetBrainsMono/releases/download/v2.304/JetBrainsMono-2.304.zip"
-    stripComponents = 2             # Ignore top two directories
-    include = ["fonts/ttf/*.ttf"]   # Only include TTF files
-    refreshPeriod = "720h"
+  type = "archive"
+  url = "https://github.com/JetBrains/JetBrainsMono/releases/download/v2.304/JetBrainsMono-2.304.zip"
+  stripComponents = 2             # Ignore top two directories
+  include = ["fonts/ttf/*.ttf"]   # Only include TTF files
+  refreshPeriod = "720h"
 
 # JetBrains Mono Nerd Font - Patched with Nerd Font icons
 [".local/share/fonts/JetBrainsMono/nerd"]
-    type = "archive"
-    url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
-    stripComponents = 0     # Keep directory structure
-    include = ["*.ttf"]     # Only include TTF files
-    refreshPeriod = "720h"
+  type = "archive"
+  url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
+  stripComponents = 0     # Keep directory structure
+  include = ["*.ttf"]     # Only include TTF files
+  refreshPeriod = "720h"
 
-    {{- end }}{{- /* end apt/dnf fonts */ -}}
+  {{- end }}{{- /* end apt/dnf fonts */ -}}
 {{- end }}{{- /* end linux */ -}}
 
 # =============================================================================

@@ -10,7 +10,7 @@ insert_final_newline = true
 
 # Shell scripts
 [*.{sh,zsh,bash}]
-indent_size = 2
+indent_size = 4
 
 # YAML and chezmoi templates that contain YAML
 [*.{yml,yaml}]
