@@ -212,11 +212,9 @@ bdb_action "Updating ZSH plugins"
 antigen_dir="${XDG_DATA_HOME:-${HOME}/.local/share}/antigen"
 if [[ -f "${antigen_dir}/antigen.zsh" ]]; then
 
-    # Update Antigen itself via selfupdate
-    bdb_exec "Updating Antigen" antigen selfupdate || true
-
-    # Update all plugins
-    bdb_exec "Updating ZSH plugins" antigen update || true
+    # antigen is a zsh function, not a binary — must be sourced inside a zsh subprocess
+    bdb_exec "Updating Antigen" zsh -c "source '${antigen_dir}/antigen.zsh' && antigen selfupdate" || true
+    bdb_exec "Updating ZSH plugins" zsh -c "source '${antigen_dir}/antigen.zsh' && antigen update" || true
 
     bdb_success "ZSH plugins updated"
 else
