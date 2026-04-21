@@ -1,7 +1,7 @@
 """ Set background, colors and theme
 set background=dark
 if (has("termguicolors"))
-    set termguicolors
+  set termguicolors
 endif
 let g:tokyonight_style = 'night'            " available: night, storm
 let g:tokyonight_transparent_background = 1 " enable transparent background

@@ -71,9 +71,9 @@ set number relativenumber
 
 " Toggle relative line numbers in insert mode
 augroup numbertoggle
-    autocmd!
-    autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
-    autocmd BufLeave,FocusLost,InsertEnter   * set norelativenumber
+  autocmd!
+  autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
+  autocmd BufLeave,FocusLost,InsertEnter   * set norelativenumber
 augroup END
 
 set encoding=utf-8
@@ -92,7 +92,7 @@ set noshowmode
 " Set background and colorscheme
 set background=dark
 if (has("termguicolors"))
-    set termguicolors
+  set termguicolors
 endif
 colorscheme tokyonight-moon
 
@@ -122,38 +122,38 @@ set expandtab
 set smarttab
 set backspace=indent,eol,start
 if has("autocmd")
-    autocmd FileType text setlocal textwidth=80
-    " Per-filetype fallbacks for repos without .editorconfig.
-    " Values mirror .editorconfig rules so behaviour is consistent either way.
-    autocmd FileType html         setlocal ts=2 sts=2 sw=2 expandtab
-    autocmd FileType css          setlocal ts=2 sts=2 sw=2 expandtab
-    autocmd FileType cfg          setlocal ts=2 sts=2 sw=2 expandtab
-    autocmd FileType yaml         setlocal ts=2 sts=2 sw=2 expandtab
-    autocmd FileType javascript   setlocal ts=2 sts=2 sw=2 expandtab
-    autocmd FileType typescript   setlocal ts=2 sts=2 sw=2 expandtab
-    autocmd FileType sh           setlocal ts=4 sts=4 sw=4 expandtab
-    autocmd FileType bash         setlocal ts=4 sts=4 sw=4 expandtab
-    autocmd FileType zsh          setlocal ts=4 sts=4 sw=4 expandtab
-    autocmd FileType python       setlocal ts=4 sts=4 sw=4 expandtab
-    autocmd FileType rust         setlocal ts=4 sts=4 sw=4 expandtab
-    autocmd FileType go           setlocal ts=4 sts=4 sw=4 noexpandtab
-    autocmd FileType make         setlocal ts=4 sts=4 sw=4 noexpandtab
-    autocmd BufNewFile,BufRead *.rss,*.atom setfiletype xml
+  autocmd FileType text setlocal textwidth=80
+  " Per-filetype fallbacks for repos without .editorconfig.
+  " Values mirror .editorconfig rules so behaviour is consistent either way.
+  autocmd FileType html         setlocal ts=2 sts=2 sw=2 expandtab
+  autocmd FileType css          setlocal ts=2 sts=2 sw=2 expandtab
+  autocmd FileType cfg          setlocal ts=2 sts=2 sw=2 expandtab
+  autocmd FileType yaml         setlocal ts=2 sts=2 sw=2 expandtab
+  autocmd FileType javascript   setlocal ts=2 sts=2 sw=2 expandtab
+  autocmd FileType typescript   setlocal ts=2 sts=2 sw=2 expandtab
+  autocmd FileType sh           setlocal ts=4 sts=4 sw=4 expandtab
+  autocmd FileType bash         setlocal ts=4 sts=4 sw=4 expandtab
+  autocmd FileType zsh          setlocal ts=4 sts=4 sw=4 expandtab
+  autocmd FileType python       setlocal ts=4 sts=4 sw=4 expandtab
+  autocmd FileType rust         setlocal ts=4 sts=4 sw=4 expandtab
+  autocmd FileType go           setlocal ts=4 sts=4 sw=4 noexpandtab
+  autocmd FileType make         setlocal ts=4 sts=4 sw=4 noexpandtab
+  autocmd BufNewFile,BufRead *.rss,*.atom setfiletype xml
 else
-    set autoindent
-    set smartindent
+  set autoindent
+  set smartindent
 endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " FUNCTIONS
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 function! <SID>StripTrailingWhitespaces()
-    let _s = @/
-    let l = line(".")
-    let c = col(".")
-    %s/\s\+$//e
-    let @/ = _s
-    call cursor(l,c)
+  let _s = @/
+  let l = line(".")
+  let c = col(".")
+  %s/\s\+$//e
+  let @/ = _s
+  call cursor(l,c)
 endfunction
 
 "function! SyntaxItem()
@@ -161,17 +161,17 @@ endfunction
 "endfunction
 
 function! TabsToWhites()
-    set noexpandtab
-    retab!
-    set expandtab
-    retab!
+  set noexpandtab
+  retab!
+  set expandtab
+  retab!
 endfunction
 
 function! WhitesToTabs()
-    set expandtab
-    retab!
-    set noexpandtab
-    retab!
+  set expandtab
+  retab!
+  set noexpandtab
+  retab!
 endfunction
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
