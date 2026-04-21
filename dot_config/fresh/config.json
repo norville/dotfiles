@@ -1,7 +1,7 @@
 {
   "check_for_updates": true,
   "editor": {
-    "tab_size": 4,
+    "tab_size": 2,
     "auto_indent": true,
     "line_numbers": true,
     "relative_line_numbers": true,

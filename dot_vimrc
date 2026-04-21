@@ -113,19 +113,28 @@ set hidden
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " INDENT
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
+" Global default: 2 spaces — matches [*] indent_size=2 in .editorconfig.
+" editorconfig-vim overrides these per buffer when a .editorconfig is found.
+set tabstop=2
+set softtabstop=2
+set shiftwidth=2
 set expandtab
 set smarttab
 set backspace=indent,eol,start
 if has("autocmd")
     autocmd FileType text setlocal textwidth=80
-    autocmd FileType html setlocal ts=2 sts=2 sw=2 expandtab
-    autocmd FileType css setlocal ts=2 sts=2 sw=2 expandtab
-    autocmd FileType cfg setlocal ts=2 sts=2 sw=2 expandtab
-    autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
-    autocmd FileType javascript setlocal ts=4 sts=4 sw=4 expandtab
+    " Per-filetype fallbacks for repos without .editorconfig.
+    " Values mirror .editorconfig rules so behaviour is consistent either way.
+    autocmd FileType html         setlocal ts=2 sts=2 sw=2 expandtab
+    autocmd FileType css          setlocal ts=2 sts=2 sw=2 expandtab
+    autocmd FileType cfg          setlocal ts=2 sts=2 sw=2 expandtab
+    autocmd FileType yaml         setlocal ts=2 sts=2 sw=2 expandtab
+    autocmd FileType javascript   setlocal ts=2 sts=2 sw=2 expandtab
+    autocmd FileType typescript   setlocal ts=2 sts=2 sw=2 expandtab
+    autocmd FileType python       setlocal ts=4 sts=4 sw=4 expandtab
+    autocmd FileType rust         setlocal ts=4 sts=4 sw=4 expandtab
+    autocmd FileType go           setlocal ts=4 sts=4 sw=4 noexpandtab
+    autocmd FileType make         setlocal ts=4 sts=4 sw=4 noexpandtab
     autocmd BufNewFile,BufRead *.rss,*.atom setfiletype xml
 else
     set autoindent

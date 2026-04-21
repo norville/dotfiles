@@ -20,6 +20,10 @@ call plug#begin()
 """ Colorscheme
 Plug 'folke/tokyonight.nvim', { 'rtp': 'extras/vim' }
 
+""" EditorConfig — reads .editorconfig and sets indent/charset per buffer.
+""" Vim has no built-in editorconfig support (unlike Neovim 0.9+).
+Plug 'editorconfig/editorconfig-vim'
+
 """ Plugins
 Plug 'airblade/vim-gitgutter'
 Plug 'scrooloose/nerdcommenter'
