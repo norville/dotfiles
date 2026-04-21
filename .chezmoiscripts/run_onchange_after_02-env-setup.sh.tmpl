@@ -129,7 +129,7 @@ if bdb_test_cmd "fc-cache"; then
 else
     bdb_warn "fc-cache command not found, cannot update font cache"
 fi
-    {{- end }}{{- /* end apt/dnf font cache */ -}}
+    {{- end }}
 
 # Verify fonts installation
 bdb_action "Verifying fonts installation"
@@ -195,7 +195,7 @@ else
     bdb_warn "Homebrew not found"
 fi
 
-{{- end }}{{- /* end os */ -}}
+{{- end }}
 
 # -----------------------------------------------------------------------------
 # Neovim Configuration
