@@ -20,7 +20,19 @@
     "mouse_hover_delay_ms": 500,
     "double_click_time_ms": 500,
     "auto_revert_poll_interval_ms": 2000,
-    "file_tree_poll_interval_ms": 3000
+    "file_tree_poll_interval_ms": 3000,
+    "trim_trailing_whitespace_on_save": true,
+    "ensure_final_newline_on_save": true
+  },
+  "languages": {
+    "bash":   { "tab_size": 4 },
+    "c":      { "tab_size": 4 },
+    "cpp":    { "tab_size": 4 },
+    "go":     { "tab_size": 4, "use_tabs": true },
+    "java":   { "tab_size": 4 },
+    "python": { "tab_size": 4 },
+    "rust":   { "tab_size": 4 },
+    "sql":    { "tab_size": 4 }
   },
   "file_explorer": {
     "respect_gitignore": true,
