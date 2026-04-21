@@ -23,7 +23,9 @@
 - [x] 15. Redefine machine exclusions
   - `terminal`: `kitty`, `*neovim`, `fresh`, `lazygit`, `tree-sitter*`, `ripgrep`, `fd*`, `btop`
   - `workstation`: `vim`
-- [ ] 16. Rename package lists:
+- [x] 16. Rename package lists:
   - pacmanAur -> aur
   - brewFormulae -> formula
   - brewCasks -> cask
+- [ ] 17. fix fresh theme
+- [ ] 18. fix fzf theme

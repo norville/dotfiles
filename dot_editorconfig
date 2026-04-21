@@ -1,101 +1,265 @@
+# =============================================================================
+# EditorConfig — https://editorconfig.org
+# =============================================================================
+# Global baseline. Applies to all editors (Vim, Neovim, VSCode, Fresh).
+# Per-repo overrides can shadow individual sections by adding a closer
+# .editorconfig with root = true.
+#
+# Resolution order: editorconfig walks up the directory tree from the file
+# being edited and stops at the first file containing root = true. Sections
+# in closer files take precedence over sections in this file.
+# =============================================================================
+
 root = true
 
+# -----------------------------------------------------------------------------
+# Global Defaults
+# All files not matched by a more specific section fall here.
+# Sets a safe, widely compatible baseline:
+#   - 2-space soft indentation (overridden per language below where needed)
+#   - LF line endings (Unix-style; avoids CRLF issues on cross-platform repos)
+#   - UTF-8 charset (covers all Unicode including emoji and special chars)
+#   - Trim trailing whitespace (keeps diffs clean; overridden for Markdown)
+#   - Final newline (POSIX requirement; prevents "no newline at end" warnings)
+# -----------------------------------------------------------------------------
 [*]
-indent_style = space
-indent_size = 2
-end_of_line = lf
-charset = utf-8
-trim_trailing_whitespace = true
-insert_final_newline = true
+indent_style              = space
+indent_size               = 2
+end_of_line               = lf
+charset                   = utf-8
+trim_trailing_whitespace  = true
+insert_final_newline      = true
 
-# Shell scripts
-[*.{sh,zsh,bash}]
+# -----------------------------------------------------------------------------
+# Shell Scripts
+# sh, bash, zsh — 4 spaces is used across this dotfiles repo.
+# Applies to standalone scripts and chezmoi run scripts (.sh.tmpl).
+# shellcheck and shfmt both respect editorconfig via their own config files.
+# -----------------------------------------------------------------------------
+[*.{sh,bash,zsh}]
 indent_size = 4
 
-# YAML and chezmoi templates that contain YAML
-[*.{yml,yaml}]
-indent_size = 2
-
-# TOML (chezmoi config, Cargo.toml, pyproject.toml, etc.)
-[*.toml]
-indent_size = 2
-
-# Lua — matches stylua.toml
-[*.lua]
-indent_size = 2
-
-# JSON
-[*.json]
-indent_size = 2
-
-# Terraform
-[*.{tf,tfvars}]
-indent_size = 2
-
-# Nix
-[*.nix]
-indent_size = 2
-
-# Ruby
-[*.rb]
-indent_size = 2
-
-# Web — HTML / CSS / JS / TS
-[*.{html,htm}]
-indent_size = 2
-
-[*.{css,scss,sass,less}]
-indent_size = 2
-
-[*.{js,jsx,mjs,cjs}]
-indent_size = 2
-
-[*.{ts,tsx,mts,cts}]
-indent_size = 2
-
-# Rust — rustfmt default is 4 spaces
-[*.rs]
-indent_size = 4
-
-# Python
-[*.py]
-indent_size = 4
-
-# Vimscript — matches vimrc tabstop=4
-[*.vim]
-indent_size = 4
-
+# -----------------------------------------------------------------------------
 # C / C++
+# 4 spaces is the most common convention (Linux kernel uses tabs but that is
+# a well-known exception). clang-format will enforce whatever .clang-format
+# specifies; this setting governs editors in the absence of a formatter config.
+# -----------------------------------------------------------------------------
 [*.{c,h,cpp,hpp,cc,hh}]
 indent_size = 4
 
+# -----------------------------------------------------------------------------
 # Java
+# 4 spaces is the Java community standard (Oracle style guide, Google Java
+# Style Guide). google-java-format and Checkstyle both default to 4 spaces.
+# -----------------------------------------------------------------------------
 [*.java]
 indent_size = 4
 
+# -----------------------------------------------------------------------------
+# Rust
+# rustfmt defaults to 4 spaces and will reformat on save. This setting ensures
+# editors display the correct width before rustfmt runs.
+# -----------------------------------------------------------------------------
+[*.rs]
+indent_size = 4
+
+# -----------------------------------------------------------------------------
+# Python
+# PEP 8 mandates 4 spaces — the only widely accepted style for Python.
+# Black, Ruff, and autopep8 all enforce 4 spaces and will override any editor
+# setting. Explicit here so editors without formatter integration behave
+# correctly from the start.
+# -----------------------------------------------------------------------------
+[*.py]
+indent_size = 4
+
+# -----------------------------------------------------------------------------
+# Ruby
+# 2 spaces is the Ruby community standard, codified by RuboCop's default
+# configuration. Rails, RSpec, and virtually all major Ruby projects follow it.
+# -----------------------------------------------------------------------------
+[*.rb]
+indent_size = 2
+
+# -----------------------------------------------------------------------------
+# Go
+# gofmt mandates tabs — this is non-negotiable and enforced by the toolchain.
+# indent_size = 4 here is advisory only: it controls how editors render the
+# tab width visually. gofmt will rewrite any space-indented Go file to tabs
+# regardless of this setting.
+# -----------------------------------------------------------------------------
+[*.go]
+indent_style = tab
+indent_size  = 4
+
+# -----------------------------------------------------------------------------
+# Lua
+# 2 spaces matches the stylua.toml in this repo:
+#   indent_type = "Spaces"
+#   indent_width = 2
+# StyLua will enforce this on save; this setting keeps editors aligned before
+# the formatter runs.
+# -----------------------------------------------------------------------------
+[*.lua]
+indent_size = 2
+
+# -----------------------------------------------------------------------------
 # SQL
+# 4 spaces is the most common SQL convention. No universal enforcing tool
+# exists, so this setting governs editor behaviour directly.
+# -----------------------------------------------------------------------------
 [*.sql]
 indent_size = 4
 
-# Docker
-[Dockerfile]
-indent_size = 4
+# -----------------------------------------------------------------------------
+# Markdown
+# Trailing whitespace is semantically meaningful in Markdown: two trailing
+# spaces produce a hard line break (<br>). trim_trailing_whitespace = false
+# overrides the global default to prevent silently breaking intentional line
+# breaks. Applies to standard .md, MDX (React-flavoured), and .markdown.
+# -----------------------------------------------------------------------------
+[*.{md,mdx,markdown}]
+indent_size                  = 2
+trim_trailing_whitespace     = false
 
-# Go — gofmt mandates tabs, non-negotiable
-[*.go]
-indent_style = tab
-indent_size = 4
+# -----------------------------------------------------------------------------
+# XML / HTML
+# 2 spaces is the most common convention for web markup. Most formatters
+# (Prettier, tidy) default to 2 spaces for HTML and XML.
+# -----------------------------------------------------------------------------
+[*.{xml,html,htm}]
+indent_size = 2
 
-# Makefile — tabs are required
+# -----------------------------------------------------------------------------
+# CSS / Preprocessors
+# 2 spaces is standard across CSS, SCSS (Sass), and Less.
+# Prettier defaults to 2 spaces for all stylesheet formats.
+# -----------------------------------------------------------------------------
+[*.{css,scss,sass,less}]
+indent_size = 2
+
+# -----------------------------------------------------------------------------
+# JavaScript / ECMAScript variants
+# 2 spaces is the dominant convention (Prettier default, Airbnb style guide,
+# StandardJS). Covers plain JS, JSX (React), and the modern module variants
+# .mjs (ES modules) and .cjs (CommonJS modules).
+# -----------------------------------------------------------------------------
+[*.{js,jsx,mjs,cjs}]
+indent_size = 2
+
+# -----------------------------------------------------------------------------
+# TypeScript
+# Follows the same 2-space convention as JavaScript. Covers plain TS, TSX
+# (React + TypeScript), and the module variants .mts and .cts.
+# -----------------------------------------------------------------------------
+[*.{ts,tsx,mts,cts}]
+indent_size = 2
+
+# -----------------------------------------------------------------------------
+# JSON
+# 2 spaces is the most common JSON convention and the default for most
+# formatters (Prettier, jq). Applies to all JSON files including lazyvim.json,
+# VSCode settings, package.json, and fresh/config.json.
+# -----------------------------------------------------------------------------
+[*.json]
+indent_size = 2
+
+# -----------------------------------------------------------------------------
+# YAML
+# YAML is whitespace-sensitive: indentation is structurally significant and
+# must be consistent within a file. 2 spaces is the universal convention,
+# followed by Ansible, Kubernetes, GitHub Actions, Docker Compose, and
+# virtually every YAML-based tool. Mixing indent widths within a file is a
+# syntax error in strict parsers.
+# -----------------------------------------------------------------------------
+[*.{yml,yaml}]
+indent_size = 2
+
+# -----------------------------------------------------------------------------
+# TOML
+# 2 spaces is the community default.
+# -----------------------------------------------------------------------------
+[*.toml]
+indent_size = 2
+
+# -----------------------------------------------------------------------------
+# INI / Config / Properties
+# Catch-all for configuration files that use INI-style or key=value syntax.
+# Covers pip.ini, ansible.cfg, .editorconfig itself, and generic .conf/.config
+# files. No enforced standard exists; 2 spaces (global default) is used.
+# -----------------------------------------------------------------------------
+[*.{ini,cfg,conf,config,properties}]
+indent_size = 2
+[config]
+indent_size = 2
+
+# -----------------------------------------------------------------------------
+# Makefile
+# Tabs are required by the POSIX make specification — recipe lines (commands)
+# MUST be indented with a tab character. Any space-indented Makefile will
+# produce a "missing separator" error at runtime.
+# -----------------------------------------------------------------------------
 [Makefile]
 indent_style = tab
 
-# Caddyfile — tabs are canonical
+# -----------------------------------------------------------------------------
+# Git Config / Attributes / Ignore
+# No indentation requirements for any of these formats. The global default
+# (2 spaces) applies. Listed explicitly for completeness since these files
+# are managed via chezmoi.
+# -----------------------------------------------------------------------------
+[.git{config,attributes,ignore,modules}]
+indent_size = 2
+
+# -----------------------------------------------------------------------------
+# Vim / Neovim Config
+# 2 spaces matches the existing style in dot_vim/plugins.vim and is the de
+# facto community standard for Vimscript (codified by the Google Vimscript
+# Style Guide). No enforcing formatter exists for Vimscript, so this setting
+# governs editor behaviour directly.
+# -----------------------------------------------------------------------------
+[*.vim]
+indent_size = 2
+[.vimrc]
+indent_size = 2
+
+# -----------------------------------------------------------------------------
+# Dockerfile
+# No enforced indentation standard exists for Dockerfiles. 2 spaces (global
+# default) is the most common convention. hadolint does not enforce indentation.
+# -----------------------------------------------------------------------------
+[Dockerfile*]
+indent_size = 2
+
+# -----------------------------------------------------------------------------
+# Terraform / OpenTofu
+# HashiCorp style mandates 2 spaces. terraform fmt enforces this and will
+# rewrite any file that deviates. Applies to both resource definitions (.tf)
+# and variable value files (.tfvars).
+# -----------------------------------------------------------------------------
+[*.{tf,tfvars}]
+indent_size = 2
+
+# -----------------------------------------------------------------------------
+# Caddyfile
+# Caddy's canonical style uses tabs, as documented in the Caddy project.
+# Matches the autocmds.lua override (expandtab = false, tabstop = 4).
+# caddyfmt enforces tabs if used.
+# -----------------------------------------------------------------------------
 [Caddyfile]
 indent_style = tab
-indent_size = 4
+indent_size  = 4
 
-# Markdown — trailing spaces are significant (two spaces = <br>), so do not trim.
-# max_line_length is intentionally unset; prose wrapping is handled by the editor.
-[*.{md,mdx}]
-trim_trailing_whitespace = false
+# -----------------------------------------------------------------------------
+# Chezmoi Templates
+# .tmpl files wrap many underlying filetypes (shell, TOML, YAML, Lua, etc.).
+# The Go template directives ({{ }}) follow the same indentation as the
+# surrounding content, so the underlying filetype's indent size applies.
+# The global default (2 spaces) covers the majority of cases; shell-heavy
+# templates (.sh.tmpl) would ideally use 4 spaces but editorconfig cannot
+# match on compound extensions, so 2 spaces is used as the safe fallback.
+# Formatters for the underlying language will handle correctness on save.
+# -----------------------------------------------------------------------------
+[*.tmpl]
+indent_size = 2
