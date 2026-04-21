@@ -2,7 +2,8 @@
     name = {{ .name }}
     email = {{ .email }}
 [core]
-    editor = vim
+    # vim on terminal machines (neovim not installed); nvim on workstations
+    editor = {{ if eq .machine "workstation" }}nvim{{ else }}vim{{ end }}
     pager = delta
     excludesfile = ~/.config/git/ignore
 [init]

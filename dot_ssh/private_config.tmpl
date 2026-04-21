@@ -1,3 +1,12 @@
+# =============================================================================
+# SSH Client Configuration
+# =============================================================================
+# Private keys are stored in 1Password; the 1Password SSH agent handles
+# authentication. IdentityFile points to the public key — the agent matches
+# it to the corresponding private key it holds and signs the challenge.
+# IdentitiesOnly prevents the agent from offering other unrelated keys.
+# =============================================================================
+
 Host *
 
 {{- if eq .chezmoi.os "darwin" }}
@@ -5,7 +14,7 @@ Host *
 {{- else if eq .chezmoi.os "linux" }}
     IdentityAgent ~/.1password/agent.sock
 {{- end }}
-    IdentitiesOnly yes  # use only specified keys, even if ssh-agent offers more identities
+    IdentitiesOnly yes  # offer only the keys listed below, not everything in the agent
 
 Host jiraya
     Port 25355

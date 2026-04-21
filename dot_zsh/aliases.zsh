@@ -59,7 +59,7 @@ if command -v eza >/dev/null 2>&1; then
     # Show only directories
     alias lsd='eza --oneline --only-dirs'
 
-    # Show fiule tree
+    # Show file tree
     alias lt='eza --all --tree'
 
     # Show file tree with git status

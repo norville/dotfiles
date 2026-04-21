@@ -1,4 +1,6 @@
 ## Fonts
+# Linux uses the plain "Nerd Font" variant at 12pt (HiDPI handled by compositor).
+# macOS uses the "Nerd Font Mono" variant at 15pt (Retina display scaling).
 {{ if eq .chezmoi.os "linux" -}}
 font_family         family='JetBrainsMono Nerd Font' style=Regular
 font_size           12.0
@@ -40,6 +42,8 @@ remember_window_size        yes
 remember_window_position    yes
 window_margin_width         5
 window_padding_width         5
+# Linux: remove window decorations entirely (tiling WMs handle this).
+# macOS: keep the resize handle but hide the titlebar for a cleaner look.
 {{ if eq .chezmoi.os "linux" -}}
 hide_window_decorations     yes
 {{ else if eq .chezmoi.os "darwin" -}}

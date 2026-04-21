@@ -198,24 +198,7 @@ fi
 {{- end }}{{- /* end os */ -}}
 
 # -----------------------------------------------------------------------------
-# Git Configuration (Commented - Handled by git config files)
-# -----------------------------------------------------------------------------
-
-# Git configuration is handled by ~/.config/git/config managed by chezmoi
-# Uncomment below if you want to set these via script instead
-
-#bdb_action "Configuring Git"
-
-# Configure Git to use 1Password for SSH if available
-#if [[ -S "${SSH_AUTH_SOCK:-}" ]]; then
-#    bdb_exec "Configuring Git SSH signing" git config --global gpg.format ssh
-#    bdb_success "Git configured with 1Password SSH"
-#else
-#    bdb_success "Git configured"
-#fi
-
-# -----------------------------------------------------------------------------
-# Neovim Configuration (Commented - Lazy.nvim handles this)
+# Neovim Configuration
 # -----------------------------------------------------------------------------
 
 # Neovim plugin initialization is handled automatically by Lazy.nvim
