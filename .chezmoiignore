@@ -44,3 +44,16 @@ TODO.md
 .config/fresh/
 {{- end }}
 
+# -----------------------------------------------------------------------------
+# 1Password-Managed SSH Keys
+# -----------------------------------------------------------------------------
+# These templates call onepasswordRead at template-processing time.
+# Skip them when op is not installed (e.g. on first apply of a fresh machine).
+# After run_onchange_after_01 installs 1Password, a second chezmoi apply
+# will process these files.
+{{- if not (lookPath "op") }}
+.ssh/norville_at_chikyu.pub
+.ssh/ansible_at_chikyu.pub
+.ssh/norville_at_github.pub
+{{- end }}
+
