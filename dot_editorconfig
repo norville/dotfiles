@@ -1,0 +1,101 @@
+root = true
+
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Shell scripts
+[*.{sh,zsh,bash}]
+indent_size = 2
+
+# YAML and chezmoi templates that contain YAML
+[*.{yml,yaml}]
+indent_size = 2
+
+# TOML (chezmoi config, Cargo.toml, pyproject.toml, etc.)
+[*.toml]
+indent_size = 2
+
+# Lua — matches stylua.toml
+[*.lua]
+indent_size = 2
+
+# JSON
+[*.json]
+indent_size = 2
+
+# Terraform
+[*.{tf,tfvars}]
+indent_size = 2
+
+# Nix
+[*.nix]
+indent_size = 2
+
+# Ruby
+[*.rb]
+indent_size = 2
+
+# Web — HTML / CSS / JS / TS
+[*.{html,htm}]
+indent_size = 2
+
+[*.{css,scss,sass,less}]
+indent_size = 2
+
+[*.{js,jsx,mjs,cjs}]
+indent_size = 2
+
+[*.{ts,tsx,mts,cts}]
+indent_size = 2
+
+# Rust — rustfmt default is 4 spaces
+[*.rs]
+indent_size = 4
+
+# Python
+[*.py]
+indent_size = 4
+
+# Vimscript — matches vimrc tabstop=4
+[*.vim]
+indent_size = 4
+
+# C / C++
+[*.{c,h,cpp,hpp,cc,hh}]
+indent_size = 4
+
+# Java
+[*.java]
+indent_size = 4
+
+# SQL
+[*.sql]
+indent_size = 4
+
+# Docker
+[Dockerfile]
+indent_size = 4
+
+# Go — gofmt mandates tabs, non-negotiable
+[*.go]
+indent_style = tab
+indent_size = 4
+
+# Makefile — tabs are required
+[Makefile]
+indent_style = tab
+
+# Caddyfile — tabs are canonical
+[Caddyfile]
+indent_style = tab
+indent_size = 4
+
+# Markdown — trailing spaces are significant (two spaces = <br>), so do not trim.
+# max_line_length is intentionally unset; prose wrapping is handled by the editor.
+[*.{md,mdx}]
+trim_trailing_whitespace = false
