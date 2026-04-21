@@ -7,6 +7,24 @@
 -- Or remove existing autocmds by their group name (which is prefixed with `lazyvim_` for the defaults)
 -- e.g. vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
 
+-- Chezmoi templates — detect filetype from the base name before .tmpl
+-- e.g. dot_zshrc.tmpl → zsh, dot_vimrc.tmpl → vim, dot_bashrc.tmpl → bash
+vim.filetype.add({
+  pattern = {
+    [".*%.tmpl"] = function(path, bufnr)
+      local base = path:match("(.+)%.tmpl$")
+      if not base then
+        return
+      end
+      -- Strip chezmoi prefix (dot_ → ., private_, empty_, etc.)
+      base = base:gsub(".*dot_", ".")
+      -- Ask Neovim what filetype the base name would get
+      local ft = vim.filetype.match({ filename = base, buf = bufnr })
+      return ft
+    end,
+  },
+})
+
 -- Caddyfile — use real tabs (Caddy's canonical indent style)
 vim.api.nvim_create_autocmd("BufEnter", {
   pattern = "Caddyfile",
