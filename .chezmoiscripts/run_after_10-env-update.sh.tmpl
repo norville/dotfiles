@@ -142,7 +142,7 @@ if bdb_test_cmd "yay"; then
     bdb_success "AUR packages updated"
 fi
 
-    {{- end }}{{- /* end packageManager */ -}}
+    {{- end }}
 
 # =============================================================================
 # PACKAGE AUDIT
@@ -195,9 +195,9 @@ fi
 
 unset _managed _base_devel _unrecognised _pkg
 
-    {{- end }}{{- /* end pacman audit */ -}}
+    {{- end }}
 
-{{- end }}{{- /* end linux */ -}}
+{{- end }}
 
 # =============================================================================
 # SHELL PLUGIN UPDATES

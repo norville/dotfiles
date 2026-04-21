@@ -168,9 +168,9 @@ EOF'
     bdb_exec "Installing 1Password (Arch/Manjaro)" yay -S --noconfirm 1password 1password-cli
     bdb_success "1Password installed"
 
-        {{- end }}{{- /* end packageManager */ -}}
-    {{- end }}{{- /* end isARM */ -}}
-{{- end }}{{- /* end os */ -}}
+        {{- end }}
+    {{- end }}
+{{- end }}
 
 else
     bdb_warn "Skipping 1Password installation"
@@ -230,7 +230,7 @@ if bdb_ask "Do you want to install Docker"; then
         {{- else if eq .osid "linux-debian" }}
     # Debian: Download GPG key from Debian-specific repository
     bdb_exec "Adding Docker GPG key (Debian)" sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-        {{- end }}{{- /* end osid */ -}}
+        {{- end }}
 
     # Set proper permissions on GPG key
     bdb_exec "Setting GPG key permissions" sudo chmod a+r /etc/apt/keyrings/docker.asc
@@ -270,7 +270,7 @@ Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
 DOCKER_REPO_EOF
 
-        {{- end }}{{- /* end osid */ -}}
+        {{- end }}
 
     # --------------------------------------------------------------------------
     # Install Docker Packages
@@ -329,8 +329,8 @@ DOCKER_REPO_EOF
     bdb_success "Docker installed"
     bdb_warn "Please log out and back in for group membership to take effect"
 
-    {{- end }}{{- /* end packageManager */ -}}
-{{- end }}{{- /* end os */ -}}
+    {{- end }}
+{{- end }}
 
 else
     bdb_warn "Skipping Docker installation"
@@ -385,8 +385,8 @@ EOF'
     bdb_exec "Installing Visual Studio Code (Arch/Manjaro)" yay -S --noconfirm visual-studio-code-bin
     bdb_success "Visual Studio Code installed"
 
-    {{- end }}{{- /* end packageManager */ -}}
-{{- end }}{{- /* end os */ -}}
+    {{- end }}
+{{- end }}
 
 else
     bdb_warn "Skipping Visual Studio Code installation"
@@ -469,7 +469,7 @@ if bdb_ask "Do you want to install Ansible"; then
     bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete3 2>/dev/null || true
 
     bdb_success "Ansible installed"
-        {{- end }}{{- /* end osid */ -}}
+        {{- end }}
 
     {{- else if eq .packageManager "dnf" }}
     # Fedora/RHEL: Install from official repositories
@@ -493,8 +493,8 @@ if bdb_ask "Do you want to install Ansible"; then
 
     bdb_success "Ansible installed"
 
-    {{- end }}{{- /* end packageManager */ -}}
-{{- end }}{{- /* end os */ -}}
+    {{- end }}
+{{- end }}
 
     # Post-installation: Install Ansible extra collections
     if bdb_ask "Install Ansible extra collections (community.docker)"; then

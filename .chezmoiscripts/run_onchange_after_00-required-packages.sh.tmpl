@@ -208,9 +208,9 @@ AUR_PACKAGES=(
     {{- end }}
 )
 bdb_exec "Installing AUR packages" yay -S --noconfirm "${AUR_PACKAGES[@]}"
-        {{- end }}{{- /* end aur */ -}}
+        {{- end }}
 
-    {{- end }}{{- /* end packageManager */ -}}
+    {{- end }}
 
 {{- /* -------------------------------------------------------------------- */ -}}
 {{- /* macOS Package Installation                                            */ -}}
@@ -236,7 +236,7 @@ bdb_var "Brewfile" "${BREWFILE}"
 # Install Homebrew packages
 bdb_exec "Installing Homebrew packages" brew bundle --file="${BREWFILE}"
 
-{{- end }}{{- /* end os */ -}}
+{{- end }}
 
 # =============================================================================
 # COMPLETION
