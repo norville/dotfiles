@@ -142,6 +142,9 @@ zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*:descriptions' format '%F{yellow}-- %d --%f'
 
+# fzf-tab: pass FZF_DEFAULT_OPTS through so Tokyo Night Moon colors apply
+zstyle ':fzf-tab:*' use-fzf-default-opts yes
+
 # -----------------------------------------------------------------------------
 # Directory Navigation Options
 # -----------------------------------------------------------------------------
@@ -308,11 +311,20 @@ if command -v fzf >/dev/null 2>&1; then
     fi
 
     # FZF configuration options — Tokyo Night Moon colors
+    # Covers both legacy aliases (bg+/fg+/hl+) and fzf 0.54+ names
+    # (selected-*, gutter, border, query, preview-*, scrollbar, etc.)
     export FZF_DEFAULT_OPTS="
         --height 40% --layout=reverse --border
-        --color=bg+:#2f334d,bg:#222436,spinner:#c3e88d,hl:#82aaff
-        --color=fg:#c8d3f5,header:#82aaff,info:#cfc9c2,pointer:#ff757f
-        --color=marker:#c3e88d,fg+:#c8d3f5,prompt:#86e1fc,hl+:#82aaff
+        --color=bg:#222436,fg:#c8d3f5
+        --color=bg+:#2f334d,fg+:#c8d3f5,gutter:#222436
+        --color=selected-bg:#2d3f76,selected-fg:#c8d3f5,selected-hl:#82aaff
+        --color=hl:#82aaff,hl+:#82aaff
+        --color=query:#c8d3f5,disabled:#636da6,ghost:#636da6
+        --color=info:#636da6,prompt:#86e1fc,pointer:#ff757f
+        --color=marker:#c3e88d,spinner:#c3e88d,header:#82aaff
+        --color=border:#2f334d,scrollbar:#2f334d,separator:#2f334d
+        --color=preview-bg:#222436,preview-fg:#c8d3f5
+        --color=label:#c8d3f5,footer:#82aaff
     "
 
     # Use fd for file listing if available (faster and respects .gitignore)
