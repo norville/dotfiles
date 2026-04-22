@@ -99,7 +99,6 @@ antigen use oh-my-zsh
 # -----------------------------------------------------------------------------
 antigen bundle 1password                    # 1Password CLI integration
 antigen bundle aliases                      # Provides 'acs' command to search aliases
-antigen bundle Aloxaf/fzf-tab               # Fuzzy autocomplete for ZSH using fzf
 [[ -f /etc/arch-release ]] && antigen bundle archlinux
 antigen bundle chezmoi                      # Chezmoi shortcuts
 antigen bundle colorize                     # Colorize command output
@@ -131,6 +130,7 @@ antigen bundle zsh-users/zsh-completions
 # Autosuggestions: suggests commands as you type based on history
 # Press → to accept, Ctrl+→ to accept one word
 antigen bundle zsh-users/zsh-autosuggestions
+antigen bundle Aloxaf/fzf-tab               # Fuzzy autocomplete for ZSH using fzf
 
 # Syntax highlighting: real-time command syntax highlighting
 # Green = valid command, Red = invalid command
@@ -146,6 +146,9 @@ antigen bundle zsh-users/zsh-history-substring-search
 # Apply Configuration
 # -----------------------------------------------------------------------------
 antigen apply
+
+# Ensure fzf-tab doesn't break autosuggestion widget
+zstyle ':fzf-tab:*' fzf-command fzf
 
 # =============================================================================
 # POST-PLUGIN CONFIGURATION
