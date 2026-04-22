@@ -1,0 +1,270 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Chezmoi Script: Package Audit
+# =============================================================================
+# Compares the set of explicitly installed packages against the lists managed
+# by chezmoi (.corePackages, .pacmanPackages, .aurPackages, .aptPackages,
+# .dnfPackages) and reports anything that falls outside those lists.
+#
+# PURPOSE
+#   Drift detection only — no packages are removed. The full list of
+#   unrecognised packages is written to the log file; the terminal shows
+#   only a one-line count so it stays unobtrusive during a normal update.
+#
+# SUPPORTED PACKAGE MANAGERS
+#   macOS  : brew  — uses `brew bundle cleanup --dry-run` against the Brewfile
+#   Arch   : pacman/yay — uses `yay -Qqe` (falls back to `pacman -Qqe` when
+#            yay is absent) and excludes `base-devel` group members to avoid
+#            false positives from the build toolchain
+#   Debian : apt   — uses `apt-mark showmanual`; note this may surface base
+#            system packages not tracked in chezmoi, which is expected noise
+#   Fedora : dnf   — uses `dnf repoquery --userinstalled`
+#
+# Execution: run_after_* — runs after every `chezmoi update`
+# Location: .chezmoiscripts/run_after_11-package-audit.sh.tmpl
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Source Helper Functions
+# -----------------------------------------------------------------------------
+source "${HELPERS}"
+
+# -----------------------------------------------------------------------------
+# Initialize Logging
+# -----------------------------------------------------------------------------
+# Set up logging for this script
+# If running under bootstrap, this will detect existing logging and continue with it
+# If running standalone, this will create a new log file
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl | sed 's/^[0-9]*\.//')"
+SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/$(date +%Y%m%d_%H%M%S)_${SCRIPT_NAME}.log"
+
+# Ensure log directory exists
+mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
+
+# Initialize BDB logging system
+# This will detect if already initialized by bootstrap and skip re-initialization
+bdb_init_logging "${SCRIPT_LOG_FILE}"
+
+# Add a marker to the log to identify this script
+_bdb_log "========================================="
+_bdb_log "Script: ${SCRIPT_NAME}"
+_bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
+_bdb_log "========================================="
+
+# -----------------------------------------------------------------------------
+# Error Handling Configuration
+# -----------------------------------------------------------------------------
+set -euo pipefail
+trap 'bdb_handle_error' ERR
+trap 'bdb_cleanup' EXIT
+
+# =============================================================================
+# PACKAGE AUDIT
+# =============================================================================
+
+bdb_begin_section "Package Audit"
+
+# -----------------------------------------------------------------------------
+# _audit_report — shared output helper
+# -----------------------------------------------------------------------------
+# Reads the _unrecognised array (must be populated by the caller) and:
+#   • writes the full package list to the log file only (_bdb_log), so the
+#     terminal stays clean during routine updates
+#   • prints a one-line summary to the terminal via bdb_warn / bdb_success
+#
+# This function is defined once and called by each package-manager block below
+# to avoid repeating the same output logic three times.
+_audit_report() {
+    if [[ ${#_unrecognised[@]} -gt 0 ]]; then
+        # Log the full list — visible in the log file, not on the terminal
+        _bdb_log "Unrecognised packages (${#_unrecognised[@]}):"
+        for _pkg in "${_unrecognised[@]}"; do
+            _bdb_log "  ${_pkg}"
+        done
+        # One-line terminal summary so the operator knows to check the log
+        bdb_warn "Packages not in managed list (${#_unrecognised[@]}) — see log for details"
+    else
+        bdb_success "All installed packages are in the managed list"
+    fi
+}
+
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- /* macOS: brew bundle cleanup --dry-run                                 */ -}}
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- if eq .chezmoi.os "darwin" }}
+
+# -----------------------------------------------------------------------------
+# macOS: Homebrew audit
+# -----------------------------------------------------------------------------
+# `brew bundle cleanup --dry-run` lists formulae, casks and taps that are
+# installed on the system but absent from the Brewfile. The `--dry-run` flag
+# makes it purely informational — nothing is removed.
+#
+# The output is captured raw and written to the log. Unlike the Linux blocks
+# below we do not parse it into an array because brew's output already
+# includes human-readable section headers ("Would uninstall formulae:" etc.)
+# that are more useful than a bare package list.
+
+_brewfile="${HOME}/.config/homebrew/brewfile"
+if [[ -f "${_brewfile}" ]]; then
+    _output="$(brew bundle cleanup --dry-run --file="${_brewfile}" 2>/dev/null || true)"
+    if [[ -n "${_output}" ]]; then
+        _bdb_log "brew bundle cleanup --dry-run output:"
+        while IFS= read -r _line; do
+            _bdb_log "  ${_line}"
+        done <<< "${_output}"
+        bdb_warn "Unmanaged Homebrew packages detected — see log for details"
+    else
+        bdb_success "All installed packages are in the Brewfile"
+    fi
+    unset _brewfile _output _line
+else
+    bdb_warn "Brewfile not found at ${_brewfile} — skipping brew audit"
+    unset _brewfile
+fi
+
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- /* Linux: pacman / apt / dnf                                             */ -}}
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- else if eq .chezmoi.os "linux" }}
+
+    {{- if eq .packageManager "pacman" }}
+
+# -----------------------------------------------------------------------------
+# Arch Linux: pacman / AUR audit via yay
+# -----------------------------------------------------------------------------
+# The managed set is the union of:
+#   • .corePackages  — packages installed on every platform
+#   • .pacmanPackages — Arch-specific packages from the official repos
+#   • .aurPackages   — packages installed from the AUR
+#   • "yay"          — the AUR helper itself (always present on Arch)
+#
+# base-devel group members are excluded automatically: they are pulled in as
+# a build dependency by many AUR packages but are never listed individually
+# in chezmoi's managed lists.
+#
+# If yay is available it is preferred over pacman -Qqe because it includes
+# AUR packages in its output, giving a single unified list. When yay is
+# absent (e.g. on a fresh machine before the AUR helper is installed) we fall
+# back to pacman -Qqe, which covers only official-repo packages.
+
+# Build the managed-packages allowlist from chezmoi template variables
+_managed=(
+    {{- range .corePackages }}
+    "{{ . }}"
+    {{- end }}
+    {{- range .pacmanPackages }}
+    "{{ . }}"
+    {{- end }}
+    {{- range .aurPackages }}
+    "{{ . }}"
+    {{- end }}
+    "yay"
+)
+
+# Expand base-devel group members so they are never flagged as unrecognised
+mapfile -t _base_devel < <(pacman -Qgq base-devel 2>/dev/null | sort)
+
+# Collect the full list of explicitly installed packages
+if bdb_test_cmd "yay"; then
+    # yay -Qqe: all explicitly installed packages (native + AUR), quiet output
+    mapfile -t _installed < <(yay -Qqe 2>/dev/null | sort)
+else
+    # pacman -Qqe: explicitly installed packages from official repos only
+    mapfile -t _installed < <(pacman -Qqe 2>/dev/null | sort)
+fi
+
+# comm -23 keeps only lines that appear in the first list but NOT in the second
+# (i.e. installed but unmanaged). Both inputs must be sorted, which they are.
+mapfile -t _unrecognised < <(
+    comm -23 \
+        <(printf '%s\n' "${_installed[@]}" | sort) \
+        <({ printf '%s\n' "${_managed[@]}"; printf '%s\n' "${_base_devel[@]}"; } | sort -u)
+)
+
+_audit_report
+unset _managed _base_devel _installed _unrecognised _pkg
+
+    {{- else if eq .packageManager "apt" }}
+
+# -----------------------------------------------------------------------------
+# Debian / Ubuntu: apt audit
+# -----------------------------------------------------------------------------
+# `apt-mark showmanual` lists packages that were installed explicitly by the
+# user (as opposed to pulled in automatically as dependencies). This is the
+# closest equivalent to pacman -Qqe on Debian-based systems.
+#
+# Caveat: on a typical Debian/Ubuntu install, apt-mark showmanual includes
+# many base-OS packages (e.g. bash, coreutils, login) that are part of the
+# default system image and are not tracked in chezmoi. These will appear as
+# unrecognised — this is expected noise and does not indicate a problem.
+# The managed set covers only the packages chezmoi explicitly installs.
+
+_managed=(
+    {{- range .corePackages }}
+    "{{ . }}"
+    {{- end }}
+    {{- range .aptPackages }}
+    "{{ . }}"
+    {{- end }}
+)
+
+mapfile -t _unrecognised < <(
+    comm -23 \
+        <(apt-mark showmanual 2>/dev/null | sort) \
+        <(printf '%s\n' "${_managed[@]}" | sort -u)
+)
+
+_audit_report
+unset _managed _unrecognised _pkg
+
+    {{- else if eq .packageManager "dnf" }}
+
+# -----------------------------------------------------------------------------
+# Fedora / RHEL: dnf audit
+# -----------------------------------------------------------------------------
+# `dnf repoquery --userinstalled` returns packages that were explicitly
+# installed by the user rather than pulled in as dependencies. The
+# `--queryformat "%{name}"` strips the version and architecture suffix so
+# the output matches the bare package names stored in chezmoi's lists.
+#
+# As with apt, base-OS packages that ship with the Fedora/RHEL image but are
+# not tracked in chezmoi will surface here. This is expected.
+
+_managed=(
+    {{- range .corePackages }}
+    "{{ . }}"
+    {{- end }}
+    {{- range .dnfPackages }}
+    "{{ . }}"
+    {{- end }}
+)
+
+mapfile -t _unrecognised < <(
+    comm -23 \
+        <(dnf repoquery --userinstalled --queryformat "%{name}" 2>/dev/null | sort) \
+        <(printf '%s\n' "${_managed[@]}" | sort -u)
+)
+
+_audit_report
+unset _managed _unrecognised _pkg
+
+    {{- end }}
+
+{{- end }}
+
+unset -f _audit_report
+
+# =============================================================================
+# COMPLETION
+# =============================================================================
+
+bdb_success "Package audit complete"
+
+if [[ -n "${BDB_LOG_FILE:-}" ]]; then
+    bdb_var "Log file" "${BDB_LOG_FILE}"
+fi
+
+bdb_end_section
+
+exit 0

@@ -58,19 +58,6 @@ bdb_begin_section "Environment Update After Chezmoi Update"
 # macOS: Homebrew Updates
 # -----------------------------------------------------------------------------
 
-# Optional cleanup before upgrade
-if bdb_ask "Remove unused Homebrew formulae before upgrading"; then
-    bdb_action "Cleaning up Homebrew"
-
-    if [[ -f "${HOME}/.config/homebrew/Brewfile" ]]; then
-        bdb_exec "Running bundle cleanup" brew bundle cleanup --force --file="${HOME}/.config/homebrew/Brewfile"
-    fi
-
-    bdb_exec "Removing unused formulae" brew autoremove
-    bdb_exec "Cleaning cache" brew cleanup --prune=all
-    bdb_success "Homebrew cleanup complete"
-fi
-
 # Update and upgrade Homebrew packages
 bdb_exec "Updating Homebrew" brew update
 bdb_exec "Upgrading Homebrew packages" brew upgrade
@@ -141,59 +128,6 @@ if bdb_test_cmd "yay"; then
     bdb_exec "Updating AUR packages" yay -Syu --noconfirm
     bdb_success "AUR packages updated"
 fi
-
-    {{- end }}
-
-# =============================================================================
-# PACKAGE AUDIT
-# =============================================================================
-# Find packages installed outside chezmoi management and prompt to remove them.
-# macOS is handled above via `brew bundle cleanup`.
-# For apt/dnf, `apt-mark showmanual` / `dnf history userinstalled` include
-# hundreds of base-OS packages making the diff too noisy — skipped.
-# pacman -Qqe reliably lists only explicitly user-installed packages.
-
-    {{- if eq .packageManager "pacman" }}
-
-_managed=(
-    {{- range .corePackages }}
-    "{{ . }}"
-    {{- end }}
-    {{- range .pacmanPackages }}
-    "{{ . }}"
-    {{- end }}
-    {{- range .aurPackages }}
-    "{{ . }}"
-    {{- end }}
-    "yay"
-)
-
-# Expand base-devel group members to avoid false positives
-mapfile -t _base_devel < <(pacman -Qgq base-devel 2>/dev/null | sort)
-
-mapfile -t _unrecognised < <(
-    comm -23 \
-        <(pacman -Qqe 2>/dev/null | sort) \
-        <({ printf '%s\n' "${_managed[@]}"; printf '%s\n' "${_base_devel[@]}"; } | sort -u)
-)
-
-if [[ ${#_unrecognised[@]} -gt 0 ]]; then
-    bdb_warn "Packages installed outside chezmoi management (${#_unrecognised[@]}):"
-    printf '  %s\n' "${_unrecognised[@]}"
-    if bdb_ask "Remove unrecognised packages"; then
-        for _pkg in "${_unrecognised[@]}"; do
-            if sudo pacman -Rns --noconfirm "$_pkg" 2>/dev/null; then
-                bdb_success "Removed $_pkg"
-            else
-                bdb_warn "Could not remove $_pkg (may be required by another package)"
-            fi
-        done
-    fi
-else
-    bdb_success "All explicitly installed packages are in the managed list"
-fi
-
-unset _managed _base_devel _unrecognised _pkg
 
     {{- end }}
 
