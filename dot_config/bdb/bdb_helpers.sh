@@ -1214,7 +1214,7 @@ bdb_init_logging() {
 
     # Use provided argument, or fall back to already-set BDB_LOG_FILE,
     # or generate default filename
-    local log_file="${1:-${BDB_LOG_FILE:-bdb_$(date +%Y%m%d_%H%M%S).log}}"
+    local log_file="${1:-${BDB_LOG_FILE:-$(date +%Y%m%d_%H%M%S)_bdb.log}}"
 
     # Export log file path for use by other functions
     # This will update BDB_LOG_FILE if it was already set in calling script

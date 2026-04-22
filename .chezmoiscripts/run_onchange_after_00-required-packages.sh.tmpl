@@ -12,8 +12,6 @@
 # -----------------------------------------------------------------------------
 # Source Helper Functions
 # -----------------------------------------------------------------------------
-# Load BDB helper functions for consistent output and logging
-# The HELPERS variable is set by chezmoi via scriptEnv in .chezmoi.toml.tmpl
 source "${HELPERS}"
 
 # -----------------------------------------------------------------------------
@@ -22,8 +20,8 @@ source "${HELPERS}"
 # Set up logging for this script
 # If running under bootstrap, this will detect existing logging and continue with it
 # If running standalone, this will create a new log file
-SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl)"
-SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/${SCRIPT_NAME}_$(date +%Y%m%d_%H%M%S).log"
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl | sed 's/^[0-9]*\.//')"
+SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/$(date +%Y%m%d_%H%M%S)_${SCRIPT_NAME}.log"
 
 # Ensure log directory exists
 mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
