@@ -98,7 +98,6 @@ antigen use oh-my-zsh
 # Utility Plugins
 # -----------------------------------------------------------------------------
 antigen bundle 1password                    # 1Password CLI integration
-antigen bundle akash329d/zsh-alias-finder   # Find useful aliases
 antigen bundle aliases                      # Provides 'acs' command to search aliases
 antigen bundle Aloxaf/fzf-tab               # Fuzzy autocomplete for ZSH using fzf
 [[ -f /etc/arch-release ]] && antigen bundle archlinux

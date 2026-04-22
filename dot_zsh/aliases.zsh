@@ -258,7 +258,7 @@ fi
 # Quick system status commands
 
 # Reload shell configuration
-alias reload='source ~/.zshrc'
+alias reload='exec zsh'
 
 # Clear screen properly
 alias cls='clear'

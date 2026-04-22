@@ -303,12 +303,8 @@ unset _alias_file
 # Documentation: https://github.com/junegunn/fzf
 if command -v fzf >/dev/null 2>&1; then
     # Load FZF key bindings and completion
-    if [[ -f ~/.fzf.zsh ]]; then
-        source ~/.fzf.zsh
-    else
-        # Try to initialize from FZF's standard installation
-        eval "$(fzf --zsh 2>/dev/null)" || true
-    fi
+    # Try to initialize from FZF's standard installation
+    eval "$(fzf --zsh 2>/dev/null)" || true
 
     # FZF configuration options — Tokyo Night Moon colors
     # Covers both legacy aliases (bg+/fg+/hl+) and fzf 0.54+ names
