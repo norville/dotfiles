@@ -111,7 +111,6 @@ unset _onepassword_sock
 # compinit: Initialize completion system for command/argument completion
 # colors: Enable color support in prompt and output
 autoload -Uz compinit colors
-compinit
 colors
 
 # Performance optimization: Only regenerate compdump once a day
@@ -126,7 +125,6 @@ fi
 # Completion System Configuration
 # -----------------------------------------------------------------------------
 # Enable advanced completion features with case-insensitive matching
-setopt auto_menu            # Automatically use menu completion after second TAB
 setopt menu_complete        # Insert first match immediately on ambiguous completion
 setopt list_packed          # Compact completion list display
 setopt complete_in_word     # Complete from both ends of a word
@@ -141,9 +139,6 @@ zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 # Group completions by type
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*:descriptions' format '%F{yellow}-- %d --%f'
-
-# fzf-tab: pass FZF_DEFAULT_OPTS through so Tokyo Night Moon colors apply
-zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
 # -----------------------------------------------------------------------------
 # Directory Navigation Options
@@ -355,4 +350,3 @@ fi
 # END OF CONFIGURATION
 # =============================================================================
 
-[[ -f "$HOME/.local/bin/env" ]] && source "$HOME/.local/bin/env"
