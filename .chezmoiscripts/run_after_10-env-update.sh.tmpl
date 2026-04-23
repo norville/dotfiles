@@ -138,21 +138,18 @@ fi
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Update ZSH Plugins (Antigen)
+# Update ZSH Plugins (Zinit)
 # -----------------------------------------------------------------------------
 bdb_action "Updating ZSH plugins"
 
-# Check if Antigen is available
-antigen_dir="${XDG_DATA_HOME:-${HOME}/.local/share}/antigen"
-if [[ -f "${antigen_dir}/antigen.zsh" ]]; then
-
-    # antigen is a zsh function, not a binary — must be sourced inside a zsh subprocess
-    bdb_exec "Updating Antigen" zsh -c "source '${antigen_dir}/antigen.zsh' && antigen selfupdate" || true
-    bdb_exec "Updating ZSH plugins" zsh -c "source '${antigen_dir}/antigen.zsh' && antigen update" || true
-
+# Zinit must be sourced inside a zsh subprocess; it is a zsh plugin, not a binary
+zinit_home="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+if [[ -d "${zinit_home}/.git" ]]; then
+    bdb_exec "Updating Zinit and all plugins" \
+        zsh -c "source '${zinit_home}/zinit.zsh' && zinit self-update && zinit update --all --quiet" || true
     bdb_success "ZSH plugins updated"
 else
-    bdb_warn "Antigen not found - skipping plugin updates"
+    bdb_warn "Zinit not found - skipping plugin updates"
 fi
 
 # =============================================================================

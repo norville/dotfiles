@@ -270,13 +270,12 @@ export PATH
 # -----------------------------------------------------------------------------
 # Load ZSH Plugins
 # -----------------------------------------------------------------------------
-# Source Antigen plugin manager
-# Antigen provides simple plugin management with automatic installation
-_plugin_file="${HOME}/.zsh/antigen.zsh"
+# Source Zinit plugin manager configuration
+_plugin_file="${HOME}/.zsh/plugins.zsh"
 if [[ -f "$_plugin_file" ]]; then
     source "$_plugin_file"
-elif [[ -f "${ZDOTDIR:-$HOME}/.zsh/antigen.zsh" ]]; then
-    source "${ZDOTDIR:-$HOME}/.zsh/antigen.zsh"
+elif [[ -f "${ZDOTDIR:-$HOME}/.zsh/plugins.zsh" ]]; then
+    source "${ZDOTDIR:-$HOME}/.zsh/plugins.zsh"
 fi
 unset _plugin_file
 
