@@ -342,7 +342,9 @@ fi
 # -----------------------------------------------------------------------------
 # Zoxide: smarter cd with frecency ranking — z <query> jumps to best match,
 # zi opens an interactive fzf picker (uses FZF_DEFAULT_OPTS for colors)
+# Unalias zinit's 'zi' shorthand first so zoxide can claim the name.
 if command -v zoxide >/dev/null 2>&1; then
+    unalias zi 2>/dev/null
     eval "$(zoxide init zsh)"
 fi
 
