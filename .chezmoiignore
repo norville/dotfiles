@@ -11,7 +11,9 @@
 # Repository Files (Never Install)
 # -----------------------------------------------------------------------------
 # Documentation and bootstrap scripts that should remain in the repository
+.gitignore
 ARCHITECTURE.md
+CLAUDE.md
 README.md
 TODO.md
 
