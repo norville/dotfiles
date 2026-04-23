@@ -190,28 +190,19 @@ fi
 # -----------------------------------------------------------------------------
 # History Substring Search Configuration (Tokyo Night Moon)
 # -----------------------------------------------------------------------------
-if type history-substring-search-up >/dev/null 2>&1; then
-    # Only show unique results when cycling through matches
-    HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
+HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
+HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND='bg=#82aaff,fg=#222436,bold'
+HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND='bg=#ff757f,fg=#222436,bold'
 
-    # Highlight colours for found / not-found results
-    HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND='bg=#82aaff,fg=#222436,bold'      # blue background
-    HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND='bg=#ff757f,fg=#222436,bold'  # red background
-
-    # Bind ↑/↓ using terminfo entries for portability across terminals
-    if [[ -n "${terminfo[kcuu1]}" && -n "${terminfo[kcud1]}" ]]; then
-        bindkey "${terminfo[kcuu1]}" history-substring-search-up
-        bindkey "${terminfo[kcud1]}" history-substring-search-down
-    else
-        # Fallback for terminals that don't export terminfo
-        bindkey '^[[A' history-substring-search-up
-        bindkey '^[[B' history-substring-search-down
-    fi
-
-    # Vi mode bindings
-    bindkey -M vicmd 'k' history-substring-search-up
-    bindkey -M vicmd 'j' history-substring-search-down
-fi
+# Bind both application-mode (terminfo) and normal-mode escape sequences so
+# the keybindings fire regardless of whether the terminal enables smkx.
+zmodload zsh/terminfo 2>/dev/null
+[[ -n "${terminfo[kcuu1]}" ]] && bindkey "${terminfo[kcuu1]}" history-substring-search-up
+[[ -n "${terminfo[kcud1]}" ]] && bindkey "${terminfo[kcud1]}" history-substring-search-down
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+bindkey -M vicmd 'k' history-substring-search-up
+bindkey -M vicmd 'j' history-substring-search-down
 
 # =============================================================================
 # USAGE NOTES
