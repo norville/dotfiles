@@ -338,6 +338,15 @@ if command -v fzf >/dev/null 2>&1; then
 fi
 
 # -----------------------------------------------------------------------------
+# Zoxide Initialization
+# -----------------------------------------------------------------------------
+# Zoxide: smarter cd with frecency ranking — z <query> jumps to best match,
+# zi opens an interactive fzf picker (uses FZF_DEFAULT_OPTS for colors)
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh)"
+fi
+
+# -----------------------------------------------------------------------------
 # Starship Prompt Initialization
 # -----------------------------------------------------------------------------
 # Starship: Fast, customizable, minimal prompt for any shell
