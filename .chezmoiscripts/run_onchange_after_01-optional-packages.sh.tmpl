@@ -2,8 +2,10 @@
 # =============================================================================
 # Chezmoi Script: Install Optional Packages
 # =============================================================================
-# Prompts for and installs optional packages (1Password, Docker, VS Code, Ansible).
-# Runs after script 00 so required packages are already available.
+# Prompts for and installs optional packages. Runs after script 00.
+# Machine-aware:
+#   workstation — offers all packages: 1Password, Docker, VS Code, Ansible
+#   terminal    — offers only: 1Password, VS Code
 #
 # Execution: chezmoi apply (only when this file's content changes)
 # Location:  .chezmoiscripts/run_onchange_after_01-optional-packages.sh.tmpl
@@ -160,6 +162,11 @@ EOF'
 else
   bdb_warn "Skipping 1Password installation"
 fi
+
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- /* Docker — workstation only                                             */ -}}
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- if eq .machine "workstation" }}
 
 # -----------------------------------------------------------------------------
 # Docker - Container Platform
@@ -321,6 +328,8 @@ else
   bdb_warn "Skipping Docker installation"
 fi
 
+{{- end }}
+
 # -----------------------------------------------------------------------------
 # Visual Studio Code - Code Editor
 # -----------------------------------------------------------------------------
@@ -376,6 +385,11 @@ EOF'
 else
   bdb_warn "Skipping Visual Studio Code installation"
 fi
+
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- /* Ansible — workstation only                                            */ -}}
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- if eq .machine "workstation" }}
 
 # -----------------------------------------------------------------------------
 # Ansible - IT Automation Platform
@@ -502,6 +516,8 @@ if bdb_ask "Do you want to install Ansible"; then
 else
   bdb_warn "Skipping Ansible installation"
 fi
+
+{{- end }}
 
 # =============================================================================
 # COMPLETION
