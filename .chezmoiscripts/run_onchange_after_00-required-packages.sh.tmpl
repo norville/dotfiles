@@ -149,6 +149,9 @@ bdb_exec "Installing Pacman packages" sudo pacman -S --needed --noconfirm "${PAC
 # helper because it wraps makepkg with a pacman-compatible interface.
 if ! bdb_test_cmd "yay"; then
   bdb_action "Installing yay (AUR helper)"
+  # makepkg -si calls sudo pacman twice (deps, then install); refresh the
+  # timestamp once here so both calls share the same authenticated session.
+  sudo -v
   git clone https://aur.archlinux.org/yay.git /tmp/yay
   (cd /tmp/yay && makepkg -si --noconfirm)
   rm -rf /tmp/yay
