@@ -47,6 +47,18 @@ source "${ZINIT_HOME}/zinit.zsh"
 # -----------------------------------------------------------------------------
 # Oh-My-ZSH Snippet Plugins
 # -----------------------------------------------------------------------------
+# Oh-My-ZSH Library Snippets
+# -----------------------------------------------------------------------------
+# `zinit snippet OMZL::name` sources a file from OMZ's lib/ directory.
+# These replace the lib files that `antigen use oh-my-zsh` used to auto-load.
+# Only the ones not already covered by dot_zshrc.tmpl are loaded here.
+
+zinit snippet OMZL::functions.zsh           # take() — mkdir -p + cd in one command
+zinit snippet OMZL::termsupport.zsh         # update terminal tab/window title with current command
+
+# -----------------------------------------------------------------------------
+# Oh-My-ZSH Plugin Snippets
+# -----------------------------------------------------------------------------
 # `zinit snippet OMZP::name` downloads and sources only that plugin file —
 # the full OMZ framework is never loaded. Snippets are cached locally after
 # the first download so subsequent shell starts are fast.
