@@ -132,6 +132,14 @@ fi
 # =============================================================================
 
 # -----------------------------------------------------------------------------
+# sudo: Preserve User Environment and Enable Alias Expansion
+# -----------------------------------------------------------------------------
+# -E preserves HOME, XDG_*, PATH, STARSHIP_CONFIG, FZF_DEFAULT_OPTS, etc.
+# so tool configs are found under ~/.config/ instead of /root/.config/.
+# The trailing space tells zsh to also alias-expand the next word.
+alias sudo='sudo -E '
+
+# -----------------------------------------------------------------------------
 # Search: grep with Colors
 # -----------------------------------------------------------------------------
 # Enable colored output for grep and related commands
