@@ -53,44 +53,38 @@ fi
 # Features: colors by default, git status, tree view, extended attributes
 # Documentation: https://github.com/eza-community/eza
 if command -v eza >/dev/null 2>&1; then
-    # Basic ls replacement
-    alias ls='eza'
+    # Basic listing — --all --all shows hidden files AND . / ..
+    alias ls='eza --all --all'
 
     # Show only directories
     alias lsd='eza --oneline --only-dirs --group-directories-first'
 
-    # Show file tree
+    # Show file tree (. and .. in every node would be noisy — single --all)
     alias lt='eza --all --tree'
 
     # Show file tree with git status
     alias ltg='eza --tree --level=2 --git-ignore'
 
     # Long format, no info
-    alias ll='eza --all --long --no-permissions --no-filesize --no-user --no-time'
+    alias ll='eza --all --all --long --no-permissions --no-filesize --no-user --no-time'
 
     # Long format, all info
-    alias la="eza --all --long --no-permissions --octal-permissions --group --smart-group --time-style=+'%Y-%m-%d %H:%M'"
+    alias la="eza --all --all --long --no-permissions --octal-permissions --group --smart-group --time-style=+'%Y-%m-%d %H:%M'"
 
     # Sort by modification time (newest first)
-    alias lr='eza --all --long --no-permissions --no-filesize --no-user --time-style=relative --changed --sort=modified --reverse'
+    alias lr='eza --all --all --long --no-permissions --no-filesize --no-user --time-style=relative --changed --sort=modified --reverse'
 
-    # Sort by size (largest first)
-    alias lz='eza --all --long --no-permissions --no-user --no-time --only-files  --sort=size --reverse'
+    # Sort by size (largest first — files only, . and .. are not files)
+    alias lz='eza --all --long --no-permissions --no-user --no-time --only-files --sort=size --reverse'
 else
     # Fallback to standard ls with colors if eza is not available
     if ls --color=auto &>/dev/null; then
-        # GNU ls (Linux)
         alias ls='ls --color=auto --group-directories-first'
     else
-        # BSD ls (macOS)
         alias ls='ls -G'
     fi
-    alias ll='ls -lh'
-    alias la='ls -lAh'
-    alias lt='ls -lth'
-    alias lz='ls -lSh'
-    alias ll='ls -lh'
-    alias la='ls -lAh'
+    alias ll='ls -lah'
+    alias la='ls -lah'
     alias lt='ls -lth'
     alias lz='ls -lSh'
 fi
