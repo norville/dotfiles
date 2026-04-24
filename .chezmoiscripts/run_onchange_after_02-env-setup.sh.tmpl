@@ -2,43 +2,28 @@
 # =============================================================================
 # Chezmoi Script: Environment Setup
 # =============================================================================
-# This script configures the shell environment and application settings
-# Runs whenever this file changes (onchange) and after package installation
+# Configures the shell environment and application settings: bat theme cache,
+# default shell (zsh), font cache, and Neovim directories.
 #
-# Execution: Automatic on 'chezmoi apply' when file changes
-# Location: .chezmoiscripts/run_onchange_after_02-env-setup.sh.tmpl
+# Execution: chezmoi apply (only when this file's content changes)
+# Location:  .chezmoiscripts/run_onchange_after_02-env-setup.sh.tmpl
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Source Helper Functions
+# Setup
 # -----------------------------------------------------------------------------
 source "${HELPERS}"
 
-# -----------------------------------------------------------------------------
-# Initialize Logging
-# -----------------------------------------------------------------------------
-# Set up logging for this script
-# If running under bootstrap, this will detect existing logging and continue with it
-# If running standalone, this will create a new log file
 SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl | sed 's/^[0-9]*\.//')"
 SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/$(date +%Y%m%d_%H%M%S)_${SCRIPT_NAME}.log"
-
-# Ensure log directory exists
 mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
-
-# Initialize BDB logging system
-# This will detect if already initialized by bootstrap and skip re-initialization
 bdb_init_logging "${SCRIPT_LOG_FILE}"
 
-# Add a marker to the log to identify this script
 _bdb_log "========================================="
 _bdb_log "Script: ${SCRIPT_NAME}"
 _bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
 _bdb_log "========================================="
 
-# -----------------------------------------------------------------------------
-# Error Handling Configuration
-# -----------------------------------------------------------------------------
 set -euo pipefail
 trap 'bdb_handle_error' ERR
 trap 'bdb_cleanup' EXIT
@@ -53,7 +38,6 @@ bdb_begin_section "Environment Setup"
 # Application Configuration
 # -----------------------------------------------------------------------------
 
-# Configure bat (syntax highlighting tool)
 {{- if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") }}
 # Debian/Ubuntu uses 'batcat' command name
 if bdb_test_cmd "batcat"; then
@@ -94,14 +78,12 @@ fi
 # Linux-Specific Configuration
 # -----------------------------------------------------------------------------
 
-# Verify ZSH as default login shell
-bdb_action "Configuring shell environment"
+bdb_action "Configuring default shell"
 
 if bdb_test_cmd "zsh"; then
     zsh_path="$(command -v zsh)"
     bdb_var "ZSH path" "${zsh_path}"
 
-    # Check if ZSH is already the default shell
     if [[ "${SHELL}" != "${zsh_path}" ]]; then
         # Ensure ZSH is in /etc/shells
         if ! grep -Fxq "${zsh_path}" /etc/shells 2>/dev/null; then
@@ -220,9 +202,8 @@ fi
 
 bdb_success "Environment setup complete"
 
-# Show log file location (either bootstrap log or script-specific log)
 if [[ -n "${BDB_LOG_FILE:-}" ]]; then
-    bdb_var "Log file" "${BDB_LOG_FILE}"
+  bdb_var "Log file" "${BDB_LOG_FILE}"
 fi
 
 bdb_info "NOTE: Please log out and log back in for all changes to take effect"
