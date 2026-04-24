@@ -4,8 +4,8 @@
 # =============================================================================
 # Prompts for and installs optional packages. Runs after script 00.
 # Machine-aware:
-#   workstation — offers all packages: 1Password, Docker, VS Code, Ansible
-#   terminal    — offers only: 1Password, VS Code
+#   workstation — offers: 1Password, Docker, VS Code, Ansible
+#   terminal    — offers: Docker, Ansible
 #
 # Execution: chezmoi apply (only when this file's content changes)
 # Location:  .chezmoiscripts/run_onchange_after_01-optional-packages.sh.tmpl
@@ -36,6 +36,11 @@ trap 'bdb_cleanup' EXIT
 # =============================================================================
 
 bdb_begin_section "Optional Packages Installation"
+
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- /* 1Password — workstation only                                          */ -}}
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- if eq .machine "workstation" }}
 
 # -----------------------------------------------------------------------------
 # 1Password - Password Manager
@@ -163,10 +168,7 @@ else
   bdb_warn "Skipping 1Password installation"
 fi
 
-{{- /* -------------------------------------------------------------------- */ -}}
-{{- /* Docker — workstation only                                             */ -}}
-{{- /* -------------------------------------------------------------------- */ -}}
-{{- if eq .machine "workstation" }}
+{{- end }}
 
 # -----------------------------------------------------------------------------
 # Docker - Container Platform
@@ -328,7 +330,10 @@ else
   bdb_warn "Skipping Docker installation"
 fi
 
-{{- end }}
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- /* VS Code — workstation only                                            */ -}}
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- if eq .machine "workstation" }}
 
 # -----------------------------------------------------------------------------
 # Visual Studio Code - Code Editor
@@ -386,10 +391,7 @@ else
   bdb_warn "Skipping Visual Studio Code installation"
 fi
 
-{{- /* -------------------------------------------------------------------- */ -}}
-{{- /* Ansible — workstation only                                            */ -}}
-{{- /* -------------------------------------------------------------------- */ -}}
-{{- if eq .machine "workstation" }}
+{{- end }}
 
 # -----------------------------------------------------------------------------
 # Ansible - IT Automation Platform
@@ -516,8 +518,6 @@ if bdb_ask "Do you want to install Ansible"; then
 else
   bdb_warn "Skipping Ansible installation"
 fi
-
-{{- end }}
 
 # =============================================================================
 # COMPLETION
