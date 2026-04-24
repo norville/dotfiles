@@ -2,198 +2,165 @@
 # =============================================================================
 # Chezmoi Script: Install Required Packages
 # =============================================================================
-# This script installs essential packages required for the dotfiles environment
-# Runs whenever this file changes (onchange) and after other scripts
+# Installs the core + distro-specific packages defined in .chezmoi.toml.tmpl.
+# Package lists are centralized there; this script only handles installation.
 #
-# Execution: Automatic on 'chezmoi apply' when file changes
-# Location: .chezmoiscripts/run_onchange_after_00-required-packages.sh.tmpl
+# Execution: chezmoi apply (only when this file's content changes)
+# Location:  .chezmoiscripts/run_onchange_after_00-required-packages.sh.tmpl
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Source Helper Functions
+# Setup
 # -----------------------------------------------------------------------------
 source "${HELPERS}"
 
-# -----------------------------------------------------------------------------
-# Initialize Logging
-# -----------------------------------------------------------------------------
-# Set up logging for this script
-# If running under bootstrap, this will detect existing logging and continue with it
-# If running standalone, this will create a new log file
 SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl | sed 's/^[0-9]*\.//')"
 SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/$(date +%Y%m%d_%H%M%S)_${SCRIPT_NAME}.log"
-
-# Ensure log directory exists
 mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
-
-# Initialize BDB logging system
-# This will detect if already initialized by bootstrap and skip re-initialization
 bdb_init_logging "${SCRIPT_LOG_FILE}"
 
-# Add a marker to the log to identify this script
 _bdb_log "========================================="
 _bdb_log "Script: ${SCRIPT_NAME}"
 _bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
 _bdb_log "========================================="
 
-# -----------------------------------------------------------------------------
-# Error Handling Configuration
-# -----------------------------------------------------------------------------
-set -euo pipefail              # Strict error handling
-trap 'bdb_handle_error' ERR    # Handle errors automatically
-trap 'bdb_cleanup' EXIT        # Cleanup on exit
+set -euo pipefail
+trap 'bdb_handle_error' ERR
+trap 'bdb_cleanup' EXIT
 
 # =============================================================================
-# PACKAGE DEFINITIONS
+# PACKAGE INSTALLATION
 # =============================================================================
-
 {{- /* -------------------------------------------------------------------- */ -}}
-{{- /* Linux Package Installation                                           */ -}}
+{{- /* Linux                                                                 */ -}}
 {{- /* -------------------------------------------------------------------- */ -}}
 {{- if eq .chezmoi.os "linux" }}
-# =============================================================================
-# LINUX PACKAGE INSTALLATION
-# =============================================================================
 
 bdb_begin_section "Installing Required Packages for {{ .osid }}"
 
     {{- /* ---------------------------------------------------------------- */ -}}
-    {{- /* Debian/Ubuntu APT Packages                                       */ -}}
+    {{- /* Debian / Ubuntu — APT                                            */ -}}
     {{- /* ---------------------------------------------------------------- */ -}}
     {{- if eq .packageManager "apt" }}
 # -----------------------------------------------------------------------------
-# APT Package List (Debian/Ubuntu)
+# APT packages (Debian / Ubuntu)
 # -----------------------------------------------------------------------------
 APT_PACKAGES=(
-    {{- range .corePackages }}
-    "{{ . }}"
-    {{- end }}
-    {{- range .aptPackages }}
-    "{{ . }}"
-    {{- end }}
+  {{- range .corePackages }}
+  "{{ . }}"
+  {{- end }}
+  {{- range .aptPackages }}
+  "{{ . }}"
+  {{- end }}
 )
 
-# Install APT packages
+# eza is not in the official Debian/Ubuntu repos; add its signing key and
+# custom source before apt-get update so everything resolves in one pass.
+bdb_action "Setting up eza repository"
+sudo mkdir -p /etc/apt/keyrings
+wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc \
+  | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" \
+  | sudo tee /etc/apt/sources.list.d/eza.list
+sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/eza.list
+
 bdb_exec "Updating APT package lists" sudo apt-get update
-bdb_exec "Installing APT packages" sudo apt-get install -y "${APT_PACKAGES[@]}"
+bdb_exec "Installing APT packages"    sudo apt-get install -y "${APT_PACKAGES[@]}"
 
 # -----------------------------------------------------------------------------
-# Additional APT Repositories and Packages
+# Snap packages (Debian / Ubuntu)
 # -----------------------------------------------------------------------------
-# Install eza file lister (https://github.com/eza-community/eza)
-if ! bdb_test_cmd "eza"; then
-    bdb_action "Setting up eza repository"
-    sudo mkdir -p /etc/apt/keyrings
-    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | \
-        sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
-    echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | \
-        sudo tee /etc/apt/sources.list.d/eza.list
-    sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/eza.list
+# lazygit and nvim are absent from / outdated in the official apt repos;
+# fresh-editor has no .deb release — all three are distributed only via snap.
+# All packages in this list use --classic confinement; add non-classic snaps
+# to a separate install call to avoid a confinement mismatch error.
+SNAP_PACKAGES=(
+  {{- range .snapPackages }}
+  "{{ . }}"
+  {{- end }}
+)
 
-    bdb_exec "Installing eza" sudo apt-get update && sudo apt-get install -y eza
-else
-    bdb_success "eza already installed"
-fi
-
-# -----------------------------------------------------------------------------
-# SNAP Packages
-# -----------------------------------------------------------------------------
-# Install SNAP packages
 if bdb_test_cmd "snap"; then
-    bdb_exec "Updating SNAP packages" sudo snap refresh
-    bdb_action "Installing SNAP packages"
-    sudo snap install --classic lazygit && bdb_success "lazygit installed"
-    sudo snap install --classic nvim && bdb_success "nvim installed"
-    if ! bdb_test_cmd "fresh"; then
-        bdb_exec "Installing fresh-editor" sudo snap install fresh-editor --classic
-    else
-        bdb_success "fresh-editor already installed"
-    fi
+  bdb_exec "Refreshing installed snaps" sudo snap refresh
+  bdb_exec "Installing snap packages"  sudo snap install --classic "${SNAP_PACKAGES[@]}"
 else
-    bdb_warn "snapd is not installed — skipping lazygit, nvim, fresh-editor (snap)"
+  bdb_warn "snapd is not installed — skipping: ${SNAP_PACKAGES[*]}"
 fi
 
     {{- /* ---------------------------------------------------------------- */ -}}
-    {{- /* Fedora/RHEL DNF Packages                                         */ -}}
+    {{- /* Fedora / RHEL — DNF                                              */ -}}
     {{- /* ---------------------------------------------------------------- */ -}}
     {{- else if eq .packageManager "dnf" }}
 # -----------------------------------------------------------------------------
-# DNF Package List (Fedora/RHEL)
+# DNF packages (Fedora / RHEL)
 # -----------------------------------------------------------------------------
 DNF_PACKAGES=(
-    {{- range .corePackages }}
-    "{{ . }}"
-    {{- end }}
-    {{- range .dnfPackages }}
-    "{{ . }}"
-    {{- end }}
+  {{- range .corePackages }}
+  "{{ . }}"
+  {{- end }}
+  {{- range .dnfPackages }}
+  "{{ . }}"
+  {{- end }}
 )
 
-# Enable COPR repositories for additional packages
+# Several packages are absent from the default Fedora repos; enable their COPR
+# and Terra sources before the main install so everything resolves in one pass.
 bdb_action "Enabling COPR repositories"
-sudo dnf copr enable -y alternateved/eza 2>/dev/null || true
-sudo dnf copr enable -y atim/lazygit 2>/dev/null || true
-sudo dnf copr enable -y atim/starship 2>/dev/null || true
-sudo dnf copr enable -y awood/bat-extras 2>/dev/null || true
-sudo dnf copr enable -y pennbauman/ports 2>/dev/null || true
+sudo dnf copr enable -y alternateved/eza   2>/dev/null || true  # eza
+sudo dnf copr enable -y atim/lazygit       2>/dev/null || true  # lazygit
+sudo dnf copr enable -y atim/starship      2>/dev/null || true  # starship
+sudo dnf copr enable -y awood/bat-extras   2>/dev/null || true  # bat-extras
+sudo dnf copr enable -y pennbauman/ports   2>/dev/null || true  # zoxide
 bdb_success "COPR repositories enabled"
 
-# Install DNF packages
+# Terra provides fresh-editor, which is absent from both Fedora repos and COPR.
+bdb_action "Enabling Terra repository"
+sudo dnf config-manager --add-repo https://terra.fyralabs.com/terra.repo
+bdb_success "Terra repository enabled"
+
 bdb_exec "Installing DNF packages" sudo dnf install -y "${DNF_PACKAGES[@]}"
 
-# -----------------------------------------------------------------------------
-# Additional Packages
-# -----------------------------------------------------------------------------
-# Install fresh file editor via Terra repository (https://terra.fyralabs.com)
-if ! bdb_test_cmd "fresh"; then
-    bdb_action "Adding Terra repository"
-    sudo dnf config-manager --add-repo https://terra.fyralabs.com/terra.repo
-    bdb_exec "Installing fresh-editor" sudo dnf install -y fresh
-else
-    bdb_success "fresh-editor already installed"
-fi
-
     {{- /* ---------------------------------------------------------------- */ -}}
-    {{- /* Arch/Manjaro Pacman Packages                                     */ -}}
+    {{- /* Arch / Manjaro — Pacman + AUR                                    */ -}}
     {{- /* ---------------------------------------------------------------- */ -}}
     {{- else if eq .packageManager "pacman" }}
 # -----------------------------------------------------------------------------
-# Pacman Package List (Arch/Manjaro)
+# Pacman packages (Arch / Manjaro)
 # -----------------------------------------------------------------------------
 PACMAN_PACKAGES=(
-    {{- range .corePackages }}
-    "{{ . }}"
-    {{- end }}
-    {{- range .pacmanPackages }}
-    "{{ . }}"
-    {{- end }}
+  {{- range .corePackages }}
+  "{{ . }}"
+  {{- end }}
+  {{- range .pacmanPackages }}
+  "{{ . }}"
+  {{- end }}
 )
 
-# Install Pacman packages
 bdb_exec "Installing Pacman packages" sudo pacman -S --needed --noconfirm "${PACMAN_PACKAGES[@]}"
 
         {{- /* ------------------------------------------------------------ */ -}}
-        {{- /* AUR Packages — only when aurPackages list is non-empty       */ -}}
+        {{- /* AUR packages — skipped when aurPackages list is empty        */ -}}
         {{- /* ------------------------------------------------------------ */ -}}
         {{- if .aurPackages }}
 # -----------------------------------------------------------------------------
-# AUR Package List (Arch/Manjaro)
+# AUR packages (Arch / Manjaro)
 # -----------------------------------------------------------------------------
-# Install yay (AUR helper) if not present
+# bat-extras and fresh-editor-bin are only in the AUR. yay is used as the
+# helper because it wraps makepkg with a pacman-compatible interface.
 if ! bdb_test_cmd "yay"; then
-    bdb_action "Installing yay (AUR helper)"
-    git clone https://aur.archlinux.org/yay.git /tmp/yay
-    (cd /tmp/yay && makepkg -si --noconfirm)
-    rm -rf /tmp/yay
-    bdb_success "yay installed"
+  bdb_action "Installing yay (AUR helper)"
+  git clone https://aur.archlinux.org/yay.git /tmp/yay
+  (cd /tmp/yay && makepkg -si --noconfirm)
+  rm -rf /tmp/yay
+  bdb_success "yay installed"
 else
-    bdb_success "yay already installed"
+  bdb_success "yay already installed"
 fi
 
 AUR_PACKAGES=(
-    {{- range .aurPackages }}
-    "{{ . }}"
-    {{- end }}
+  {{- range .aurPackages }}
+  "{{ . }}"
+  {{- end }}
 )
 bdb_exec "Installing AUR packages" yay -S --noconfirm "${AUR_PACKAGES[@]}"
         {{- end }}
@@ -201,27 +168,22 @@ bdb_exec "Installing AUR packages" yay -S --noconfirm "${AUR_PACKAGES[@]}"
     {{- end }}
 
 {{- /* -------------------------------------------------------------------- */ -}}
-{{- /* macOS Package Installation                                            */ -}}
+{{- /* macOS                                                                 */ -}}
 {{- /* -------------------------------------------------------------------- */ -}}
 {{- else if eq .chezmoi.os "darwin" }}
-# =============================================================================
-# MACOS PACKAGE INSTALLATION
-# =============================================================================
 
 bdb_begin_section "Installing Required Packages for macOS"
 
-# Homebrew bundle file location
+# All macOS packages are declared in the Brewfile (formulae + casks + taps);
+# brew bundle installs or upgrades them in a single idempotent pass.
 BREWFILE="${HOME}/.config/homebrew/brewfile"
 
-# Verify Brewfile exists
 if [[ ! -f "${BREWFILE}" ]]; then
-    bdb_error "Brewfile not found at ${BREWFILE}"
-    exit 1
+  bdb_error "Brewfile not found at ${BREWFILE}"
+  exit 1
 fi
 
 bdb_var "Brewfile" "${BREWFILE}"
-
-# Install Homebrew packages
 bdb_exec "Installing Homebrew packages" brew bundle --file="${BREWFILE}"
 
 {{- end }}
@@ -229,12 +191,10 @@ bdb_exec "Installing Homebrew packages" brew bundle --file="${BREWFILE}"
 # =============================================================================
 # COMPLETION
 # =============================================================================
-
 bdb_success "Required packages installed successfully"
 
-# Show log file location (either bootstrap log or script-specific log)
 if [[ -n "${BDB_LOG_FILE:-}" ]]; then
-    bdb_var "Log file" "${BDB_LOG_FILE}"
+  bdb_var "Log file" "${BDB_LOG_FILE}"
 fi
 
 bdb_end_section
