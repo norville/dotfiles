@@ -420,6 +420,13 @@ install_dependencies() {
         ;;
     esac
 
+    # /snap/bin is not on PATH by default in a fresh Debian/Ubuntu session;
+    # add it so the chezmoi snap is visible for the rest of this script run.
+    if [[ -d "/snap/bin" ]] && [[ ":${PATH}:" != *":/snap/bin:"* ]]; then
+        export PATH="/snap/bin:${PATH}"
+        _bdb_log "Added /snap/bin to PATH"
+    fi
+
     if ! bdb_test_cmd "chezmoi"; then
         bdb_error "Chezmoi installation failed"
         return 1
