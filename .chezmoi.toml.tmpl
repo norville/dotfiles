@@ -72,13 +72,11 @@
 {{- /* ========================================================================== */ -}}
 {{- /* Machine Type                                                               */ -}}
 {{- /* ========================================================================== */ -}}
-{{- /* Auto-inferred from OS/distro; no prompt required                           */ -}}
-{{- /* Values: workstation | terminal                                             */ -}}
+{{- /* Prompted once and cached; answer stored in chezmoi's config so subsequent  */ -}}
+{{- /* applies do not re-prompt. Values: workstation | terminal                   */ -}}
 
 {{- $machine := "terminal" -}}
-{{- if eq .chezmoi.os "darwin" -}}
-    {{- $machine = "workstation" -}}
-{{- else if or (eq $osid "linux-arch") (eq $osid "linux-cachyos") (eq $osid "linux-manjaro") -}}
+{{- if promptBoolOnce . "workstation" "Is this a workstation?" -}}
     {{- $machine = "workstation" -}}
 {{- end -}}
 
