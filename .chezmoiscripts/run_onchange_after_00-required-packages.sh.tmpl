@@ -95,18 +95,6 @@ else
     bdb_success "eza already installed"
 fi
 
-# Install fresh file editor (https://github.com/sinelaw/fresh)
-if ! command -v fresh >/dev/null 2>&1; then
-    bdb_action "Installing fresh-editor from GitHub"
-    FRESH_VERSION="0.1.65"  # Check latest: https://github.com/sinelaw/fresh/releases
-    FRESH_URL="https://github.com/sinelaw/fresh/releases/download/v${FRESH_VERSION}/fresh-editor_${FRESH_VERSION}_$(dpkg --print-architecture).deb"
-
-    wget -q "${FRESH_URL}" -o /tmp/fresh-editor.deb
-    sudo dpkg -i /tmp/fresh-editor.deb
-    rm /tmp/fresh-editor.deb
-    bdb_success "fresh-editor installed"
-fi
-
 # -----------------------------------------------------------------------------
 # SNAP Packages
 # -----------------------------------------------------------------------------
@@ -116,8 +104,13 @@ if bdb_test_cmd "snap"; then
     bdb_action "Installing SNAP packages"
     sudo snap install --classic lazygit && bdb_success "lazygit installed"
     sudo snap install --classic nvim && bdb_success "nvim installed"
+    if ! bdb_test_cmd "fresh"; then
+        bdb_exec "Installing fresh-editor" sudo snap install fresh-editor --classic
+    else
+        bdb_success "fresh-editor already installed"
+    fi
 else
-    bdb_warn "snapd is not installed"
+    bdb_warn "snapd is not installed — skipping lazygit, nvim, fresh-editor (snap)"
 fi
 
     {{- /* ---------------------------------------------------------------- */ -}}
@@ -151,16 +144,13 @@ bdb_exec "Installing DNF packages" sudo dnf install -y "${DNF_PACKAGES[@]}"
 # -----------------------------------------------------------------------------
 # Additional Packages
 # -----------------------------------------------------------------------------
-# Install fresh file editor (https://github.com/sinelaw/fresh)
-if ! command -v fresh >/dev/null 2>&1; then
-    bdb_action "Installing fresh-editor from GitHub"
-    FRESH_VERSION="0.1.65"
-    FRESH_URL="https://github.com/sinelaw/fresh/releases/download/v${FRESH_VERSION}/fresh-editor-${FRESH_VERSION}.$(uname -m).rpm"
-
-    wget -q "${FRESH_URL}" -O /tmp/fresh-editor.rpm
-    sudo rpm -U /tmp/fresh-editor.rpm
-    rm /tmp/fresh-editor.rpm
-    bdb_success "fresh-editor installed"
+# Install fresh file editor via Terra repository (https://terra.fyralabs.com)
+if ! bdb_test_cmd "fresh"; then
+    bdb_action "Adding Terra repository"
+    sudo dnf config-manager --add-repo https://terra.fyralabs.com/terra.repo
+    bdb_exec "Installing fresh-editor" sudo dnf install -y fresh
+else
+    bdb_success "fresh-editor already installed"
 fi
 
     {{- /* ---------------------------------------------------------------- */ -}}
