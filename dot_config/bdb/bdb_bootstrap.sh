@@ -7,7 +7,7 @@
 #
 # Supported Systems:
 # - macOS (Intel and Apple Silicon)
-# - Linux: Arch, Manjaro, Debian, Ubuntu, Fedora, RHEL
+# - Linux: Arch, CachyOS, Manjaro, Debian, Ubuntu, Fedora, RHEL
 #
 # Features:
 # - Auto-detection of OS and distribution
@@ -450,15 +450,19 @@ install_deps_arch() {
 # -----------------------------------------------------------------------------
 # Install Dependencies on Debian
 # -----------------------------------------------------------------------------
+# Installs git, snapd, and chezmoi on Debian systems.
+# Follows the official Debian snap installation guide:
+# https://snapcraft.io/docs/tutorials/install-the-daemon/debian/
+#
+# chezmoi is installed via snap (--classic confinement) rather than curl to
+# keep the installation method consistent with Ubuntu and avoid piping a
+# remote script into a shell.
+#
+# Package Manager: APT + snapd
+# Requires: sudo privileges
 install_deps_debian() {
     local packages_to_install=()
-
-    # Check curl
-    if ! bdb_test_cmd "curl"; then
-        packages_to_install+=("curl")
-    else
-        bdb_success "Curl already installed"
-    fi
+    local snapd_freshly_installed=false
 
     # Check git
     if bdb_test_cmd "git"; then
@@ -467,16 +471,30 @@ install_deps_debian() {
         packages_to_install+=("git")
     fi
 
-    # Install missing packages
+    # snapd is required to install chezmoi via snap
+    if bdb_test_cmd "snap"; then
+        bdb_success "Snapd already installed"
+    else
+        packages_to_install+=("snapd")
+        snapd_freshly_installed=true
+    fi
+
+    # Install missing apt packages
     if [[ ${#packages_to_install[@]} -gt 0 ]]; then
         bdb_exec "Installing dependencies" sudo apt-get install -y "${packages_to_install[@]}"
     fi
 
-    # Install chezmoi if not already present
+    # After a fresh snapd install on Debian, install snap core to bring the
+    # snapd daemon to its latest version before any other snaps are installed
+    if [[ "${snapd_freshly_installed}" == true ]]; then
+        bdb_exec "Installing snap core" sudo snap install core
+    fi
+
+    # Install chezmoi via snap if not already present
     if bdb_test_cmd "chezmoi"; then
         bdb_success "Chezmoi already installed"
     else
-        bdb_exec "Installing chezmoi" sudo sh -c "\$(curl -fsLS https://get.chezmoi.io)" -- -b /usr/local/bin
+        bdb_exec "Installing chezmoi via snap" sudo snap install chezmoi --classic
     fi
 }
 
@@ -641,7 +659,7 @@ install_deps_macos() {
 # -----------------------------------------------------------------------------
 install_dependencies() {
     case "${DISTRO}" in
-    arch | manjaro)
+    arch | cachyos | manjaro)
         install_deps_arch
         ;;
     debian)
