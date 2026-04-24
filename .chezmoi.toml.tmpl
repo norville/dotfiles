@@ -60,7 +60,7 @@
 {{- if eq .chezmoi.os "darwin" -}}
     {{- $packageManager = "brew" -}}
 {{- else if eq .chezmoi.os "linux" -}}
-    {{- if or (eq $osid "linux-arch") (eq $osid "linux-manjaro") -}}
+    {{- if or (eq $osid "linux-arch") (eq $osid "linux-cachyos") (eq $osid "linux-manjaro") -}}
         {{- $packageManager = "pacman" -}}
     {{- else if or (eq $osid "linux-debian") (eq $osid "linux-ubuntu") (eq $osid "linux-pop") -}}
         {{- $packageManager = "apt" -}}
@@ -78,7 +78,7 @@
 {{- $machine := "terminal" -}}
 {{- if eq .chezmoi.os "darwin" -}}
     {{- $machine = "workstation" -}}
-{{- else if eq $osid "linux-arch" -}}
+{{- else if or (eq $osid "linux-arch") (eq $osid "linux-cachyos") -}}
     {{- $machine = "workstation" -}}
 {{- end -}}
 
