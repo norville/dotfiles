@@ -294,10 +294,10 @@ install_deps_ubuntu() {
         packages_to_install+=("git")
     fi
 
-    if ! command -v snap >/dev/null 2>&1; then
-        packages_to_install+=("snapd")
-    else
+    if bdb_test_cmd "snap"; then
         bdb_success "Snapd already installed"
+    else
+        packages_to_install+=("snapd")
     fi
 
     if [[ ${#packages_to_install[@]} -gt 0 ]]; then
@@ -362,7 +362,7 @@ install_deps_macos() {
 
     bdb_action "Checking Homebrew"
 
-    if command -v brew >/dev/null 2>&1; then
+    if bdb_has_cmd "brew"; then
         bdb_success "Homebrew already installed"
         bdb_exec "Updating Homebrew" brew update
         bdb_exec "Upgrading Homebrew packages" brew upgrade
@@ -477,7 +477,7 @@ bdb_bootstrap() {
     # Request early and keep alive so the password is only prompted once.
 
     bdb_action "Requesting administrator privileges"
-    if command -v sudo >/dev/null 2>&1; then
+    if bdb_has_cmd "sudo"; then
         sudo -v
         bdb_success "Administrator privileges granted"
 
