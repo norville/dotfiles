@@ -264,13 +264,13 @@ bdb_download() {
     local url="$1"
     local output="$2"
     _bdb_log "Downloading: ${url} -> ${output}"
-    if bdb_has_cmd "curl"; then
+    if command -v curl >/dev/null 2>&1; then
         _bdb_log "Using curl"
         if curl -fsSL "${url}" -o "${output}" 2>&1 | tee -a /dev/fd/1 >/dev/null; then
             _bdb_log "Download successful"
             return 0
         fi
-    elif bdb_has_cmd "wget"; then
+    elif command -v wget >/dev/null 2>&1; then
         _bdb_log "Using wget"
         if wget -qO "${output}" "${url}" 2>&1 | tee -a /dev/fd/1 >/dev/null; then
             _bdb_log "Download successful"
