@@ -78,7 +78,7 @@
 {{- $machine := "terminal" -}}
 {{- if eq .chezmoi.os "darwin" -}}
     {{- $machine = "workstation" -}}
-{{- else if or (eq $osid "linux-arch") (eq $osid "linux-cachyos") -}}
+{{- else if or (eq $osid "linux-arch") (eq $osid "linux-cachyos") (eq $osid "linux-manjaro") -}}
     {{- $machine = "workstation" -}}
 {{- end -}}
 
