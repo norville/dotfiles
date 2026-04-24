@@ -82,7 +82,11 @@ SNAP_PACKAGES=(
 
 if bdb_test_cmd "snap"; then
   bdb_exec "Refreshing installed snaps" sudo snap refresh
-  bdb_exec "Installing snap packages"  sudo snap install --classic "${SNAP_PACKAGES[@]}"
+  # --classic cannot be combined with multiple packages in one call
+  for _snap in "${SNAP_PACKAGES[@]}"; do
+    bdb_exec "Installing snap: ${_snap}" sudo snap install --classic "${_snap}"
+  done
+  unset _snap
 else
   bdb_warn "snapd is not installed — skipping: ${SNAP_PACKAGES[*]}"
 fi
