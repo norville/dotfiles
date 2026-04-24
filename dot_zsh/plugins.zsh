@@ -204,6 +204,19 @@ bindkey '^[[B' history-substring-search-down
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
 
+# -----------------------------------------------------------------------------
+# Navigation Key Bindings
+# -----------------------------------------------------------------------------
+# OMZ's lib/key-bindings.zsh normally sets these; zinit snippet loads skip
+# the OMZ lib layer, so they must be bound explicitly here.
+# Same dual-binding pattern: terminfo (application mode) + literal (normal mode).
+[[ -n "${terminfo[khome]}" ]] && bindkey "${terminfo[khome]}" beginning-of-line
+[[ -n "${terminfo[kend]}"  ]] && bindkey "${terminfo[kend]}"  end-of-line
+[[ -n "${terminfo[kdch1]}" ]] && bindkey "${terminfo[kdch1]}" delete-char
+bindkey '^[[H'  beginning-of-line   # Home
+bindkey '^[[F'  end-of-line         # End
+bindkey '^[[3~' delete-char         # Delete
+
 # =============================================================================
 # USAGE NOTES
 # =============================================================================
