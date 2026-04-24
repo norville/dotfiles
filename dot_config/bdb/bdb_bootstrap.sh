@@ -178,31 +178,31 @@ detect_os() {
     platform="$(uname -s)"
 
     case "${platform}" in
-        Darwin)
-            # macOS system
-            distro="macos"
-            ;;
-        Linux)
-            # Linux system - need to identify distribution
-            if [[ -f "${LSB_RELEASE_PATH}" ]]; then
-                # Extract distribution ID from /etc/os-release
-                # Format: ID=ubuntu or ID="ubuntu"
-                distro="$(grep -E '^ID=' "${LSB_RELEASE_PATH}" | cut -d'=' -f2 | tr -d '"' | tr '[:upper:]' '[:lower:]')"
+    Darwin)
+        # macOS system
+        distro="macos"
+        ;;
+    Linux)
+        # Linux system - need to identify distribution
+        if [[ -f "${LSB_RELEASE_PATH}" ]]; then
+            # Extract distribution ID from /etc/os-release
+            # Format: ID=ubuntu or ID="ubuntu"
+            distro="$(grep -E '^ID=' "${LSB_RELEASE_PATH}" | cut -d'=' -f2 | tr -d '"' | tr '[:upper:]' '[:lower:]')"
 
-                # If ID is empty, try ID_LIKE (for derivatives like Pop!_OS)
-                if [[ -z "${distro}" ]]; then
-                    distro="$(grep -E '^ID_LIKE=' "${LSB_RELEASE_PATH}" | cut -d'=' -f2 | tr -d '"' | awk '{print $1}' | tr '[:upper:]' '[:lower:]')"
-                fi
-            else
-                # No /etc/os-release file found
-                distro="unknown"
+            # If ID is empty, try ID_LIKE (for derivatives like Pop!_OS)
+            if [[ -z "${distro}" ]]; then
+                distro="$(grep -E '^ID_LIKE=' "${LSB_RELEASE_PATH}" | cut -d'=' -f2 | tr -d '"' | awk '{print $1}' | tr '[:upper:]' '[:lower:]')"
             fi
-            ;;
-        *)
-            # Unsupported platform
-            bdb_error "Unsupported operating system: ${platform}"
-            return 1
-            ;;
+        else
+            # No /etc/os-release file found
+            distro="unknown"
+        fi
+        ;;
+    *)
+        # Unsupported platform
+        bdb_error "Unsupported operating system: ${platform}"
+        return 1
+        ;;
     esac
 
     # Display detected system information
@@ -365,23 +365,23 @@ update_system() {
 
     # Route to appropriate update function based on distribution
     case "${DISTRO}" in
-        arch|manjaro)
-            update_arch
-            ;;
-        debian|ubuntu|pop)
-            update_debian
-            ;;
-        fedora|rhel|centos)
-            update_fedora
-            ;;
-        macos)
-            update_macos
-            ;;
-        *)
-            # Unknown or unsupported distribution
-            bdb_error "Unsupported distribution for system update: ${DISTRO}"
-            return 1
-            ;;
+    arch | cachyos | manjaro)
+        update_arch
+        ;;
+    debian | ubuntu | pop)
+        update_debian
+        ;;
+    fedora | rhel | centos)
+        update_fedora
+        ;;
+    macos)
+        update_macos
+        ;;
+    *)
+        # Unknown or unsupported distribution
+        bdb_error "Unsupported distribution for system update: ${DISTRO}"
+        return 1
+        ;;
     esac
 
     # All updates completed successfully
@@ -582,7 +582,7 @@ install_deps_macos() {
         # The install command returns immediately but installation happens in background
         bdb_action "Waiting for Xcode installation to complete"
         until xcode-select -p &>/dev/null; do
-            sleep 5  # Check every 5 seconds
+            sleep 5 # Check every 5 seconds
         done
 
         bdb_success "Xcode Command Line Tools installed"
@@ -641,25 +641,25 @@ install_deps_macos() {
 # -----------------------------------------------------------------------------
 install_dependencies() {
     case "${DISTRO}" in
-        arch|manjaro)
-            install_deps_arch
-            ;;
-        debian)
-            install_deps_debian
-            ;;
-        ubuntu|pop)
-            install_deps_ubuntu
-            ;;
-        fedora|rhel|centos)
-            install_deps_fedora
-            ;;
-        macos)
-            install_deps_macos
-            ;;
-        *)
-            bdb_error "Unsupported distribution for dependency installation: ${DISTRO}"
-            return 1
-            ;;
+    arch | manjaro)
+        install_deps_arch
+        ;;
+    debian)
+        install_deps_debian
+        ;;
+    ubuntu | pop)
+        install_deps_ubuntu
+        ;;
+    fedora | rhel | centos)
+        install_deps_fedora
+        ;;
+    macos)
+        install_deps_macos
+        ;;
+    *)
+        bdb_error "Unsupported distribution for dependency installation: ${DISTRO}"
+        return 1
+        ;;
     esac
 
     # Verify chezmoi installation
@@ -765,9 +765,9 @@ bdb_bootstrap() {
         # This refreshes sudo timestamp every 60 seconds
         # Exits when the main script exits (kill -0 "$$" checks if parent exists)
         while true; do
-            sudo -n true          # Refresh sudo timestamp
-            sleep 60              # Wait 60 seconds
-            kill -0 "$$" 2>/dev/null || exit  # Exit if parent script ended
+            sudo -n true                     # Refresh sudo timestamp
+            sleep 60                         # Wait 60 seconds
+            kill -0 "$$" 2>/dev/null || exit # Exit if parent script ended
         done 2>/dev/null &
     else
         # sudo not available - warn but continue
@@ -779,27 +779,27 @@ bdb_bootstrap() {
     # Detect OS and distribution to determine installation methods
 
     bdb_begin_section "System Detection"
-    detect_os || exit 1  # Exit if detection fails
+    detect_os || exit 1 # Exit if detection fails
     bdb_end_section
 
     # --- System Update ---
     # Update system packages (user can skip this step)
 
     bdb_begin_section "System Update"
-    update_system || exit 1  # Exit if update fails
+    update_system || exit 1 # Exit if update fails
     bdb_end_section
 
     # --- Dependency Installation ---
     # Install git and chezmoi (required for dotfiles)
 
     bdb_begin_section "Installing Dependencies"
-    install_dependencies || exit 1  # Exit if installation fails
+    install_dependencies || exit 1 # Exit if installation fails
     bdb_end_section
 
     # --- Dotfiles Initialization ---
     # Clone and apply dotfiles using chezmoi
 
-    init_dotfiles || exit 1  # Exit if initialization fails
+    init_dotfiles || exit 1 # Exit if initialization fails
 
     # --- Completion ---
     # Show success message and next steps
@@ -854,8 +854,8 @@ set -euo pipefail
 # Trap Order Matters:
 #   - ERR runs first on command failure
 #   - EXIT always runs last, even after ERR
-trap 'bdb_handle_error' ERR     # Handle command failures
-trap 'bdb_cleanup' EXIT         # Cleanup on exit
+trap 'bdb_handle_error' ERR # Handle command failures
+trap 'bdb_cleanup' EXIT     # Cleanup on exit
 
 # -----------------------------------------------------------------------------
 # Setup Logging
@@ -890,3 +890,4 @@ bdb_bootstrap
 # Exit with success status
 # Cleanup trap will run automatically after this
 exit 0
+
