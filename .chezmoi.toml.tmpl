@@ -95,12 +95,13 @@
 {{- /* ========================================================================== */ -}}
 {{- /* All package governance lives here. Scripts consume these via {{ range }}.  */ -}}
 
-{{- $core    := list "bat" "btop" "curl" "fzf" "git" "git-delta" "ripgrep" "starship" "vim" "wget" "zoxide" "zsh" -}}
-{{- $pacman  := list "base-devel" "eza" "fd" "gnupg" "lazygit" "neovim" "tree-sitter" "ttf-jetbrains-mono" "ttf-jetbrains-mono-nerd" -}}
+{{- $core    := list "bat" "btop" "curl" "eza" "fzf" "git" "git-delta" "ripgrep" "starship" "vim" "wget" "zoxide" "zsh" -}}
+{{- $pacman  := list "base-devel" "fd" "gnupg" "lazygit" "neovim" "tree-sitter" "ttf-jetbrains-mono" "ttf-jetbrains-mono-nerd" -}}
 {{- $aur     := list "bat-extras" "fresh-editor-bin" -}}
 {{- $apt     := list "build-essential" "fd-find" "gpg" "tree-sitter-cli" -}}
-{{- $dnf     := list "@development-tools" "bat-extras" "eza" "fd-find" "gnupg2" "lazygit" "neovim" "python3-neovim" -}}
-{{- $formula := list "chezmoi" "coreutils" "eza" "fd" "findutils" "fresh-editor" "lazygit" "moreutils" "neovim" "tree-sitter-cli" -}}
+{{- $snap    := list "fresh-editor" "lazygit" "nvim" -}}
+{{- $dnf     := list "@development-tools" "bat-extras" "fd-find" "fresh" "gnupg2" "lazygit" "neovim" "python3-neovim" -}}
+{{- $formula := list "chezmoi" "coreutils" "fd" "findutils" "fresh-editor" "lazygit" "moreutils" "neovim" "tree-sitter-cli" -}}
 {{- $cask    := list "1password" "1password-cli" "brave-browser" "font-jetbrains-mono" "font-jetbrains-mono-nerd-font" "kitty" "logi-options-plus" "moom" "tor-browser" "visual-studio-code" "whatsapp" -}}
 
 {{- /* kitty: Linux workstation only (macOS uses brewCasks) */ -}}
@@ -112,6 +113,7 @@
 {{- if eq $machine "terminal" -}}
     {{- $core = without $core "btop" "ripgrep" -}}
     {{- $apt  = without $apt "fd-find" "tree-sitter-cli" -}}
+    {{- $snap = without $snap "lazygit" "nvim" -}}
     {{- $dnf  = without $dnf "fd-find" "lazygit" "neovim" "python3-neovim" -}}
 {{- else -}}
     {{- /* workstation: strip vim (neovim installed instead) */ -}}
@@ -162,13 +164,14 @@
   packageManager = {{ $packageManager | quote }}
 
   # Required Package lists
-  corePackages    = {{ $core | toJson }}
-  pacmanPackages  = {{ $pacman | toJson }}
-  aurPackages     = {{ $aur | toJson }}
-  aptPackages     = {{ $apt | toJson }}
-  dnfPackages     = {{ $dnf | toJson }}
+  corePackages    = {{ $core    | toJson }}
+  pacmanPackages  = {{ $pacman  | toJson }}
+  aurPackages     = {{ $aur     | toJson }}
+  aptPackages     = {{ $apt     | toJson }}
+  snapPackages    = {{ $snap    | toJson }}
+  dnfPackages     = {{ $dnf     | toJson }}
   brewFormulae    = {{ $formula | toJson }}
-  brewCasks       = {{ $cask | toJson }}
+  brewCasks       = {{ $cask    | toJson }}
 
 # -----------------------------------------------------------------------------
 # Script Environment Variables
