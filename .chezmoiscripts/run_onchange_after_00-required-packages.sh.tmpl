@@ -115,7 +115,7 @@ bdb_success "COPR repositories enabled"
 
 # Terra provides fresh-editor, which is absent from both Fedora repos and COPR.
 bdb_action "Enabling Terra repository"
-sudo dnf config-manager --add-repo https://terra.fyralabs.com/terra.repo
+sudo dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
 bdb_success "Terra repository enabled"
 
 bdb_exec "Installing DNF packages" sudo dnf install -y "${DNF_PACKAGES[@]}"
