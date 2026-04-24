@@ -41,100 +41,100 @@ bdb_begin_section "Optional Packages Installation"
 if bdb_ask "Do you want to install 1Password"; then
 
 {{- if eq .chezmoi.os "darwin" }}
-    bdb_info "1Password should be installed via Homebrew Cask"
-    bdb_info "It may already be in your Brewfile"
+  bdb_info "1Password should be installed via Homebrew Cask"
+  bdb_info "It may already be in your Brewfile"
 
 {{- else if eq .chezmoi.os "linux" }}
 
-    {{- if .isARM }}
-    # ARM Architecture: Install from .tar.gz
-    bdb_action "Installing 1Password for ARM architecture"
+  {{- if .isARM }}
+  # ARM Architecture: Install from .tar.gz
+  bdb_action "Installing 1Password for ARM architecture"
 
-    # Determine ARM architecture variant
-    if [[ "{{ .cpuArch }}" == "aarch64" ]] || [[ "{{ .cpuArch }}" == "arm64" ]]; then
-        ARCH_URL="https://downloads.1password.com/linux/tar/stable/aarch64/1password-latest.tar.gz"
-        bdb_var "Architecture" "arm64"
-    else
-        bdb_error "Unsupported ARM architecture: {{ .cpuArch }}"
-        exit 1
-    fi
+  # Determine ARM architecture variant
+  if [[ "{{ .cpuArch }}" == "aarch64" ]] || [[ "{{ .cpuArch }}" == "arm64" ]]; then
+    ARCH_URL="https://downloads.1password.com/linux/tar/stable/aarch64/1password-latest.tar.gz"
+    bdb_var "Architecture" "arm64"
+  else
+    bdb_error "Unsupported ARM architecture: {{ .cpuArch }}"
+    exit 1
+  fi
 
-    # Download 1Password tarball
-    bdb_exec "Downloading 1Password" curl -sSO "${ARCH_URL}"
+  # Download 1Password tarball
+  bdb_exec "Downloading 1Password" curl -sSO "${ARCH_URL}"
 
-    # Extract files
-    bdb_exec "Extracting 1Password" tar -xf 1password-latest.tar.gz
+  # Extract files
+  bdb_exec "Extracting 1Password" tar -xf 1password-latest.tar.gz
 
-    # Move to /opt directory
-    bdb_action "Installing to /opt/1Password"
-    sudo mkdir -p /opt/1Password
-    sudo mv 1password-*/* /opt/1Password/
-    bdb_success "Files moved to /opt/1Password"
+  # Move to /opt directory
+  bdb_action "Installing to /opt/1Password"
+  sudo mkdir -p /opt/1Password
+  sudo mv 1password-*/* /opt/1Password/
+  bdb_success "Files moved to /opt/1Password"
 
-    # Run installation script
-    bdb_exec "Running post-install script" sudo /opt/1Password/after-install.sh
+  # Run installation script
+  bdb_exec "Running post-install script" sudo /opt/1Password/after-install.sh
 
-    # Create symlink for easy access
-    if [[ ! -f /usr/local/bin/1password ]]; then
-        bdb_exec "Creating symlink" sudo ln -s /opt/1Password/1password /usr/local/bin/1password
-    fi
+  # Create symlink for easy access
+  if [[ ! -f /usr/local/bin/1password ]]; then
+    bdb_exec "Creating symlink" sudo ln -s /opt/1Password/1password /usr/local/bin/1password
+  fi
 
-    # Clean up downloaded files
-    rm -f 1password-latest.tar.gz
-    rm -rf 1password-*/
+  # Clean up downloaded files
+  rm -f 1password-latest.tar.gz
+  rm -rf 1password-*/
 
-    bdb_success "1Password installed (ARM .tar.gz)"
-    bdb_info "Launch 1Password with: 1password"
+  bdb_success "1Password installed (ARM .tar.gz)"
+  bdb_info "Launch 1Password with: 1password"
 
-    bdb_action "Installing 1Password CLI for ARM architecture"
-    ARCH="arm64"
-    wget "https://cache.agilebits.com/dist/1P/op2/pkg/v2.32.0/op_linux_${ARCH}_v2.32.0.zip" -O op.zip
-    unzip -d op op.zip
-    sudo mv op/op /usr/local/bin/
-    rm -r op.zip op
-    sudo groupadd -f onepassword-cli
-    sudo chgrp onepassword-cli /usr/local/bin/op
-    sudo chmod g+s /usr/local/bin/op
+  bdb_action "Installing 1Password CLI for ARM architecture"
+  ARCH="arm64"
+  wget "https://cache.agilebits.com/dist/1P/op2/pkg/v2.32.0/op_linux_${ARCH}_v2.32.0.zip" -O op.zip
+  unzip -d op op.zip
+  sudo mv op/op /usr/local/bin/
+  rm -r op.zip op
+  sudo groupadd -f onepassword-cli
+  sudo chgrp onepassword-cli /usr/local/bin/op
+  sudo chmod g+s /usr/local/bin/op
 
-    bdb_success "1Password CLI installed (ARM)"
-    bdb_info "Launch 1Password CLI with: op"
+  bdb_success "1Password CLI installed (ARM)"
+  bdb_info "Launch 1Password CLI with: op"
 
-    {{- else }}
-    # x86_64 Architecture: Use package managers
+  {{- else }}
+  # x86_64 Architecture: Use package managers
 
-        {{- if eq .packageManager "apt" }}
-    # Debian/Ubuntu: Install from official repository
-    bdb_action "Installing 1Password (Debian/Ubuntu)"
+    {{- if eq .packageManager "apt" }}
+  # Debian/Ubuntu: Install from official repository
+  bdb_action "Installing 1Password (Debian/Ubuntu)"
 
-    # Add the key for the 1Password apt repository
-    bdb_exec "Adding 1Password GPG key" bash -c "curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
-        sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg"
+  # Add the key for the 1Password apt repository
+  bdb_exec "Adding 1Password GPG key" bash -c "curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
+    sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg"
 
-    # Add the 1Password apt repository
-    bdb_exec "Adding 1Password repository" bash -c "echo 'deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main' | \
-        sudo tee /etc/apt/sources.list.d/1password.list"
+  # Add the 1Password apt repository
+  bdb_exec "Adding 1Password repository" bash -c "echo 'deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main' | \
+    sudo tee /etc/apt/sources.list.d/1password.list"
 
-    # Add the debsig-verify policy
-    bdb_exec "Adding debsig-verify policy" bash -c "sudo mkdir -p /etc/debsig/policies/AC2D62742012EA22/ && \
-    curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | \
-        sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol"
-    bdb_exec "Adding debsig keyring" bash -c "sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22 && \
-    curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
-        sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg"
+  # Add the debsig-verify policy
+  bdb_exec "Adding debsig-verify policy" bash -c "sudo mkdir -p /etc/debsig/policies/AC2D62742012EA22/ && \
+  curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | \
+    sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol"
+  bdb_exec "Adding debsig keyring" bash -c "sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22 && \
+  curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
+    sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg"
 
-    # Install packages
-    bdb_exec "Updating package lists" sudo apt-get update
-    bdb_exec "Installing 1Password packages" sudo apt-get install -y 1password 1password-cli
-    bdb_success "1Password installed"
+  # Install packages
+  bdb_exec "Updating package lists" sudo apt-get update
+  bdb_exec "Installing 1Password packages" sudo apt-get install -y 1password 1password-cli
+  bdb_success "1Password installed"
 
-        {{- else if eq .packageManager "dnf" }}
-    # Fedora/RHEL: Install from official repository
-    bdb_action "Installing 1Password (Fedora/RHEL)"
+    {{- else if eq .packageManager "dnf" }}
+  # Fedora/RHEL: Install from official repository
+  bdb_action "Installing 1Password (Fedora/RHEL)"
 
-    # Add 1Password repository
-    bdb_exec "Importing 1Password GPG key" sudo rpm --import https://downloads.1password.com/linux/keys/1password.asc
+  # Add 1Password repository
+  bdb_exec "Importing 1Password GPG key" sudo rpm --import https://downloads.1password.com/linux/keys/1password.asc
 
-    bdb_exec "Adding 1Password repository" sudo sh -c 'cat > /etc/yum.repos.d/1password.repo <<EOF
+  bdb_exec "Adding 1Password repository" sudo sh -c 'cat > /etc/yum.repos.d/1password.repo <<EOF
 [1password]
 name=1Password Stable Channel
 baseurl=https://downloads.1password.com/linux/rpm/stable/\$basearch
@@ -144,21 +144,21 @@ repo_gpgcheck=1
 gpgkey=https://downloads.1password.com/linux/keys/1password.asc
 EOF'
 
-    # Install packages
-    bdb_exec "Installing 1Password packages" sudo dnf install -y 1password 1password-cli
-    bdb_success "1Password installed"
+  # Install packages
+  bdb_exec "Installing 1Password packages" sudo dnf install -y 1password 1password-cli
+  bdb_success "1Password installed"
 
-        {{- else if eq .packageManager "pacman" }}
-    # Arch/Manjaro: Install from AUR
-    bdb_exec "Installing 1Password (Arch/Manjaro)" yay -S --noconfirm 1password 1password-cli
-    bdb_success "1Password installed"
+    {{- else if eq .packageManager "pacman" }}
+  # Arch/Manjaro: Install from AUR
+  bdb_exec "Installing 1Password (Arch/Manjaro)" yay -S --noconfirm 1password 1password-cli
+  bdb_success "1Password installed"
 
-        {{- end }}
     {{- end }}
+  {{- end }}
 {{- end }}
 
 else
-    bdb_warn "Skipping 1Password installation"
+  bdb_warn "Skipping 1Password installation"
 fi
 
 # -----------------------------------------------------------------------------
@@ -167,77 +167,77 @@ fi
 if bdb_ask "Do you want to install Docker"; then
 
 {{- if eq .chezmoi.os "darwin" }}
-    bdb_info "Docker Desktop should be installed manually from docker.com"
-    bdb_info "Or via Homebrew Cask if in your Brewfile"
+  bdb_info "Docker Desktop should be installed manually from docker.com"
+  bdb_info "Or via Homebrew Cask if in your Brewfile"
 
 {{- else if eq .chezmoi.os "linux" }}
 
-    {{- if eq .packageManager "apt" }}
-    # ==========================================================================
-    # Debian/Ubuntu: Install from Official Docker Repository
-    # ==========================================================================
-    # Official documentation:
-    #   Ubuntu: https://docs.docker.com/engine/install/ubuntu/
-    #   Debian: https://docs.docker.com/engine/install/debian/
-    #
-    # Uses modern DEB822 repository format (.sources file)
-    # Uses /etc/os-release variables instead of lsb_release command
-    # ==========================================================================
+  {{- if eq .packageManager "apt" }}
+  # ==========================================================================
+  # Debian/Ubuntu: Install from Official Docker Repository
+  # ==========================================================================
+  # Official documentation:
+  #   Ubuntu: https://docs.docker.com/engine/install/ubuntu/
+  #   Debian: https://docs.docker.com/engine/install/debian/
+  #
+  # Uses modern DEB822 repository format (.sources file)
+  # Uses /etc/os-release variables instead of lsb_release command
+  # ==========================================================================
 
-    bdb_action "Installing Docker (Debian/Ubuntu)"
+  bdb_action "Installing Docker (Debian/Ubuntu)"
 
-    # --------------------------------------------------------------------------
-    # Remove Old/Conflicting Versions
-    # --------------------------------------------------------------------------
-    bdb_exec "Removing old Docker versions" sudo apt remove $(dpkg --get-selections \
-        docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1)
+  # --------------------------------------------------------------------------
+  # Remove Old/Conflicting Versions
+  # --------------------------------------------------------------------------
+  bdb_exec "Removing old Docker versions" sudo apt remove $(dpkg --get-selections \
+    docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1)
 
-    # --------------------------------------------------------------------------
-    # Install Prerequisites
-    # --------------------------------------------------------------------------
-    bdb_exec "Updating package lists" sudo apt-get update
-    bdb_exec "Installing prerequisites" sudo apt-get install -y ca-certificates curl
+  # --------------------------------------------------------------------------
+  # Install Prerequisites
+  # --------------------------------------------------------------------------
+  bdb_exec "Updating package lists" sudo apt-get update
+  bdb_exec "Installing prerequisites" sudo apt-get install -y ca-certificates curl
 
-    # Create directory for apt keyrings
-    bdb_exec "Creating keyrings directory" sudo install -m 0755 -d /etc/apt/keyrings
+  # Create directory for apt keyrings
+  bdb_exec "Creating keyrings directory" sudo install -m 0755 -d /etc/apt/keyrings
 
-    # --------------------------------------------------------------------------
-    # Add Docker's GPG Key
-    # --------------------------------------------------------------------------
-    # GPG key location differs between Ubuntu and Debian:
-    #   - Ubuntu: https://download.docker.com/linux/ubuntu/gpg
-    #   - Debian: https://download.docker.com/linux/debian/gpg
-    # --------------------------------------------------------------------------
+  # --------------------------------------------------------------------------
+  # Add Docker's GPG Key
+  # --------------------------------------------------------------------------
+  # GPG key location differs between Ubuntu and Debian:
+  #   - Ubuntu: https://download.docker.com/linux/ubuntu/gpg
+  #   - Debian: https://download.docker.com/linux/debian/gpg
+  # --------------------------------------------------------------------------
 
-        {{- if eq .osid "linux-ubuntu" }}
-    # Ubuntu: Download GPG key from Ubuntu-specific repository
-    bdb_exec "Adding Docker GPG key (Ubuntu)" sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-        {{- else if eq .osid "linux-debian" }}
-    # Debian: Download GPG key from Debian-specific repository
-    bdb_exec "Adding Docker GPG key (Debian)" sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-        {{- end }}
+    {{- if eq .osid "linux-ubuntu" }}
+  # Ubuntu: Download GPG key from Ubuntu-specific repository
+  bdb_exec "Adding Docker GPG key (Ubuntu)" sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    {{- else if eq .osid "linux-debian" }}
+  # Debian: Download GPG key from Debian-specific repository
+  bdb_exec "Adding Docker GPG key (Debian)" sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+    {{- end }}
 
-    # Set proper permissions on GPG key
-    bdb_exec "Setting GPG key permissions" sudo chmod a+r /etc/apt/keyrings/docker.asc
+  # Set proper permissions on GPG key
+  bdb_exec "Setting GPG key permissions" sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-    # --------------------------------------------------------------------------
-    # Add Docker Repository (DEB822 Format)
-    # --------------------------------------------------------------------------
-    # Modern DEB822 format uses /etc/apt/sources.list.d/*.sources files
-    #
-    # Codename detection from /etc/os-release:
-    #   - Ubuntu: UBUNTU_CODENAME with VERSION_CODENAME fallback
-    #   - Debian: VERSION_CODENAME
-    #
-    # CRITICAL: Variables in heredoc must NOT be escaped with backslashes
-    # because this is a Chezmoi template, not a regular bash script.
-    # The heredoc will be written to the script at template processing time,
-    # and the variables will be evaluated at script execution time.
-    # --------------------------------------------------------------------------
+  # --------------------------------------------------------------------------
+  # Add Docker Repository (DEB822 Format)
+  # --------------------------------------------------------------------------
+  # Modern DEB822 format uses /etc/apt/sources.list.d/*.sources files
+  #
+  # Codename detection from /etc/os-release:
+  #   - Ubuntu: UBUNTU_CODENAME with VERSION_CODENAME fallback
+  #   - Debian: VERSION_CODENAME
+  #
+  # CRITICAL: Variables in heredoc must NOT be escaped with backslashes
+  # because this is a Chezmoi template, not a regular bash script.
+  # The heredoc will be written to the script at template processing time,
+  # and the variables will be evaluated at script execution time.
+  # --------------------------------------------------------------------------
 
-        {{- if eq .osid "linux-ubuntu" }}
-    # Ubuntu: Use UBUNTU_CODENAME with VERSION_CODENAME fallback
-    bdb_exec "Adding Docker repository (Ubuntu)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<DOCKER_REPO_EOF
+    {{- if eq .osid "linux-ubuntu" }}
+  # Ubuntu: Use UBUNTU_CODENAME with VERSION_CODENAME fallback
+  bdb_exec "Adding Docker repository (Ubuntu)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<DOCKER_REPO_EOF
 Types: deb
 URIs: https://download.docker.com/linux/ubuntu
 Suites: $(. /etc/os-release && echo ${UBUNTU_CODENAME:-$VERSION_CODENAME})
@@ -245,9 +245,9 @@ Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
 DOCKER_REPO_EOF
 
-        {{- else if eq .osid "linux-debian" }}
-    # Debian: Use VERSION_CODENAME from /etc/os-release
-    bdb_exec "Adding Docker repository (Debian)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<DOCKER_REPO_EOF
+    {{- else if eq .osid "linux-debian" }}
+  # Debian: Use VERSION_CODENAME from /etc/os-release
+  bdb_exec "Adding Docker repository (Debian)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<DOCKER_REPO_EOF
 Types: deb
 URIs: https://download.docker.com/linux/debian
 Suites: $(. /etc/os-release && echo ${VERSION_CODENAME})
@@ -255,70 +255,70 @@ Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
 DOCKER_REPO_EOF
 
-        {{- end }}
-
-    # --------------------------------------------------------------------------
-    # Install Docker Packages
-    # --------------------------------------------------------------------------
-    bdb_exec "Updating package lists with Docker repository" sudo apt-get update
-    bdb_exec "Installing Docker packages" sudo apt-get install -y \
-        docker-ce \
-        docker-ce-cli \
-        containerd.io \
-        docker-buildx-plugin \
-        docker-compose-plugin
-
-    # --------------------------------------------------------------------------
-    # Post-Installation: Add User to Docker Group
-    # --------------------------------------------------------------------------
-    bdb_exec "Adding user to docker group" sudo usermod -aG docker "${USER}"
-
-    bdb_success "Docker installed"
-    bdb_warn "Please log out and back in for group membership to take effect"
-
-    {{- else if eq .packageManager "dnf" }}
-    # Fedora/RHEL: Install from official Docker repository
-    bdb_action "Installing Docker (Fedora/RHEL)"
-
-    # Remove old versions
-    bdb_exec "Removing old Docker versions" sudo dnf remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine 2>/dev/null || true
-
-    # Add Docker repository
-    bdb_exec "Installing DNF plugins" sudo dnf -y install dnf-plugins-core
-    bdb_exec "Adding Docker repository" sudo dnf-3 config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
-
-    # Install Docker
-    bdb_exec "Installing Docker" sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-    # Start and enable Docker
-    bdb_exec "Starting Docker service" sudo systemctl start docker
-    bdb_exec "Enabling Docker service" sudo systemctl enable docker
-
-    # Add user to docker group
-    bdb_exec "Adding user to docker group" sudo usermod -aG docker "${USER}"
-
-    bdb_success "Docker installed"
-    bdb_warn "Please log out and back in for group membership to take effect"
-
-    {{- else if eq .packageManager "pacman" }}
-    # Arch/Manjaro: Install from official repositories
-    bdb_exec "Installing Docker (Arch/Manjaro)" sudo pacman -S --needed --noconfirm docker docker-compose
-
-    # Start and enable Docker
-    bdb_exec "Starting Docker service" sudo systemctl start docker.service
-    bdb_exec "Enabling Docker service" sudo systemctl enable docker.service
-
-    # Add user to docker group
-    bdb_exec "Adding user to docker group" sudo usermod -aG docker "${USER}"
-
-    bdb_success "Docker installed"
-    bdb_warn "Please log out and back in for group membership to take effect"
-
     {{- end }}
+
+  # --------------------------------------------------------------------------
+  # Install Docker Packages
+  # --------------------------------------------------------------------------
+  bdb_exec "Updating package lists with Docker repository" sudo apt-get update
+  bdb_exec "Installing Docker packages" sudo apt-get install -y \
+    docker-ce \
+    docker-ce-cli \
+    containerd.io \
+    docker-buildx-plugin \
+    docker-compose-plugin
+
+  # --------------------------------------------------------------------------
+  # Post-Installation: Add User to Docker Group
+  # --------------------------------------------------------------------------
+  bdb_exec "Adding user to docker group" sudo usermod -aG docker "${USER}"
+
+  bdb_success "Docker installed"
+  bdb_warn "Please log out and back in for group membership to take effect"
+
+  {{- else if eq .packageManager "dnf" }}
+  # Fedora/RHEL: Install from official Docker repository
+  bdb_action "Installing Docker (Fedora/RHEL)"
+
+  # Remove old versions
+  bdb_exec "Removing old Docker versions" sudo dnf remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine 2>/dev/null || true
+
+  # Add Docker repository
+  bdb_exec "Installing DNF plugins" sudo dnf -y install dnf-plugins-core
+  bdb_exec "Adding Docker repository" sudo dnf-3 config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+
+  # Install Docker
+  bdb_exec "Installing Docker" sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+  # Start and enable Docker
+  bdb_exec "Starting Docker service" sudo systemctl start docker
+  bdb_exec "Enabling Docker service" sudo systemctl enable docker
+
+  # Add user to docker group
+  bdb_exec "Adding user to docker group" sudo usermod -aG docker "${USER}"
+
+  bdb_success "Docker installed"
+  bdb_warn "Please log out and back in for group membership to take effect"
+
+  {{- else if eq .packageManager "pacman" }}
+  # Arch/Manjaro: Install from official repositories
+  bdb_exec "Installing Docker (Arch/Manjaro)" sudo pacman -S --needed --noconfirm docker docker-compose
+
+  # Start and enable Docker
+  bdb_exec "Starting Docker service" sudo systemctl start docker.service
+  bdb_exec "Enabling Docker service" sudo systemctl enable docker.service
+
+  # Add user to docker group
+  bdb_exec "Adding user to docker group" sudo usermod -aG docker "${USER}"
+
+  bdb_success "Docker installed"
+  bdb_warn "Please log out and back in for group membership to take effect"
+
+  {{- end }}
 {{- end }}
 
 else
-    bdb_warn "Skipping Docker installation"
+  bdb_warn "Skipping Docker installation"
 fi
 
 # -----------------------------------------------------------------------------
@@ -327,33 +327,33 @@ fi
 if bdb_ask "Do you want to install Visual Studio Code"; then
 
 {{- if eq .chezmoi.os "darwin" }}
-    bdb_info "VS Code should be installed via Homebrew Cask"
+  bdb_info "VS Code should be installed via Homebrew Cask"
 
 {{- else if eq .chezmoi.os "linux" }}
 
-    {{- if eq .packageManager "apt" }}
-    # Debian/Ubuntu: Install from Microsoft repository
-    bdb_action "Installing Visual Studio Code (Debian/Ubuntu)"
+  {{- if eq .packageManager "apt" }}
+  # Debian/Ubuntu: Install from Microsoft repository
+  bdb_action "Installing Visual Studio Code (Debian/Ubuntu)"
 
-    bdb_exec "Adding Microsoft GPG key" bash -c "wget -qO- https://packages.microsoft.com/keys/microsoft.asc | \
-        gpg --dearmor > packages.microsoft.gpg && \
-        sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg && \
-        rm -f packages.microsoft.gpg"
+  bdb_exec "Adding Microsoft GPG key" bash -c "wget -qO- https://packages.microsoft.com/keys/microsoft.asc | \
+    gpg --dearmor > packages.microsoft.gpg && \
+    sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg && \
+    rm -f packages.microsoft.gpg"
 
-    bdb_exec "Adding VS Code repository" bash -c "echo \
+  bdb_exec "Adding VS Code repository" bash -c "echo \
       'deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main' | \
       sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null"
 
-    bdb_exec "Installing VS Code" bash -c "sudo apt-get update && sudo apt-get install -y code"
-    bdb_success "Visual Studio Code installed"
+  bdb_exec "Installing VS Code" bash -c "sudo apt-get update && sudo apt-get install -y code"
+  bdb_success "Visual Studio Code installed"
 
-    {{- else if eq .packageManager "dnf" }}
-    # Fedora/RHEL: Install from Microsoft repository
-    bdb_action "Installing Visual Studio Code (Fedora/RHEL)"
+  {{- else if eq .packageManager "dnf" }}
+  # Fedora/RHEL: Install from Microsoft repository
+  bdb_action "Installing Visual Studio Code (Fedora/RHEL)"
 
-    bdb_exec "Importing Microsoft GPG key" sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+  bdb_exec "Importing Microsoft GPG key" sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
 
-    bdb_exec "Adding VS Code repository" sudo sh -c 'cat > /etc/yum.repos.d/vscode.repo <<EOF
+  bdb_exec "Adding VS Code repository" sudo sh -c 'cat > /etc/yum.repos.d/vscode.repo <<EOF
 [code]
 name=Visual Studio Code
 baseurl=https://packages.microsoft.com/yumrepos/vscode
@@ -362,19 +362,19 @@ gpgcheck=1
 gpgkey=https://packages.microsoft.com/keys/microsoft.asc
 EOF'
 
-    bdb_exec "Installing VS Code" sudo dnf install -y code
-    bdb_success "Visual Studio Code installed"
+  bdb_exec "Installing VS Code" sudo dnf install -y code
+  bdb_success "Visual Studio Code installed"
 
-    {{- else if eq .packageManager "pacman" }}
-    # Arch/Manjaro: Install from AUR
-    bdb_exec "Installing Visual Studio Code (Arch/Manjaro)" yay -S --noconfirm visual-studio-code-bin
-    bdb_success "Visual Studio Code installed"
+  {{- else if eq .packageManager "pacman" }}
+  # Arch/Manjaro: Install from AUR
+  bdb_exec "Installing Visual Studio Code (Arch/Manjaro)" yay -S --noconfirm visual-studio-code-bin
+  bdb_success "Visual Studio Code installed"
 
-    {{- end }}
+  {{- end }}
 {{- end }}
 
 else
-    bdb_warn "Skipping Visual Studio Code installation"
+  bdb_warn "Skipping Visual Studio Code installation"
 fi
 
 # -----------------------------------------------------------------------------
@@ -383,124 +383,124 @@ fi
 if bdb_ask "Do you want to install Ansible"; then
 
 {{- if eq .chezmoi.os "darwin" }}
-    # macOS: Install via Homebrew
-    bdb_exec "Installing Ansible (macOS)" brew install ansible
-    bdb_success "Ansible installed"
+  # macOS: Install via Homebrew
+  bdb_exec "Installing Ansible (macOS)" brew install ansible
+  bdb_success "Ansible installed"
 
 {{- else if eq .chezmoi.os "linux" }}
 
-    {{- if eq .packageManager "apt" }}
-    # Debian/Ubuntu: Install Ansible
-    bdb_action "Installing Ansible (Debian/Ubuntu)"
+  {{- if eq .packageManager "apt" }}
+  # Debian/Ubuntu: Install Ansible
+  bdb_action "Installing Ansible (Debian/Ubuntu)"
 
-        {{- if eq .osid "linux-ubuntu" }}
-    # Ubuntu: Check version to determine installation method
-    # PPA ansible/ansible only supports LTS releases (20.04, 22.04, 24.04, etc.)
-    # For interim releases or latest versions, use pipx instead
+    {{- if eq .osid "linux-ubuntu" }}
+  # Ubuntu: Check version to determine installation method
+  # PPA ansible/ansible only supports LTS releases (20.04, 22.04, 24.04, etc.)
+  # For interim releases or latest versions, use pipx instead
 
-    # Get Ubuntu version
-    ubuntu_version=$(grep VERSION_ID /etc/os-release | cut -d'"' -f2)
-    bdb_var "Ubuntu Version" "${ubuntu_version}"
+  # Get Ubuntu version
+  ubuntu_version=$(grep VERSION_ID /etc/os-release | cut -d'"' -f2)
+  bdb_var "Ubuntu Version" "${ubuntu_version}"
 
-    # Check if this is an LTS release (version ends with .04)
-    if [[ "${ubuntu_version}" =~ \.04$ ]]; then
-        bdb_info "LTS release detected - using PPA installation"
+  # Check if this is an LTS release (version ends with .04)
+  if [[ "${ubuntu_version}" =~ \.04$ ]]; then
+    bdb_info "LTS release detected - using PPA installation"
 
-        # Add Ansible PPA (works on LTS releases)
-        bdb_exec "Installing software-properties-common" sudo apt-get install -y software-properties-common
-        bdb_exec "Adding Ansible PPA" sudo add-apt-repository --yes --update ppa:ansible/ansible
+    # Add Ansible PPA (works on LTS releases)
+    bdb_exec "Installing software-properties-common" sudo apt-get install -y software-properties-common
+    bdb_exec "Adding Ansible PPA" sudo add-apt-repository --yes --update ppa:ansible/ansible
 
-        # Install Ansible from PPA
-        bdb_exec "Installing Ansible from PPA" sudo apt-get install -y ansible python3-pip python3-argcomplete
-
-        # Enable command completion
-        bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete3 2>/dev/null || true
-
-        bdb_success "Ansible installed from PPA"
-    else
-        bdb_info "Non-LTS release detected - using pipx installation"
-        bdb_warn "PPA ansible/ansible may not be available for Ubuntu ${ubuntu_version}"
-
-        # Install pipx and Ansible via pipx (works on all Ubuntu versions)
-        bdb_exec "Installing pipx" sudo apt-get install -y pipx python3-pip python3-argcomplete
-
-        # Ensure pipx path is set up
-        bdb_exec "Setting up pipx environment" pipx ensurepath
-
-        # Install Ansible via pipx
-        bdb_exec "Installing Ansible via pipx" pipx install --include-deps ansible
-
-        # Ensure ~/.local/bin is in PATH for current session
-        if [[ -d "${HOME}/.local/bin" ]] && [[ ":$PATH:" != *":${HOME}/.local/bin:"* ]]; then
-            export PATH="${HOME}/.local/bin:$PATH"
-            bdb_info "Added ~/.local/bin to PATH for current session"
-        fi
-
-        # Enable command completion
-        bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete 2>/dev/null || true
-
-        bdb_success "Ansible installed via pipx"
-        bdb_info "You may need to restart your shell for pipx PATH to take effect"
-    fi
-
-        {{- else if eq .osid "linux-debian" }}
-    # Debian: Install from default repositories or backports
-    bdb_info "Installing Ansible on Debian"
-
-    # Try to install from default repositories first
-    bdb_exec "Installing Ansible" sudo apt-get install -y ansible python3-pip python3-argcomplete
+    # Install Ansible from PPA
+    bdb_exec "Installing Ansible from PPA" sudo apt-get install -y ansible python3-pip python3-argcomplete
 
     # Enable command completion
     bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete3 2>/dev/null || true
 
-    bdb_success "Ansible installed"
-        {{- end }}
+    bdb_success "Ansible installed from PPA"
+  else
+    bdb_info "Non-LTS release detected - using pipx installation"
+    bdb_warn "PPA ansible/ansible may not be available for Ubuntu ${ubuntu_version}"
 
-    {{- else if eq .packageManager "dnf" }}
-    # Fedora/RHEL: Install from official repositories
-    bdb_action "Installing Ansible (Fedora/RHEL)"
+    # Install pipx and Ansible via pipx (works on all Ubuntu versions)
+    bdb_exec "Installing pipx" sudo apt-get install -y pipx python3-pip python3-argcomplete
 
-    bdb_exec "Installing Ansible" sudo dnf install -y ansible python3-pip python3-argcomplete
+    # Ensure pipx path is set up
+    bdb_exec "Setting up pipx environment" pipx ensurepath
+
+    # Install Ansible via pipx
+    bdb_exec "Installing Ansible via pipx" pipx install --include-deps ansible
+
+    # Ensure ~/.local/bin is in PATH for current session
+    if [[ -d "${HOME}/.local/bin" ]] && [[ ":$PATH:" != *":${HOME}/.local/bin:"* ]]; then
+      export PATH="${HOME}/.local/bin:$PATH"
+      bdb_info "Added ~/.local/bin to PATH for current session"
+    fi
 
     # Enable command completion
     bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete 2>/dev/null || true
 
-    bdb_success "Ansible installed"
+    bdb_success "Ansible installed via pipx"
+    bdb_info "You may need to restart your shell for pipx PATH to take effect"
+  fi
 
-    {{- else if eq .packageManager "pacman" }}
-    # Arch/Manjaro: Install from official repositories
-    bdb_action "Installing Ansible (Arch/Manjaro)"
+    {{- else if eq .osid "linux-debian" }}
+  # Debian: Install from default repositories or backports
+  bdb_info "Installing Ansible on Debian"
 
-    bdb_exec "Installing Ansible" sudo pacman -S --needed --noconfirm ansible python-pip python-argcomplete
+  # Try to install from default repositories first
+  bdb_exec "Installing Ansible" sudo apt-get install -y ansible python3-pip python3-argcomplete
 
-    # Enable command completion
-    bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete 2>/dev/null || true
+  # Enable command completion
+  bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete3 2>/dev/null || true
 
-    bdb_success "Ansible installed"
-
+  bdb_success "Ansible installed"
     {{- end }}
+
+  {{- else if eq .packageManager "dnf" }}
+  # Fedora/RHEL: Install from official repositories
+  bdb_action "Installing Ansible (Fedora/RHEL)"
+
+  bdb_exec "Installing Ansible" sudo dnf install -y ansible python3-pip python3-argcomplete
+
+  # Enable command completion
+  bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete 2>/dev/null || true
+
+  bdb_success "Ansible installed"
+
+  {{- else if eq .packageManager "pacman" }}
+  # Arch/Manjaro: Install from official repositories
+  bdb_action "Installing Ansible (Arch/Manjaro)"
+
+  bdb_exec "Installing Ansible" sudo pacman -S --needed --noconfirm ansible python-pip python-argcomplete
+
+  # Enable command completion
+  bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete 2>/dev/null || true
+
+  bdb_success "Ansible installed"
+
+  {{- end }}
 {{- end }}
 
-    # Post-installation: Install Ansible extra collections
-    if bdb_ask "Install Ansible extra collections (community.docker)"; then
-        bdb_action "Installing Ansible extra collections"
+  # Post-installation: Install Ansible extra collections
+  if bdb_ask "Install Ansible extra collections (community.docker)"; then
+    bdb_action "Installing Ansible extra collections"
 
-        # Install extra collections
-        bdb_exec "Installing community.docker" ansible-galaxy collection install community.docker --upgrade 2>/dev/null || true
+    # Install extra collections
+    bdb_exec "Installing community.docker" ansible-galaxy collection install community.docker --upgrade 2>/dev/null || true
 
-        bdb_success "Ansible extra collections installed"
-    else
-        bdb_warn "Skipping Ansible extra collections installation"
-    fi
+    bdb_success "Ansible extra collections installed"
+  else
+    bdb_warn "Skipping Ansible extra collections installation"
+  fi
 
-    # Verify Ansible installation
-    if bdb_test_cmd "ansible"; then
-        ansible_version="$(ansible --version | head -n1)"
-        bdb_var "Ansible version" "${ansible_version}"
-    fi
+  # Verify Ansible installation
+  if bdb_test_cmd "ansible"; then
+    ansible_version="$(ansible --version | head -n1)"
+    bdb_var "Ansible version" "${ansible_version}"
+  fi
 
 else
-    bdb_warn "Skipping Ansible installation"
+  bdb_warn "Skipping Ansible installation"
 fi
 
 # =============================================================================

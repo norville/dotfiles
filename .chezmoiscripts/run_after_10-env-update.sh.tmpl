@@ -50,9 +50,9 @@ bdb_success "Homebrew packages updated"
 
 # Update Homebrew casks
 bdb_exec "Upgrading Homebrew casks" brew upgrade --cask \
-    font-jetbrains-mono \
-    font-jetbrains-mono-nerd-font \
-    kitty
+  font-jetbrains-mono \
+  font-jetbrains-mono-nerd-font \
+  kitty
 bdb_success "Homebrew casks updated"
 
 {{- /* -------------------------------------------------------------------- */ -}}
@@ -64,7 +64,7 @@ bdb_success "Homebrew casks updated"
 # Linux: Package Manager Updates
 # -----------------------------------------------------------------------------
 
-    {{- if eq .packageManager "apt" }}
+  {{- if eq .packageManager "apt" }}
 
 # Debian/Ubuntu: APT updates
 bdb_exec "Updating package lists" sudo apt-get update
@@ -75,11 +75,11 @@ bdb_success "APT packages updated"
 
 # Update Snap packages if installed
 if bdb_test_cmd "snap"; then
-    bdb_exec "Updating Snap packages" sudo snap refresh
-    bdb_success "Snap packages updated"
+  bdb_exec "Updating Snap packages" sudo snap refresh
+  bdb_success "Snap packages updated"
 fi
 
-    {{- else if eq .packageManager "dnf" }}
+  {{- else if eq .packageManager "dnf" }}
 
 # Fedora/RHEL: DNF updates
 bdb_exec "Upgrading packages" sudo dnf upgrade --refresh -y
@@ -89,11 +89,11 @@ bdb_success "DNF packages updated"
 
 # Update Flatpak if installed
 if bdb_test_cmd "flatpak"; then
-    bdb_exec "Updating Flatpak packages" flatpak update -y
-    bdb_success "Flatpak packages updated"
+  bdb_exec "Updating Flatpak packages" flatpak update -y
+  bdb_success "Flatpak packages updated"
 fi
 
-    {{- else if eq .packageManager "pacman" }}
+  {{- else if eq .packageManager "pacman" }}
 
 # Arch/Manjaro: Pacman updates
 bdb_exec "Updating system packages" sudo pacman -Syu --noconfirm
@@ -101,7 +101,7 @@ bdb_exec "Updating system packages" sudo pacman -Syu --noconfirm
 # Clean orphaned packages
 orphans="$(pacman -Qdtq 2>/dev/null || true)"
 if [[ -n "${orphans}" ]]; then
-    bdb_exec "Removing orphaned packages" bash -c "echo '${orphans}' | sudo pacman -Rns --noconfirm -"
+  bdb_exec "Removing orphaned packages" bash -c "echo '${orphans}' | sudo pacman -Rns --noconfirm -"
 fi
 
 # Clean package cache
@@ -110,11 +110,11 @@ bdb_success "Pacman packages updated"
 
 # Update AUR packages if yay is installed
 if bdb_test_cmd "yay"; then
-    bdb_exec "Updating AUR packages" yay -Syu --noconfirm
-    bdb_success "AUR packages updated"
+  bdb_exec "Updating AUR packages" yay -Syu --noconfirm
+  bdb_success "AUR packages updated"
 fi
 
-    {{- end }}
+  {{- end }}
 
 {{- end }}
 
@@ -130,11 +130,11 @@ bdb_action "Updating ZSH plugins"
 # Zinit must be sourced inside a zsh subprocess; it is a zsh plugin, not a binary
 zinit_home="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 if [[ -d "${zinit_home}/.git" ]]; then
-    bdb_exec "Updating Zinit and all plugins" \
-        zsh -c "source '${zinit_home}/zinit.zsh' && zinit self-update && zinit update --all --quiet" || true
-    bdb_success "ZSH plugins updated"
+  bdb_exec "Updating Zinit and all plugins" \
+    zsh -c "source '${zinit_home}/zinit.zsh' && zinit self-update && zinit update --all --quiet" || true
+  bdb_success "ZSH plugins updated"
 else
-    bdb_warn "Zinit not found - skipping plugin updates"
+  bdb_warn "Zinit not found - skipping plugin updates"
 fi
 
 # =============================================================================
@@ -146,11 +146,11 @@ fi
 # -----------------------------------------------------------------------------
 {{- if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") }}
 if bdb_test_cmd "batcat"; then
-    bdb_exec "Rebuilding bat theme cache" batcat cache --build >/dev/null 2>&1
+  bdb_exec "Rebuilding bat theme cache" batcat cache --build >/dev/null 2>&1
 fi
 {{- else }}
 if bdb_test_cmd "bat"; then
-    bdb_exec "Rebuilding bat theme cache" bat cache --build >/dev/null 2>&1
+  bdb_exec "Rebuilding bat theme cache" bat cache --build >/dev/null 2>&1
 fi
 {{- end }}
 
@@ -163,7 +163,7 @@ fi
 # Update Font Cache (Linux)
 # -----------------------------------------------------------------------------
 if bdb_test_cmd "fc-cache"; then
-    bdb_exec "Updating font cache" fc-cache -fv >/dev/null 2>&1
+  bdb_exec "Updating font cache" fc-cache -fv >/dev/null 2>&1
 fi
 
 {{- end }}

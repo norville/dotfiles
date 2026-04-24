@@ -41,33 +41,33 @@ bdb_begin_section "Environment Setup"
 {{- if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") }}
 # Debian/Ubuntu uses 'batcat' command name
 if bdb_test_cmd "batcat"; then
-    bdb_exec "Building bat theme cache" batcat cache --build >/dev/null 2>&1
+  bdb_exec "Building bat theme cache" batcat cache --build >/dev/null 2>&1
 else
-    bdb_warn "batcat not found"
+  bdb_warn "batcat not found"
 fi
 {{- else }}
 # Other systems use 'bat' command name
 if bdb_test_cmd "bat"; then
-    bdb_exec "Building bat theme cache" bat cache --build >/dev/null 2>&1
+  bdb_exec "Building bat theme cache" bat cache --build >/dev/null 2>&1
 else
-    bdb_warn "bat not found"
+  bdb_warn "bat not found"
 fi
 {{- end }}
 
 # Verify eza (modern ls replacement) theme installation
 bdb_action "Verifying eza theme installation"
 if [[ -f "${HOME}/.config/eza/theme.yml" ]]; then
-    bdb_success "eza theme configured"
+  bdb_success "eza theme configured"
 else
-    bdb_warn "eza theme not found, check chezmoi external"
+  bdb_warn "eza theme not found, check chezmoi external"
 fi
 
 # Verify btop (system monitor) theme installation
 bdb_action "Verifying btop theme installation"
 if [[ -f "${HOME}/.config/btop/themes/tokyonight_moon.theme" ]]; then
-    bdb_success "btop theme configured"
+  bdb_success "btop theme configured"
 else
-    bdb_warn "btop theme not found, check chezmoi external"
+  bdb_warn "btop theme not found, check chezmoi external"
 fi
 
 {{- /* -------------------------------------------------------------------- */ -}}
@@ -81,58 +81,58 @@ fi
 bdb_action "Configuring default shell"
 
 if bdb_test_cmd "zsh"; then
-    zsh_path="$(command -v zsh)"
-    bdb_var "ZSH path" "${zsh_path}"
+  zsh_path="$(command -v zsh)"
+  bdb_var "ZSH path" "${zsh_path}"
 
-    if [[ "${SHELL}" != "${zsh_path}" ]]; then
-        # Ensure ZSH is in /etc/shells
-        if ! grep -Fxq "${zsh_path}" /etc/shells 2>/dev/null; then
-            bdb_exec "Adding ZSH to /etc/shells" bash -c "echo '${zsh_path}' | sudo tee -a /etc/shells >/dev/null"
-        fi
-
-        # Change default shell
-        bdb_exec "Setting ZSH as default shell" sudo chsh -s "${zsh_path}" "${USER}"
-        bdb_success "Shell changed to ZSH"
-    else
-        bdb_success "Already using ZSH as default shell"
+  if [[ "${SHELL}" != "${zsh_path}" ]]; then
+    # Ensure ZSH is in /etc/shells
+    if ! grep -Fxq "${zsh_path}" /etc/shells 2>/dev/null; then
+      bdb_exec "Adding ZSH to /etc/shells" bash -c "echo '${zsh_path}' | sudo tee -a /etc/shells >/dev/null"
     fi
+
+    # Change default shell
+    bdb_exec "Setting ZSH as default shell" sudo chsh -s "${zsh_path}" "${USER}"
+    bdb_success "Shell changed to ZSH"
+  else
+    bdb_success "Already using ZSH as default shell"
+  fi
 else
-    bdb_error "ZSH not found - cannot set as default shell"
+  bdb_error "ZSH not found - cannot set as default shell"
 fi
 
 # Configure JetBrainsMono fonts
 
-    {{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
+  {{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
 # Debian/Ubuntu/Fedora: Fonts installed via chezmoiexternal, just update font cache
 bdb_action "Updating font cache"
 if bdb_test_cmd "fc-cache"; then
-    fc-cache -fv >/dev/null 2>&1
-    bdb_success "Font cache updated"
+  fc-cache -fv >/dev/null 2>&1
+  bdb_success "Font cache updated"
 else
-    bdb_warn "fc-cache command not found, cannot update font cache"
+  bdb_warn "fc-cache command not found, cannot update font cache"
 fi
-    {{- end }}
+  {{- end }}
 
 # Verify fonts installation
 bdb_action "Verifying fonts installation"
 if bdb_test_cmd "fc-list"; then
 
-    # Verify JetBrainsMono fonts installation:
-    if fc-list | grep -E "JetBrainsMono[A-Z]{,2}-[a-zA-Z]+\.ttf"; then
-        bdb_success "JetBrainsMono fonts installed"
-    else
-        bdb_warn "JetBrainsMono fonts not found, check chezmoi logs for installation issues"
-    fi
+  # Verify JetBrainsMono fonts installation:
+  if fc-list | grep -E "JetBrainsMono[A-Z]{,2}-[a-zA-Z]+\.ttf"; then
+    bdb_success "JetBrainsMono fonts installed"
+  else
+    bdb_warn "JetBrainsMono fonts not found, check chezmoi logs for installation issues"
+  fi
 
-    # Verify JetBrainsMono Nerd fonts installation
-    if fc-list | grep -E "JetBrainsMono[A-Z]{,2}NerdFont[a-zA-Z]*-[a-zA-Z]+\.ttf"; then
-        bdb_success "JetBrainsMono Nerd fonts installed"
-    else
-        bdb_warn "JetBrainsMono Nerd fonts not found, check chezmoi logs for installation issues"
-    fi
+  # Verify JetBrainsMono Nerd fonts installation
+  if fc-list | grep -E "JetBrainsMono[A-Z]{,2}NerdFont[a-zA-Z]*-[a-zA-Z]+\.ttf"; then
+    bdb_success "JetBrainsMono Nerd fonts installed"
+  else
+    bdb_warn "JetBrainsMono Nerd fonts not found, check chezmoi logs for installation issues"
+  fi
 
 else
-    bdb_warn "fc-list command not found, cannot verify fonts"
+  bdb_warn "fc-list command not found, cannot verify fonts"
 fi
 
 {{- /* -------------------------------------------------------------------- */ -}}
@@ -170,11 +170,11 @@ fi
 # Configure Homebrew
 bdb_action "Configuring Homebrew"
 if bdb_test_cmd "brew"; then
-    # Disable analytics
-    bdb_exec "Disabling Homebrew analytics" brew analytics off 2>/dev/null || true
-    bdb_success "Homebrew configured"
+  # Disable analytics
+  bdb_exec "Disabling Homebrew analytics" brew analytics off 2>/dev/null || true
+  bdb_success "Homebrew configured"
 else
-    bdb_warn "Homebrew not found"
+  bdb_warn "Homebrew not found"
 fi
 
 {{- end }}
@@ -188,12 +188,12 @@ fi
 bdb_action "Initializing Neovim configuration"
 
 if bdb_test_cmd "nvim"; then
-    # Create necessary directories
-    bdb_mkdir "${HOME}/.local/share/nvim" "Failed to create nvim data dir"
-    bdb_mkdir "${HOME}/.local/state/nvim" "Failed to create nvim state dir"
-    bdb_success "Neovim directories created"
+  # Create necessary directories
+  bdb_mkdir "${HOME}/.local/share/nvim" "Failed to create nvim data dir"
+  bdb_mkdir "${HOME}/.local/state/nvim" "Failed to create nvim state dir"
+  bdb_success "Neovim directories created"
 else
-    bdb_warn "Neovim not installed"
+  bdb_warn "Neovim not installed"
 fi
 
 # =============================================================================

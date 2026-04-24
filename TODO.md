@@ -10,7 +10,7 @@
 - [x] fresh-editor error on ubuntu, install via `sudo snap install fresh-editor --classic`
 - [x] fedora: install `fresh` via terra - [https://github.com/terrapkg/packages]
 - [ ] debian: install chezmoi via snap
-- [x] support cachyos
+- [ ] cachyos: bootstrap fails when installing dependencies
 - [ ] swap `command -v` with `bdb_test_cmd`
 - [ ] automate macos configuration via 'defaults'
 - [ ] test usage of ansible over bdb
