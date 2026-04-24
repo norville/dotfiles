@@ -72,11 +72,18 @@
 {{- /* ========================================================================== */ -}}
 {{- /* Machine Type                                                               */ -}}
 {{- /* ========================================================================== */ -}}
-{{- /* Prompted once and cached; answer stored in chezmoi's config so subsequent  */ -}}
-{{- /* applies do not re-prompt. Values: workstation | terminal                   */ -}}
+{{- /* macOS is always a workstation. On Linux, detect a graphical session via    */ -}}
+{{- /* XDG_SESSION_TYPE / DISPLAY / WAYLAND_DISPLAY — all set by the login       */ -}}
+{{- /* manager in a DE session, absent on headless servers and plain SSH.        */ -}}
+{{- /* Values: workstation | terminal                                             */ -}}
 
 {{- $machine := "terminal" -}}
-{{- if promptBoolOnce . "workstation" "Is this a workstation?" -}}
+{{- if eq .chezmoi.os "darwin" -}}
+    {{- $machine = "workstation" -}}
+{{- else if or (eq (env "XDG_SESSION_TYPE") "x11")
+               (eq (env "XDG_SESSION_TYPE") "wayland")
+               (ne (env "DISPLAY") "")
+               (ne (env "WAYLAND_DISPLAY") "") -}}
     {{- $machine = "workstation" -}}
 {{- end -}}
 
