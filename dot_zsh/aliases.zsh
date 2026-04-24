@@ -54,10 +54,10 @@ fi
 # Documentation: https://github.com/eza-community/eza
 if command -v eza >/dev/null 2>&1; then
     # Basic ls replacement
-    alias ls='eza --group-directories-first'
+    alias ls='eza'
 
     # Show only directories
-    alias lsd='eza --oneline --only-dirs'
+    alias lsd='eza --oneline --only-dirs --group-directories-first'
 
     # Show file tree
     alias lt='eza --all --tree'
@@ -81,18 +81,18 @@ else
     if ls --color=auto &>/dev/null; then
         # GNU ls (Linux)
         alias ls='ls --color=auto --group-directories-first'
-        alias ll='ls -lh'
-        alias la='ls -lAh'
-        alias lt='ls -lth'
-        alias lz='ls -lSh'
     else
         # BSD ls (macOS)
         alias ls='ls -G'
-        alias ll='ls -lh'
-        alias la='ls -lAh'
-        alias lt='ls -lth'
-        alias lz='ls -lSh'
     fi
+    alias ll='ls -lh'
+    alias la='ls -lAh'
+    alias lt='ls -lth'
+    alias lz='ls -lSh'
+    alias ll='ls -lh'
+    alias la='ls -lAh'
+    alias lt='ls -lth'
+    alias lz='ls -lSh'
 fi
 
 # -----------------------------------------------------------------------------
