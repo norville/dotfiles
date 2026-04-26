@@ -1,61 +1,92 @@
-# Tokyo Night Moon themed Starship config
+# Tokyo Night Moon themed Starship config - Powerline Slanted Style
 # Color palette from: https://github.com/folke/tokyonight.nvim/blob/main/extras/lua/tokyonight_moon.lua
+# Layout: [seg1: dir bg:#1e2030] [seg2: git+env bg:#2f334d]  [fill]  [duration] [memory]
+# Separators: U+E0BC  (filled slanted) / U+E0BD  (thin slanted end-cap)
 
-# Right prompt example
-#format = """$username$hostname$directory$character"""
-#right_format = """$all"""
+format = """
+[](fg:#1e2030)\
+$username\
+$hostname\
+$directory\
+[](fg:#1e2030 bg:#2f334d)\
+$git_branch\
+$git_commit\
+$git_status\
+$git_state\
+$python\
+$conda\
+$docker_context\
+$container\
+$terraform\
+[](fg:#2f334d)\
+$fill\
+$cmd_duration\
+$memory_usage\
+$line_break\
+$shlvl\
+$character"""
 
+# ── Prompt character ───────────────────────────────────────────────────────────
 [character]
-success_symbol = "[➜](bold #c3e88d)"  # green
-error_symbol = "[✗](bold #ff757f)"  # red
+success_symbol = "[➜](bold #c3e88d)"
+error_symbol = "[✗](bold #ff757f)"
 
+# ── Right side (no background) ────────────────────────────────────────────────
 [cmd_duration]
 min_time = 4
 show_milliseconds = false
-style = "bold italic #ff757f"  # red
+style = "bold italic #ff757f"
 format = "󱦟 [$duration]($style) "
 
-[conda]
-symbol = " "
+[memory_usage]
+disabled = false
+symbol = "󰍛 "
+style = "fg:#c099ff"
+format = "[$symbol${ram}]($style) "
 
-[container]
-format = "[$symbol \\[$name\\]]($style) "
+# ── Segment 1: directory (bg #1e2030) ─────────────────────────────────────────
+[username]
+show_always = false
+style_user = "fg:#c3e88d bg:#1e2030 bold"
+style_root = "fg:#ff757f bg:#1e2030 bold"
+format = "[ $user ]($style)"
+
+[hostname]
+ssh_only = true
+ssh_symbol = " "
+trim_at = "."
+style = "fg:#c099ff bg:#1e2030"
+format = "[@$hostname ]($style)"
 
 [directory]
 read_only = " 󰌾"
 truncation_length = 10
 truncate_to_repo = true
-style = "bold italic #82aaff"  # blue
+style = "fg:#82aaff bg:#1e2030 bold italic"
+format = "[ $path$read_only ]($style)"
 
-[docker_context]
-only_with_files = true
-detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
-detect_folders = []
-symbol = " "
-style = "#82aaff bold"  # blue
-format = "[$symbol$context]($style) "
-
+# ── Segment 2: git + env (bg #2f334d) ─────────────────────────────────────────
 [git_branch]
-symbol = " "
-style = "#c099ff"  # purple
-format = "[$symbol$branch]($style) "
+symbol = " "
+style = "fg:#c099ff bg:#2f334d"
+format = "[ $symbol$branch ]($style)"
 
 [git_commit]
-tag_symbol = "  "
-style = "#ffc777"  # yellow
-format = "[$tag_symbol$tag]($style) "
+tag_symbol = "  "
+style = "fg:#ffc777 bg:#2f334d"
+format = "[ $tag_symbol$tag ]($style)"
 
 [git_status]
-stashed = "[${count}*](#c3e88d)"  # green
-modified = "[${count}+](#ffc777)"  # yellow
-deleted = "[${count}-](#ff757f)"  # red
-conflicted = "[${count}~](#ff757f)"  # red
+stashed = "[${count}*](fg:#c3e88d bg:#2f334d)"
+modified = "[${count}+](fg:#ffc777 bg:#2f334d)"
+deleted = "[${count}-](fg:#ff757f bg:#2f334d)"
+conflicted = "[${count}~](fg:#ff757f bg:#2f334d)"
 ahead = "⇡${count}"
 behind = "⇣${count}"
-untracked = "[${count}?](#82aaff)"  # blue
-staged = "[${count}+](#c3e88d)"  # green
-style = "#82aaff"  # blue
-format = "(\\[[$all_status$ahead_behind]($style)\\] )"
+untracked = "[${count}?](fg:#82aaff bg:#2f334d)"
+staged = "[${count}+](fg:#c3e88d bg:#2f334d)"
+style = "fg:#c099ff bg:#2f334d"
+format = "[$all_status$ahead_behind ]($style)"
 
 [git_state]
 rebase = "rebase"
@@ -65,80 +96,79 @@ cherry_pick = "cherry"
 bisect = "bisect"
 am = "am"
 am_or_rebase = "am/rebase"
-style = "bold #ff757f"  # red
+style = "fg:#ff757f bg:#2f334d bold"
 format = "[$state( $progress_current/$progress_total) ]($style)"
-
-[golang]
-symbol = "󰟓 "
-style = "#82aaff"  # blue
-
-[hostname]
-ssh_only = true
-ssh_symbol = " "
-trim_at = "."
-style = "#c099ff"  # purple
-format = "@[$hostname]($style) "
-
-[java]
-symbol = " "
-style = "#ff966c"  # orange
-
-[lua]
-symbol = " "
-style = "#86e1fc"  # cyan
-
-[memory_usage]
-disabled = false
-symbol = "󰍛 "
-style = "#c099ff"  # purple
-
-[nodejs]
-detect_files = ["package.json", ".node-version"]
-detect_folders = ["node_modules"]
-symbol = " "
-style = "#c3e88d"  # green
-format = "[$symbol$version]($style) "
-
-[package]
-symbol = "󰏗 "
-style = "#86e1fc"  # cyan
 
 [python]
 pyenv_prefix = "venv "
 python_binary = ["./venv/bin/python", "python", "python3", "python2"]
 detect_extensions = ["py"]
 version_format = "v${raw}"
-symbol = " "
-style = "bold #ffc777"  # yellow
-format = "[${symbol}python (${version} )(\\($virtualenv\\) )]($style)"
+symbol = " "
+style = "fg:#ffc777 bg:#2f334d bold"
+format = "[ $symbol$version(\\($virtualenv\\) )]($style)"
+
+[conda]
+symbol = " "
+style = "fg:#c3e88d bg:#2f334d"
+format = "[ $symbol$environment ]($style)"
+
+[docker_context]
+only_with_files = true
+detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
+detect_folders = []
+symbol = " "
+style = "fg:#82aaff bg:#2f334d bold"
+format = "[ $symbol$context ]($style)"
+
+[container]
+format = "[ $symbol\\[$name\\] ]($style)"
+
+[terraform]
+symbol = "💠 "
+style = "fg:#c099ff bg:#2f334d"
+format = "[ $symbol$workspace ]($style)"
+
+# ── Language runtimes (auto-detect, seg 2) ────────────────────────────────────
+[golang]
+symbol = "󰟓 "
+style = "fg:#82aaff bg:#2f334d"
+
+[java]
+symbol = " "
+style = "fg:#ff966c bg:#2f334d"
+
+[lua]
+symbol = " "
+style = "fg:#86e1fc bg:#2f334d"
+
+[nodejs]
+detect_files = ["package.json", ".node-version"]
+detect_folders = ["node_modules"]
+symbol = " "
+style = "fg:#c3e88d bg:#2f334d"
+format = "[ $symbol$version ]($style)"
+
+[package]
+symbol = "󰏗 "
+style = "fg:#86e1fc bg:#2f334d"
 
 [ruby]
-symbol = " "
-style = "#ff757f"  # red
+symbol = " "
+style = "fg:#ff757f bg:#2f334d"
 
 [rust]
 symbol = "󱘗 "
-style = "#ff966c"  # orange
+style = "fg:#ff966c bg:#2f334d"
 
+# ── Shell level (line 2) ──────────────────────────────────────────────────────
 [shlvl]
 disabled = false
 repeat = true
 repeat_offset = 1
-symbol = '❯ '
+symbol = "❯ "
 format = "[$symbol]($style)"
 
+# ── Misc ──────────────────────────────────────────────────────────────────────
 [sudo]
 disabled = true
-#symbol = " "
-#style = "#ff757f"  # red
-#format = "[$symbol]($style)"
-
-[terraform]
-symbol = "💠 "
-format = "[$symbol$workspace]($style) "
-
-[username]
-show_always = false
-style_user = "#c3e88d bold"  # green
-style_root = "#ff757f bold"  # red
-format = "[$user]($style)"
