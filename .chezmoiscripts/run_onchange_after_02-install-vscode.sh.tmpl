@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Chezmoi Script: Install Visual Studio Code
+# =============================================================================
+# Prompts for and installs VS Code. Workstation only.
+#
+# Execution: run_onchange_after_02 — fires when file content changes
+# Location:  .chezmoiscripts/run_onchange_after_02-install-vscode.sh.tmpl
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Setup
+# -----------------------------------------------------------------------------
+# shellcheck disable=SC1090,SC1091
+source "${HELPERS}"
+
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl)"
+SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/$(date +%Y%m%d_%H%M%S)_${SCRIPT_NAME}.log"
+mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
+bdb_init_logging "${SCRIPT_LOG_FILE}"
+
+_bdb_log "========================================="
+_bdb_log "Script: ${SCRIPT_NAME}"
+_bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
+_bdb_log "========================================="
+
+set -euo pipefail
+trap 'bdb_handle_error' ERR
+trap 'bdb_cleanup' EXIT
+
+bdb_begin_section "Visual Studio Code Installation"
+
+{{- if ne .machine "workstation" }}
+bdb_warn "Skipping VS Code — workstation machines only"
+bdb_end_section
+exit 0
+{{- end }}
+
+if ! bdb_ask "Do you want to install Visual Studio Code"; then
+  bdb_warn "Skipping Visual Studio Code installation"
+  bdb_end_section
+  exit 0
+fi
+
+{{- if eq .chezmoi.os "darwin" }}
+bdb_info "VS Code should be installed via Homebrew Cask"
+
+{{- else if eq .chezmoi.os "linux" }}
+
+  {{- if eq .packageManager "apt" }}
+bdb_action "Installing Visual Studio Code (Debian/Ubuntu)"
+
+bdb_exec "Adding Microsoft GPG key" bash -c "wget -qO- https://packages.microsoft.com/keys/microsoft.asc | \
+  gpg --dearmor > packages.microsoft.gpg && \
+  sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg && \
+  rm -f packages.microsoft.gpg"
+
+bdb_exec "Adding VS Code repository" bash -c "echo \
+    'deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main' | \
+    sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null"
+
+bdb_exec "Installing VS Code" bash -c "sudo apt-get update && sudo apt-get install -y code"
+bdb_success "Visual Studio Code installed"
+
+  {{- else if eq .packageManager "dnf" }}
+bdb_action "Installing Visual Studio Code (Fedora/RHEL)"
+
+bdb_exec "Importing Microsoft GPG key" sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+
+bdb_exec "Adding VS Code repository" sudo sh -c 'cat > /etc/yum.repos.d/vscode.repo <<EOF
+[code]
+name=Visual Studio Code
+baseurl=https://packages.microsoft.com/yumrepos/vscode
+enabled=1
+gpgcheck=1
+gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+EOF'
+
+bdb_exec "Installing VS Code" sudo dnf install -y code
+bdb_success "Visual Studio Code installed"
+
+  {{- else if eq .packageManager "pacman" }}
+bdb_exec "Installing Visual Studio Code (Arch/Manjaro)" yay -S --noconfirm visual-studio-code-bin
+bdb_success "Visual Studio Code installed"
+
+  {{- end }}
+{{- end }}
+
+# =============================================================================
+# COMPLETION
+# =============================================================================
+
+bdb_success "Visual Studio Code installation complete"
+
+if [[ -n "${BDB_LOG_FILE:-}" ]]; then
+  bdb_var "Log file" "${BDB_LOG_FILE}"
+fi
+
+bdb_end_section
+
+exit 0

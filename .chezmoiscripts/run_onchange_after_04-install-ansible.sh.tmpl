@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Chezmoi Script: Install Ansible
+# =============================================================================
+# Prompts for and installs Ansible. Available on all machine types.
+#
+# Execution: run_onchange_after_04 — fires when file content changes
+# Location:  .chezmoiscripts/run_onchange_after_04-install-ansible.sh.tmpl
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Setup
+# -----------------------------------------------------------------------------
+# shellcheck disable=SC1090,SC1091
+source "${HELPERS}"
+
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl)"
+SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/$(date +%Y%m%d_%H%M%S)_${SCRIPT_NAME}.log"
+mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
+bdb_init_logging "${SCRIPT_LOG_FILE}"
+
+_bdb_log "========================================="
+_bdb_log "Script: ${SCRIPT_NAME}"
+_bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
+_bdb_log "========================================="
+
+set -euo pipefail
+trap 'bdb_handle_error' ERR
+trap 'bdb_cleanup' EXIT
+
+bdb_begin_section "Ansible Installation"
+
+if ! bdb_ask "Do you want to install Ansible"; then
+  bdb_warn "Skipping Ansible installation"
+  bdb_end_section
+  exit 0
+fi
+
+{{- if eq .chezmoi.os "darwin" }}
+bdb_exec "Installing Ansible (macOS)" brew install ansible
+bdb_success "Ansible installed"
+
+{{- else if eq .chezmoi.os "linux" }}
+
+  {{- if eq .packageManager "apt" }}
+bdb_action "Installing Ansible (Debian/Ubuntu)"
+
+    {{- if eq .osid "linux-ubuntu" }}
+ubuntu_version=$(grep VERSION_ID /etc/os-release | cut -d'"' -f2)
+bdb_var "Ubuntu Version" "${ubuntu_version}"
+
+# PPA ansible/ansible only supports LTS releases (*.04); use pipx on interim releases
+if [[ "${ubuntu_version}" =~ \.04$ ]]; then
+  bdb_exec "Installing software-properties-common" sudo apt-get install -y software-properties-common
+  bdb_exec "Adding Ansible PPA" sudo add-apt-repository --yes --update ppa:ansible/ansible
+  bdb_exec "Installing Ansible from PPA" sudo apt-get install -y ansible python3-pip python3-argcomplete
+  bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete3 2>/dev/null || true
+  bdb_success "Ansible installed from PPA"
+else
+  bdb_warn "PPA ansible/ansible may not be available for Ubuntu ${ubuntu_version}"
+  bdb_exec "Installing pipx" sudo apt-get install -y pipx python3-pip python3-argcomplete
+  bdb_exec "Setting up pipx environment" pipx ensurepath
+  bdb_exec "Installing Ansible via pipx" pipx install --include-deps ansible
+
+  if [[ -d "${HOME}/.local/bin" ]] && [[ ":$PATH:" != *":${HOME}/.local/bin:"* ]]; then
+    export PATH="${HOME}/.local/bin:$PATH"
+    bdb_info "Added ~/.local/bin to PATH for current session"
+  fi
+
+  bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete 2>/dev/null || true
+  bdb_success "Ansible installed via pipx"
+  bdb_info "You may need to restart your shell for pipx PATH to take effect"
+fi
+
+    {{- else if eq .osid "linux-debian" }}
+bdb_exec "Installing Ansible" sudo apt-get install -y ansible python3-pip python3-argcomplete
+bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete3 2>/dev/null || true
+bdb_success "Ansible installed"
+
+    {{- end }}
+
+  {{- else if eq .packageManager "dnf" }}
+bdb_action "Installing Ansible (Fedora/RHEL)"
+
+bdb_exec "Installing Ansible" sudo dnf install -y ansible python3-pip python3-argcomplete
+bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete 2>/dev/null || true
+bdb_success "Ansible installed"
+
+  {{- else if eq .packageManager "pacman" }}
+bdb_action "Installing Ansible (Arch/Manjaro)"
+
+bdb_exec "Installing Ansible" sudo pacman -S --needed --noconfirm ansible python-pip python-argcomplete
+bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete 2>/dev/null || true
+bdb_success "Ansible installed"
+
+  {{- end }}
+{{- end }}
+
+if bdb_ask "Install Ansible extra collections (community.docker)"; then
+  bdb_exec "Installing community.docker" ansible-galaxy collection install community.docker --upgrade 2>/dev/null || true
+  bdb_success "Ansible extra collections installed"
+else
+  bdb_warn "Skipping Ansible extra collections installation"
+fi
+
+if bdb_test_cmd "ansible"; then
+  ansible_version="$(ansible --version | head -n1)"
+  bdb_var "Ansible version" "${ansible_version}"
+fi
+
+# =============================================================================
+# COMPLETION
+# =============================================================================
+
+bdb_success "Ansible installation complete"
+
+if [[ -n "${BDB_LOG_FILE:-}" ]]; then
+  bdb_var "Log file" "${BDB_LOG_FILE}"
+fi
+
+bdb_end_section
+
+exit 0

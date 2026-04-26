@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Chezmoi Script: Install Docker
+# =============================================================================
+# Prompts for and installs Docker. Available on all machine types.
+#
+# Execution: run_onchange_after_03 — fires when file content changes
+# Location:  .chezmoiscripts/run_onchange_after_03-install-docker.sh.tmpl
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Setup
+# -----------------------------------------------------------------------------
+# shellcheck disable=SC1090,SC1091
+source "${HELPERS}"
+
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl)"
+SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/$(date +%Y%m%d_%H%M%S)_${SCRIPT_NAME}.log"
+mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
+bdb_init_logging "${SCRIPT_LOG_FILE}"
+
+_bdb_log "========================================="
+_bdb_log "Script: ${SCRIPT_NAME}"
+_bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
+_bdb_log "========================================="
+
+set -euo pipefail
+trap 'bdb_handle_error' ERR
+trap 'bdb_cleanup' EXIT
+
+bdb_begin_section "Docker Installation"
+
+if ! bdb_ask "Do you want to install Docker"; then
+  bdb_warn "Skipping Docker installation"
+  bdb_end_section
+  exit 0
+fi
+
+{{- if eq .chezmoi.os "darwin" }}
+bdb_info "Docker Desktop should be installed manually from docker.com"
+bdb_info "Or via Homebrew Cask if in your Brewfile"
+
+{{- else if eq .chezmoi.os "linux" }}
+
+  {{- if eq .packageManager "apt" }}
+bdb_action "Installing Docker (Debian/Ubuntu)"
+
+bdb_exec "Removing old Docker versions" sudo apt remove $(dpkg --get-selections \
+  docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1)
+
+bdb_exec "Updating package lists" sudo apt-get update
+bdb_exec "Installing prerequisites" sudo apt-get install -y ca-certificates curl
+bdb_exec "Creating keyrings directory" sudo install -m 0755 -d /etc/apt/keyrings
+
+    {{- if eq .osid "linux-ubuntu" }}
+bdb_exec "Adding Docker GPG key (Ubuntu)" sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    {{- else if eq .osid "linux-debian" }}
+bdb_exec "Adding Docker GPG key (Debian)" sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+    {{- end }}
+
+bdb_exec "Setting GPG key permissions" sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Variables in the heredoc are evaluated at script execution time, not at
+# template processing time — do not escape $ with backslashes here.
+    {{- if eq .osid "linux-ubuntu" }}
+bdb_exec "Adding Docker repository (Ubuntu)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<DOCKER_REPO_EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo ${UBUNTU_CODENAME:-$VERSION_CODENAME})
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+DOCKER_REPO_EOF
+
+    {{- else if eq .osid "linux-debian" }}
+bdb_exec "Adding Docker repository (Debian)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<DOCKER_REPO_EOF
+Types: deb
+URIs: https://download.docker.com/linux/debian
+Suites: $(. /etc/os-release && echo ${VERSION_CODENAME})
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+DOCKER_REPO_EOF
+
+    {{- end }}
+
+bdb_exec "Updating package lists with Docker repository" sudo apt-get update
+bdb_exec "Installing Docker packages" sudo apt-get install -y \
+  docker-ce \
+  docker-ce-cli \
+  containerd.io \
+  docker-buildx-plugin \
+  docker-compose-plugin
+
+bdb_exec "Adding user to docker group" sudo usermod -aG docker "${USER}"
+bdb_success "Docker installed"
+bdb_warn "Please log out and back in for group membership to take effect"
+
+  {{- else if eq .packageManager "dnf" }}
+bdb_action "Installing Docker (Fedora/RHEL)"
+
+bdb_exec "Removing old Docker versions" sudo dnf remove -y \
+  docker docker-client docker-client-latest docker-common docker-latest \
+  docker-latest-logrotate docker-logrotate docker-selinux \
+  docker-engine-selinux docker-engine 2>/dev/null || true
+
+bdb_exec "Installing DNF plugins" sudo dnf -y install dnf-plugins-core
+bdb_exec "Adding Docker repository" sudo dnf-3 config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+bdb_exec "Installing Docker" sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+bdb_exec "Starting Docker service" sudo systemctl start docker
+bdb_exec "Enabling Docker service" sudo systemctl enable docker
+
+bdb_exec "Adding user to docker group" sudo usermod -aG docker "${USER}"
+bdb_success "Docker installed"
+bdb_warn "Please log out and back in for group membership to take effect"
+
+  {{- else if eq .packageManager "pacman" }}
+bdb_exec "Installing Docker (Arch/Manjaro)" sudo pacman -S --needed --noconfirm docker docker-compose
+
+bdb_exec "Starting Docker service" sudo systemctl start docker.service
+bdb_exec "Enabling Docker service" sudo systemctl enable docker.service
+
+bdb_exec "Adding user to docker group" sudo usermod -aG docker "${USER}"
+bdb_success "Docker installed"
+bdb_warn "Please log out and back in for group membership to take effect"
+
+  {{- end }}
+{{- end }}
+
+# =============================================================================
+# COMPLETION
+# =============================================================================
+
+bdb_success "Docker installation complete"
+
+if [[ -n "${BDB_LOG_FILE:-}" ]]; then
+  bdb_var "Log file" "${BDB_LOG_FILE}"
+fi
+
+bdb_end_section
+
+exit 0
