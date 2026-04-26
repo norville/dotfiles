@@ -15,9 +15,6 @@ show_milliseconds = false
 style = "bold italic #ff757f"  # red
 format = "󱦟 [$duration]($style) "
 
-[conda]
-symbol = " "
-
 [container]
 format = "[$symbol \\[$name\\]]($style) "
 
@@ -88,6 +85,7 @@ symbol = " "
 style = "#86e1fc"  # cyan
 
 [memory_usage]
+disabled = false
 symbol = "󰍛 "
 style = "#c099ff"  # purple
 
