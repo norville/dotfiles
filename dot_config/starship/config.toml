@@ -15,6 +15,9 @@ show_milliseconds = false
 style = "bold italic #ff757f"  # red
 format = "󱦟 [$duration]($style) "
 
+[conda]
+symbol = " "
+
 [container]
 format = "[$symbol \\[$name\\]]($style) "
 
