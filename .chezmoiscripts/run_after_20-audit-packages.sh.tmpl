@@ -49,6 +49,12 @@ trap 'bdb_cleanup' EXIT
 
 bdb_begin_section "Package Audit"
 
+if ! bdb_ask "Run package audit now"; then
+  bdb_warn "Skipping package audit"
+  bdb_end_section
+  exit 0
+fi
+
 # -----------------------------------------------------------------------------
 # _audit_report — shared output helper
 # -----------------------------------------------------------------------------
