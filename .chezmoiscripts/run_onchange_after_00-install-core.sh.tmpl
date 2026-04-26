@@ -56,13 +56,18 @@ APT_PACKAGES=(
 
 # eza is not in the official Debian/Ubuntu repos; add its signing key and
 # custom source before apt-get update so everything resolves in one pass.
-bdb_action "Setting up eza repository"
-sudo mkdir -p /etc/apt/keyrings
-wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc \
-  | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
-echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" \
-  | sudo tee /etc/apt/sources.list.d/eza.list
-sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/eza.list
+if [[ ! -f /etc/apt/keyrings/gierens.gpg ]]; then
+  bdb_action "Setting up eza repository"
+  sudo mkdir -p /etc/apt/keyrings
+  wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc \
+    | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+  echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" \
+    | sudo tee /etc/apt/sources.list.d/eza.list
+  sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/eza.list
+  bdb_success "eza repository configured"
+else
+  bdb_success "eza repository already configured"
+fi
 
 bdb_exec "Updating APT package lists" sudo apt-get update
 bdb_exec "Installing APT packages"    sudo apt-get install -y "${APT_PACKAGES[@]}"
@@ -84,7 +89,11 @@ if bdb_test_cmd "snap"; then
   bdb_exec "Refreshing installed snaps" sudo snap refresh
   # --classic cannot be combined with multiple packages in one call
   for _snap in "${SNAP_PACKAGES[@]}"; do
-    bdb_exec "Installing snap: ${_snap}" sudo snap install --classic "${_snap}"
+    if snap list "${_snap}" &>/dev/null; then
+      bdb_success "Already installed: ${_snap}"
+    else
+      bdb_exec "Installing snap: ${_snap}" sudo snap install --classic "${_snap}"
+    fi
   done
   unset _snap
 else
@@ -118,9 +127,12 @@ sudo dnf copr enable -y pennbauman/ports   2>/dev/null || true  # zoxide
 bdb_success "COPR repositories enabled"
 
 # Terra provides fresh-editor, which is absent from both Fedora repos and COPR.
-bdb_action "Enabling Terra repository"
-sudo dnf install -y --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
-bdb_success "Terra repository enabled"
+if ! rpm -q terra-release &>/dev/null; then
+  bdb_exec "Enabling Terra repository" sudo dnf install -y --nogpgcheck \
+    --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
+else
+  bdb_success "Terra repository already enabled"
+fi
 
 bdb_exec "Installing DNF packages" sudo dnf install -y "${DNF_PACKAGES[@]}"
 

@@ -52,7 +52,11 @@ bdb_var "Ubuntu Version" "${ubuntu_version}"
 # PPA ansible/ansible only supports LTS releases (*.04); use pipx on interim releases
 if [[ "${ubuntu_version}" =~ \.04$ ]]; then
   bdb_exec "Installing software-properties-common" sudo apt-get install -y software-properties-common
-  bdb_exec "Adding Ansible PPA" sudo add-apt-repository --yes --update ppa:ansible/ansible
+  if ! grep -r "ansible/ansible" /etc/apt/sources.list.d/ &>/dev/null; then
+    bdb_exec "Adding Ansible PPA" sudo add-apt-repository --yes --update ppa:ansible/ansible
+  else
+    bdb_success "Ansible PPA already configured"
+  fi
   bdb_exec "Installing Ansible from PPA" sudo apt-get install -y ansible python3-pip python3-argcomplete
   bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete3 2>/dev/null || true
   bdb_success "Ansible installed from PPA"

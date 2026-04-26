@@ -50,14 +50,18 @@ bdb_info "VS Code should be installed via Homebrew Cask"
   {{- if eq .packageManager "apt" }}
 bdb_action "Installing Visual Studio Code (Debian/Ubuntu)"
 
-bdb_exec "Adding Microsoft GPG key" bash -c "wget -qO- https://packages.microsoft.com/keys/microsoft.asc | \
-  gpg --dearmor > packages.microsoft.gpg && \
-  sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg && \
-  rm -f packages.microsoft.gpg"
+if [[ ! -f /etc/apt/keyrings/packages.microsoft.gpg ]]; then
+  bdb_exec "Adding Microsoft GPG key" bash -c "wget -qO- https://packages.microsoft.com/keys/microsoft.asc | \
+    gpg --dearmor > packages.microsoft.gpg && \
+    sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg && \
+    rm -f packages.microsoft.gpg"
 
-bdb_exec "Adding VS Code repository" bash -c "echo \
-    'deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main' | \
-    sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null"
+  bdb_exec "Adding VS Code repository" bash -c "echo \
+      'deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main' | \
+      sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null"
+else
+  bdb_success "VS Code repository already configured"
+fi
 
 bdb_exec "Installing VS Code" bash -c "sudo apt-get update && sudo apt-get install -y code"
 bdb_success "Visual Studio Code installed"
@@ -67,7 +71,8 @@ bdb_action "Installing Visual Studio Code (Fedora/RHEL)"
 
 bdb_exec "Importing Microsoft GPG key" sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
 
-bdb_exec "Adding VS Code repository" sudo sh -c 'cat > /etc/yum.repos.d/vscode.repo <<EOF
+if [[ ! -f /etc/yum.repos.d/vscode.repo ]]; then
+  bdb_exec "Adding VS Code repository" sudo sh -c 'cat > /etc/yum.repos.d/vscode.repo <<EOF
 [code]
 name=Visual Studio Code
 baseurl=https://packages.microsoft.com/yumrepos/vscode
@@ -75,6 +80,9 @@ enabled=1
 gpgcheck=1
 gpgkey=https://packages.microsoft.com/keys/microsoft.asc
 EOF'
+else
+  bdb_success "VS Code repository already configured"
+fi
 
 bdb_exec "Installing VS Code" sudo dnf install -y code
 bdb_success "Visual Studio Code installed"
