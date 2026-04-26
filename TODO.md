@@ -13,10 +13,10 @@
 - [x] cachyos: bootstrap fails when installing dependencies
 - [x] cachyos: yay asks sudo passwd
 - [x] optional packages *1password*, *vscode*: ask for installation only when `$machine = workstation`
-- [x] 1password setup: `workstation` -> ask for setup; `terminal` -> do not setup
 - [x] swap `command -v` with `bdb_test_cmd`
+- [x] 1password setup: removed dedicated script, reminder added to script 01
+- [ ] chezmoiscripts: idempotency check
 - [ ] zoxide: `zi` non working
-- [x] ensure 1password ui is running before executing setup
 - [ ] starship: powerline slanted with moon colors
 - [ ] automate macos configuration via 'defaults'
 - [ ] test usage of ansible over bdb

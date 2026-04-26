@@ -164,6 +164,8 @@ EOF'
   {{- end }}
 {{- end }}
 
+  bdb_info "Run 'chezmoi apply' again to deploy SSH public keys now that 1Password is installed"
+
 else
   bdb_warn "Skipping 1Password installation"
 fi
