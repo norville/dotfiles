@@ -15,8 +15,9 @@
 - [x] optional packages *1password*, *vscode*: ask for installation only when `$machine = workstation`
 - [x] swap `command -v` with `bdb_test_cmd`
 - [x] 1password setup: removed dedicated script, reminder added to script 01
-- [ ] chezmoiscripts: idempotency check
+- [x] chezmoiscripts: idempotency check
+- [x] starship: powerline slanted with moon colors
+- [ ] optional packages: conda, golang, java, lua, nodejs, ruby, rust
 - [ ] zoxide: `zi` non working
-- [ ] starship: powerline slanted with moon colors
 - [ ] automate macos configuration via 'defaults'
 - [ ] test usage of ansible over bdb

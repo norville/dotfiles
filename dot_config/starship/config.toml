@@ -1,174 +1,301 @@
-# Tokyo Night Moon themed Starship config - Powerline Slanted Style
-# Color palette from: https://github.com/folke/tokyonight.nvim/blob/main/extras/lua/tokyonight_moon.lua
-# Layout: [seg1: dir bg:#1e2030] [seg2: git+env bg:#2f334d]  [fill]  [duration] [memory]
-# Separators: U+E0BC  (filled slanted) / U+E0BD  (thin slanted end-cap)
+# Activates the color aliases defined at the bottom of this file
+palette = "tokyonight_moon"
 
+# Line 1 (left):  [os · user · host] ▶ [dir] ▶ [branch · commit] [git_status]  ── fill ──
+# Line 1 (right): [lang runtimes] ▶ [package] ▶ [duration] ▶ [time]
+# Line 2:         ❯❯ $character
 format = """
-[](fg:#1e2030)\
+[](fg:blue7)\
+$os\
 $username\
 $hostname\
+[](bg:term_white fg:blue7)\
 $directory\
-[](fg:#1e2030 bg:#2f334d)\
+[](bg:blue fg:term_white)\
 $git_branch\
 $git_commit\
+[](fg:blue)\
 $git_status\
-$git_state\
-$python\
-$conda\
-$docker_context\
-$container\
-$terraform\
-[](fg:#2f334d)\
 $fill\
+[](fg:green2)\
+$c\
+$conda\
+$container\
+$docker_context\
+$golang\
+$java\
+$lua\
+$nodejs\
+$python\
+$ruby\
+$rust\
+$terraform\
+[](bg:teal fg:green2)\
+$package\
+[](bg:yellow fg:teal)\
 $cmd_duration\
-$memory_usage\
+[](bg:orange fg:yellow)\
+$time\
+[](fg:orange)\
 $line_break\
+$line_break\
+[ ](fg:blue7 bold)\
 $shlvl\
-$character"""
+$character\
+[ ](fg:blue7 bold)"""
 
-# ── Prompt character ───────────────────────────────────────────────────────────
-[character]
-success_symbol = "[➜](bold #c3e88d)"
-error_symbol = "[✗](bold #ff757f)"
+# ── Segment 1 · bg:blue7 (dark navy) ── os icon · username · hostname ──────────
+[os]
+disabled  = false
+style     = "bg:blue7 fg:ui_fg bold"
+format    = "[ $symbol ]($style)"
 
-# ── Right side (no background) ────────────────────────────────────────────────
-[cmd_duration]
-min_time = 4
-show_milliseconds = false
-style = "bold italic #ff757f"
-format = "󱦟 [$duration]($style) "
+[os.symbols]
+Alpine        = ""
+Arch          = "󰣇"
+CachyOS       = "󰣇"
+Debian        = "󰣚"
+Fedora        = "󰣛"
+Linux         = "󰌽"
+Macos         = "󰀵"
+Manjaro       = ""
+openSUSE      = ""
+RaspberryPiOS = ""
+Raspbian      = ""
+RockyLinux    = ""
+Ubuntu        = "󰕈"
+Windows       = ""
 
-[memory_usage]
-disabled = false
-symbol = "󰍛 "
-style = "fg:#c099ff"
-format = "[$symbol${ram}]($style) "
-
-# ── Segment 1: directory (bg #1e2030) ─────────────────────────────────────────
 [username]
-show_always = false
-style_user = "fg:#c3e88d bg:#1e2030 bold"
-style_root = "fg:#ff757f bg:#1e2030 bold"
-format = "[ $user ]($style)"
+style_user  = "bg:blue7 fg:ui_fg bold"
+style_root  = "bg:blue7 fg:ui_warning bold"
+format      = "[ $user]($style)"
 
 [hostname]
-ssh_only = true
-ssh_symbol = " "
-trim_at = "."
-style = "fg:#c099ff bg:#1e2030"
-format = "[@$hostname ]($style)"
+ssh_symbol  = " "
+style       = "bg:blue7 fg:ui_fg bold"
+format      = "[@$hostname ]($style)"
 
+# ── Segment 2 · bg:term_white (muted purple) ── current directory ────────────────
 [directory]
-read_only = " 󰌾"
-truncation_length = 10
-truncate_to_repo = true
-style = "fg:#82aaff bg:#1e2030 bold italic"
-format = "[ $path$read_only ]($style)"
+read_only           = " 󰌾"
+truncation_length   = 5
+truncation_symbol   = "…/"
+truncate_to_repo    = true
+home_symbol         = " "
+style               = "bg:term_white fg:ui_bg bold"
+format              = "[ $path$read_only ]($style)"
 
-# ── Segment 2: git + env (bg #2f334d) ─────────────────────────────────────────
+# ── Segment 3 · bg:blue (bright blue) ── git branch · commit hash/tag ───────────
 [git_branch]
-symbol = " "
-style = "fg:#c099ff bg:#2f334d"
-format = "[ $symbol$branch ]($style)"
+symbol  = " "
+style   = "bg:blue fg:ui_bg bold"
+format  = '[ $symbol$branch(:$remote_branch)]($style)'
 
 [git_commit]
-tag_symbol = "  "
-style = "fg:#ffc777 bg:#2f334d"
-format = "[ $tag_symbol$tag ]($style)"
+only_detached       = false  # show hash on normal branches too, not just detached HEAD
+tag_disabled        = false
+tag_max_candidates  = 1
+style               = "bg:blue fg:ui_bg bold"
+format              = "[@$hash$tag ]($style)"
 
+# ── Segment 4 · no bg (floating) ── git status indicators, each colored by state ─
 [git_status]
-stashed = "[${count}*](fg:#c3e88d bg:#2f334d)"
-modified = "[${count}+](fg:#ffc777 bg:#2f334d)"
-deleted = "[${count}-](fg:#ff757f bg:#2f334d)"
-conflicted = "[${count}~](fg:#ff757f bg:#2f334d)"
-ahead = "⇡${count}"
-behind = "⇣${count}"
-untracked = "[${count}?](fg:#82aaff bg:#2f334d)"
-staged = "[${count}+](fg:#c3e88d bg:#2f334d)"
-style = "fg:#c099ff bg:#2f334d"
-format = "[$all_status$ahead_behind ]($style)"
+ahead       = "[  ${count} ](fg:blue5 bold)"
+behind      = "[  ${count} ](fg:yellow bold)"
+conflicted  = "[ 󰉀 ${count} ](fg:red bold)"
+deleted     = "[ 󰆴 ${count} ](fg:red bold)"
+diverged    = "[ 󰃻 ${count} ](fg:red1 bold)"
+modified    = "[ 󰤀 ${count} ](fg:blue0 bold)"
+renamed     = "[  ${count} ](fg:blue1 bold)"
+staged      = "[  ${count} ](fg:green bold)"
+stashed     = "[ 󰏔 ${count} ](fg:green1 bold)"
+untracked   = "[ 󱧊 ${count} ](fg:magenta2 bold)"
+style       = "fg:ui_bg bold"
+format      = "[$all_status$ahead_behind ]($style)"
 
-[git_state]
-rebase = "rebase"
-merge = "merge"
-revert = "revert"
-cherry_pick = "cherry"
-bisect = "bisect"
-am = "am"
-am_or_rebase = "am/rebase"
-style = "fg:#ff757f bg:#2f334d bold"
-format = "[$state( $progress_current/$progress_total) ]($style)"
-
-[python]
-pyenv_prefix = "venv "
-python_binary = ["./venv/bin/python", "python", "python3", "python2"]
-detect_extensions = ["py"]
-version_format = "v${raw}"
+[fill]
 symbol = " "
-style = "fg:#ffc777 bg:#2f334d bold"
-format = "[ $symbol$version(\\($virtualenv\\) )]($style)"
+
+# ── Right side ($fill pushes these to the right edge) ────────────────────────────
+# ── Segment 5 · bg:green2 (teal-green) ── active language runtime versions ───────
+[c]
+symbol  = " "
+style   = "bg:green2 fg:ui_bg bold"
+format  = '[ $symbol$version ]($style)'
 
 [conda]
-symbol = " "
-style = "fg:#c3e88d bg:#2f334d"
-format = "[ $symbol$environment ]($style)"
-
-[docker_context]
-only_with_files = true
-detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
-detect_folders = []
-symbol = " "
-style = "fg:#82aaff bg:#2f334d bold"
-format = "[ $symbol$context ]($style)"
+ignore_base = false  # default hides "base" env; keep it visible
+symbol      = " "
+style       = "bg:green2 fg:ui_bg bold"
+format      = '[ $symbol$environment ]($style)'
 
 [container]
-format = "[ $symbol\\[$name\\] ]($style)"
+style   = "bg:green2 fg:ui_bg bold"
+format  = "[ $symbol\\[$name\\] ]($style)"
 
-[terraform]
-symbol = "💠 "
-style = "fg:#c099ff bg:#2f334d"
-format = "[ $symbol$workspace ]($style)"
+[docker_context]
+#only_with_files = true  # commented out so context always shows, not just next to Dockerfiles
+symbol          = " "
+style           = "bg:green2 fg:ui_bg bold"
+format          = "[ $symbol$context ]($style)"
 
-# ── Language runtimes (auto-detect, seg 2) ────────────────────────────────────
 [golang]
-symbol = "󰟓 "
-style = "fg:#82aaff bg:#2f334d"
+symbol  = "󰟓 "
+style   = "bg:green2 fg:ui_bg bold"
+format  = '[ $symbol$version ]($style)'
 
 [java]
-symbol = " "
-style = "fg:#ff966c bg:#2f334d"
+symbol  = " "
+style   = "bg:green2 fg:ui_bg bold"
+format  = '[ $symbol$version ]($style)'
 
 [lua]
-symbol = " "
-style = "fg:#86e1fc bg:#2f334d"
+symbol  = " "
+style   = "bg:green2 fg:ui_bg bold"
+format  = '[ $symbol$version ]($style)'
 
 [nodejs]
-detect_files = ["package.json", ".node-version"]
-detect_folders = ["node_modules"]
-symbol = " "
-style = "fg:#c3e88d bg:#2f334d"
-format = "[ $symbol$version ]($style)"
+symbol  = " "
+style   = "bg:green2 fg:ui_bg bold"
+format  = '[ $symbol$version ]($style)'
 
-[package]
-symbol = "󰏗 "
-style = "fg:#86e1fc bg:#2f334d"
+[python]
+pyenv_prefix  = "venv "
+python_binary = ["./venv/bin/python", "python", "python3", "python2"]  # local venv detected without activation
+symbol        = " "
+style         = "bg:green2 fg:ui_bg bold"
+format        = "[ $symbol$version(\\($virtualenv\\)) ]($style)"
 
 [ruby]
-symbol = " "
-style = "fg:#ff757f bg:#2f334d"
+symbol  = " "
+style   = "bg:green2 fg:ui_bg bold"
+format  = '[ $symbol$version ]($style)'
 
 [rust]
-symbol = "󱘗 "
-style = "fg:#ff966c bg:#2f334d"
+symbol  = "󱘗 "
+style   = "bg:green2 fg:ui_bg bold"
+format  = '[ $symbol$version ]($style)'
 
-# ── Shell level (line 2) ──────────────────────────────────────────────────────
+[terraform]
+symbol  = " "
+style   = "bg:green2 fg:ui_bg bold"
+format  = "[ $symbol$version:$workspace ]($style)"
+
+# ── Segment 6 · bg:teal ── package version (from manifest in cwd) ────────────────
+[package]
+symbol  = " "
+style   = "bg:teal fg:ui_bg bold"
+format  = "[ $symbol$version:$workspace ]($style)"
+
+# ── Segment 7 · bg:yellow / bg:orange ── last command duration · clock ───────────
+[cmd_duration]
+style   = "bg:yellow fg:ui_bg bold italic"
+format  = "[ 󱦟$duration ]($style)"
+
+[time]
+disabled    = false
+time_format = "%R"
+style       = "bg:orange fg:ui_bg bold italic"
+format      = '[  $time ]($style)'
+
+# ── Line 2 ── nesting depth · prompt character ───────────────────────────────────
 [shlvl]
-disabled = false
-repeat = true
-repeat_offset = 1
-symbol = "❯ "
-format = "[$symbol]($style)"
+disabled      = false
+repeat        = true
+repeat_offset = 1  # shows shlvl-1 symbols: silent at level 1, one ❯ at level 2, etc.
+symbol        = "❯"
+format        = "[$symbol](bold)"
 
-# ── Misc ──────────────────────────────────────────────────────────────────────
-[sudo]
-disabled = true
+# All color names used above resolve here
+[palettes.tokyonight_moon]
+
+# named accent colors and their tonal variants
+black     = "#1b1d2b"
+blue      = "#82aaff"
+blue0     = "#3e68d7"
+blue1     = "#65bcff"
+blue2     = "#0db9d7"
+blue5     = "#89ddff"
+blue6     = "#b4f9f8"
+blue7     = "#394b70"
+cyan      = "#86e1fc"
+green     = "#c3e88d"
+green1    = "#4fd6be"
+green2    = "#41a6b5"
+magenta   = "#c099ff"
+magenta2  = "#ff007c"
+orange    = "#ff966c"
+purple    = "#fca7ea"
+red       = "#ff757f"
+red1      = "#c53b53"
+teal      = "#4fd6be"
+yellow    = "#ffc777"
+
+# semantic roles: surfaces, borders, text, and status indicators
+ui_bg               = "#222436"
+ui_bg_dark          = "#1e2030"
+ui_bg_dark1         = "#191B29"
+ui_bg_float         = "#1e2030"
+ui_bg_highlight     = "#2f334d"
+ui_bg_popup         = "#1e2030"
+ui_bg_search        = "#3e68d7"
+ui_bg_sidebar       = "#1e2030"
+ui_bg_statusline    = "#1e2030"
+ui_bg_visual        = "#2d3f76"
+ui_border           = "#1b1d2b"
+ui_border_highlight = "#589ed7"
+ui_comment          = "#636da6"
+ui_dark3            = "#545c7e"
+ui_dark5            = "#737aa2"
+ui_error            = "#c53b53"
+ui_fg               = "#c8d3f5"
+ui_fg_dark          = "#828bb8"
+ui_fg_float         = "#c8d3f5"
+ui_fg_gutter        = "#3b4261"
+ui_fg_sidebar       = "#828bb8"
+ui_hint             = "#4fd6be"
+ui_info             = "#0db9d7"
+ui_terminal_black   = "#444a73"
+ui_todo             = "#82aaff"
+ui_warning          = "#ffc777"
+
+# ordered spectrum for cycle-coloring (brackets, indent guides, etc.)
+rainbow_periwinkle  = "#82aaff"
+rainbow_yellow      = "#ffc777"
+rainbow_lime        = "#c3e88d"
+rainbow_teal        = "#4fd6be"
+rainbow_violet      = "#c099ff"
+rainbow_purple      = "#fca7ea"
+rainbow_orange      = "#ff966c"
+rainbow_red         = "#ff757f"
+
+# diff hunk background tints
+diff_add    = "#2a4556"
+diff_change = "#252a3f"
+diff_delete = "#4b2a3d"
+diff_text   = "#394b70"
+
+# git gutter sign foregrounds
+git_add     = "#b8db87"
+git_change  = "#7ca1f2"
+git_delete  = "#e26a75"
+git_ignore  = "#545c7e"
+
+# ANSI 16-color palette (8 normal + 8 bright)
+term_black          = "#1b1d2b"
+term_black_bright   = "#444a73"
+term_blue           = "#82aaff"
+term_blue_bright    = "#9ab8ff"
+term_cyan           = "#86e1fc"
+term_cyan_bright    = "#b2ebff"
+term_green          = "#c3e88d"
+term_green_bright   = "#c7fb6d"
+term_magenta        = "#c099ff"
+term_magenta_bright = "#caabff"
+term_red            = "#ff757f"
+term_red_bright     = "#ff8d94"
+term_white          = "#828bb8"
+term_white_bright   = "#c8d3f5"
+term_yellow         = "#ffc777"
+term_yellow_bright  = "#ffd8ab"
