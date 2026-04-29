@@ -1,3 +1,7 @@
+## Color scheme
+include             Tokyo-Night-Moon.conf
+background_opacity  0.95
+
 ## Fonts
 {{ if eq .chezmoi.os "linux" -}}
 # Linux uses the plain "Nerd Font" variant at 12pt (HiDPI handled by compositor).
@@ -47,28 +51,20 @@ hide_window_decorations   yes
 {{ else if eq .chezmoi.os "darwin" -}}
 # macOS: keep the resize handle but hide the titlebar for a cleaner look.
 hide_window_decorations   titlebar-only
-{{ end -}}
+{{- end }}
 
 ## Tab bar
-tab_bar_edge        top
-tab_bar_style       powerline
-tab_powerline_style slanted
-# SSH detection: tab.active_exe is the LOCAL process (kitten/ssh), so it's reliable.
-# user@host comes from title — the remote shell must emit "user@host: path" via OSC 2
-# (e.g. a zsh precmd hook: print -Pn "\e]2;%n@%m: %~\a"). tab.active_wd gives the
-# remote CWD when using kitten ssh with shell integration, so the dirname is always right.
-tab_title_template "{fmt.fg.red}{bell_symbol}{activity_symbol}{fmt.fg.tab}{index}: {(title.split(':')[0] + ' ') if tab.active_exe in ('ssh', 'kitten') and ':' in title and '@' in title.split(':')[0] else ''}{tab.active_wd.split('/')[-1] or tab.active_wd or '~'}"
+tab_bar_edge  bottom
 
-## Color scheme
-background_opacity  0.95
-include             Tokyo-Night-Moon.conf
-# Override tab colors defined in Tokyo-Night-Moon.conf
-active_tab_background   #65bcff
-inactive_tab_background #394b70
-inactive_tab_foreground #737aa2
+# Rendering, title formatting, and SSH detection are handled by tab_bar.py.
+tab_bar_style custom
 
-## The color table
-#
+# tab_bar.py reads these via get_options() so editing here propagates there automatically.
+active_tab_background   #65bcff  # blue1      — bright active tab
+active_tab_foreground   #1e2030  # ui_bg_dark — dark fg for contrast on bright blue
+inactive_tab_background #394b70  # blue7      — muted inactive tab
+inactive_tab_foreground #737aa2  # ui_dark5
+tab_bar_background      #1e2030  # ui_bg_dark — bar strip background
 
 ## Advanced
 shell_integration no-cursor
