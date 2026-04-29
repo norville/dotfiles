@@ -195,20 +195,19 @@ format        = "[$symbol](bold)"
 
 # OS Symbols
 [os.symbols]
-Alpine        = ""
-Arch          = "󰣇"
-CachyOS       = "󰣇"
-Debian        = "󰣚"
-Fedora        = "󰣛"
-Linux         = "󰌽"
-Macos         = "󰀵"
-Manjaro       = ""
-openSUSE      = ""
-RaspberryPiOS = ""
-Raspbian      = ""
-RockyLinux    = ""
-Ubuntu        = "󰕈"
-Windows       = ""
+Alpine      = ""
+Arch        = "󰣇"
+CachyOS     = "󰣇"
+Debian      = "󰣚"
+Fedora      = "󰣛"
+Linux       = "󰌽"
+Macos       = "󰀵"
+Manjaro     = ""
+openSUSE    = ""
+Raspbian    = ""
+RockyLinux  = ""
+Ubuntu      = "󰕈"
+Windows     = ""
 
 # All color names used above resolve here
 [palettes.tokyonight_moon]
