@@ -53,10 +53,19 @@ hide_window_decorations   titlebar-only
 tab_bar_edge        top
 tab_bar_style       powerline
 tab_powerline_style slanted
+# SSH detection: tab.active_exe is the LOCAL process (kitten/ssh), so it's reliable.
+# user@host comes from title — the remote shell must emit "user@host: path" via OSC 2
+# (e.g. a zsh precmd hook: print -Pn "\e]2;%n@%m: %~\a"). tab.active_wd gives the
+# remote CWD when using kitten ssh with shell integration, so the dirname is always right.
+tab_title_template "{fmt.fg.red}{bell_symbol}{activity_symbol}{fmt.fg.tab}{index}: {(title.split(':')[0] + ' ') if tab.active_exe in ('ssh', 'kitten') and ':' in title and '@' in title.split(':')[0] else ''}{tab.active_wd.split('/')[-1] or tab.active_wd or '~'}"
 
 ## Color scheme
 background_opacity  0.95
 include             Tokyo-Night-Moon.conf
+# Override tab colors defined in Tokyo-Night-Moon.conf
+active_tab_background   #65bcff
+inactive_tab_background #394b70
+inactive_tab_foreground #737aa2
 
 ## The color table
 #
