@@ -50,22 +50,6 @@ disabled  = false
 style     = "bg:blue7 fg:ui_fg bold"
 format    = "[ $symbol ]($style)"
 
-[os.symbols]
-Alpine        = ""
-Arch          = "󰣇"
-CachyOS       = "󰣇"
-Debian        = "󰣚"
-Fedora        = "󰣛"
-Linux         = "󰌽"
-Macos         = "󰀵"
-Manjaro       = ""
-openSUSE      = ""
-RaspberryPiOS = ""
-Raspbian      = ""
-RockyLinux    = ""
-Ubuntu        = "󰕈"
-Windows       = ""
-
 [username]
 style_user  = "bg:blue7 fg:ui_fg bold"
 style_root  = "bg:blue7 fg:ui_warning bold"
@@ -82,7 +66,7 @@ read_only           = " 󰌾"
 truncation_length   = 5
 truncation_symbol   = "…/"
 truncate_to_repo    = true
-home_symbol         = " "
+home_symbol         = ""
 style               = "bg:term_white fg:ui_bg bold"
 format              = "[ $path$read_only ]($style)"
 
@@ -121,71 +105,71 @@ symbol = " "
 # ── Segment 5 · bg:green2 (teal-green) ── active language runtime versions ───────
 [c]
 symbol  = " "
-style   = "bg:green2 fg:ui_bg bold"
+style   = "bg:green2 fg:ui_bg bold italic"
 format  = '[ $symbol$version ]($style)'
 
 [conda]
 ignore_base = false  # default hides "base" env; keep it visible
 symbol      = " "
-style       = "bg:green2 fg:ui_bg bold"
+style       = "bg:green2 fg:ui_bg bold italic"
 format      = '[ $symbol$environment ]($style)'
 
 [container]
-style   = "bg:green2 fg:ui_bg bold"
+style   = "bg:green2 fg:ui_bg bold italic"
 format  = "[ $symbol\\[$name\\] ]($style)"
 
 [docker_context]
 #only_with_files = true  # commented out so context always shows, not just next to Dockerfiles
 symbol          = " "
-style           = "bg:green2 fg:ui_bg bold"
+style           = "bg:green2 fg:ui_bg bold italic"
 format          = "[ $symbol$context ]($style)"
 
 [golang]
 symbol  = "󰟓 "
-style   = "bg:green2 fg:ui_bg bold"
+style   = "bg:green2 fg:ui_bg bold italic"
 format  = '[ $symbol$version ]($style)'
 
 [java]
 symbol  = " "
-style   = "bg:green2 fg:ui_bg bold"
+style   = "bg:green2 fg:ui_bg bold italic"
 format  = '[ $symbol$version ]($style)'
 
 [lua]
 symbol  = " "
-style   = "bg:green2 fg:ui_bg bold"
+style   = "bg:green2 fg:ui_bg bold italic"
 format  = '[ $symbol$version ]($style)'
 
 [nodejs]
 symbol  = " "
-style   = "bg:green2 fg:ui_bg bold"
+style   = "bg:green2 fg:ui_bg bold italic"
 format  = '[ $symbol$version ]($style)'
 
 [python]
 pyenv_prefix  = "venv "
 python_binary = ["./venv/bin/python", "python", "python3", "python2"]  # local venv detected without activation
 symbol        = " "
-style         = "bg:green2 fg:ui_bg bold"
+style         = "bg:green2 fg:ui_bg bold italic"
 format        = "[ $symbol$version(\\($virtualenv\\)) ]($style)"
 
 [ruby]
 symbol  = " "
-style   = "bg:green2 fg:ui_bg bold"
+style   = "bg:green2 fg:ui_bg bold italic"
 format  = '[ $symbol$version ]($style)'
 
 [rust]
 symbol  = "󱘗 "
-style   = "bg:green2 fg:ui_bg bold"
+style   = "bg:green2 fg:ui_bg bold italic"
 format  = '[ $symbol$version ]($style)'
 
 [terraform]
 symbol  = " "
-style   = "bg:green2 fg:ui_bg bold"
+style   = "bg:green2 fg:ui_bg bold italic"
 format  = "[ $symbol$version:$workspace ]($style)"
 
 # ── Segment 6 · bg:teal ── package version (from manifest in cwd) ────────────────
 [package]
 symbol  = " "
-style   = "bg:teal fg:ui_bg bold"
+style   = "bg:teal fg:ui_bg bold italic"
 format  = "[ $symbol$version:$workspace ]($style)"
 
 # ── Segment 7 · bg:yellow / bg:orange ── last command duration · clock ───────────
@@ -206,6 +190,25 @@ repeat        = true
 repeat_offset = 1  # shows shlvl-1 symbols: silent at level 1, one ❯ at level 2, etc.
 symbol        = "❯"
 format        = "[$symbol](bold)"
+
+# ── Misc ───────────────────────────────────
+
+# OS Symbols
+[os.symbols]
+Alpine        = ""
+Arch          = "󰣇"
+CachyOS       = "󰣇"
+Debian        = "󰣚"
+Fedora        = "󰣛"
+Linux         = "󰌽"
+Macos         = "󰀵"
+Manjaro       = ""
+openSUSE      = ""
+RaspberryPiOS = ""
+Raspbian      = ""
+RockyLinux    = ""
+Ubuntu        = "󰕈"
+Windows       = ""
 
 # All color names used above resolve here
 [palettes.tokyonight_moon]
