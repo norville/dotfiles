@@ -74,6 +74,7 @@ export EZA_CONFIG_DIR="${XDG_CONFIG_HOME}/eza"
 # Starship: Cross-shell prompt written in Rust (https://starship.rs)
 export STARSHIP_CONFIG="${XDG_CONFIG_HOME}/starship/config.toml"
 
+{{ if eq .machine "workstation" -}}
 # -----------------------------------------------------------------------------
 # SSH Agent Configuration (1Password)
 # -----------------------------------------------------------------------------
@@ -81,15 +82,15 @@ export STARSHIP_CONFIG="${XDG_CONFIG_HOME}/starship/config.toml"
 # Supports both macOS and Linux socket locations
 # Documentation: https://developer.1password.com/docs/ssh/
 
-{{ if eq .chezmoi.os "darwin" -}}
+  {{ if eq .chezmoi.os "darwin" -}}
 # macOS: 1Password SSH agent socket location
 _onepassword_sock="${HOME}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
 
-{{ else if eq .chezmoi.os "linux" -}}
+  {{ else if eq .chezmoi.os "linux" -}}
 # Linux: 1Password SSH agent socket location
 _onepassword_sock="${HOME}/.1password/agent.sock"
 
-{{ end -}}
+  {{ end -}}
 
 # Only set SSH_AUTH_SOCK if the 1Password socket exists and is a valid socket
 if [[ -S "$_onepassword_sock" ]]; then
@@ -100,6 +101,8 @@ elif [[ -n "$SSH_AUTH_SOCK" ]] && [[ ! -S "$SSH_AUTH_SOCK" ]]; then
 fi
 
 unset _onepassword_sock
+
+{{- end }}
 
 # =============================================================================
 # ZSH CORE SETTINGS
