@@ -54,20 +54,17 @@ hide_window_decorations   titlebar-only
 {{- end }}
 
 ## Tab bar
-tab_bar_edge  bottom
-
-# Rendering, title formatting, and SSH detection are handled by tab_bar.py.
-tab_bar_style custom
-
-# tab_bar.py reads these via get_options() so editing here propagates there automatically.
+tab_bar_edge            bottom
+tab_bar_style           powerline
+tab_powerline_style     slanted
+tab_bar_background      #1e2030  # ui_bg_dark — bar strip background
 active_tab_background   #65bcff  # blue1      — bright active tab
 active_tab_foreground   #1e2030  # ui_bg_dark — dark fg for contrast on bright blue
 inactive_tab_background #394b70  # blue7      — muted inactive tab
 inactive_tab_foreground #737aa2  # ui_dark5
-tab_bar_background      #1e2030  # ui_bg_dark — bar strip background
 
 ## Advanced
-shell_integration no-cursor
+shell_integration no-cursor no-title
 
 ## OS specific tweaks
 #
