@@ -55,8 +55,10 @@ hide_window_decorations   titlebar-only
 
 ## Tab bar
 tab_bar_edge            bottom
-tab_bar_style           powerline
-tab_powerline_style     slanted
+tab_bar_min_tabs        1
+tab_bar_style           custom
+
+# tab_bar.py reads these via get_options() so editing here propagates automatically.
 tab_bar_background      #1e2030  # ui_bg_dark — bar strip background
 active_tab_background   #65bcff  # blue1      — bright active tab
 active_tab_foreground   #1e2030  # ui_bg_dark — dark fg for contrast on bright blue
