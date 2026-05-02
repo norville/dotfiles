@@ -45,13 +45,7 @@ remember_window_size      yes
 remember_window_position  yes
 window_margin_width       4
 window_padding_width      8
-{{ if eq .chezmoi.os "linux" -}}
-# Linux: remove window decorations entirely (tiling WMs handle this).
-hide_window_decorations   yes
-{{ else if eq .chezmoi.os "darwin" -}}
-# macOS: keep the resize handle but hide the titlebar for a cleaner look.
 hide_window_decorations   titlebar-only
-{{- end }}
 
 ## Tab bar
 tab_bar_min_tabs  1
