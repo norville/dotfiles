@@ -9,12 +9,12 @@ format = """
 $os\
 $username\
 $hostname\
-[](bg:term_white fg:blue7)\
+[](bg:blue fg:blue7)\
 $directory\
-[](bg:blue fg:term_white)\
+[](bg:blue0 fg:blue)\
 $git_branch\
 $git_commit\
-[](fg:blue)\
+[](fg:blue0)\
 $git_status\
 $fill\
 [](fg:green2)\
@@ -32,11 +32,9 @@ $rust\
 $terraform\
 [](bg:teal fg:green2)\
 $package\
-[](bg:yellow fg:teal)\
+[](bg:term_yellow_bright fg:teal)\
 $cmd_duration\
-[](bg:orange fg:yellow)\
-$time\
-[](fg:orange)\
+[](fg:term_yellow_bright)\
 $line_break\
 $line_break\
 [ ](fg:blue7 bold)\
@@ -67,20 +65,20 @@ truncation_length   = 5
 truncation_symbol   = "…/"
 truncate_to_repo    = true
 home_symbol         = ""
-style               = "bg:term_white fg:ui_bg bold"
+style               = "bg:blue fg:ui_bg bold"
 format              = "[ $path$read_only ]($style)"
 
 # ── Segment 3 · bg:blue (bright blue) ── git branch · commit hash/tag ───────────
 [git_branch]
 symbol  = " "
-style   = "bg:blue fg:ui_bg bold"
+style   = "bg:blue0 fg:ui_fg bold"
 format  = '[ $symbol$branch(:$remote_branch)]($style)'
 
 [git_commit]
 only_detached       = false  # show hash on normal branches too, not just detached HEAD
 tag_disabled        = false
 tag_max_candidates  = 1
-style               = "bg:blue fg:ui_bg bold"
+style               = "bg:blue0 fg:ui_fg bold"
 format              = "[@$hash$tag ]($style)"
 
 # ── Segment 4 · no bg (floating) ── git status indicators, each colored by state ─
