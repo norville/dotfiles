@@ -17,7 +17,8 @@
 - [x] 1password setup: removed dedicated script, reminder added to script 01
 - [x] chezmoiscripts: idempotency check
 - [x] starship: powerline slanted with moon colors
-- [ ] 1password: set socket in zshrc and agent in .ssg/config only on workstations
+- [x] 1password: set socket in zshrc and agent in .ssg/config only on workstations
+- [x] kitty: customize tab bar
 - [ ] optional packages: conda, golang, java, lua, nodejs, ruby, rust
 - [ ] zoxide: `zi` non working
 - [ ] automate macos configuration via 'defaults'

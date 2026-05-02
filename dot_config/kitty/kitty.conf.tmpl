@@ -54,19 +54,12 @@ hide_window_decorations   titlebar-only
 {{- end }}
 
 ## Tab bar
-tab_bar_edge            bottom
-tab_bar_min_tabs        1
-tab_bar_style           custom
-
-# tab_bar.py reads these via get_options() so editing here propagates automatically.
-tab_bar_background      #1e2030  # ui_bg_dark — bar strip background
-active_tab_background   #65bcff  # blue1      — bright active tab
-active_tab_foreground   #1e2030  # ui_bg_dark — dark fg for contrast on bright blue
-inactive_tab_background #394b70  # blue7      — muted inactive tab
-inactive_tab_foreground #737aa2  # ui_dark5
+tab_bar_min_tabs  1
+tab_bar_edge      bottom
+tab_bar_style     custom
 
 ## Advanced
-shell_integration no-cursor no-title
+shell_integration no-cursor
 
 ## OS specific tweaks
 #
@@ -96,3 +89,10 @@ shell_integration no-cursor no-title
 ## Miscellaneous
 # close ssh connections
 map ctrl+alt+super+k  close_shared_ssh_connections
+
+## Sessions
+# save window state to a session file
+map f1 save_as_session --use-foreground-process --base-dir ~/.config/kitty/sessions
+
+# Browse session files inside a directory and pick one
+map f4 goto_session ~/.local/share/kitty/sessions
