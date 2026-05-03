@@ -170,16 +170,10 @@ symbol  = " "
 style   = "bg:teal fg:ui_bg bold italic"
 format  = "[ $symbol$version:$workspace ]($style)"
 
-# ── Segment 7 · bg:yellow / bg:orange ── last command duration · clock ───────────
+# ── Segment 7 · bg:term_yellow_bright ── last command duration ───────────
 [cmd_duration]
-style   = "bg:yellow fg:ui_bg bold italic"
+style   = "bg:term_yellow_bright fg:ui_bg bold italic"
 format  = "[ 󱦟$duration ]($style)"
-
-[time]
-disabled    = false
-time_format = "%R"
-style       = "bg:orange fg:ui_bg bold italic"
-format      = '[  $time ]($style)'
 
 # ── Line 2 ── nesting depth · prompt character ───────────────────────────────────
 [shlvl]

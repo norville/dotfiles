@@ -19,6 +19,7 @@
 - [x] starship: powerline slanted with moon colors
 - [x] 1password: set socket in zshrc and agent in .ssg/config only on workstations
 - [x] kitty: customize tab bar
+- [ ] ubuntu: snaps install
 - [ ] optional packages: conda, golang, java, lua, nodejs, ruby, rust
 - [ ] zoxide: `zi` non working
 - [ ] automate macos configuration via 'defaults'
