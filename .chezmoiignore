@@ -61,5 +61,6 @@ TODO.md
 .ssh/norville_at_chikyu.pub
 .ssh/ansible_at_chikyu.pub
 .ssh/norville_at_github.pub
+.ssh/norville_at_codeberg.pub
 {{- end }}
 
