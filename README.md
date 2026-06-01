@@ -7,9 +7,9 @@ A comprehensive, cross-platform dotfiles management system using [Chezmoi](https
 - **Cross-Platform Support**: macOS, Debian, Ubuntu, Fedora, RHEL, Arch, and Manjaro
 - **Automated Bootstrap**: One-command installation script for fresh systems
 - **Package Management**: Automatic installation of essential development tools
-- **Shell Configuration**: Enhanced ZSH setup with Antigen plugin manager
+- **Shell Configuration**: Enhanced ZSH setup with Zinit plugin manager
 - **Modern CLI Tools**: eza, bat, fzf, ripgrep, neovim, and more
-- **Consistent Themes**: Tokyo Night color scheme across all applications
+- **Consistent Themes**: Tokyo Night Moon color scheme across all applications
 - **SSH Management**: Integrated 1Password SSH agent support
 - **Version Control**: Chezmoi-powered dotfile management with Git
 
@@ -69,7 +69,7 @@ chezmoi init --apply norville
 
 | File | Description |
 |------|-------------|
-| `chezmoi.toml.tmpl` | Chezmoi configuration with OS detection, template variables, and hooks |
+| `.chezmoi.toml.tmpl` | Chezmoi configuration with OS detection, template variables, and hooks |
 | `.chezmoiignore` | Files to exclude from installation based on OS/platform |
 | `.chezmoiexternal.toml.tmpl` | External resources (themes, fonts) to download and manage |
 
@@ -86,17 +86,17 @@ These scripts run automatically during `chezmoi apply`:
 
 | File | Description |
 |------|-------------|
-| `run_onchange_after_00-required-packages.sh.tmpl` | Installs essential packages (git, zsh, neovim, bat, eza, fzf, etc.) |
-| `run_onchange_after_01-optional-packages.sh.tmpl` | Prompts for optional packages (1Password, Docker, VS Code, Ansible) |
-| `run_onchange_after_02-env-setup.sh.tmpl` | Configures shell, themes, and application settings |
-| `run_after_update_env.sh.tmpl` | Updates packages and tools after `chezmoi update` |
+| `run_onchange_after_00-install-core.sh.tmpl` | Installs essential packages (git, zsh, neovim, bat, eza, fzf, etc.) |
+| `run_onchange_after_01-optional-packages.sh.tmpl` | Prompts for optional packages (1Password, Docker, Ansible) |
+| `run_onchange_after_02-install-vscode.sh.tmpl` | Prompts for and installs VS Code (workstation only) |
+| `run_onchange_after_05-env-setup.sh.tmpl` | Configures shell, themes, and application settings |
+| `run_after_10-env-update.sh.tmpl` | Updates packages and tools after `chezmoi update` |
 
-### Shell Configuration (`.config/zsh/`)
+### Shell Configuration (`.zsh/`)
 
 | File | Description |
 |------|-------------|
-| `.zshrc` | Main ZSH configuration with XDG compliance, Homebrew setup, and plugin loading |
-| `antigen.zsh` | Antigen plugin manager configuration with auto-installation |
+| `plugins.zsh` | Zinit plugin manager configuration and plugin list |
 | `aliases.zsh` | Shell aliases for modern CLI tools and convenience shortcuts |
 
 ### Application Configurations
@@ -104,10 +104,12 @@ These scripts run automatically during `chezmoi apply`:
 | Directory | Description |
 |-----------|-------------|
 | `.config/bat/` | Bat (syntax highlighter) configuration and themes |
+| `.config/btop/` | Btop (system monitor) configuration and theme |
 | `.config/eza/` | Eza (modern ls) color theme configuration |
-| `.config/btop/` | Btop (system monitor) theme configuration |
+| `.config/git/` | Git configuration with delta pager and Tokyo Night theme |
 | `.config/kitty/` | Kitty terminal emulator configuration |
-| `.config/nvim/` | Neovim editor configuration |
+| `.config/lazygit/` | Lazygit configuration with Tokyo Night theme |
+| `.config/nvim/` | Neovim configuration (LazyVim + Tokyo Night Moon) |
 | `.config/starship/` | Starship prompt configuration |
 | `.config/homebrew/` | Homebrew bundle file (macOS only) |
 
@@ -115,11 +117,11 @@ These scripts run automatically during `chezmoi apply`:
 
 ### Core Tools (All Systems)
 
-- **Shell**: ZSH with Antigen plugin manager
-- **Editor**: Neovim with modern configuration
-- **Terminal**: Kitty (GPU-accelerated)
+- **Shell**: ZSH with Zinit plugin manager
+- **Editor**: Neovim (workstation) / Vim (terminal machines)
+- **Terminal**: Kitty (GPU-accelerated, workstation only)
 - **Prompt**: Starship (cross-shell prompt)
-- **Version Control**: Git with enhanced configuration
+- **Version Control**: Git with delta pager and enhanced configuration
 
 ### Modern CLI Replacements
 
@@ -131,6 +133,7 @@ These scripts run automatically during `chezmoi apply`:
 | `grep` | `ripgrep` | Extremely fast recursive search |
 | `top` | `btop` | Beautiful system monitor |
 | `man` | `batman` | Man pages with syntax highlighting |
+| `cd` | `zoxide` | Frecency-based directory jumping |
 
 ### Development Tools
 
@@ -140,20 +143,35 @@ These scripts run automatically during `chezmoi apply`:
 
 ### Optional Tools (User Prompted)
 
-- **1Password**: Password manager with SSH agent
+- **1Password**: Password manager with SSH agent (workstation only)
 - **Docker**: Container platform
-- **Visual Studio Code**: Modern code editor
+- **Visual Studio Code**: Code editor (workstation only)
 - **Ansible**: IT automation platform
 
 ## 🎨 Themes & Appearance
 
 All applications use the **Tokyo Night Moon** color scheme for consistency:
 
+- Neovim (LazyVim + transparent background)
+- Kitty terminal
 - Bat syntax highlighting
 - Eza file listing colors
-- Btop system monitor theme
-- Terminal color schemes
-- Neovim editor theme
+- Btop system monitor
+- Starship prompt
+- Delta git diff pager
+- Lazygit
+- FZF
+
+## 🔑 SSH Keys
+
+SSH keys are managed via 1Password and deployed as templates. They are skipped during `chezmoi apply` when the `op` CLI is not installed:
+
+| Key | Host |
+|-----|------|
+| `norville_at_chikyu` | Personal machine |
+| `ansible_at_chikyu` | Ansible automation |
+| `norville_at_github` | GitHub |
+| `norville_at_codeberg` | Codeberg |
 
 ## 📦 Package Managers
 
@@ -165,6 +183,15 @@ The dotfiles automatically detect and use the appropriate package manager:
 | Debian/Ubuntu | APT + Snap |
 | Fedora/RHEL | DNF + Flatpak |
 | Arch/Manjaro | Pacman + AUR (yay) |
+
+## 🖥️ Machine Types
+
+Configurations are tailored per machine type, set during `chezmoi init`:
+
+| Type | Description |
+|------|-------------|
+| `workstation` | Full setup: Neovim, Kitty, lazygit, btop, 1Password, VS Code |
+| `terminal` | Minimal setup: Vim only, no GUI tools |
 
 ## 🔄 Updating
 
@@ -179,8 +206,8 @@ This will:
 2. Apply any configuration updates
 3. Run the environment update script
 4. Update system packages
-5. Update ZSH plugins
-6. Update Neovim plugins
+5. Update ZSH plugins via Zinit
+6. Update Neovim plugins via Lazy.nvim
 7. Rebuild application caches
 
 ### Update Only Dotfiles (No System Updates)
@@ -207,23 +234,10 @@ sudo pacman -Syu
 
 ## 🔧 Customization
 
-### Add Local Overrides
-
-Create local configuration files that won't be tracked:
-
-```bash
-# Local ZSH configuration
-touch ~/.zsh/aliases.local
-touch ~/.zsh_plugins.local
-
-# Local Chezmoi plugins
-touch ~/.chezmoiscripts/local/
-```
-
 ### Modify Configurations
 
 ```bash
-# Edit a managed file
+# Edit a managed file (opens in $EDITOR, applies on save)
 chezmoi edit ~/.zshrc
 
 # Apply changes
@@ -239,7 +253,7 @@ chezmoi add ~/.config/myapp/config.yml
 # Commit changes
 cd $(chezmoi source-path)
 git add .
-git commit -m "Add myapp configuration"
+git commit -m "feat: add myapp configuration"
 git push
 ```
 
@@ -263,29 +277,18 @@ chezmoi edit ~/.zshrc
 # Show managed files
 chezmoi managed
 
-# Remove a file from management
-chezmoi forget ~/.config/file
-
-# Re-add a file
-chezmoi re-add ~/.zshrc
+# Check for problems
+chezmoi doctor
+chezmoi verify
 ```
 
-### Helper Functions
-
-The dotfiles include custom helper functions:
+### Zinit Commands
 
 ```bash
-# Update all plugins and packages
-zsh-update-plugins
-
-# List loaded plugins
-zsh-list-plugins
-
-# Clean plugin cache
-zsh-clean-plugins
-
-# Edit plugin list
-zsh-edit-plugins
+zinit update --all    # Update all plugins and Zinit itself
+zinit self-update     # Update only Zinit
+zinit list            # List loaded plugins and snippets
+zinit times           # Show per-plugin load times (profiling)
 ```
 
 ## 🐛 Troubleshooting
@@ -312,14 +315,6 @@ chezmoi init --apply --force norville
 chezmoi verify
 ```
 
-### Plugin Issues
-
-```bash
-# Manually update plugins
-cd ~/.local/share/antigen && git pull
-antigen update
-```
-
 ### Font Issues (Linux)
 
 ```bash
@@ -330,25 +325,18 @@ fc-cache -fv
 fc-list | grep "JetBrainsMono Nerd Font"
 ```
 
-## 📄 License
-
-This repository is provided as-is for personal use. Feel free to fork and customize for your own needs.
-
-## 🤝 Contributing
-
-This is a personal dotfiles repository, but suggestions and improvements are welcome! Feel free to open an issue or submit a pull request.
-
 ## 🔗 Resources
 
 - [Chezmoi Documentation](https://www.chezmoi.io/)
-- [Antigen Plugin Manager](https://github.com/zsh-users/antigen)
+- [Zinit Plugin Manager](https://github.com/zdharma-continuum/zinit)
+- [LazyVim](https://www.lazyvim.org/)
 - [Starship Prompt](https://starship.rs/)
 - [Tokyo Night Theme](https://github.com/folke/tokyonight.nvim)
 
 ## ✨ Acknowledgments
 
 - Built with [Chezmoi](https://www.chezmoi.io/) for dotfile management
-- Powered by [Antigen](https://github.com/zsh-users/antigen) for ZSH plugins
+- Powered by [Zinit](https://github.com/zdharma-continuum/zinit) for ZSH plugins
 - Themed with [Tokyo Night](https://github.com/folke/tokyonight.nvim)
 - Inspired by the dotfiles community
 
@@ -356,4 +344,4 @@ This is a personal dotfiles repository, but suggestions and improvements are wel
 
 **Repository**: https://github.com/norville/dotfiles
 **Author**: Norville
-**Contact**: ing.norville@protonmail.com
+**Contact**: ing.norville@proton.me
