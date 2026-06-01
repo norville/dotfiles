@@ -50,6 +50,17 @@ TODO.md
 .config/btop/
 {{- end }}
 
+# niri and noctalia are manually installed; deploy only when the packages are present
+{{- if not (lookPath "niri") }}
+.config/niri/
+{{- end }}
+{{- if not (lookPath "qs") }}
+.config/noctalia/
+{{- end }}
+
+# Noctalia plugins are managed by Noctalia's plugin manager, not chezmoi
+.config/noctalia/plugins/
+
 # -----------------------------------------------------------------------------
 # 1Password-Managed SSH Keys
 # -----------------------------------------------------------------------------

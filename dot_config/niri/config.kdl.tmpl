@@ -1,0 +1,158 @@
+// ────────────── NIRI ──────────────
+
+{{ if lookPath "qs" -}}
+// ────────────── Noctalia Shell ──────────────
+// cfg/ files are owned and managed by Noctalia; only load them when qs is installed
+include "./cfg/animation.kdl"
+include "./cfg/autostart.kdl"
+include "./cfg/keybinds.kdl"
+include "./cfg/rules.kdl"
+include "./cfg/misc.kdl"
+
+{{ end -}}
+// ────────────── Input ──────────────
+input {
+    workspace-auto-back-and-forth
+    touchpad                      { off; }
+    trackpoint                    { off; }
+    mouse                         { natural-scroll; }
+    keyboard {
+        // 'us' layout + deadkeys for international characters
+        xkb {
+            layout  "us"
+            model   "pc105"
+            variant "altgr-intl"
+            options "eurosign:5"
+        }
+    }
+}
+
+// ────────────── Outputs ──────────────
+output "DP-1" {
+    // main display, right position, default orientation
+    focus-at-startup
+    mode              "2560x1440@59.951"
+    position          x=1080 y=0
+    layout {
+        default-column-width { proportion 0.5; }
+        preset-column-widths {
+            proportion 0.33333
+            proportion 0.5
+            proportion 0.66667
+            proportion 1.0
+        }
+        preset-window-heights {
+            proportion 0.5
+            proportion 1.0
+        }
+    }
+}
+
+output "HDMI-A-1" {
+    // secondary monitor, left position, vertical orientation
+    variable-refresh-rate
+    mode                  "1920x1080@60"
+    transform             "90"
+    position              x=0 y=0
+    layout {
+        default-column-width { proportion 1.0; }
+        preset-column-widths { proportion 1.0; }
+        preset-window-heights {
+            proportion 0.33333
+            proportion 0.5
+            proportion 0.66667
+            proportion 1.0
+        }
+    }
+}
+
+// ────────────── Gestures & Overview ──────────────
+gestures { hot-corners { off; }; }
+overview { workspace-shadow { off; }; }
+
+// ────────────── Layout ──────────────
+layout {
+{{- if lookPath "qs" }}
+    // noctalia-shell renders its wallpaper as a compositor layer;
+    // must be transparent or the wallpaper is hidden
+    background-color      "transparent"
+{{- end }}
+    center-focused-column "never"
+    gaps                  12
+    border                { off; }
+    focus-ring {
+        width           4
+        active-color    "#82aaff"
+        inactive-color  "#545c7e"
+    }
+}
+
+// ────────────── Window Rules ──────────────
+// Disable border background
+// https://niri-wm.github.io/niri/FAQ.html#why-are-transparent-windows-tinted-why-is-the-borderfocus-ring-showing-up-through-semitransparent-windows
+window-rule { draw-border-with-background false; }
+
+// Default terminal: Kitty
+window-rule {
+    match           app-id="kitty"
+    open-on-output  "DP-1"
+}
+
+// Default browser: Brave
+window-rule {
+    match           app-id="brave-browser"
+    open-on-output  "HDMI-A-1"
+}
+
+// 1Password: treat all windows as floating
+window-rule {
+    match           app-id="1password"
+    open-on-output  "DP-1"
+    open-floating   true
+    open-focused    true
+    shadow          { on; }
+}
+
+// ────────────── Startup Applications ──────────────
+// sleep 3: give the compositor and Noctalia shell time to fully initialize before opening clients
+spawn-sh-at-startup "sleep 3; kitty"
+spawn-sh-at-startup "sleep 3; brave"
+
+// ────────────── Keybindings ──────────────
+binds {
+
+    // Default terminal: Kitty
+    Mod+Return          { spawn "kitty"; }
+
+    // Default browser: Brave
+    Mod+B               { spawn "brave"; }
+{{- if lookPath "qs" }}
+
+    // Noctalia: show settings
+    Mod+Comma           { spawn-sh "qs -c noctalia-shell ipc call settings toggle"; }
+{{- end }}
+
+    // 1Password
+    Shift+Ctrl+Space    { spawn-sh "1password --quick-access"; }
+    Shift+Ctrl+L        { spawn-sh "1password --lock"; }
+    Shift+Ctrl+P        { spawn-sh "1password --toggle"; }
+
+    Mod+Shift+H         { focus-monitor-left; }
+    Mod+Shift+J         { focus-monitor-down; }
+    Mod+Shift+K         { focus-monitor-up; }
+    Mod+Shift+L         { focus-monitor-right; }
+
+    Mod+Shift+Ctrl+H    { move-column-to-monitor-left; }
+    Mod+Shift+Ctrl+J    { move-column-to-monitor-down; }
+    Mod+Shift+Ctrl+K    { move-column-to-monitor-up; }
+    Mod+Shift+Ctrl+L    { move-column-to-monitor-right; }
+
+    Mod+Page_Down       { focus-workspace-down; }
+    Mod+Page_Up         { focus-workspace-up; }
+    Mod+Ctrl+Page_Down  { move-column-to-workspace-down; }
+    Mod+Ctrl+Page_Up    { move-column-to-workspace-up; }
+
+    Mod+R               { switch-preset-column-width; }
+    Mod+Shift+R         { switch-preset-window-height; }
+
+}
