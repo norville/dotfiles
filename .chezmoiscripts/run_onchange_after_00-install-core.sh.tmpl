@@ -76,7 +76,6 @@ bdb_exec "Installing APT packages"    sudo apt-get install -y "${APT_PACKAGES[@]
 # Snap packages (Debian / Ubuntu)
 # -----------------------------------------------------------------------------
 # lazygit and nvim are absent from / outdated in the official apt repos;
-# fresh-editor has no .deb release — all three are distributed only via snap.
 # All packages in this list use --classic confinement; add non-classic snaps
 # to a separate install call to avoid a confinement mismatch error.
 SNAP_PACKAGES=(
@@ -126,14 +125,6 @@ sudo dnf copr enable -y awood/bat-extras   2>/dev/null || true  # bat-extras
 sudo dnf copr enable -y pennbauman/ports   2>/dev/null || true  # zoxide
 bdb_success "COPR repositories enabled"
 
-# Terra provides fresh-editor, which is absent from both Fedora repos and COPR.
-if ! rpm -q terra-release &>/dev/null; then
-  bdb_exec "Enabling Terra repository" sudo dnf install -y --nogpgcheck \
-    --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
-else
-  bdb_success "Terra repository already enabled"
-fi
-
 bdb_exec "Installing DNF packages" sudo dnf install -y "${DNF_PACKAGES[@]}"
 
     {{- /* ---------------------------------------------------------------- */ -}}
@@ -161,8 +152,6 @@ bdb_exec "Installing Pacman packages" sudo pacman -S --needed --noconfirm "${PAC
 # -----------------------------------------------------------------------------
 # AUR packages (Arch / Manjaro)
 # -----------------------------------------------------------------------------
-# bat-extras and fresh-editor-bin are only in the AUR. yay is used as the
-# helper because it wraps makepkg with a pacman-compatible interface.
 if ! bdb_test_cmd "yay"; then
   bdb_action "Installing yay (AUR helper)"
   # makepkg -si calls sudo pacman twice (deps, then install); refresh the

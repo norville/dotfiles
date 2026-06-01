@@ -1,7 +1,7 @@
 # =============================================================================
 # EditorConfig — https://editorconfig.org
 # =============================================================================
-# Global baseline. Applies to all editors (Vim, Neovim, VSCode, Fresh).
+# Global baseline. Applies to all editors (Vim, Neovim, VSCode).
 # Per-repo overrides can shadow individual sections by adding a closer
 # .editorconfig with root = true.
 #
@@ -159,8 +159,7 @@ indent_size = 2
 # -----------------------------------------------------------------------------
 # JSON
 # 2 spaces is the most common JSON convention and the default for most
-# formatters (Prettier, jq). Applies to all JSON files including lazyvim.json,
-# VSCode settings, package.json, and fresh/config.json.
+# formatters (Prettier, jq). Applies to all JSON files.
 # -----------------------------------------------------------------------------
 [*.json]
 indent_size = 2

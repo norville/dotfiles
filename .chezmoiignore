@@ -48,7 +48,6 @@ TODO.md
 .config/nvim/
 .config/lazygit/
 .config/btop/
-.config/fresh/
 {{- end }}
 
 # -----------------------------------------------------------------------------
