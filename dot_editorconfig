@@ -183,6 +183,20 @@ indent_size = 2
 indent_size = 2
 
 # -----------------------------------------------------------------------------
+# KDL
+# 2 spaces is the community default.
+# -----------------------------------------------------------------------------
+[*.kdl]
+indent_size = 2
+
+# -----------------------------------------------------------------------------
+# QML
+# 4 spaces is the community default.
+# -----------------------------------------------------------------------------
+[*.qml]
+indent_size = 4
+
+# -----------------------------------------------------------------------------
 # INI / Config / Properties
 # Catch-all for configuration files that use INI-style or key=value syntax.
 # Covers pip.ini, ansible.cfg, .editorconfig itself, and generic .conf/.config
@@ -192,6 +206,13 @@ indent_size = 2
 indent_size = 2
 [config]
 indent_size = 2
+
+# -----------------------------------------------------------------------------
+# Niri Config
+# Expects 4-spaces indentation
+# -----------------------------------------------------------------------------
+[~/.config/niri/config.kdl]
+indent_size = 4
 
 # -----------------------------------------------------------------------------
 # Makefile
