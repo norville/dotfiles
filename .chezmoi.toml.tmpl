@@ -88,6 +88,14 @@
 {{- end -}}
 
 {{- /* ========================================================================== */ -}}
+{{- /* Desktop Environment Detection                                              */ -}}
+{{- /* ========================================================================== */ -}}
+{{- /* Lowercased XDG_CURRENT_DESKTOP. Empty on headless systems or bare WMs.    */ -}}
+{{- /* Ubuntu sets "ubuntu:GNOME"; use contains "gnome" rather than eq.          */ -}}
+
+{{- $desktop := env "XDG_CURRENT_DESKTOP" | lower -}}
+
+{{- /* ========================================================================== */ -}}
 {{- /* User Configuration                                                         */ -}}
 {{- /* ========================================================================== */ -}}
 {{- /* Personal information used in templates (e.g., git config)                  */ -}}
@@ -125,6 +133,13 @@
     {{- $core = without $core "vim" -}}
 {{- end -}}
 
+{{- /* darkman + xdg-desktop-portal-gtk: GNOME Linux workstations only */ -}}
+{{- if and (eq $machine "workstation") (eq .chezmoi.os "linux") (contains "gnome" $desktop) -}}
+    {{- $pacman = append $pacman "darkman" "xdg-desktop-portal-gtk" -}}
+    {{- $apt    = append $apt    "darkman" "xdg-desktop-portal-gtk" -}}
+    {{- $dnf    = append $dnf    "darkman" "xdg-desktop-portal-gtk" -}}
+{{- end -}}
+
 {{- /* ========================================================================== */ -}}
 {{- /* Editor / Merge Commands                                                    */ -}}
 {{- /* ========================================================================== */ -}}
@@ -155,6 +170,9 @@
 
   # Machine identifier (e.g., "workstation", "terminal")
   machine = {{ $machine | quote }}
+
+  # Desktop environment (lowercased XDG_CURRENT_DESKTOP, e.g. "gnome", "kde", "")
+  desktop = {{ $desktop | quote }}
 
   # CPU architecture (e.g., "amd64", "arm64", "x86_64", "aarch64")
   cpuArch = {{ $cpuArch | quote }}

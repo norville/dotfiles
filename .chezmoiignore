@@ -58,6 +58,12 @@ TODO.md
 .config/btop/
 {{- end }}
 
+# darkman: GNOME Linux workstations only
+{{- if not (and (eq .machine "workstation") (eq .chezmoi.os "linux") (contains "gnome" (env "XDG_CURRENT_DESKTOP" | lower))) }}
+.config/darkman/
+.local/share/darkman/
+{{- end }}
+
 # niri and noctalia are manually installed; deploy only when the packages are present
 {{- if not (lookPath "niri") }}
 .config/niri/
