@@ -115,7 +115,7 @@
 {{- $snap    := list "lazygit" "nvim" -}}
 {{- $dnf     := list "@development-tools" "bat-extras" "fd-find" "gnupg2" "lazygit" "neovim" "python3-neovim" -}}
 {{- $formula := list "chezmoi" "coreutils" "fd" "findutils" "lazygit" "moreutils" "neovim" "tree-sitter-cli" -}}
-{{- $cask    := list "1password" "1password-cli" "brave-browser" "font-jetbrains-mono" "font-jetbrains-mono-nerd-font" "kitty" "logi-options-plus" "moom" "tor-browser" "visual-studio-code" "whatsapp" -}}
+{{- $cask    := list "1password" "1password-cli" "brave-browser" "font-jetbrains-mono" "font-jetbrains-mono-nerd-font" "kitty" "logi-options-plus" "moom" "tor-browser" "visual-studio-code" "whatsapp" "zed" -}}
 
 {{- /* kitty: Linux workstation only (macOS uses brewCasks) */ -}}
 {{- if and (ne $packageManager "brew") (eq $machine "workstation") -}}
@@ -138,6 +138,11 @@
     {{- $pacman = append $pacman "darkman" "xdg-desktop-portal-gtk" -}}
     {{- $apt    = append $apt    "darkman" "xdg-desktop-portal-gtk" -}}
     {{- $dnf    = append $dnf    "darkman" "xdg-desktop-portal-gtk" -}}
+{{- end -}}
+
+{{- /* zed: GUI editor — workstation only */ -}}
+{{- if eq $machine "workstation" -}}
+    {{- $pacman = append $pacman "zed" -}}
 {{- end -}}
 
 {{- /* ========================================================================== */ -}}

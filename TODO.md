@@ -1,7 +1,3 @@
-- [ ] track new tools:
-  - zed
-  - nautilus?
-  - systemd?
 - [ ] kitty: verify keybinds to save/load sessions
 - [ ] enable nvim on terminal machines
 - [ ] zoxide: `zi` non working

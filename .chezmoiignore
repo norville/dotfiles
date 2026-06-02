@@ -74,6 +74,11 @@ TODO.md
 .config/yazi/
 {{- end }}
 
+# zed: GUI editor — workstation only
+{{- if ne .machine "workstation" }}
+.config/zed/
+{{- end }}
+
 # niri and noctalia are manually installed; deploy only when the packages are present
 {{- if not (lookPath "niri") }}
 .config/niri/
