@@ -6,6 +6,7 @@
 # Target paths require root:
 #   /etc/sddm.conf
 #   /etc/sddm.conf.d/tokyonight-moon.conf
+#   /etc/sddm/Xsetup
 #   /usr/share/sddm/themes/tokyonight-moon/
 #
 # Changes take effect on the next SDDM start (reboot or manual restart).
@@ -20,6 +21,7 @@
 # metadata.desktop:       {{ include "sddm/themes/tokyonight-moon/metadata.desktop" | sha256sum }}
 # Main.qml:               {{ include "sddm/themes/tokyonight-moon/Main.qml" | sha256sum }}
 # LoginFormComponent.qml: {{ include "sddm/themes/tokyonight-moon/LoginFormComponent.qml" | sha256sum }}
+# Xsetup:                 {{ include "sddm/etc/sddm/Xsetup" | sha256sum }}
 # background.jpg:         {{ output "sha256sum" (joinPath .chezmoi.sourceDir "sddm/themes/tokyonight-moon/background.jpg") }}
 {{- if not (lookPath "sddm") }}
 exit 0
@@ -64,6 +66,14 @@ SDDM_EOF
 SDDM_EOF
     sudo chmod 644 /etc/sddm.conf.d/tokyonight-moon.conf
     bdb_success "Written /etc/sddm.conf.d/tokyonight-moon.conf"
+
+    bdb_action "Writing /etc/sddm/Xsetup"
+    sudo mkdir -p /etc/sddm
+    sudo tee /etc/sddm/Xsetup > /dev/null << 'SDDM_EOF'
+{{ include "sddm/etc/sddm/Xsetup" -}}
+SDDM_EOF
+    sudo chmod 755 /etc/sddm/Xsetup
+    bdb_success "Written /etc/sddm/Xsetup"
 
 bdb_end_section
 

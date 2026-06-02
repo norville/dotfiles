@@ -1,0 +1,5 @@
+#!/bin/sh
+# /etc/sddm/Xsetup — run as root before the SDDM greeter appears
+# minato: BenQ PD2705Q (DisplayPort-0, landscape) + Philips 272V8 (HDMI-A-0, portrait left)
+xrandr --output DisplayPort-0 --mode 2560x1440 --rotate normal --pos 1080x0 \
+       --output HDMI-A-0      --mode 1920x1080 --rotate left   --pos 0x0
