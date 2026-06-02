@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Chezmoi Script: Install SDDM Configuration and Theme
+# =============================================================================
+# Deploys the Tokyo Night Moon SDDM theme and system-level SDDM configuration.
+# Target paths require root:
+#   /etc/sddm.conf
+#   /etc/sddm.conf.d/tokyonight-moon.conf
+#   /usr/share/sddm/themes/tokyonight-moon/
+#
+# Changes take effect on the next SDDM start (reboot or manual restart).
+# This script does NOT restart SDDM automatically to avoid killing the session.
+#
+# Execution: chezmoi apply (only when this file's content changes)
+# Location:  .chezmoiscripts/run_onchange_after_06-sddm.sh.tmpl
+# =============================================================================
+# Managed file checksums — changes here trigger a re-run:
+# sddm.conf:              {{ include "sddm/etc/sddm.conf" | sha256sum }}
+# tokyonight-moon.conf:   {{ include "sddm/etc/sddm.conf.d/tokyonight-moon.conf" | sha256sum }}
+# metadata.desktop:       {{ include "sddm/themes/tokyonight-moon/metadata.desktop" | sha256sum }}
+# Main.qml:               {{ include "sddm/themes/tokyonight-moon/Main.qml" | sha256sum }}
+# LoginFormComponent.qml: {{ include "sddm/themes/tokyonight-moon/LoginFormComponent.qml" | sha256sum }}
+# background.jpg:         {{ output "sha256sum" (joinPath .chezmoi.sourceDir "sddm/themes/tokyonight-moon/background.jpg") }}
+{{- if not (lookPath "sddm") }}
+exit 0
+{{- end }}
+
+source "${HELPERS}"
+
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl)"
+SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/$(date +%Y%m%d_%H%M%S)_${SCRIPT_NAME}.log"
+mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
+bdb_init_logging "${SCRIPT_LOG_FILE}"
+
+_bdb_log "========================================="
+_bdb_log "Script: ${SCRIPT_NAME}"
+_bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
+_bdb_log "========================================="
+
+set -euo pipefail
+trap 'bdb_handle_error' ERR
+trap 'bdb_cleanup' EXIT
+
+SOURCE_DIR="{{ .chezmoi.sourceDir }}"
+THEME_DIR="/usr/share/sddm/themes/tokyonight-moon"
+
+# =============================================================================
+# SDDM SYSTEM CONFIGURATION
+# =============================================================================
+
+bdb_begin_section "Installing SDDM configuration"
+
+    bdb_action "Writing /etc/sddm.conf"
+    sudo tee /etc/sddm.conf > /dev/null << 'SDDM_EOF'
+{{ include "sddm/etc/sddm.conf" -}}
+SDDM_EOF
+    sudo chmod 644 /etc/sddm.conf
+    bdb_success "Written /etc/sddm.conf"
+
+    bdb_action "Writing /etc/sddm.conf.d/tokyonight-moon.conf"
+    sudo mkdir -p /etc/sddm.conf.d
+    sudo tee /etc/sddm.conf.d/tokyonight-moon.conf > /dev/null << 'SDDM_EOF'
+{{ include "sddm/etc/sddm.conf.d/tokyonight-moon.conf" -}}
+SDDM_EOF
+    sudo chmod 644 /etc/sddm.conf.d/tokyonight-moon.conf
+    bdb_success "Written /etc/sddm.conf.d/tokyonight-moon.conf"
+
+bdb_end_section
+
+# =============================================================================
+# SDDM THEME
+# =============================================================================
+
+bdb_begin_section "Installing Tokyo Night Moon SDDM theme"
+
+    bdb_action "Creating theme directory"
+    sudo mkdir -p "${THEME_DIR}"
+    sudo chmod 755 "${THEME_DIR}"
+    bdb_success "Created ${THEME_DIR}"
+
+    bdb_action "Writing metadata.desktop"
+    sudo tee "${THEME_DIR}/metadata.desktop" > /dev/null << 'SDDM_EOF'
+{{ include "sddm/themes/tokyonight-moon/metadata.desktop" -}}
+SDDM_EOF
+    sudo chmod 644 "${THEME_DIR}/metadata.desktop"
+
+    bdb_action "Writing Main.qml"
+    sudo tee "${THEME_DIR}/Main.qml" > /dev/null << 'SDDM_EOF'
+{{ include "sddm/themes/tokyonight-moon/Main.qml" -}}
+SDDM_EOF
+    sudo chmod 644 "${THEME_DIR}/Main.qml"
+
+    bdb_action "Writing LoginFormComponent.qml"
+    sudo tee "${THEME_DIR}/LoginFormComponent.qml" > /dev/null << 'SDDM_EOF'
+{{ include "sddm/themes/tokyonight-moon/LoginFormComponent.qml" -}}
+SDDM_EOF
+    sudo chmod 644 "${THEME_DIR}/LoginFormComponent.qml"
+
+    bdb_action "Copying background.jpg"
+    sudo cp "${SOURCE_DIR}/sddm/themes/tokyonight-moon/background.jpg" "${THEME_DIR}/background.jpg"
+    sudo chmod 644 "${THEME_DIR}/background.jpg"
+    bdb_success "Theme files installed to ${THEME_DIR}"
+
+bdb_end_section
+
+bdb_warn "SDDM changes take effect on the next login (restart SDDM or reboot to apply now)"

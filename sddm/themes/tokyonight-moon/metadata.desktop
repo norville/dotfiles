@@ -1,0 +1,8 @@
+[SddmGreeterTheme]
+Name=tokyonight-moon
+Description=Tokyo Night Moon greeter theme for SDDM
+Author=marco
+Version=1.0
+License=MIT
+Type=sddm-theme
+MainScript=Main.qml

@@ -1,5 +1,11 @@
-- [ ] optional packages: conda, golang, java, lua, nodejs, ruby, rust
+- [ ] track new tools:
+  - yay
+  - yazi
+  - zed
+  - nautilus?
+  - systemd?
+- [ ] kitty: verify keybinds to save/load sessions
 - [ ] zoxide: `zi` non working
+- [ ] optional packages: conda, golang, java, lua, nodejs, ruby, rust
 - [ ] automate macos configuration via 'defaults'
 - [ ] test usage of ansible over bdb
-- [ ] kitty: verify keybinds to save/load sessions

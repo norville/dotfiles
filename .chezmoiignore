@@ -8,6 +8,14 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
+# Source-Only Directories (Never Install)
+# -----------------------------------------------------------------------------
+# sddm/ holds system-level SDDM config and theme source files.
+# They are deployed to /etc/ and /usr/share/ by run_onchange_after_06-sddm.sh,
+# not to the home directory.
+sddm/
+
+# -----------------------------------------------------------------------------
 # Claude Code Files (Never Install)
 # -----------------------------------------------------------------------------
 .gitignore
