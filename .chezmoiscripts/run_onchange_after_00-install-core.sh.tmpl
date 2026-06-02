@@ -170,7 +170,7 @@ AUR_PACKAGES=(
   "{{ . }}"
   {{- end }}
 )
-bdb_exec "Installing AUR packages" yay -S --noconfirm "${AUR_PACKAGES[@]}"
+bdb_exec "Installing AUR packages" yay -S --needed --noconfirm "${AUR_PACKAGES[@]}"
         {{- end }}
 
     {{- end }}

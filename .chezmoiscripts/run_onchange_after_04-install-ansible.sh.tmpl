@@ -30,6 +30,12 @@ trap 'bdb_cleanup' EXIT
 
 bdb_begin_section "Ansible Installation"
 
+if bdb_has_cmd "ansible"; then
+  bdb_success "Ansible already installed"
+  bdb_end_section
+  exit 0
+fi
+
 if ! bdb_ask "Do you want to install Ansible"; then
   bdb_warn "Skipping Ansible installation"
   bdb_end_section

@@ -36,6 +36,12 @@ bdb_end_section
 exit 0
 {{- end }}
 
+if bdb_has_cmd "code"; then
+  bdb_success "Visual Studio Code already installed"
+  bdb_end_section
+  exit 0
+fi
+
 if ! bdb_ask "Do you want to install Visual Studio Code"; then
   bdb_warn "Skipping Visual Studio Code installation"
   bdb_end_section
@@ -88,7 +94,7 @@ bdb_exec "Installing VS Code" sudo dnf install -y code
 bdb_success "Visual Studio Code installed"
 
   {{- else if eq .packageManager "pacman" }}
-bdb_exec "Installing Visual Studio Code (Arch/Manjaro)" yay -S --noconfirm visual-studio-code-bin
+bdb_exec "Installing Visual Studio Code (Arch/Manjaro)" yay -S --needed --noconfirm visual-studio-code-bin
 bdb_success "Visual Studio Code installed"
 
   {{- end }}

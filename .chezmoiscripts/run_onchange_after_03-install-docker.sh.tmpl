@@ -30,6 +30,12 @@ trap 'bdb_cleanup' EXIT
 
 bdb_begin_section "Docker Installation"
 
+if bdb_has_cmd "docker"; then
+  bdb_success "Docker already installed"
+  bdb_end_section
+  exit 0
+fi
+
 if ! bdb_ask "Do you want to install Docker"; then
   bdb_warn "Skipping Docker installation"
   bdb_end_section
@@ -116,7 +122,13 @@ bdb_exec "Removing old Docker versions" sudo dnf remove -y \
   docker-engine-selinux docker-engine 2>/dev/null || true
 
 bdb_exec "Installing DNF plugins" sudo dnf -y install dnf-plugins-core
-bdb_exec "Adding Docker repository" sudo dnf-3 config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+
+if [[ ! -f /etc/yum.repos.d/docker-ce.repo ]]; then
+  bdb_exec "Adding Docker repository" sudo dnf-3 config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+else
+  bdb_success "Docker repository already configured"
+fi
+
 bdb_exec "Installing Docker" sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 bdb_exec "Starting Docker service" sudo systemctl start docker
