@@ -43,6 +43,14 @@ if ! bdb_has_cmd "darkman"; then
     exit 0
 fi
 
+# Idempotency check: skip prompt and enable if already enabled and active.
+if systemctl --user is-enabled darkman.service &>/dev/null \
+   && systemctl --user is-active darkman.service &>/dev/null; then
+    bdb_success "darkman.service is already enabled and running"
+    bdb_end_section
+    exit 0
+fi
+
 bdb_ask "Enable and start darkman.service?" || { bdb_warn "Skipped by user"; bdb_end_section; exit 0; }
 
 bdb_exec "Enabling darkman.service" systemctl --user enable --now darkman.service
