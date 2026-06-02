@@ -1,10 +1,10 @@
 - [ ] track new tools:
-  - yay
   - yazi
   - zed
   - nautilus?
   - systemd?
 - [ ] kitty: verify keybinds to save/load sessions
+- [ ] enable nvim on terminal machines
 - [ ] zoxide: `zi` non working
 - [ ] optional packages: conda, golang, java, lua, nodejs, ruby, rust
 - [ ] automate macos configuration via 'defaults'

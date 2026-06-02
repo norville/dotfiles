@@ -64,6 +64,11 @@ TODO.md
 .local/share/darkman/
 {{- end }}
 
+# yay: AUR helper — pacman-based systems only (Arch, CachyOS, Manjaro)
+{{- if ne .packageManager "pacman" }}
+.config/yay/
+{{- end }}
+
 # niri and noctalia are manually installed; deploy only when the packages are present
 {{- if not (lookPath "niri") }}
 .config/niri/
