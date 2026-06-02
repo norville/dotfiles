@@ -41,12 +41,64 @@ _bdb_log "========================================="
 
 set -euo pipefail
 trap 'bdb_handle_error' ERR
-trap 'bdb_cleanup' EXIT
-
-bdb_ask "Install SDDM configuration and theme?" || { bdb_warn "Skipped by user"; exit 0; }
 
 SOURCE_DIR="{{ .chezmoi.sourceDir }}"
 THEME_DIR="/usr/share/sddm/themes/tokyonight-moon"
+
+# =============================================================================
+# WRITE EXPECTED CONTENT TO TEMP DIRECTORY
+# =============================================================================
+# Content is embedded once here — used for both the idempotency check below
+# and deployment. This avoids duplicating template includes.
+
+_TMP=$(mktemp -d)
+trap 'rm -rf "$_TMP"; bdb_cleanup' EXIT
+
+cat > "$_TMP/sddm.conf" << 'SDDM_EOF'
+{{ include "sddm/etc/sddm.conf" -}}
+SDDM_EOF
+
+cat > "$_TMP/tokyonight-moon.conf" << 'SDDM_EOF'
+{{ include "sddm/etc/sddm.conf.d/tokyonight-moon.conf" -}}
+SDDM_EOF
+
+cat > "$_TMP/Xsetup" << 'SDDM_EOF'
+{{ include "sddm/etc/sddm/Xsetup" -}}
+SDDM_EOF
+
+cat > "$_TMP/metadata.desktop" << 'SDDM_EOF'
+{{ include "sddm/themes/tokyonight-moon/metadata.desktop" -}}
+SDDM_EOF
+
+cat > "$_TMP/Main.qml" << 'SDDM_EOF'
+{{ include "sddm/themes/tokyonight-moon/Main.qml" -}}
+SDDM_EOF
+
+cat > "$_TMP/LoginFormComponent.qml" << 'SDDM_EOF'
+{{ include "sddm/themes/tokyonight-moon/LoginFormComponent.qml" -}}
+SDDM_EOF
+
+cp "${SOURCE_DIR}/sddm/themes/tokyonight-moon/background.jpg" "$_TMP/background.jpg"
+
+# =============================================================================
+# IDEMPOTENCY CHECK
+# =============================================================================
+# All target files are world-readable (644/755), so no sudo needed here.
+# cmp -s exits 0 only when files exist and are byte-identical.
+# If everything already matches, exit silently without prompting.
+
+if    cmp -s "$_TMP/sddm.conf"              /etc/sddm.conf                               2>/dev/null \
+   && cmp -s "$_TMP/tokyonight-moon.conf"   /etc/sddm.conf.d/tokyonight-moon.conf        2>/dev/null \
+   && cmp -s "$_TMP/Xsetup"                 /etc/sddm/Xsetup                             2>/dev/null \
+   && cmp -s "$_TMP/metadata.desktop"       "${THEME_DIR}/metadata.desktop"              2>/dev/null \
+   && cmp -s "$_TMP/Main.qml"               "${THEME_DIR}/Main.qml"                      2>/dev/null \
+   && cmp -s "$_TMP/LoginFormComponent.qml" "${THEME_DIR}/LoginFormComponent.qml"        2>/dev/null \
+   && cmp -s "$_TMP/background.jpg"         "${THEME_DIR}/background.jpg"                2>/dev/null; then
+    bdb_success "SDDM configuration and theme are already up to date"
+    exit 0
+fi
+
+bdb_ask "Install SDDM configuration and theme?" || { bdb_warn "Skipped by user"; exit 0; }
 
 # =============================================================================
 # SDDM SYSTEM CONFIGURATION
@@ -55,26 +107,17 @@ THEME_DIR="/usr/share/sddm/themes/tokyonight-moon"
 bdb_begin_section "Installing SDDM configuration"
 
     bdb_action "Writing /etc/sddm.conf"
-    sudo tee /etc/sddm.conf > /dev/null << 'SDDM_EOF'
-{{ include "sddm/etc/sddm.conf" -}}
-SDDM_EOF
-    sudo chmod 644 /etc/sddm.conf
+    sudo install -m 644 "$_TMP/sddm.conf" /etc/sddm.conf
     bdb_success "Written /etc/sddm.conf"
 
     bdb_action "Writing /etc/sddm.conf.d/tokyonight-moon.conf"
     sudo mkdir -p /etc/sddm.conf.d
-    sudo tee /etc/sddm.conf.d/tokyonight-moon.conf > /dev/null << 'SDDM_EOF'
-{{ include "sddm/etc/sddm.conf.d/tokyonight-moon.conf" -}}
-SDDM_EOF
-    sudo chmod 644 /etc/sddm.conf.d/tokyonight-moon.conf
+    sudo install -m 644 "$_TMP/tokyonight-moon.conf" /etc/sddm.conf.d/tokyonight-moon.conf
     bdb_success "Written /etc/sddm.conf.d/tokyonight-moon.conf"
 
     bdb_action "Writing /etc/sddm/Xsetup"
     sudo mkdir -p /etc/sddm
-    sudo tee /etc/sddm/Xsetup > /dev/null << 'SDDM_EOF'
-{{ include "sddm/etc/sddm/Xsetup" -}}
-SDDM_EOF
-    sudo chmod 755 /etc/sddm/Xsetup
+    sudo install -m 755 "$_TMP/Xsetup" /etc/sddm/Xsetup
     bdb_success "Written /etc/sddm/Xsetup"
 
 bdb_end_section
@@ -86,31 +129,14 @@ bdb_end_section
 bdb_begin_section "Installing Tokyo Night Moon SDDM theme"
 
     bdb_action "Creating theme directory"
-    sudo mkdir -p "${THEME_DIR}"
-    sudo chmod 755 "${THEME_DIR}"
+    sudo install -d -m 755 "${THEME_DIR}"
     bdb_success "Created ${THEME_DIR}"
 
-    bdb_action "Writing metadata.desktop"
-    sudo tee "${THEME_DIR}/metadata.desktop" > /dev/null << 'SDDM_EOF'
-{{ include "sddm/themes/tokyonight-moon/metadata.desktop" -}}
-SDDM_EOF
-    sudo chmod 644 "${THEME_DIR}/metadata.desktop"
-
-    bdb_action "Writing Main.qml"
-    sudo tee "${THEME_DIR}/Main.qml" > /dev/null << 'SDDM_EOF'
-{{ include "sddm/themes/tokyonight-moon/Main.qml" -}}
-SDDM_EOF
-    sudo chmod 644 "${THEME_DIR}/Main.qml"
-
-    bdb_action "Writing LoginFormComponent.qml"
-    sudo tee "${THEME_DIR}/LoginFormComponent.qml" > /dev/null << 'SDDM_EOF'
-{{ include "sddm/themes/tokyonight-moon/LoginFormComponent.qml" -}}
-SDDM_EOF
-    sudo chmod 644 "${THEME_DIR}/LoginFormComponent.qml"
-
-    bdb_action "Copying background.jpg"
-    sudo cp "${SOURCE_DIR}/sddm/themes/tokyonight-moon/background.jpg" "${THEME_DIR}/background.jpg"
-    sudo chmod 644 "${THEME_DIR}/background.jpg"
+    bdb_action "Writing theme files"
+    sudo install -m 644 "$_TMP/metadata.desktop"       "${THEME_DIR}/metadata.desktop"
+    sudo install -m 644 "$_TMP/Main.qml"               "${THEME_DIR}/Main.qml"
+    sudo install -m 644 "$_TMP/LoginFormComponent.qml" "${THEME_DIR}/LoginFormComponent.qml"
+    sudo install -m 644 "$_TMP/background.jpg"         "${THEME_DIR}/background.jpg"
     bdb_success "Theme files installed to ${THEME_DIR}"
 
 bdb_end_section
