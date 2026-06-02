@@ -55,12 +55,6 @@ tab_bar_style     custom
 ## Advanced
 shell_integration no-cursor
 
-## Remote control
-# socket-only: kitty @ commands work from child processes (e.g. load-session.sh)
-# but the socket is not exposed over TCP. listen_on creates a per-instance socket.
-allow_remote_control  socket-only
-listen_on             unix:/tmp/kitty-{kitty_pid}
-
 ## OS specific tweaks
 #
 
@@ -94,5 +88,6 @@ map ctrl+alt+super+k  close_shared_ssh_connections
 # save window state to a session file; prompts for name, default dir: ~/.config/kitty/sessions/
 map f1 save_as_session --use-foreground-process --base-dir ~/.config/kitty/sessions
 
-# fzf picker — opens the selected session in a new tab (not a new OS window)
-map f4 launch --type=overlay bash ~/.config/kitty/load-session.sh
+# pick a session from ~/.config/kitty/sessions/ and open it in a new tab
+# (goto_session focuses an already-open session or creates a new tab from the file)
+map f4 goto_session ~/.config/kitty/sessions
