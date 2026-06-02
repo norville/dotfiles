@@ -7,20 +7,43 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  // ── Appearance ───────────────────────────────────────────────────────────────
   "buffer_font_family": "JetBrains Mono",
-  "session": {
-    "trust_all_worktrees": true
-  },
-  "telemetry": {
-    "diagnostics": false,
-    "metrics": false
-  },
-  "vim_mode": true,
   "ui_font_size": 16,
   "buffer_font_size": 15,
   "theme": {
     "mode": "system",
     "light": "Tokyo Night Day",
     "dark": "Tokyo Night Moon",
+  },
+
+  // ── Editor behaviour (mirrors nvim / LazyVim defaults) ────────────────────────
+  "vim_mode": true,
+
+  // Defer indent style, size, charset, and trailing-whitespace to ~/.editorconfig.
+  // Mirrors vim.g.editorconfig = true in nvim/lua/config/options.lua.
+  "use_editorconfig": true,
+
+  // Format on save: off — run formatters manually, same as vim.g.autoformat = false.
+  "format_on_save": "off",
+
+  // Show both absolute and relative line numbers (matches LazyVim: number + relativenumber).
+  "relative_line_numbers": true,
+
+  // Keep 8 lines of context above/below the cursor (matches LazyVim: scrolloff = 8).
+  "vertical_scroll_margin": 8,
+
+  // No soft wrap (matches nvim default: wrap = false).
+  "soft_wrap": "none",
+
+  // ── Privacy ───────────────────────────────────────────────────────────────────
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false,
+  },
+
+  // ── Session ───────────────────────────────────────────────────────────────────
+  "session": {
+    "trust_all_worktrees": true,
   },
 }
