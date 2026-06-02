@@ -34,6 +34,19 @@
   executable = false
 
 {{- /* -------------------------------------------------------------------- */ -}}
+{{- /* Workstation-only themes                                               */ -}}
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- if eq .machine "workstation" }}
+# Tokyo Night theme for Zed (workstation only)
+# Provides: Tokyo Night, Tokyo Night Light, Tokyo Night Storm, Tokyo Night Moon
+[".config/zed/themes/tokyo-night.json"]
+  type = "file"
+  url = "https://raw.githubusercontent.com/ssaunderss/zed-tokyo-night/main/themes/tokyo-night.json"
+  refreshPeriod = "720h"
+  executable = false
+{{- end }}
+
+{{- /* -------------------------------------------------------------------- */ -}}
 {{- /* Linux-specific external resources                                    */ -}}
 {{- /* -------------------------------------------------------------------- */ -}}
 {{- if eq .chezmoi.os "linux" }}
