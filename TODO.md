@@ -1,5 +1,4 @@
 - [ ] track new tools:
-  - yazi
   - zed
   - nautilus?
   - systemd?

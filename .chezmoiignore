@@ -69,6 +69,11 @@ TODO.md
 .config/yay/
 {{- end }}
 
+# yazi: workstation only — image preview requires Kitty's graphics protocol
+{{- if ne .machine "workstation" }}
+.config/yazi/
+{{- end }}
+
 # niri and noctalia are manually installed; deploy only when the packages are present
 {{- if not (lookPath "niri") }}
 .config/niri/
