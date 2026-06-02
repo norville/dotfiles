@@ -43,6 +43,9 @@ set -euo pipefail
 trap 'bdb_handle_error' ERR
 trap 'bdb_cleanup' EXIT
 
+read -r -p "Install SDDM configuration and theme? [y/N] " _reply
+[[ "${_reply}" =~ ^[Yy]$ ]] || { bdb_warn "Skipped by user"; exit 0; }
+
 SOURCE_DIR="{{ .chezmoi.sourceDir }}"
 THEME_DIR="/usr/share/sddm/themes/tokyonight-moon"
 
