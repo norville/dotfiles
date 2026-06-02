@@ -79,6 +79,9 @@ TODO.md
 .config/zed/
 {{- end }}
 
+# kitty session files are runtime artefacts — never track them
+.config/kitty/sessions/*.kitty-session
+
 # niri and noctalia are manually installed; deploy only when the packages are present
 {{- if not (lookPath "niri") }}
 .config/niri/
