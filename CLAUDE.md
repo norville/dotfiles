@@ -20,6 +20,7 @@ Targets macOS, Debian/Ubuntu, Fedora/RHEL, and Arch/Manjaro.
 |--------------------------|---------|
 | `dot_` | Deployed with a leading `.` (e.g. `dot_zshrc` → `~/.zshrc`) |
 | `private_` | Deployed with `chmod 600` |
+| `executable_` | Deployed with execute bit set |
 | `.tmpl` | Go template — variables substituted at apply time |
 | `run_onchange_after_NN-` | Script that runs when its content changes, after file application |
 | `run_after_NN-` | Script that runs after every `chezmoi update` |
@@ -36,27 +37,43 @@ dotfiles/
 ├── .chezmoi.toml.tmpl          # Main chezmoi config; defines template variables
 ├── .chezmoiexternal.toml.tmpl  # External assets (fonts, themes)
 ├── .chezmoiignore              # OS/platform/machine exclusions
-├── CLAUDE.md                   # This file — not deployed
+├── CLAUDE.md                   # This file — not deployed, gitignored (git add -f)
 ├── ARCHITECTURE.md             # System architecture — not deployed
 ├── README.md                   # User docs — not deployed
 ├── TODO.md                     # Open tasks — not deployed
+├── sddm/                       # SDDM source files — source-only, never deployed to ~/
+│   ├── etc/sddm.conf           # Main SDDM config → deployed to /etc/ by script
+│   ├── etc/sddm.conf.d/        # Drop-in config
+│   ├── etc/sddm/Xsetup         # xrandr monitor layout script
+│   └── themes/tokyonight-moon/ # Custom SDDM theme (QML + background.jpg)
 ├── .chezmoiscripts/
 │   ├── run_onchange_after_00-install-core.sh.tmpl
-│   ├── run_onchange_after_01-optional-packages.sh.tmpl
-│   ├── run_onchange_after_02-install-vscode.sh.tmpl   # workstation only
+│   ├── run_onchange_after_01-install-1password.sh.tmpl   # workstation only
+│   ├── run_onchange_after_02-install-vscode.sh.tmpl      # workstation only
+│   ├── run_onchange_after_03-install-docker.sh.tmpl
+│   ├── run_onchange_after_04-install-ansible.sh.tmpl
 │   ├── run_onchange_after_05-env-setup.sh.tmpl
-│   └── run_after_10-env-update.sh.tmpl
+│   ├── run_onchange_after_06-sddm.sh.tmpl                # deploys sddm/ to /etc/ + /usr/share/
+│   ├── run_onchange_after_07-darkman.sh.tmpl             # GNOME workstation only
+│   ├── run_after_10-env-update.sh.tmpl
+│   └── run_after_20-audit-packages.sh.tmpl
 ├── dot_config/
 │   ├── bdb/                    # Bootstrap scripts (bdb_helpers.sh; bdb_bootstrap.sh not deployed)
 │   ├── bat/                    # bat config & Tokyo Night theme
 │   ├── btop/                   # btop config & Tokyo Night theme
+│   ├── darkman/                # darkman config (GNOME workstation only)
 │   ├── delta/                  # delta pager Tokyo Night config
 │   ├── eza/                    # eza color config
 │   ├── git/                    # git config, global ignore, delta integration
 │   ├── kitty/                  # Kitty terminal config (workstation only)
 │   ├── lazygit/                # lazygit config with Tokyo Night theme
 │   ├── nvim/                   # Neovim (LazyVim) config — see section below
-│   └── starship/               # Starship prompt config
+│   ├── starship/               # Starship prompt config
+│   ├── yay/                    # yay AUR helper config (pacman systems only)
+│   ├── yazi/                   # yazi file manager (workstation only)
+│   └── zed/                    # Zed editor (workstation only)
+├── dot_local/share/darkman/    # darkman switch scripts (GNOME workstation only)
+│   └── executable_gtk3-theme.sh
 ├── dot_zsh/
 │   ├── plugins.zsh             # Zinit plugin manager and plugin list
 │   └── aliases.zsh             # Shell aliases
@@ -66,6 +83,16 @@ dotfiles/
 ├── dot_vim/                    # Vim plugins (terminal machines only)
 └── dot_ssh/                    # SSH config and 1Password-managed public keys
 ```
+
+### System-level files pattern (`sddm/`)
+
+Files that belong outside `~/` (in `/etc/` or `/usr/share/`) are stored in a source-only
+directory at the repo root. The directory is listed in `.chezmoiignore` so chezmoi never
+tries to deploy it to `~/`. A `run_onchange_after_` script copies them with `sudo install`.
+
+Change detection uses `{{ include "file" | sha256sum }}` (text) or
+`{{ output "sha256sum" path }}` (binary) in the script header comments — chezmoi re-runs
+the script whenever those hashes change.
 
 ---
 
@@ -113,6 +140,22 @@ dot_config/nvim/
 
 ---
 
+## Zed editor setup
+
+**Config**: `dot_config/zed/settings.json`
+**Machine**: workstation only
+**Theme**: Tokyo Night Moon (dark) / Tokyo Night Light (light) — downloaded via `.chezmoiexternal.toml.tmpl` from `ssaunderss/zed-tokyo-night` to `~/.config/zed/themes/tokyo-night.json`
+
+### Key settings (aligned with nvim)
+
+- `use_editorconfig: true` — mirrors `vim.g.editorconfig = true`
+- `format_on_save: "off"` — mirrors `vim.g.autoformat = false`
+- `relative_line_numbers: true` — mirrors LazyVim default
+- `vertical_scroll_margin: 8` — mirrors LazyVim `scrolloff = 8`
+- `soft_wrap: "none"` — mirrors nvim default
+
+---
+
 ## Shell setup
 
 **Shell**: Zsh
@@ -144,9 +187,20 @@ dot_config/nvim/
 
 ---
 
+## Kitty session management
+
+**Config**: `dot_config/kitty/kitty.conf.tmpl`
+
+- **F1** — `save_as_session --use-foreground-process --base-dir ~/.config/kitty/sessions`: opens inline prompt for a session name; saves to `~/.config/kitty/sessions/<name>.kitty-session`. Sets `tab.session_name` shown in the tab bar right segment.
+- **F4** — `goto_session ~/.config/kitty/sessions`: native Kitty picker over all `.kitty-session` files. Focuses the tab if already open; otherwise loads the session file as a **new tab** (session files start with `new_tab`, not `new_os_window`).
+
+Session files are runtime artefacts — listed in `.chezmoiignore` to prevent accidental tracking. The `sessions/` directory is tracked via `.keep` to ensure it exists on fresh machines.
+
+---
+
 ## EditorConfig
 
-`~/.editorconfig` is the **single source of truth** for indent style/size, line endings, charset, and trailing-whitespace handling across Vim, Neovim, and VSCode.
+`~/.editorconfig` is the **single source of truth** for indent style/size, line endings, charset, and trailing-whitespace handling across Vim, Neovim, VSCode, and Zed.
 
 Do **not** add editor-specific settings that duplicate EditorConfig rules.
 
@@ -169,7 +223,7 @@ Do **not** add editor-specific settings that duplicate EditorConfig rules.
 ## Theme
 
 **Tokyo Night Moon** (`#222436` background) applied consistently to:
-bat · btop · delta · eza · fzf · Kitty · lazygit · Neovim · Starship
+bat · btop · delta · eza · fzf · Kitty · lazygit · Neovim · SDDM · Starship · yazi · Zed
 
 Hex palette reference:
 - bg `#222436`, bg+ `#2f334d`, fg `#c8d3f5`
@@ -193,10 +247,16 @@ Four public keys, all managed via 1Password templates. All are guarded in `.chez
 
 ## Machine types
 
-| Type | Editor | Terminal | lazygit | btop | Vim config |
-|------|--------|----------|---------|------|------------|
-| `workstation` | Neovim | Kitty | ✓ | ✓ | not deployed |
-| `terminal` | Vim | — | — | — | deployed |
+| Type | Editor | Terminal | lazygit | btop | darkman | Vim config |
+|------|--------|----------|---------|------|---------|------------|
+| `workstation` | Neovim + Zed | Kitty | ✓ | ✓ | GNOME only | not deployed |
+| `terminal` | Vim | — | — | — | — | deployed |
+
+Workstation-only configs additionally gated by condition:
+- `dot_config/darkman/` + `dot_local/share/darkman/` — GNOME Linux only (`env "XDG_CURRENT_DESKTOP"`)
+- `dot_config/yay/` — pacman-based systems only
+- `dot_config/yazi/` — workstation only (image preview requires Kitty)
+- `dot_config/zed/` — workstation only
 
 ---
 
@@ -233,7 +293,9 @@ chezmoi verify
 - **Neovim plugins** — create a dedicated file under `dot_config/nvim/lua/plugins/`; set `lazy = true` unless there is a specific reason not to.
 - **Secrets** — use 1Password template functions (`onepasswordRead`, `onepassword`) in `.tmpl` files; never hardcode credentials.
 - **New SSH keys** — add the `.pub.tmpl` file, add the SSH config stanza to `private_config.tmpl`, and add the target path to the `lookPath "op"` guard in `.chezmoiignore`. Commit all three files together.
-- **Platform conditionals** — use chezmoi template variables (`machine`, `packageManager`, `.chezmoi.os`, `.chezmoi.osRelease.id`) rather than runtime `uname` checks where possible.
+- **Platform conditionals** — use chezmoi template variables (`machine`, `packageManager`, `desktop`, `.chezmoi.os`, `.chezmoi.osRelease.id`) rather than runtime `uname` checks where possible.
+- **System-level files** — store source in a root-level directory (e.g. `sddm/`), exclude it in `.chezmoiignore`, deploy via a `run_onchange_after_` script using `sudo install`. Use `{{ include "..." | sha256sum }}` in script header comments for change detection.
+- **Idempotency** — install scripts must check if the tool is already installed before prompting. Deployment scripts must compare source vs deployed content before prompting.
 - **Commit messages** — conventional commits style: `feat:`, `fix:`, `chore:`, `refactor:`, etc.
 
 ---
@@ -242,6 +304,7 @@ chezmoi verify
 
 - The `dot_editorconfig` indent decisions (intentional, documented above).
 - `vim.g.autoformat = false` — format-on-save stays off.
+- `format_on_save: "off"` in Zed — same policy.
 - Load order of Zinit plugins.
 - The `lazy = true` default in `lazy.lua`.
 
@@ -253,3 +316,4 @@ chezmoi verify
 - Optional packages for conda, golang, java, lua, nodejs, ruby, rust not yet implemented
 - macOS `defaults` automation not yet scripted
 - Evaluate Ansible over BDB for provisioning
+- Enable nvim on terminal machines
