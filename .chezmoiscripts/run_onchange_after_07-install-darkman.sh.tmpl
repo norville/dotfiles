@@ -9,7 +9,7 @@
 # Requires darkman to be installed (via run_onchange_after_00-install-core.sh).
 #
 # Execution: chezmoi apply (only when this file's content changes)
-# Location:  .chezmoiscripts/run_onchange_after_07-darkman.sh.tmpl
+# Location:  .chezmoiscripts/run_onchange_after_07-install-darkman.sh.tmpl
 # =============================================================================
 {{- if not (and (eq .machine "workstation") (eq .chezmoi.os "linux") (contains "gnome" (env "XDG_CURRENT_DESKTOP" | lower))) }}
 exit 0

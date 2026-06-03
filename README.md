@@ -78,15 +78,14 @@ These scripts run automatically during `chezmoi apply` or `chezmoi update`:
 | File | Trigger | Description |
 |------|---------|-------------|
 | `run_onchange_after_00-install-core.sh.tmpl` | on change | Essential packages: zsh, neovim/vim, bat, eza, fzf, ripgrep, lazygit, kitty… |
-| `run_onchange_after_01-install-1password.sh.tmpl` | on change | Prompts for and installs 1Password + CLI (workstation only) |
-| `run_onchange_after_02-install-vscode.sh.tmpl` | on change | Prompts for and installs VS Code (workstation only) |
-| `run_onchange_after_03-install-docker.sh.tmpl` | on change | Prompts for and installs Docker |
+| `run_onchange_after_01-config-env.sh.tmpl` | on change | Set ZSH as default shell, verify themes and fonts |
+| `run_onchange_after_02-install-1password.sh.tmpl` | on change | Prompts for and installs 1Password + CLI (workstation only) |
+| `run_onchange_after_03-install-vscode.sh.tmpl` | on change | Prompts for and installs VS Code (workstation only) |
 | `run_onchange_after_04-install-ansible.sh.tmpl` | on change | Prompts for and installs Ansible |
-| `run_onchange_after_05-env-setup.sh.tmpl` | on change | Set ZSH as default shell, verify themes and fonts |
-| `run_onchange_after_06-sddm.sh.tmpl` | on change | Deploy SDDM config + Tokyo Night Moon theme to `/etc/` and `/usr/share/` |
-| `run_onchange_after_07-darkman.sh.tmpl` | on change | Enable darkman.service (GNOME workstations only) |
-| `run_after_10-env-update.sh.tmpl` | every update | Update system packages, ZSH plugins, bat theme cache, font cache |
-| `run_after_20-audit-packages.sh.tmpl` | every update | Report packages installed outside chezmoi's managed lists |
+| `run_onchange_after_05-install-docker.sh.tmpl` | on change | Prompts for and installs Docker |
+| `run_onchange_after_06-install-sddm.sh.tmpl` | on change | Deploy SDDM config + Tokyo Night Moon theme to `/etc/` and `/usr/share/` |
+| `run_onchange_after_07-install-darkman.sh.tmpl` | on change | Enable darkman.service (GNOME workstations only) |
+| `run_after_90-update-env.sh.tmpl` | every update | Update system packages, ZSH plugins, bat theme cache, font cache |
 
 ### Shell Configuration (`.zsh/`)
 
@@ -206,11 +205,10 @@ chezmoi update
 This will:
 1. Pull the latest changes from the repository
 2. Apply any configuration updates
-3. Run the environment update script (`10-env-update`)
+3. Run the environment update script (`90-update-env`)
 4. Update system packages
 5. Update ZSH plugins via Zinit
 6. Rebuild bat theme cache and font cache
-7. Run the package audit (`20-audit-packages`)
 
 ### Apply Config Changes Only (No System Updates)
 

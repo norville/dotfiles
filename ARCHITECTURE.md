@@ -105,7 +105,7 @@ bdb_ask "Do you want to install Docker?" || { … exit 0; }
 # install…
 ```
 
-Deployment scripts (`06-sddm`) write expected content to a temp directory, then compare
+Deployment scripts (`06-install-sddm`) write expected content to a temp directory, then compare
 against deployed files with `cmp -s` before prompting — no sudo, no prompt if already current:
 
 ```bash
@@ -116,7 +116,7 @@ bdb_ask "Install SDDM configuration?" || …
 sudo install -m 644 "$_TMP/sddm.conf" /etc/sddm.conf
 ```
 
-Service scripts (`07-darkman`) check `is-enabled && is-active` before prompting:
+Service scripts (`07-install-darkman`) check `is-enabled && is-active` before prompting:
 
 ```bash
 if systemctl --user is-enabled darkman.service &>/dev/null \
@@ -130,15 +130,14 @@ fi
 | Script | Trigger | Purpose |
 |--------|---------|---------|
 | `00-install-core` | onchange | Essential packages for all machine types |
-| `01-install-1password` | onchange | 1Password + op CLI (workstation, skipped if installed) |
-| `02-install-vscode` | onchange | VS Code (workstation, skipped if installed) |
-| `03-install-docker` | onchange | Docker (skipped if installed) |
+| `01-config-env` | onchange | Default shell, bat cache, font cache, nvim dirs |
+| `02-install-1password` | onchange | 1Password + op CLI (workstation, skipped if installed) |
+| `03-install-vscode` | onchange | VS Code (workstation, skipped if installed) |
 | `04-install-ansible` | onchange | Ansible (skipped if installed) |
-| `05-env-setup` | onchange | Default shell, bat cache, font cache, nvim dirs |
-| `06-sddm` | onchange | SDDM config + Tokyo Night Moon theme → /etc/ and /usr/share/ |
-| `07-darkman` | onchange | Enable darkman.service (GNOME workstation only) |
-| `10-env-update` | every update | System packages, ZSH plugins, caches |
-| `20-audit-packages` | every update | Drift detection — report unmanaged packages |
+| `05-install-docker` | onchange | Docker (skipped if installed) |
+| `06-install-sddm` | onchange | SDDM config + Tokyo Night Moon theme → /etc/ and /usr/share/ |
+| `07-install-darkman` | onchange | Enable darkman.service (GNOME workstation only) |
+| `90-update-env` | every update | System packages, ZSH plugins, caches |
 
 ### 5. System-Level Files (sddm/)
 
@@ -176,14 +175,14 @@ bdb_bootstrap.sh
         ├── Process .chezmoi.toml.tmpl → ~/.config/chezmoi/chezmoi.toml
         ├── Deploy dotfiles (templates expanded, externals downloaded)
         └── Run scripts in order:
-              ├── 00-install-core   (essential packages)
-              ├── 01-install-1pw    (optional, prompted — skipped if installed)
-              ├── 02-install-vscode (optional, prompted — workstation only)
-              ├── 03-install-docker (optional, prompted — skipped if installed)
-              ├── 04-install-ansible(optional, prompted — skipped if installed)
-              ├── 05-env-setup      (shell, caches, fonts)
-              ├── 06-sddm           (SDDM theme — Arch workstation only)
-              └── 07-darkman        (enable service — GNOME workstation only)
+              ├── 00-install-core    (essential packages)
+              ├── 01-config-env      (shell, caches, fonts)
+              ├── 02-install-1pw     (optional, prompted — skipped if installed)
+              ├── 03-install-vscode  (optional, prompted — workstation only)
+              ├── 04-install-ansible (optional, prompted — skipped if installed)
+              ├── 05-install-docker  (optional, prompted — skipped if installed)
+              ├── 06-install-sddm    (SDDM theme — Arch workstation only)
+              └── 07-install-darkman (enable service — GNOME workstation only)
 ```
 
 ### Update Flow
@@ -195,8 +194,7 @@ chezmoi update
   Pull latest from GitHub
   Apply configuration changes
   Run run_after_* scripts:
-    ├── 10-env-update    (system packages, zinit, bat cache, font cache)
-    └── 20-audit-packages (report drift from managed lists)
+    └── 90-update-env    (system packages, zinit, bat cache, font cache)
 ```
 
 ## File Organization
@@ -219,15 +217,14 @@ dotfiles/
 │   └── themes/tokyonight-moon/     # metadata.desktop, Main.qml, LoginFormComponent.qml, background.jpg
 ├── .chezmoiscripts/
 │   ├── run_onchange_after_00-install-core.sh.tmpl
-│   ├── run_onchange_after_01-install-1password.sh.tmpl
-│   ├── run_onchange_after_02-install-vscode.sh.tmpl
-│   ├── run_onchange_after_03-install-docker.sh.tmpl
+│   ├── run_onchange_after_01-config-env.sh.tmpl
+│   ├── run_onchange_after_02-install-1password.sh.tmpl
+│   ├── run_onchange_after_03-install-vscode.sh.tmpl
 │   ├── run_onchange_after_04-install-ansible.sh.tmpl
-│   ├── run_onchange_after_05-env-setup.sh.tmpl
-│   ├── run_onchange_after_06-sddm.sh.tmpl
-│   ├── run_onchange_after_07-darkman.sh.tmpl
-│   ├── run_after_10-env-update.sh.tmpl
-│   └── run_after_20-audit-packages.sh.tmpl
+│   ├── run_onchange_after_05-install-docker.sh.tmpl
+│   ├── run_onchange_after_06-install-sddm.sh.tmpl
+│   ├── run_onchange_after_07-install-darkman.sh.tmpl
+│   └── run_after_90-update-env.sh.tmpl
 ├── dot_config/
 │   ├── bdb/
 │   │   ├── bdb_bootstrap.sh        # Not deployed
@@ -328,7 +325,7 @@ directly. The chosen pattern:
 
 1. Store source in `sddm/` at the repo root (not `dot_config/`)
 2. Exclude from home deployment via `.chezmoiignore`: `sddm/`
-3. Deploy via `run_onchange_after_06-sddm.sh.tmpl` using `sudo install`
+3. Deploy via `run_onchange_after_06-install-sddm.sh.tmpl` using `sudo install`
 4. Embed text files as heredocs so their content hash drives change detection
 5. Use `{{ output "sha256sum" … }}` for binary files (background.jpg)
 
@@ -358,7 +355,7 @@ SSH public keys are managed as chezmoi templates that call `onepasswordRead` at 
 To prevent failures on machines where 1Password is not yet installed, all four keys are
 wrapped in a `lookPath "op"` guard in `.chezmoiignore`.
 
-After `run_onchange_after_01` installs 1Password, a second `chezmoi apply` deploys the keys.
+After `run_onchange_after_02` installs 1Password, a second `chezmoi apply` deploys the keys.
 
 ## Error Handling
 
