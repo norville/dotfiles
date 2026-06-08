@@ -2,9 +2,8 @@
 # =============================================================================
 # Chezmoi Script: Install Ansible
 # =============================================================================
-# Installs Ansible for the current platform.
-# macOS: always installed (darwin == workstation).
-# Linux: prompted before installing.
+# Installs Ansible. Prompts before installing on all platforms.
+# Runs on workstation, terminal, and server machine types.
 #
 # Execution: run_onchange_after_04 — fires when file content changes
 # Location:  .chezmoiscripts/run_onchange_after_04-install-ansible.sh.tmpl
@@ -39,6 +38,12 @@ if bdb_has_cmd "ansible"; then
 fi
 
 {{- if eq .chezmoi.os "darwin" }}
+
+if ! bdb_ask "Do you want to install Ansible"; then
+    bdb_warn "Skipping Ansible installation"
+    bdb_end_section
+    exit 0
+fi
 
 bdb_exec "Installing Ansible (macOS)" brew install ansible
 bdb_success "Ansible installed"

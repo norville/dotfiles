@@ -2,8 +2,8 @@
 # =============================================================================
 # Chezmoi Script: Install Core Packages
 # =============================================================================
-# Installs the core + distro-specific packages defined in .chezmoi.toml.tmpl.
-# Package lists are centralized there; this script only handles installation.
+# Installs all packages for the current platform and machine type.
+# Package lists are defined in .chezmoi.toml.tmpl; this script only installs.
 #
 # Execution: chezmoi apply (only when this file's content changes)
 # Location:  .chezmoiscripts/run_onchange_after_00-install-core.sh.tmpl
@@ -14,7 +14,7 @@
 # -----------------------------------------------------------------------------
 source "${HELPERS}"
 
-SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl | sed 's/^[0-9]*\.//')"
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl)"
 SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/$(date +%Y%m%d_%H%M%S)_${SCRIPT_NAME}.log"
 mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
 bdb_init_logging "${SCRIPT_LOG_FILE}"
@@ -31,92 +31,117 @@ trap 'bdb_cleanup' EXIT
 # =============================================================================
 # PACKAGE INSTALLATION
 # =============================================================================
+
 {{- /* -------------------------------------------------------------------- */ -}}
 {{- /* Linux                                                                 */ -}}
 {{- /* -------------------------------------------------------------------- */ -}}
 {{- if eq .chezmoi.os "linux" }}
 
-bdb_begin_section "Installing Required Packages for {{ .osid }}"
+bdb_begin_section "Installing Required Packages for {{ .osid }} ({{ .machine }})"
 
     {{- /* ---------------------------------------------------------------- */ -}}
-    {{- /* Debian / Ubuntu — APT                                            */ -}}
+    {{- /* Debian / Ubuntu — APT + Snap                                     */ -}}
     {{- /* ---------------------------------------------------------------- */ -}}
     {{- if eq .packageManager "apt" }}
+
 # -----------------------------------------------------------------------------
-# APT packages (Debian / Ubuntu)
+# External APT repositories
+# -----------------------------------------------------------------------------
+
+# eza — not in official repos; add signing key and custom source
+if [[ ! -f /etc/apt/keyrings/gierens.gpg ]]; then
+    bdb_action "Setting up eza repository"
+    sudo mkdir -p /etc/apt/keyrings
+    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc \
+        | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" \
+        | sudo tee /etc/apt/sources.list.d/eza.list
+    sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/eza.list
+    bdb_success "eza repository configured"
+else
+    bdb_success "eza repository already configured"
+fi
+
+{{- if eq .machine "workstation" }}
+
+# Brave Browser — not in official repos
+if [[ ! -f /etc/apt/keyrings/brave-browser-archive-keyring.gpg ]]; then
+    bdb_action "Setting up Brave Browser repository"
+    sudo mkdir -p /etc/apt/keyrings
+    sudo curl -fsSLo /etc/apt/keyrings/brave-browser-archive-keyring.gpg \
+        https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/brave-browser-archive-keyring.gpg arch=amd64] \
+https://brave-browser-apt-release.s3.brave.com/ stable main" \
+        | sudo tee /etc/apt/sources.list.d/brave-browser-release.list
+    sudo chmod 644 /etc/apt/keyrings/brave-browser-archive-keyring.gpg \
+        /etc/apt/sources.list.d/brave-browser-release.list
+    bdb_success "Brave Browser repository configured"
+else
+    bdb_success "Brave Browser repository already configured"
+fi
+
+# Zed — not in official repos; use dariogriffo/zed-debian
+if [[ ! -f /etc/apt/keyrings/zed.gpg ]]; then
+    bdb_action "Setting up Zed repository"
+    sudo mkdir -p /etc/apt/keyrings
+    sudo curl -fsSLo /etc/apt/keyrings/zed.gpg \
+        https://dariogriffo.github.io/zed-debian/zed.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/zed.gpg] \
+https://dariogriffo.github.io/zed-debian stable main" \
+        | sudo tee /etc/apt/sources.list.d/zed.list
+    sudo chmod 644 /etc/apt/keyrings/zed.gpg /etc/apt/sources.list.d/zed.list
+    bdb_success "Zed repository configured"
+else
+    bdb_success "Zed repository already configured"
+fi
+
+{{- end }}
+
+# -----------------------------------------------------------------------------
+# APT packages
 # -----------------------------------------------------------------------------
 APT_PACKAGES=(
-  {{- range .corePackages }}
-  "{{ . }}"
-  {{- end }}
-  {{- range .aptPackages }}
-  "{{ . }}"
-  {{- end }}
+    {{- range .aptPackages }}
+    "{{ . }}"
+    {{- end }}
 )
-
-# eza is not in the official Debian/Ubuntu repos; add its signing key and
-# custom source before apt-get update so everything resolves in one pass.
-if [[ ! -f /etc/apt/keyrings/gierens.gpg ]]; then
-  bdb_action "Setting up eza repository"
-  sudo mkdir -p /etc/apt/keyrings
-  wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc \
-    | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
-  echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" \
-    | sudo tee /etc/apt/sources.list.d/eza.list
-  sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/eza.list
-  bdb_success "eza repository configured"
-else
-  bdb_success "eza repository already configured"
-fi
 
 bdb_exec "Updating APT package lists" sudo apt-get update
 bdb_exec "Installing APT packages"    sudo apt-get install -y "${APT_PACKAGES[@]}"
 
 # -----------------------------------------------------------------------------
-# Snap packages (Debian / Ubuntu)
+# Snap packages (lazygit, nvim, yazi, chezmoi — absent/outdated in apt)
 # -----------------------------------------------------------------------------
-# lazygit and nvim are absent from / outdated in the official apt repos;
-# All packages in this list use --classic confinement; add non-classic snaps
-# to a separate install call to avoid a confinement mismatch error.
 SNAP_PACKAGES=(
-  {{- range .snapPackages }}
-  "{{ . }}"
-  {{- end }}
+    {{- range .snapPackages }}
+    "{{ . }}"
+    {{- end }}
 )
 
 if bdb_test_cmd "snap"; then
-  bdb_exec "Refreshing installed snaps" sudo snap refresh
-  # --classic cannot be combined with multiple packages in one call
-  for _snap in "${SNAP_PACKAGES[@]}"; do
-    if snap list "${_snap}" &>/dev/null; then
-      bdb_success "Already installed: ${_snap}"
-    else
-      bdb_exec "Installing snap: ${_snap}" sudo snap install --classic "${_snap}"
-    fi
-  done
-  unset _snap
+    bdb_exec "Refreshing installed snaps" sudo snap refresh
+    # --classic cannot be combined with multiple packages in one call
+    for _snap in "${SNAP_PACKAGES[@]}"; do
+        if snap list "${_snap}" &>/dev/null; then
+            bdb_success "Already installed: ${_snap}"
+        else
+            bdb_exec "Installing snap: ${_snap}" sudo snap install --classic "${_snap}"
+        fi
+    done
+    unset _snap
 else
-  bdb_warn "snapd is not installed — skipping: ${SNAP_PACKAGES[*]}"
+    bdb_warn "snapd is not installed — skipping: ${SNAP_PACKAGES[*]}"
 fi
 
     {{- /* ---------------------------------------------------------------- */ -}}
-    {{- /* Fedora / RHEL — DNF                                              */ -}}
+    {{- /* Fedora / Rocky — DNF                                             */ -}}
     {{- /* ---------------------------------------------------------------- */ -}}
     {{- else if eq .packageManager "dnf" }}
-# -----------------------------------------------------------------------------
-# DNF packages (Fedora / RHEL)
-# -----------------------------------------------------------------------------
-DNF_PACKAGES=(
-  {{- range .corePackages }}
-  "{{ . }}"
-  {{- end }}
-  {{- range .dnfPackages }}
-  "{{ . }}"
-  {{- end }}
-)
 
-# Several packages are absent from the default Fedora repos; enable their COPR
-# and Terra sources before the main install so everything resolves in one pass.
+# -----------------------------------------------------------------------------
+# External DNF repositories — COPR and upstream repos
+# -----------------------------------------------------------------------------
+
 bdb_action "Enabling COPR repositories"
 sudo dnf copr enable -y alternateved/eza   2>/dev/null || true  # eza
 sudo dnf copr enable -y atim/lazygit       2>/dev/null || true  # lazygit
@@ -125,50 +150,93 @@ sudo dnf copr enable -y awood/bat-extras   2>/dev/null || true  # bat-extras
 sudo dnf copr enable -y pennbauman/ports   2>/dev/null || true  # zoxide
 bdb_success "COPR repositories enabled"
 
+{{- if eq .machine "workstation" }}
+
+# yazi — COPR (workstation only)
+sudo dnf copr enable -y varlad/yazi 2>/dev/null || true
+bdb_success "yazi COPR enabled"
+
+# Brave Browser — not in official repos (workstation only)
+if [[ ! -f /etc/yum.repos.d/brave-browser.repo ]]; then
+    bdb_action "Setting up Brave Browser repository"
+    sudo dnf install -y dnf-plugins-core
+    sudo rpm --import https://brave-browser-rpm-release.s3.brave.com/brave-core.asc
+    sudo tee /etc/yum.repos.d/brave-browser.repo > /dev/null <<'BRAVE_REPO_EOF'
+[brave-browser]
+name=Brave Browser
+enabled=1
+autorefresh=1
+baseurl=https://brave-browser-rpm-release.s3.brave.com/x86_64/
+gpgcheck=1
+gpgkey=https://brave-browser-rpm-release.s3.brave.com/brave-core.asc
+BRAVE_REPO_EOF
+    bdb_success "Brave Browser repository configured"
+else
+    bdb_success "Brave Browser repository already configured"
+fi
+
+# Zed — via Terra repository (workstation only)
+if [[ ! -f /etc/yum.repos.d/terra.repo ]]; then
+    bdb_action "Setting up Terra repository (for Zed)"
+    sudo dnf install -y \
+        "https://github.com/terrapkg/subatomic-repos/raw/main/terra.repo" \
+        2>/dev/null || \
+    sudo dnf config-manager --add-repo \
+        https://terra.fyralabs.com/terra.repo
+    bdb_success "Terra repository configured"
+else
+    bdb_success "Terra repository already configured"
+fi
+
+{{- end }}
+
+# -----------------------------------------------------------------------------
+# DNF packages
+# -----------------------------------------------------------------------------
+DNF_PACKAGES=(
+    {{- range .dnfPackages }}
+    "{{ . }}"
+    {{- end }}
+)
+
 bdb_exec "Installing DNF packages" sudo dnf install -y "${DNF_PACKAGES[@]}"
 
     {{- /* ---------------------------------------------------------------- */ -}}
-    {{- /* Arch / Manjaro — Pacman + AUR                                    */ -}}
+    {{- /* Arch / CachyOS — Pacman + AUR                                    */ -}}
     {{- /* ---------------------------------------------------------------- */ -}}
     {{- else if eq .packageManager "pacman" }}
+
 # -----------------------------------------------------------------------------
-# Pacman packages (Arch / Manjaro)
+# Pacman packages
 # -----------------------------------------------------------------------------
 PACMAN_PACKAGES=(
-  {{- range .corePackages }}
-  "{{ . }}"
-  {{- end }}
-  {{- range .pacmanPackages }}
-  "{{ . }}"
-  {{- end }}
+    {{- range .pacmanPackages }}
+    "{{ . }}"
+    {{- end }}
 )
 
 bdb_exec "Installing Pacman packages" sudo pacman -S --needed --noconfirm "${PACMAN_PACKAGES[@]}"
 
-        {{- /* ------------------------------------------------------------ */ -}}
-        {{- /* AUR packages — skipped when aurPackages list is empty        */ -}}
-        {{- /* ------------------------------------------------------------ */ -}}
         {{- if .aurPackages }}
 # -----------------------------------------------------------------------------
-# AUR packages (Arch / Manjaro)
+# AUR packages
 # -----------------------------------------------------------------------------
 if ! bdb_test_cmd "yay"; then
-  bdb_action "Installing yay (AUR helper)"
-  # makepkg -si calls sudo pacman twice (deps, then install); refresh the
-  # timestamp once here so both calls share the same authenticated session.
-  sudo -v
-  git clone https://aur.archlinux.org/yay.git /tmp/yay
-  (cd /tmp/yay && makepkg -si --noconfirm)
-  rm -rf /tmp/yay
-  bdb_success "yay installed"
+    bdb_action "Installing yay (AUR helper)"
+    # Refresh sudo timestamp once so both makepkg pacman calls share the session
+    sudo -v
+    git clone https://aur.archlinux.org/yay.git /tmp/yay
+    (cd /tmp/yay && makepkg -si --noconfirm)
+    rm -rf /tmp/yay
+    bdb_success "yay installed"
 else
-  bdb_success "yay already installed"
+    bdb_success "yay already installed"
 fi
 
 AUR_PACKAGES=(
-  {{- range .aurPackages }}
-  "{{ . }}"
-  {{- end }}
+    {{- range .aurPackages }}
+    "{{ . }}"
+    {{- end }}
 )
 bdb_exec "Installing AUR packages" yay -S --needed --noconfirm "${AUR_PACKAGES[@]}"
         {{- end }}
@@ -182,13 +250,13 @@ bdb_exec "Installing AUR packages" yay -S --needed --noconfirm "${AUR_PACKAGES[@
 
 bdb_begin_section "Installing Required Packages for macOS"
 
-# All macOS packages are declared in the Brewfile (formulae + casks + taps);
+# All macOS packages are declared in the Brewfile (formulae + casks);
 # brew bundle installs or upgrades them in a single idempotent pass.
 BREWFILE="${HOME}/.config/homebrew/brewfile"
 
 if [[ ! -f "${BREWFILE}" ]]; then
-  bdb_error "Brewfile not found at ${BREWFILE}"
-  exit 1
+    bdb_error "Brewfile not found at ${BREWFILE}"
+    exit 1
 fi
 
 bdb_var "Brewfile" "${BREWFILE}"
@@ -202,7 +270,7 @@ bdb_exec "Installing Homebrew packages" brew bundle --file="${BREWFILE}"
 bdb_success "Required packages installed successfully"
 
 if [[ -n "${BDB_LOG_FILE:-}" ]]; then
-  bdb_var "Log file" "${BDB_LOG_FILE}"
+    bdb_var "Log file" "${BDB_LOG_FILE}"
 fi
 
 bdb_end_section

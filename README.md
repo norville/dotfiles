@@ -115,15 +115,14 @@ These scripts run automatically during `chezmoi apply` or `chezmoi update`:
 
 ## Installed Tools
 
-### Core Tools (All Systems)
+### Core Tools (All Machine Types)
 
-- **Shell**: ZSH with Zinit plugin manager
-- **Editor**: Neovim (workstation) / Vim (terminal machines)
-- **Terminal**: Kitty (GPU-accelerated, workstation only)
-- **Prompt**: Starship (cross-shell prompt)
-- **Version Control**: Git with delta pager and enhanced configuration
+- **Version Control**: Git
+- **Editor**: Vim (all) + Neovim (workstation + terminal)
+- **Shell**: ZSH with Zinit plugin manager (workstation + terminal)
+- **Prompt**: Starship cross-shell prompt (workstation + terminal)
 
-### Modern CLI Replacements
+### Workstation + Terminal Tools
 
 | Traditional | Modern Alternative | Description |
 |-------------|-------------------|-------------|
@@ -135,12 +134,14 @@ These scripts run automatically during `chezmoi apply` or `chezmoi update`:
 | `man` | `batman` | Man pages with bat syntax highlighting |
 | `cd` | `zoxide` | Frecency-based directory jumping (`z` / `zi`) |
 
-### Workstation Tools
+Also: lazygit, fzf, git-delta, jq, resvg, tree-sitter-cli.
 
+### Workstation-Only Tools
+
+- **Kitty**: GPU-accelerated terminal (workstation only)
 - **yazi**: Terminal file manager with image previews (requires Kitty)
 - **zed**: Modern code editor (Tokyo Night Moon theme, aligned with nvim settings)
-- **lazygit**: Terminal UI for Git operations
-- **fzf**: Fuzzy finder for files, history, and more
+- **Brave Browser**: Web browser
 - **darkman**: Automatic dark/light mode switching by geographic position (GNOME only)
 
 ### Optional Tools (User Prompted on First Apply)
@@ -149,8 +150,8 @@ All optional installs are idempotent — if the tool is already present, the pro
 
 - **1Password**: Password manager with SSH agent (workstation only)
 - **Visual Studio Code**: Code editor (workstation only)
-- **Docker**: Container platform
-- **Ansible**: IT automation platform
+- **Docker**: Container platform (workstation + server)
+- **Ansible**: IT automation platform (all machine types)
 
 ## Themes & Appearance
 
@@ -180,19 +181,22 @@ The dotfiles automatically detect and use the appropriate package manager:
 
 | OS/Distribution | Package Manager |
 |-----------------|-----------------|
-| macOS | Homebrew |
+| macOS | Homebrew (formulae + casks) |
 | Debian/Ubuntu | APT + Snap |
-| Fedora/RHEL | DNF + Flatpak |
-| Arch/Manjaro | Pacman + AUR (yay) |
+| Fedora/Rocky Linux | DNF |
+| Arch/CachyOS | Pacman + AUR (yay) |
 
 ## Machine Types
 
-Configurations are tailored per machine type, detected automatically at `chezmoi init`:
+Three machine types are supported. `workstation` is auto-detected on macOS, Arch, CachyOS,
+and Fedora, or when a graphical session is detected on Ubuntu. On Debian, Rocky Linux, and
+headless Ubuntu the user is prompted on first `chezmoi init`.
 
-| Type | Description |
-|------|-------------|
-| `workstation` | Full setup: Neovim, Zed, Kitty, lazygit, btop, yazi, 1Password, VS Code |
-| `terminal` | Minimal setup: Vim only, no GUI tools |
+| Type | Description | Dev tools | GUI tools |
+|------|-------------|-----------|-----------|
+| `workstation` | Full setup: Neovim, Zed, Kitty, lazygit, yazi, btop, Brave, 1Password, VS Code | ✅ | ✅ |
+| `terminal` | CLI dev environment: Neovim, lazygit, btop, bat, eza, ripgrep — no GUI tools | ✅ | ❌ |
+| `server` | Minimal homelab setup: git, vim, curl, wget, chezmoi only | ❌ | ❌ |
 
 ## Updating
 

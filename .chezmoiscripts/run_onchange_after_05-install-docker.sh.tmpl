@@ -30,6 +30,12 @@ trap 'bdb_cleanup' EXIT
 
 bdb_begin_section "Docker Installation"
 
+{{- if eq .machine "terminal" }}
+bdb_warn "Skipping Docker — not available on terminal machines"
+bdb_end_section
+exit 0
+{{- end }}
+
 if bdb_has_cmd "docker"; then
   bdb_success "Docker already installed"
   bdb_end_section
@@ -43,8 +49,9 @@ if ! bdb_ask "Do you want to install Docker"; then
 fi
 
 {{- if eq .chezmoi.os "darwin" }}
-bdb_info "Docker Desktop should be installed manually from docker.com"
-bdb_info "Or via Homebrew Cask if in your Brewfile"
+bdb_warn "Skipping Docker — not available on darwin"
+bdb_end_section
+exit 0
 
 {{- else if eq .chezmoi.os "linux" }}
 
@@ -124,9 +131,15 @@ bdb_exec "Removing old Docker versions" sudo dnf remove -y \
 bdb_exec "Installing DNF plugins" sudo dnf -y install dnf-plugins-core
 
 if [[ ! -f /etc/yum.repos.d/docker-ce.repo ]]; then
-  bdb_exec "Adding Docker repository" sudo dnf-3 config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+    {{- if eq .osid "linux-rocky" }}
+    bdb_exec "Adding Docker repository (Rocky)" \
+        sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+    {{- else }}
+    bdb_exec "Adding Docker repository (Fedora)" \
+        sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+    {{- end }}
 else
-  bdb_success "Docker repository already configured"
+    bdb_success "Docker repository already configured"
 fi
 
 bdb_exec "Installing Docker" sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin

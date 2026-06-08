@@ -33,6 +33,7 @@ trap 'bdb_cleanup' EXIT
 # =============================================================================
 
 bdb_begin_section "Environment Update After Chezmoi Update"
+bdb_var "Machine type" "{{ .machine }}"
 
 {{- /* -------------------------------------------------------------------- */ -}}
 {{- /* macOS                                                                 */ -}}
@@ -119,8 +120,10 @@ fi
 {{- end }}
 
 # =============================================================================
-# SHELL PLUGIN UPDATES
+# SHELL PLUGIN + APPLICATION UPDATES
 # =============================================================================
+{{- /* Server machines: only package upgrades above — skip everything below. */ -}}
+{{- if ne .machine "server" }}
 
 # -----------------------------------------------------------------------------
 # Update ZSH Plugins (Zinit)
@@ -130,43 +133,37 @@ bdb_action "Updating ZSH plugins"
 # Zinit must be sourced inside a zsh subprocess; it is a zsh plugin, not a binary
 zinit_home="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 if [[ -d "${zinit_home}/.git" ]]; then
-  bdb_exec "Updating Zinit and all plugins" \
-    zsh -c "source '${zinit_home}/zinit.zsh' && zinit self-update && zinit update --all --quiet" || true
-  bdb_success "ZSH plugins updated"
+    bdb_exec "Updating Zinit and all plugins" \
+        zsh -c "source '${zinit_home}/zinit.zsh' && zinit self-update && zinit update --all --quiet" || true
+    bdb_success "ZSH plugins updated"
 else
-  bdb_warn "Zinit not found - skipping plugin updates"
+    bdb_warn "Zinit not found - skipping plugin updates"
 fi
-
-# =============================================================================
-# APPLICATION UPDATES
-# =============================================================================
 
 # -----------------------------------------------------------------------------
 # Update bat Themes
 # -----------------------------------------------------------------------------
 {{- if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") }}
 if bdb_test_cmd "batcat"; then
-  bdb_exec "Rebuilding bat theme cache" batcat cache --build >/dev/null 2>&1
+    bdb_exec "Rebuilding bat theme cache" batcat cache --build >/dev/null 2>&1
 fi
 {{- else }}
 if bdb_test_cmd "bat"; then
-  bdb_exec "Rebuilding bat theme cache" bat cache --build >/dev/null 2>&1
+    bdb_exec "Rebuilding bat theme cache" bat cache --build >/dev/null 2>&1
 fi
 {{- end }}
 
-{{- /* -------------------------------------------------------------------- */ -}}
-{{- /* Linux Font Cache Update                                              */ -}}
-{{- /* -------------------------------------------------------------------- */ -}}
+{{- /* Font cache: Linux non-server only (fonts not installed on server) */ -}}
 {{- if eq .chezmoi.os "linux" }}
-
 # -----------------------------------------------------------------------------
 # Update Font Cache (Linux)
 # -----------------------------------------------------------------------------
 if bdb_test_cmd "fc-cache"; then
-  bdb_exec "Updating font cache" fc-cache -fv >/dev/null 2>&1
+    bdb_exec "Updating font cache" fc-cache -fv >/dev/null 2>&1
 fi
-
 {{- end }}
+
+{{- end }}{{- /* end non-server block */ -}}
 
 # =============================================================================
 # COMPLETION

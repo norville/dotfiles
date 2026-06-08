@@ -59,7 +59,7 @@ environment variable set in `[scriptEnv]` of `.chezmoi.toml.tmpl`.
 **Key Responsibilities**:
 - OS and distribution detection
 - CPU architecture detection
-- Machine type identification (`workstation` / `terminal`)
+- Machine type identification (`workstation` / `terminal` / `server`)
 - Desktop environment detection (for GNOME-specific features)
 - Package manager identification
 - Package list centralisation (all package governance lives here)
@@ -69,16 +69,24 @@ environment variable set in `[scriptEnv]` of `.chezmoi.toml.tmpl`.
 
 | Variable | Example Values | Purpose |
 |----------|----------------|---------|
-| `osid` | `darwin`, `linux-ubuntu`, `linux-arch` | OS + distro identifier |
-| `machine` | `workstation`, `terminal` | Machine type |
+| `osid` | `darwin`, `linux-ubuntu`, `linux-rocky` | OS + distro identifier |
+| `machine` | `workstation`, `terminal`, `server` | Machine type |
 | `desktop` | `gnome`, `niri`, `""` | Lowercased XDG_CURRENT_DESKTOP |
 | `packageManager` | `brew`, `apt`, `dnf`, `pacman` | Primary package manager |
 | `cpuArch` | `amd64`, `arm64` | CPU architecture |
 | `isARM` / `isIntel` / `isAppleSilicon` / `isRPi` | `true`/`false` | Architecture flags |
 | `email` / `name` | — | User identity for git config etc. |
-| `corePackages` | `["bat","fzf",…]` | Packages installed on every platform |
-| `pacmanPackages` / `aptPackages` / `dnfPackages` / `aurPackages` | `[…]` | Distro-specific package lists |
+| `aptPackages` / `snapPackages` | `[…]` | Ubuntu/Debian package lists (machine-type filtered) |
+| `pacmanPackages` / `aurPackages` | `[…]` | Arch/CachyOS package lists |
+| `dnfPackages` | `[…]` | Fedora/Rocky package list (machine-type filtered) |
 | `brewFormulae` / `brewCasks` | `[…]` | macOS Homebrew lists |
+
+**Machine type detection**: `darwin`, `linux-arch`, `linux-cachyos`, and `linux-fedora`
+are always `workstation`. `linux-ubuntu` resolves to `workstation` if a graphical session
+is detected (via `XDG_SESSION_TYPE` / `DISPLAY` / `WAYLAND_DISPLAY`); otherwise
+`promptStringOnce` asks the user to choose `terminal` or `server`. `linux-debian` and
+`linux-rocky` always prompt (never `workstation`). The answer is cached so subsequent
+`chezmoi apply` runs don't re-prompt.
 
 **Note on `desktop`**: `.chezmoi.toml.tmpl` is re-rendered only on `chezmoi init`, not
 on `chezmoi apply`. Templates that need GNOME detection in active conditionals
@@ -127,17 +135,19 @@ fi
 
 #### Scripts
 
-| Script | Trigger | Purpose |
-|--------|---------|---------|
-| `00-install-core` | onchange | Essential packages for all machine types |
-| `01-config-env` | onchange | Default shell, bat cache, font cache, nvim dirs |
-| `02-install-1password` | onchange | 1Password + op CLI (workstation, skipped if installed) |
-| `03-install-vscode` | onchange | VS Code (workstation, skipped if installed) |
-| `04-install-ansible` | onchange | Ansible (skipped if installed) |
-| `05-install-docker` | onchange | Docker (skipped if installed) |
-| `06-install-sddm` | onchange | SDDM config + Tokyo Night Moon theme → /etc/ and /usr/share/ |
-| `07-install-darkman` | onchange | Enable darkman.service (GNOME workstation only) |
-| `90-update-env` | every update | System packages, ZSH plugins, caches |
+| Script | Trigger | W | T | S | Purpose |
+|--------|---------|---|---|---|---------|
+| `00-install-core` | onchange | ✅ | ✅ | ✅ | Platform packages (per-manager lists, machine-type filtered) |
+| `01-config-env` | onchange | ✅ | ✅ | — | Default shell, bat cache, font cache, nvim dirs |
+| `02-install-1password` | onchange | ✅ | — | — | 1Password + op CLI (prompted; darwin: brew cask) |
+| `03-install-vscode` | onchange | ✅ | — | — | VS Code (prompted; darwin: brew cask) |
+| `04-install-ansible` | onchange | ✅ | ✅ | ✅ | Ansible (prompted on all platforms) |
+| `05-install-docker` | onchange | ✅ | — | ✅ | Docker (linux only; prompted) |
+| `06-install-sddm` | onchange | ✅ | — | — | SDDM config + Tokyo Night Moon → /etc/ and /usr/share/ |
+| `07-install-darkman` | onchange | ✅ | — | — | Enable darkman.service (GNOME workstation only) |
+| `90-update-env` | every update | ✅ | ✅ | ✅ | System packages (all); ZSH plugins + caches (non-server) |
+
+W = workstation, T = terminal, S = server.
 
 ### 5. System-Level Files (sddm/)
 
@@ -175,12 +185,12 @@ bdb_bootstrap.sh
         ├── Process .chezmoi.toml.tmpl → ~/.config/chezmoi/chezmoi.toml
         ├── Deploy dotfiles (templates expanded, externals downloaded)
         └── Run scripts in order:
-              ├── 00-install-core    (essential packages)
-              ├── 01-config-env      (shell, caches, fonts)
-              ├── 02-install-1pw     (optional, prompted — skipped if installed)
-              ├── 03-install-vscode  (optional, prompted — workstation only)
-              ├── 04-install-ansible (optional, prompted — skipped if installed)
-              ├── 05-install-docker  (optional, prompted — skipped if installed)
+              ├── 00-install-core    (packages — machine-type filtered)
+              ├── 01-config-env      (shell, caches, fonts — W+T only)
+              ├── 02-install-1pw     (prompted — workstation only)
+              ├── 03-install-vscode  (prompted — workstation only)
+              ├── 04-install-ansible (prompted — all machine types)
+              ├── 05-install-docker  (prompted — W+S, linux only)
               ├── 06-install-sddm    (SDDM theme — Arch workstation only)
               └── 07-install-darkman (enable service — GNOME workstation only)
 ```
@@ -194,7 +204,7 @@ chezmoi update
   Pull latest from GitHub
   Apply configuration changes
   Run run_after_* scripts:
-    └── 90-update-env    (system packages, zinit, bat cache, font cache)
+    └── 90-update-env    (system packages for all; zinit + caches for W+T only)
 ```
 
 ## File Organization
@@ -216,14 +226,14 @@ dotfiles/
 │   ├── etc/sddm/Xsetup
 │   └── themes/tokyonight-moon/     # metadata.desktop, Main.qml, LoginFormComponent.qml, background.jpg
 ├── .chezmoiscripts/
-│   ├── run_onchange_after_00-install-core.sh.tmpl
-│   ├── run_onchange_after_01-config-env.sh.tmpl
-│   ├── run_onchange_after_02-install-1password.sh.tmpl
-│   ├── run_onchange_after_03-install-vscode.sh.tmpl
-│   ├── run_onchange_after_04-install-ansible.sh.tmpl
-│   ├── run_onchange_after_05-install-docker.sh.tmpl
-│   ├── run_onchange_after_06-install-sddm.sh.tmpl
-│   ├── run_onchange_after_07-install-darkman.sh.tmpl
+│   ├── run_onchange_after_00-install-core.sh.tmpl        # all machine types
+│   ├── run_onchange_after_01-config-env.sh.tmpl           # workstation + terminal
+│   ├── run_onchange_after_02-install-1password.sh.tmpl    # workstation only
+│   ├── run_onchange_after_03-install-vscode.sh.tmpl       # workstation only
+│   ├── run_onchange_after_04-install-ansible.sh.tmpl      # all machine types
+│   ├── run_onchange_after_05-install-docker.sh.tmpl       # workstation + server, linux only
+│   ├── run_onchange_after_06-install-sddm.sh.tmpl         # workstation only
+│   ├── run_onchange_after_07-install-darkman.sh.tmpl      # GNOME workstation only
 │   └── run_after_90-update-env.sh.tmpl
 ├── dot_config/
 │   ├── bdb/
@@ -325,7 +335,7 @@ directly. The chosen pattern:
 
 1. Store source in `sddm/` at the repo root (not `dot_config/`)
 2. Exclude from home deployment via `.chezmoiignore`: `sddm/`
-3. Deploy via `run_onchange_after_06-install-sddm.sh.tmpl` using `sudo install`
+3. Deploy via `run_onchange_after_06-install-sddm.sh.tmpl` using `sudo install` (workstation only)
 4. Embed text files as heredocs so their content hash drives change detection
 5. Use `{{ output "sha256sum" … }}` for binary files (background.jpg)
 

@@ -6,7 +6,7 @@
 #
 # Supported Systems:
 # - macOS (Intel and Apple Silicon)
-# - Linux: Arch, CachyOS, Manjaro, Debian, Ubuntu, Fedora, RHEL
+# - Linux: Arch, CachyOS, Debian, Ubuntu, Fedora, Rocky Linux
 #
 # Usage:
 #   bash -c "$(curl -fsSL https://raw.githubusercontent.com/norville/dotfiles/main/dot_config/bdb/bdb_bootstrap.sh)"
@@ -166,7 +166,7 @@ update_debian() {
 }
 
 # -----------------------------------------------------------------------------
-# Fedora / RHEL
+# Fedora / Rocky Linux
 # -----------------------------------------------------------------------------
 update_fedora() {
     bdb_exec "Upgrading system packages" sudo dnf upgrade -y
@@ -193,13 +193,13 @@ update_system() {
     fi
 
     case "${DISTRO}" in
-    arch | cachyos | manjaro)
+    arch | cachyos)
         update_arch
         ;;
-    debian | ubuntu | pop)
+    debian | ubuntu)
         update_debian
         ;;
-    fedora | rhel | centos)
+    fedora | rocky)
         update_fedora
         ;;
     macos)
@@ -312,7 +312,7 @@ install_deps_ubuntu() {
 }
 
 # -----------------------------------------------------------------------------
-# Fedora / RHEL
+# Fedora / Rocky Linux
 # -----------------------------------------------------------------------------
 install_deps_fedora() {
     local packages_to_install=()
@@ -330,7 +330,7 @@ install_deps_fedora() {
     fi
 
     if [[ ${#packages_to_install[@]} -gt 0 ]]; then
-        bdb_exec "Installing dependencies (Fedora/RHEL)" sudo dnf install -y "${packages_to_install[@]}"
+        bdb_exec "Installing dependencies (Fedora/Rocky)" sudo dnf install -y "${packages_to_install[@]}"
     fi
 }
 
@@ -399,16 +399,16 @@ install_deps_macos() {
 
 install_dependencies() {
     case "${DISTRO}" in
-    arch | cachyos | manjaro)
+    arch | cachyos)
         install_deps_arch
         ;;
     debian)
         install_deps_debian
         ;;
-    ubuntu | pop)
+    ubuntu)
         install_deps_ubuntu
         ;;
-    fedora | rhel | centos)
+    fedora | rocky)
         install_deps_fedora
         ;;
     macos)

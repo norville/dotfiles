@@ -10,12 +10,12 @@
 {{- /* ========================================================================== */ -}}
 {{- /* Operating System Detection                                                 */ -}}
 {{- /* ========================================================================== */ -}}
-{{- /* Detect OS type and Linux distribution to enable OS-specific templates      */ -}}
 {{- /* Format: "darwin" for macOS, "linux-<distro>" for Linux variants            */ -}}
+{{- /* Supported: darwin, linux-arch, linux-cachyos, linux-ubuntu,               */ -}}
+{{- /*            linux-debian, linux-fedora, linux-rocky                         */ -}}
 
 {{- $osid := .chezmoi.os -}}
 
-{{- /* For Linux systems, append distribution ID from /etc/os-release */ -}}
 {{- if eq .chezmoi.os "linux" -}}
     {{- if hasKey .chezmoi.osRelease "id" -}}
         {{- $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
@@ -27,7 +27,6 @@
 {{- /* ========================================================================== */ -}}
 {{- /* CPU Architecture Detection                                                 */ -}}
 {{- /* ========================================================================== */ -}}
-{{- /* Detect CPU architecture for platform-specific configurations               */ -}}
 
 {{- $cpuArch        := .chezmoi.arch -}}
 {{- $isARM          := false -}}
@@ -35,10 +34,8 @@
 {{- $isIntel        := false -}}
 {{- $isAppleSilicon := false -}}
 
-{{- /* Detect ARM-based processors */ -}}
 {{- if or (eq $cpuArch "arm64") (eq $cpuArch "aarch64") (eq $cpuArch "arm") -}}
     {{- $isARM = true -}}
-    {{- /* Detect Apple Silicon (macOS on ARM) */ -}}
     {{- if eq .chezmoi.os "darwin" -}}
         {{- $isAppleSilicon = true -}}
     {{- else if eq $osid "linux-debian" -}}
@@ -46,7 +43,6 @@
     {{- end -}}
 {{- end -}}
 
-{{- /* Detect Intel/AMD x86_64 processors */ -}}
 {{- if or (eq $cpuArch "amd64") (eq $cpuArch "x86_64") -}}
     {{- $isIntel = true -}}
 {{- end -}}
@@ -54,37 +50,51 @@
 {{- /* ========================================================================== */ -}}
 {{- /* Package Manager Detection                                                  */ -}}
 {{- /* ========================================================================== */ -}}
-{{- /* Determine the primary package manager based on detected OS                 */ -}}
+{{- /* darwin         → brew                                                      */ -}}
+{{- /* arch, cachyos  → pacman                                                    */ -}}
+{{- /* ubuntu, debian → apt                                                       */ -}}
+{{- /* fedora, rocky  → dnf                                                       */ -}}
 
 {{- $packageManager := "unknown" -}}
 {{- if eq .chezmoi.os "darwin" -}}
     {{- $packageManager = "brew" -}}
 {{- else if eq .chezmoi.os "linux" -}}
-    {{- if or (eq $osid "linux-arch") (eq $osid "linux-cachyos") (eq $osid "linux-manjaro") -}}
+    {{- if or (eq $osid "linux-arch") (eq $osid "linux-cachyos") -}}
         {{- $packageManager = "pacman" -}}
-    {{- else if or (eq $osid "linux-debian") (eq $osid "linux-ubuntu") (eq $osid "linux-pop") -}}
+    {{- else if or (eq $osid "linux-debian") (eq $osid "linux-ubuntu") -}}
         {{- $packageManager = "apt" -}}
-    {{- else if or (eq $osid "linux-fedora") (eq $osid "linux-rhel") (eq $osid "linux-centos") -}}
+    {{- else if or (eq $osid "linux-fedora") (eq $osid "linux-rocky") -}}
         {{- $packageManager = "dnf" -}}
     {{- end -}}
 {{- end -}}
 
 {{- /* ========================================================================== */ -}}
-{{- /* Machine Type                                                               */ -}}
+{{- /* Machine Type Detection                                                     */ -}}
 {{- /* ========================================================================== */ -}}
-{{- /* macOS is always a workstation. On Linux, detect a graphical session via    */ -}}
-{{- /* XDG_SESSION_TYPE / DISPLAY / WAYLAND_DISPLAY — all set by the login       */ -}}
-{{- /* manager in a DE session, absent on headless servers and plain SSH.        */ -}}
-{{- /* Values: workstation | terminal                                             */ -}}
+{{- /* Values: workstation | terminal | server                                    */ -}}
+{{- /*                                                                            */ -}}
+{{- /* darwin, arch, cachyos, fedora → always workstation (no prompt)            */ -}}
+{{- /* ubuntu → workstation if a graphical session is detected; else prompt      */ -}}
+{{- /* debian, rocky → always prompt (never workstation)                         */ -}}
 
-{{- $machine := "terminal" -}}
+{{- $machine := "" -}}
 {{- if eq .chezmoi.os "darwin" -}}
     {{- $machine = "workstation" -}}
-{{- else if or (eq (env "XDG_SESSION_TYPE") "x11")
+{{- else if or (eq $osid "linux-arch") (eq $osid "linux-cachyos") (eq $osid "linux-fedora") -}}
+    {{- $machine = "workstation" -}}
+{{- else if eq $osid "linux-ubuntu" -}}
+    {{- if or (eq (env "XDG_SESSION_TYPE") "x11")
                (eq (env "XDG_SESSION_TYPE") "wayland")
                (ne (env "DISPLAY") "")
                (ne (env "WAYLAND_DISPLAY") "") -}}
-    {{- $machine = "workstation" -}}
+        {{- $machine = "workstation" -}}
+    {{- else -}}
+        {{- $machine = promptStringOnce . "machine" "Machine type [terminal/server]" -}}
+    {{- end -}}
+{{- else if or (eq $osid "linux-debian") (eq $osid "linux-rocky") -}}
+    {{- $machine = promptStringOnce . "machine" "Machine type [terminal/server]" -}}
+{{- else -}}
+    {{- $machine = "terminal" -}}
 {{- end -}}
 
 {{- /* ========================================================================== */ -}}
@@ -98,60 +108,99 @@
 {{- /* ========================================================================== */ -}}
 {{- /* User Configuration                                                         */ -}}
 {{- /* ========================================================================== */ -}}
-{{- /* Personal information used in templates (e.g., git config)                  */ -}}
 
 {{- $email  := "ing.norville@proton.me" -}}
 {{- $name   := "Norville" -}}
 
 {{- /* ========================================================================== */ -}}
-{{- /* Required Package Lists                                                     */ -}}
+{{- /* Package Lists                                                              */ -}}
 {{- /* ========================================================================== */ -}}
-{{- /* All package governance lives here. Scripts consume these via {{ range }}.  */ -}}
+{{- /* All lists defined for workstation. Terminal strips W-only packages.        */ -}}
+{{- /* Server replaces lists with S:Y packages only.                              */ -}}
+{{- /* Canonical source: dotfiles-overhaul-spec.md §5                            */ -}}
 
-{{- $core    := list "bat" "btop" "curl" "eza" "fzf" "git" "git-delta" "ripgrep" "starship" "vim" "wget" "zoxide" "zsh" -}}
-{{- $pacman  := list "base-devel" "fd" "gnupg" "lazygit" "neovim" "tree-sitter" "ttf-jetbrains-mono" "ttf-jetbrains-mono-nerd" -}}
-{{- $aur     := list "bat-extras" -}}
-{{- $apt     := list "build-essential" "fd-find" "gpg" "tree-sitter-cli" -}}
-{{- $snap    := list "lazygit" "nvim" -}}
-{{- $dnf     := list "@development-tools" "bat-extras" "fd-find" "gnupg2" "lazygit" "neovim" "python3-neovim" -}}
-{{- $formula := list "chezmoi" "coreutils" "fd" "findutils" "lazygit" "moreutils" "neovim" "tree-sitter-cli" -}}
-{{- $cask    := list "1password" "1password-cli" "brave-browser" "font-jetbrains-mono" "font-jetbrains-mono-nerd-font" "kitty" "logi-options-plus" "moom" "tor-browser" "visual-studio-code" "whatsapp" "zed" -}}
+{{- /* ---- Homebrew Formulae (macOS workstation) ---- */ -}}
+{{- $brewFormulae := list
+    "bat" "bat-extras" "btop" "chezmoi" "coreutils" "curl" "eza"
+    "fd" "ffmpeg-full" "findutils" "fzf" "git" "git-delta"
+    "imagemagick-full" "jq" "lazygit" "moreutils" "neovim" "poppler"
+    "resvg" "ripgrep" "sevenzip" "starship" "tree-sitter-cli"
+    "vim" "wget" "yazi" "zoxide" "zsh" -}}
 
-{{- /* kitty: Linux workstation only (macOS uses brewCasks) */ -}}
-{{- if and (ne $packageManager "brew") (eq $machine "workstation") -}}
-    {{- $core = append $core "kitty" -}}
-{{- end -}}
+{{- /* ---- Homebrew Casks (macOS workstation) ---- */ -}}
+{{- $brewCasks := list
+    "brave-browser"
+    "font-jetbrains-mono" "font-jetbrains-mono-nerd-font" "font-symbols-only-nerd-font"
+    "kitty" "logi-options-plus" "moom" "whatsapp" "zed" -}}
 
-{{- /* terminal: strip GUI/heavy tools not installed on minimal systems */ -}}
-{{- if eq $machine "terminal" -}}
-    {{- $core = without $core "btop" "ripgrep" -}}
-    {{- $apt  = without $apt "fd-find" "tree-sitter-cli" -}}
-    {{- $snap = without $snap "lazygit" "nvim" -}}
-    {{- $dnf  = without $dnf "fd-find" "lazygit" "neovim" "python3-neovim" -}}
-{{- else -}}
-    {{- /* workstation: strip vim (neovim installed instead) */ -}}
-    {{- $core = without $core "vim" -}}
-{{- end -}}
+{{- /* ---- APT packages (Ubuntu / Debian) ---- */ -}}
+{{- /* brave-browser and zed require external repo setup in 00-install-core.     */ -}}
+{{- /* yazi, lazygit, nvim (neovim) are installed via snap — see $snapPackages.  */ -}}
+{{- $aptPackages := list
+    "bat" "brave-browser" "btop" "build-essential" "curl"
+    "eza" "fd-find" "fzf" "git" "git-delta" "gpg"
+    "kitty" "ripgrep" "starship" "tree-sitter-cli"
+    "vim" "wget" "zed" "zoxide" "zsh" -}}
 
-{{- /* darkman + xdg-desktop-portal-gtk: GNOME Linux workstations only */ -}}
+{{- /* ---- Snap packages (Ubuntu / Debian) ---- */ -}}
+{{- /* All installed with --classic confinement.                                  */ -}}
+{{- $snapPackages := list "chezmoi" "lazygit" "nvim" "yazi" -}}
+
+{{- /* ---- Pacman packages (Arch / CachyOS — always workstation) ---- */ -}}
+{{- $pacmanPackages := list
+    "7zip" "base-devel" "bat" "bat-extras" "btop" "chezmoi" "curl"
+    "eza" "fd" "ffmpeg" "fzf" "git" "git-delta" "gnupg"
+    "imagemagick" "jq" "kitty" "lazygit" "neovim" "poppler" "resvg"
+    "ripgrep" "starship" "tree-sitter" "ttf-jetbrains-mono" "ttf-jetbrains-mono-nerd"
+    "vim" "wget" "yazi" "zed" "zoxide" "zsh" -}}
+
+{{- /* ---- AUR packages (Arch / CachyOS — always workstation) ---- */ -}}
+{{- $aurPackages := list "brave-bin" -}}
+
+{{- /* ---- DNF packages (Fedora / Rocky) ---- */ -}}
+{{- /* brave-browser, zed, yazi require external repo/COPR setup in script.      */ -}}
+{{- $dnfPackages := list
+    "@development-tools" "bat" "bat-extras" "brave-browser" "btop" "chezmoi"
+    "curl" "eza" "fd-find" "fzf" "git" "git-delta" "gnupg2"
+    "kitty" "lazygit" "neovim" "python3-neovim" "ripgrep" "starship"
+    "vim" "wget" "yazi" "zed" "zoxide" "zsh" -}}
+
+{{- /* ---- GNOME Linux workstation extras ---- */ -}}
 {{- if and (eq $machine "workstation") (eq .chezmoi.os "linux") (contains "gnome" $desktop) -}}
-    {{- $pacman = append $pacman "darkman" "xdg-desktop-portal-gtk" -}}
-    {{- $apt    = append $apt    "darkman" "xdg-desktop-portal-gtk" -}}
-    {{- $dnf    = append $dnf    "darkman" "xdg-desktop-portal-gtk" -}}
+    {{- $pacmanPackages = append $pacmanPackages "darkman" "xdg-desktop-portal-gtk" -}}
+    {{- $aptPackages    = append $aptPackages    "darkman" "xdg-desktop-portal-gtk" -}}
+    {{- $dnfPackages    = append $dnfPackages    "darkman" "xdg-desktop-portal-gtk" -}}
 {{- end -}}
 
-{{- /* zed: GUI editor — workstation only */ -}}
-{{- if eq $machine "workstation" -}}
-    {{- $pacman = append $pacman "zed" -}}
+{{- /* ========================================================================== */ -}}
+{{- /* Machine-Type Filtering                                                     */ -}}
+{{- /* ========================================================================== */ -}}
+{{- /* terminal: strip W-only packages (W:Y T:N in canonical table)               */ -}}
+{{- /* server:   replace lists with S:Y packages only                             */ -}}
+
+{{- if eq $machine "terminal" -}}
+    {{- $aptPackages  = without $aptPackages  "brave-browser" "kitty" "zed" -}}
+    {{- $snapPackages = without $snapPackages  "yazi" -}}
+    {{- $dnfPackages  = without $dnfPackages  "brave-browser" "kitty" "yazi" "zed" -}}
+    {{- /* pacman/aur: arch/cachyos are always workstation — no trimming needed */ -}}
+{{- else if eq $machine "server" -}}
+    {{- $aptPackages    = list "curl" "git" "vim" "wget" -}}
+    {{- $snapPackages   = list "chezmoi" -}}
+    {{- $dnfPackages    = list "chezmoi" "curl" "git" "vim" "wget" -}}
+    {{- $pacmanPackages = list -}}
+    {{- $aurPackages    = list -}}
+    {{- $brewFormulae   = list -}}
+    {{- $brewCasks      = list -}}
 {{- end -}}
 
 {{- /* ========================================================================== */ -}}
 {{- /* Editor / Merge Commands                                                    */ -}}
 {{- /* ========================================================================== */ -}}
+{{- /* server has no neovim (S:N); workstation and terminal both have nvim (T:Y). */ -}}
 
 {{- $mergeCmd := "vimdiff" -}}
 {{- $editCmd  := "vim" -}}
-{{- if eq $machine "workstation" -}}
+{{- if ne $machine "server" -}}
     {{- $mergeCmd = "nvim" -}}
     {{- $editCmd  = "nvim" -}}
 {{- end -}}
@@ -160,107 +209,49 @@
 # Chezmoi Configuration
 # =============================================================================
 
-# -----------------------------------------------------------------------------
-# Data Section - Template Variables
-# -----------------------------------------------------------------------------
 [data]
-  # User email address
-  email = {{ $email | quote }}
-
-  # User full name
-  name = {{ $name | quote }}
-
-  # Operating system identifier (e.g., "darwin", "linux-ubuntu", "linux-fedora")
-  osid = {{ $osid | quote }}
-
-  # Machine identifier (e.g., "workstation", "terminal")
-  machine = {{ $machine | quote }}
-
-  # Desktop environment (lowercased XDG_CURRENT_DESKTOP, e.g. "gnome", "kde", "")
-  desktop = {{ $desktop | quote }}
-
-  # CPU architecture (e.g., "amd64", "arm64", "x86_64", "aarch64")
-  cpuArch = {{ $cpuArch | quote }}
-
-  # Architecture flags
-  isARM           = {{ $isARM }}
-  isRPi           = {{ $isRPi }}
-  isIntel         = {{ $isIntel }}
-  isAppleSilicon  = {{ $isAppleSilicon }}
-
-  # Package manager (e.g., "brew", "apt", "dnf", "pacman")
+  email          = {{ $email          | quote }}
+  name           = {{ $name           | quote }}
+  osid           = {{ $osid           | quote }}
+  machine        = {{ $machine        | quote }}
+  desktop        = {{ $desktop        | quote }}
+  cpuArch        = {{ $cpuArch        | quote }}
+  isARM          = {{ $isARM }}
+  isRPi          = {{ $isRPi }}
+  isIntel        = {{ $isIntel }}
+  isAppleSilicon = {{ $isAppleSilicon }}
   packageManager = {{ $packageManager | quote }}
 
-  # Required Package lists
-  corePackages    = {{ $core    | toJson }}
-  pacmanPackages  = {{ $pacman  | toJson }}
-  aurPackages     = {{ $aur     | toJson }}
-  aptPackages     = {{ $apt     | toJson }}
-  snapPackages    = {{ $snap    | toJson }}
-  dnfPackages     = {{ $dnf     | toJson }}
-  brewFormulae    = {{ $formula | toJson }}
-  brewCasks       = {{ $cask    | toJson }}
+  brewFormulae   = {{ $brewFormulae   | toJson }}
+  brewCasks      = {{ $brewCasks      | toJson }}
+  aptPackages    = {{ $aptPackages    | toJson }}
+  snapPackages   = {{ $snapPackages   | toJson }}
+  pacmanPackages = {{ $pacmanPackages | toJson }}
+  aurPackages    = {{ $aurPackages    | toJson }}
+  dnfPackages    = {{ $dnfPackages    | toJson }}
 
-# -----------------------------------------------------------------------------
-# Script Environment Variables
-# -----------------------------------------------------------------------------
-# Environment variables available to all chezmoi scripts
 [scriptEnv]
-  # Path to BDB helper functions (relative to source directory)
   HELPERS = "{{ .chezmoi.homeDir }}/.config/bdb/bdb_helpers.sh"
 
-# -----------------------------------------------------------------------------
-# Git Configuration
-# -----------------------------------------------------------------------------
-# Configure how chezmoi interacts with the git repository
 [git]
-  # Automatically commit changes when applying
   autoCommit = false
+  autoPush   = false
 
-  # Automatically push changes after commit
-  autoPush = false
-
-# -----------------------------------------------------------------------------
-# Diff Configuration
-# -----------------------------------------------------------------------------
-# Configure diff tool for reviewing changes
 [diff]
-  # Use external diff tool if available
   pager = "delta"
 
-# -----------------------------------------------------------------------------
-# Merge Configuration
-# -----------------------------------------------------------------------------
-# Configure merge strategy for conflicts
 [merge]
   command = {{ $mergeCmd | quote }}
-{{- if eq $machine "workstation" }}
+{{- if ne $machine "server" }}
   args = ["-d"]
 {{- end }}
 
-# -----------------------------------------------------------------------------
-# Editor Configuration
-# -----------------------------------------------------------------------------
-# Default editor for 'chezmoi edit'
 [edit]
   command = {{ $editCmd | quote }}
-  args = []
+  args    = []
 
-# -----------------------------------------------------------------------------
-# Template Options
-# -----------------------------------------------------------------------------
-# Configure template rendering behavior
 [template]
-  # Template options
   options = ["missingkey=error"]
 
-# -----------------------------------------------------------------------------
-# 1Password Configuration
-# -----------------------------------------------------------------------------
-# Enables onepasswordRead / onepassword* template functions.
-# prompt = true: re-prompts for biometric/password auth if the session expires
-# instead of erroring out. Requires op CLI and an active account.
 [onepassword]
   prompt = true
-
-# =============================================================================

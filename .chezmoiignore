@@ -1,91 +1,78 @@
 # =============================================================================
 # Chezmoi Ignore File
 # =============================================================================
-# Files and directories listed here will not be copied to the target system
-# Supports glob patterns and conditional logic using templates
+# Canonical deployment scope — derived from dotfiles-overhaul-spec.md §8.
 #
 # Documentation: https://www.chezmoi.io/reference/special-files-and-directories/chezmoiignore/
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Source-Only Directories (Never Install)
+# Source-Only Directories (Never Installed)
 # -----------------------------------------------------------------------------
 # sddm/ holds system-level SDDM config and theme source files.
-# They are deployed to /etc/ and /usr/share/ by run_onchange_after_06-sddm.sh,
-# not to the home directory.
+# Deployed to /etc/ and /usr/share/ by run_onchange_after_06-install-sddm.sh.
 sddm/
 
 # -----------------------------------------------------------------------------
-# Claude Code Files (Never Install)
+# Claude Code Files (Never Installed)
 # -----------------------------------------------------------------------------
 .gitignore
 .claude
 CLAUDE.md
 
 # -----------------------------------------------------------------------------
-# Repository Files (Never Install)
+# Repository Files (Never Installed)
 # -----------------------------------------------------------------------------
-# Documentation and bootstrap scripts that should remain in the repository
 ARCHITECTURE.md
 README.md
 TODO.md
 
-# Bootstrap script (only used for initial setup)
+# Bootstrap script (only used for initial setup, not deployed)
 .config/bdb/bdb_bootstrap.sh
 
 # -----------------------------------------------------------------------------
-# macOS-Specific Files
+# Workstation-Only Paths — excluded on terminal and server
 # -----------------------------------------------------------------------------
-# Only install these files on macOS systems
-{{- if ne .chezmoi.os "darwin" }}
-.config/homebrew/
-{{- end }}
-
-# -----------------------------------------------------------------------------
-# Machine-Type Exclusions
-# -----------------------------------------------------------------------------
-# workstation: neovim replaces vim; vim config files are unused
-{{- if eq .machine "workstation" }}
-.vimrc
-.vim/
-{{- end }}
-
-# terminal: GUI/heavy tools are not installed
-{{- if eq .machine "terminal" }}
-.config/kitty/
-.config/nvim/
-.config/lazygit/
-.config/btop/
-{{- end }}
-
-# darkman: GNOME Linux workstations only
-{{- if not (and (eq .machine "workstation") (eq .chezmoi.os "linux") (contains "gnome" (env "XDG_CURRENT_DESKTOP" | lower))) }}
+{{- if ne .machine "workstation" }}
 .config/darkman/
-.local/share/darkman/
-{{- end }}
-
-# yay: AUR helper — pacman-based systems only (Arch, CachyOS, Manjaro)
-{{- if ne .packageManager "pacman" }}
+.config/homebrew/
+.config/kitty/
+.config/niri/
+.config/noctalia/
 .config/yay/
-{{- end }}
-
-# yazi: workstation only — image preview requires Kitty's graphics protocol
-{{- if ne .machine "workstation" }}
 .config/yazi/
-{{- end }}
-
-# zed: GUI editor — workstation only
-{{- if ne .machine "workstation" }}
 .config/zed/
+.local/share/darkman/
+sddm/
 {{- end }}
 
-# kitty session files are runtime artefacts — never track them
-.config/kitty/sessions/*.kitty-session
+# -----------------------------------------------------------------------------
+# Dev/TUI tool configs — excluded on server only
+# -----------------------------------------------------------------------------
+{{- if eq .machine "server" }}
+.config/bat/
+.config/btop/
+.config/delta/
+.config/eza/
+.config/lazygit/
+.config/nvim/
+.config/starship/
+.editorconfig
+.ssh/
+.zsh/
+.zshrc
+{{- end }}
 
-# niri and noctalia are manually installed; deploy only when the packages are present
+# -----------------------------------------------------------------------------
+# Conditional Paths — excluded when the relevant tool is absent
+# -----------------------------------------------------------------------------
+
+# niri: tiling compositor — deploy only when installed
 {{- if not (lookPath "niri") }}
 .config/niri/
 {{- end }}
+
+# noctalia: deploy only when installed
 {{- if not (lookPath "qs") }}
 .config/noctalia/
 {{- end }}
@@ -93,17 +80,23 @@ TODO.md
 # Noctalia plugins are managed by Noctalia's plugin manager, not chezmoi
 .config/noctalia/plugins/
 
+# darkman: GNOME only — excluded on all other desktops/WMs
+{{- if not (contains "gnome" (env "XDG_CURRENT_DESKTOP" | lower)) }}
+.config/darkman/
+.local/share/darkman/
+{{- end }}
+
+# kitty session files are runtime artefacts — never track them
+.config/kitty/sessions/*.kitty-session
+
 # -----------------------------------------------------------------------------
 # 1Password-Managed SSH Keys
 # -----------------------------------------------------------------------------
-# These templates call onepasswordRead at template-processing time.
-# Skip them when op is not installed (e.g. on first apply of a fresh machine).
-# After run_onchange_after_01 installs 1Password, a second chezmoi apply
-# will process these files.
+# Skip when op is not installed. After run_onchange_after_02 installs
+# 1Password, a second chezmoi apply will deploy these keys.
 {{- if not (lookPath "op") }}
 .ssh/norville_at_chikyu.pub
 .ssh/ansible_at_chikyu.pub
 .ssh/norville_at_github.pub
 .ssh/norville_at_codeberg.pub
 {{- end }}
-

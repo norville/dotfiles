@@ -34,6 +34,12 @@ trap 'bdb_cleanup' EXIT
 
 bdb_begin_section "Environment Setup"
 
+{{- if eq .machine "server" }}
+bdb_warn "Skipping environment config — not applicable on server machines"
+bdb_end_section
+exit 0
+{{- end }}
+
 # -----------------------------------------------------------------------------
 # Application Configuration
 # -----------------------------------------------------------------------------

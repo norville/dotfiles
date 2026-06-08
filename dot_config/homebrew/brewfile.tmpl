@@ -1,7 +1,4 @@
 # Formulae
-{{ range .corePackages -}}
-brew "{{ . }}"
-{{ end }}
 {{ range .brewFormulae -}}
 brew "{{ . }}"
 {{ end }}
