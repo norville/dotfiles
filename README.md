@@ -1,10 +1,10 @@
 # Dotfiles Repository
 
-A comprehensive, cross-platform dotfiles management system using [Chezmoi](https://www.chezmoi.io/). This repository provides automated setup and configuration for development environments across macOS, Linux (Debian/Ubuntu, Fedora/RHEL, Arch/Manjaro), with consistent tooling and shell configuration.
+A comprehensive, cross-platform dotfiles management system using [Chezmoi](https://www.chezmoi.io/). This repository provides automated setup and configuration for development environments across macOS, Linux (Debian/Ubuntu, Fedora, Rocky Linux, Arch/CachyOS), with consistent tooling and shell configuration.
 
 ## Features
 
-- **Cross-Platform Support**: macOS, Debian, Ubuntu, Fedora, RHEL, Arch, and Manjaro
+- **Cross-Platform Support**: macOS, Debian, Ubuntu, Fedora, Rocky Linux, Arch, and CachyOS
 - **Automated Bootstrap**: One-command installation script for fresh systems
 - **Idempotent Scripts**: All install scripts safely re-run — skip what is already installed
 - **Package Management**: Automatic installation of essential development tools
@@ -60,7 +60,8 @@ chezmoi init --apply norville
 
 | File | Description |
 |------|-------------|
-| `.chezmoi.toml.tmpl` | Chezmoi config: OS detection, template variables, package lists |
+| `.chezmoi.toml.tmpl` | Chezmoi config: OS/machine/packageManager detection, template variables |
+| `.chezmoidata.toml` | Canonical package matrix — single source of truth for all package data |
 | `.chezmoiignore` | Files excluded from deployment based on OS/platform/machine type |
 | `.chezmoiexternal.toml.tmpl` | External resources (Tokyo Night themes, fonts) downloaded by chezmoi |
 
@@ -98,20 +99,20 @@ These scripts run automatically during `chezmoi apply` or `chezmoi update`:
 
 | Directory | Description | Condition |
 |-----------|-------------|-----------|
-| `.config/bat/` | Bat syntax highlighter — config and Tokyo Night theme | all |
-| `.config/btop/` | Btop system monitor — config and Tokyo Night theme | workstation |
+| `.config/bat/` | Bat syntax highlighter — config and Tokyo Night theme | workstation + terminal |
+| `.config/btop/` | Btop system monitor — config and Tokyo Night theme | workstation + terminal |
 | `.config/darkman/` | darkman auto dark/light mode — config and switch scripts | GNOME workstation |
-| `.config/delta/` | Delta git diff pager — Tokyo Night theme | all |
-| `.config/eza/` | Eza (modern ls) — Tokyo Night color theme | all |
+| `.config/delta/` | Delta git diff pager — Tokyo Night theme | workstation + terminal |
+| `.config/eza/` | Eza (modern ls) — Tokyo Night color theme | workstation + terminal |
 | `.config/git/` | Git config, global ignore, delta integration | all |
 | `.config/kitty/` | Kitty terminal — config, tab bar, Tokyo Night theme, session management | workstation |
-| `.config/lazygit/` | Lazygit TUI — Tokyo Night theme | workstation |
-| `.config/nvim/` | Neovim (LazyVim + Tokyo Night Moon, transparent bg) | workstation |
-| `.config/starship/` | Starship cross-shell prompt | all |
-| `.config/yay/` | yay AUR helper — build dir and config | pacman only |
+| `.config/lazygit/` | Lazygit TUI — Tokyo Night theme | workstation + terminal |
+| `.config/nvim/` | Neovim (LazyVim + Tokyo Night Moon, transparent bg) | workstation + terminal |
+| `.config/starship/` | Starship cross-shell prompt | workstation + terminal |
+| `.config/yay/` | yay AUR helper — build dir and config | workstation (pacman only) |
 | `.config/yazi/` | yazi file manager — config, Tokyo Night theme, status bar plugin | workstation |
 | `.config/zed/` | Zed editor — settings aligned with nvim, Tokyo Night theme | workstation |
-| `.config/homebrew/` | Homebrew bundle file | macOS only |
+| `.config/homebrew/` | Homebrew bundle file | macOS (workstation) |
 
 ## Installed Tools
 
@@ -229,10 +230,10 @@ brew update && brew upgrade
 # Debian/Ubuntu
 sudo apt update && sudo apt upgrade -y
 
-# Fedora/RHEL
+# Fedora/Rocky Linux
 sudo dnf upgrade -y
 
-# Arch/Manjaro
+# Arch/CachyOS
 sudo pacman -Syu && yay -Syu
 ```
 

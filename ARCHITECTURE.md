@@ -50,11 +50,27 @@ operating systems and architectures.
 **Design Pattern**: Sourced by both bootstrap and chezmoi scripts via the `HELPERS`
 environment variable set in `[scriptEnv]` of `.chezmoi.toml.tmpl`.
 
-### 3. Chezmoi Configuration (.chezmoi.toml.tmpl)
+### 3. Package Matrix (.chezmoidata.toml)
+
+**Purpose**: Single source of truth for all package data
+
+**Location**: `.chezmoidata.toml`
+
+Each entry declares `name`, `managers` (brew-formula/brew-cask/apt/snap/pacman/aur/dnf),
+and `machines` (workstation/terminal/server). Install scripts and `brewfile.tmpl` filter
+this data at template render time using `range .package` + `has $.machine .machines`.
+
+GNOME-conditional packages (darkman, xdg-desktop-portal-gtk) are **not** in this file —
+they depend on `XDG_CURRENT_DESKTOP` at render time and are appended explicitly in the
+install script.
+
+This file is a chezmoi special file (starts with `.chezmoi`) — not deployed to `~/`.
+
+### 4. Chezmoi Configuration (.chezmio.toml.tmpl)
 
 **Purpose**: Configure chezmoi behavior and define template variables
 
-**Location**: `.chezmoi.toml.tmpl`
+**Location**: `.chezmio.toml.tmpl`
 
 **Key Responsibilities**:
 - OS and distribution detection
@@ -62,8 +78,11 @@ environment variable set in `[scriptEnv]` of `.chezmoi.toml.tmpl`.
 - Machine type identification (`workstation` / `terminal` / `server`)
 - Desktop environment detection (for GNOME-specific features)
 - Package manager identification
-- Package list centralisation (all package governance lives here)
 - Template variable definition
+
+**Note on package lists**: Package data lives in `.chezmoidata.toml`. `.chezmio.toml.tmpl`
+does not export package lists — `.chezmoidata.toml` is not available during `chezmio init`
+template processing (fresh machine), so list construction is deferred to script render time.
 
 **Generated Variables** (available in all `.tmpl` files):
 
@@ -76,10 +95,9 @@ environment variable set in `[scriptEnv]` of `.chezmoi.toml.tmpl`.
 | `cpuArch` | `amd64`, `arm64` | CPU architecture |
 | `isARM` / `isIntel` / `isAppleSilicon` / `isRPi` | `true`/`false` | Architecture flags |
 | `email` / `name` | — | User identity for git config etc. |
-| `aptPackages` / `snapPackages` | `[…]` | Ubuntu/Debian package lists (machine-type filtered) |
-| `pacmanPackages` / `aurPackages` | `[…]` | Arch/CachyOS package lists |
-| `dnfPackages` | `[…]` | Fedora/Rocky package list (machine-type filtered) |
-| `brewFormulae` / `brewCasks` | `[…]` | macOS Homebrew lists |
+
+Package lists are **not** exported here — scripts and `brewfile.tmpl` filter `.package`
+(from `.chezmoidata.toml`) directly at render time.
 
 **Machine type detection**: `darwin`, `linux-arch`, `linux-cachyos`, and `linux-fedora`
 are always `workstation`. `linux-ubuntu` resolves to `workstation` if a graphical session
@@ -93,7 +111,7 @@ on `chezmoi apply`. Templates that need GNOME detection in active conditionals
 (`.chezmoiignore`, scripts) use `env "XDG_CURRENT_DESKTOP" | lower` directly rather
 than `.desktop` to avoid a missing-key error on machines that haven't re-run `chezmoi init`.
 
-### 4. Installation Scripts (.chezmoiscripts/)
+### 5. Installation Scripts (.chezmoiscripts/)
 
 **Purpose**: Install and configure packages and environment
 
@@ -149,7 +167,7 @@ fi
 
 W = workstation, T = terminal, S = server.
 
-### 5. System-Level Files (sddm/)
+### 6. System-Level Files (sddm/)
 
 Files that must live outside `~/` are stored in a source-only directory at the repo root.
 `.chezmoiignore` excludes the directory from home deployment. A `run_onchange_after_`
@@ -213,7 +231,8 @@ chezmoi update
 
 ```
 dotfiles/
-├── .chezmoi.toml.tmpl              # Chezmoi config + template variables + package lists
+├── .chezmoi.toml.tmpl              # Chezmoi config + template variables (no package lists)
+├── .chezmoidata.toml               # Canonical package matrix (never deployed)
 ├── .chezmoiexternal.toml.tmpl      # External resources (themes, fonts)
 ├── .chezmoiignore                  # OS/platform/machine exclusions
 ├── CLAUDE.md                       # Context for Claude Code (not deployed, gitignored)
@@ -309,18 +328,19 @@ audit trail for the entire installation.
 
 ### Why Machine Types?
 
-Two types (`workstation` / `terminal`) keep the same source tree deployable to both
-full development environments and minimal headless servers:
+Three types keep the same source tree deployable across full GUI environments, headless
+dev machines, and minimal homelab servers:
 
-| Concern | Workstation | Terminal |
-|---------|-------------|----------|
-| Editor | Neovim + Zed | Vim |
-| Terminal emulator | Kitty | (none) |
-| File manager | yazi | (none) |
-| Git TUI | lazygit | (none) |
-| System monitor | btop | (none) |
-| Dark mode | darkman (GNOME) | (none) |
-| Vim config deployed | No | Yes |
+| Concern | Workstation | Terminal | Server |
+|---------|-------------|----------|--------|
+| Editor | Neovim + Zed | Neovim + Vim | Vim |
+| Terminal emulator | Kitty | (none) | (none) |
+| File manager | yazi | (none) | (none) |
+| Git TUI | lazygit | lazygit | (none) |
+| System monitor | btop | btop | (none) |
+| Dark mode | darkman (GNOME) | (none) | (none) |
+| Vim config deployed | Yes | Yes | Yes |
+| Neovim config deployed | Yes | Yes | No |
 
 ### Why EditorConfig as Single Source of Truth?
 
@@ -420,13 +440,18 @@ trap 'rm -rf "$_TMP"; bdb_cleanup' EXIT
 4. Add a `cmp -s "$_TMP/file" /target/path` condition to the idempotency check
 5. Add a `sudo install -m MODE "$_TMP/file" /target/path` to the deploy block
 
-### Adding a New Optional Package
+### Adding a New Core Package
+
+1. Add an entry to `.chezmoidata.toml` with `name`, `managers`, and `machines`
+2. The install script and Brewfile pick it up automatically on next render
+3. Commit with `feat: add <package> to package matrix`
+
+### Adding a New Optional Package (prompted install)
 
 1. Create `run_onchange_after_NN-install-<pkg>.sh.tmpl`
 2. Start with a `bdb_has_cmd` idempotency check
 3. Add `bdb_ask` prompt before installing
-4. Add to `$pacman` / `$apt` / `$dnf` / `$cask` in `.chezmoi.toml.tmpl` if appropriate
-5. Commit with `feat: add <package> install script`
+4. Commit with `feat: add <package> install script`
 
 ### Adding a New SSH Key
 
