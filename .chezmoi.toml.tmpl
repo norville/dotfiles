@@ -4,6 +4,10 @@
 {{- /* This file configures chezmoi behavior and defines template variables       */ -}}
 {{- /* that are available in all chezmoi templates.                               */ -}}
 {{- /*                                                                            */ -}}
+{{- /* Package data lives in .chezmoidata.toml (loaded by chezmoi automatically, */ -}}
+{{- /* but NOT available here during `chezmoi init` on a fresh machine).          */ -}}
+{{- /* Scripts and brewfile.tmpl filter .package directly at render time.         */ -}}
+{{- /*                                                                            */ -}}
 {{- /* Documentation: https://www.chezmoi.io/reference/configuration-file/        */ -}}
 {{- /* ========================================================================== */ -}}
 
@@ -113,87 +117,6 @@
 {{- $name   := "Norville" -}}
 
 {{- /* ========================================================================== */ -}}
-{{- /* Package Lists                                                              */ -}}
-{{- /* ========================================================================== */ -}}
-{{- /* All lists defined for workstation. Terminal strips W-only packages.        */ -}}
-{{- /* Server replaces lists with S:Y packages only.                              */ -}}
-{{- /* Canonical source: dotfiles-overhaul-spec.md §5                            */ -}}
-
-{{- /* ---- Homebrew Formulae (macOS workstation) ---- */ -}}
-{{- $brewFormulae := list
-    "bat" "bat-extras" "btop" "chezmoi" "coreutils" "curl" "eza"
-    "fd" "ffmpeg-full" "findutils" "fzf" "git" "git-delta"
-    "imagemagick-full" "jq" "lazygit" "moreutils" "neovim" "poppler"
-    "resvg" "ripgrep" "sevenzip" "starship" "tree-sitter-cli"
-    "vim" "wget" "yazi" "zoxide" "zsh" -}}
-
-{{- /* ---- Homebrew Casks (macOS workstation) ---- */ -}}
-{{- $brewCasks := list
-    "brave-browser"
-    "font-jetbrains-mono" "font-jetbrains-mono-nerd-font" "font-symbols-only-nerd-font"
-    "kitty" "logi-options-plus" "moom" "whatsapp" "zed" -}}
-
-{{- /* ---- APT packages (Ubuntu / Debian) ---- */ -}}
-{{- /* brave-browser and zed require external repo setup in 00-install-core.     */ -}}
-{{- /* yazi, lazygit, nvim (neovim) are installed via snap — see $snapPackages.  */ -}}
-{{- $aptPackages := list
-    "bat" "brave-browser" "btop" "build-essential" "curl"
-    "eza" "fd-find" "fzf" "git" "git-delta" "gpg"
-    "kitty" "ripgrep" "starship" "tree-sitter-cli"
-    "vim" "wget" "zed" "zoxide" "zsh" -}}
-
-{{- /* ---- Snap packages (Ubuntu / Debian) ---- */ -}}
-{{- /* All installed with --classic confinement.                                  */ -}}
-{{- $snapPackages := list "chezmoi" "lazygit" "nvim" "yazi" -}}
-
-{{- /* ---- Pacman packages (Arch / CachyOS — always workstation) ---- */ -}}
-{{- $pacmanPackages := list
-    "7zip" "base-devel" "bat" "bat-extras" "btop" "chezmoi" "curl"
-    "eza" "fd" "ffmpeg" "fzf" "git" "git-delta" "gnupg"
-    "imagemagick" "jq" "kitty" "lazygit" "neovim" "poppler" "resvg"
-    "ripgrep" "starship" "tree-sitter" "ttf-jetbrains-mono" "ttf-jetbrains-mono-nerd"
-    "vim" "wget" "yazi" "zed" "zoxide" "zsh" -}}
-
-{{- /* ---- AUR packages (Arch / CachyOS — always workstation) ---- */ -}}
-{{- $aurPackages := list "brave-bin" -}}
-
-{{- /* ---- DNF packages (Fedora / Rocky) ---- */ -}}
-{{- /* brave-browser, zed, yazi require external repo/COPR setup in script.      */ -}}
-{{- $dnfPackages := list
-    "@development-tools" "bat" "bat-extras" "brave-browser" "btop" "chezmoi"
-    "curl" "eza" "fd-find" "fzf" "git" "git-delta" "gnupg2"
-    "kitty" "lazygit" "neovim" "python3-neovim" "ripgrep" "starship"
-    "vim" "wget" "yazi" "zed" "zoxide" "zsh" -}}
-
-{{- /* ---- GNOME Linux workstation extras ---- */ -}}
-{{- if and (eq $machine "workstation") (eq .chezmoi.os "linux") (contains "gnome" $desktop) -}}
-    {{- $pacmanPackages = append $pacmanPackages "darkman" "xdg-desktop-portal-gtk" -}}
-    {{- $aptPackages    = append $aptPackages    "darkman" "xdg-desktop-portal-gtk" -}}
-    {{- $dnfPackages    = append $dnfPackages    "darkman" "xdg-desktop-portal-gtk" -}}
-{{- end -}}
-
-{{- /* ========================================================================== */ -}}
-{{- /* Machine-Type Filtering                                                     */ -}}
-{{- /* ========================================================================== */ -}}
-{{- /* terminal: strip W-only packages (W:Y T:N in canonical table)               */ -}}
-{{- /* server:   replace lists with S:Y packages only                             */ -}}
-
-{{- if eq $machine "terminal" -}}
-    {{- $aptPackages  = without $aptPackages  "brave-browser" "kitty" "zed" -}}
-    {{- $snapPackages = without $snapPackages  "yazi" -}}
-    {{- $dnfPackages  = without $dnfPackages  "brave-browser" "kitty" "yazi" "zed" -}}
-    {{- /* pacman/aur: arch/cachyos are always workstation — no trimming needed */ -}}
-{{- else if eq $machine "server" -}}
-    {{- $aptPackages    = list "curl" "git" "vim" "wget" -}}
-    {{- $snapPackages   = list "chezmoi" -}}
-    {{- $dnfPackages    = list "chezmoi" "curl" "git" "vim" "wget" -}}
-    {{- $pacmanPackages = list -}}
-    {{- $aurPackages    = list -}}
-    {{- $brewFormulae   = list -}}
-    {{- $brewCasks      = list -}}
-{{- end -}}
-
-{{- /* ========================================================================== */ -}}
 {{- /* Editor / Merge Commands                                                    */ -}}
 {{- /* ========================================================================== */ -}}
 {{- /* server has no neovim (S:N); workstation and terminal both have nvim (T:Y). */ -}}
@@ -221,14 +144,6 @@
   isIntel        = {{ $isIntel }}
   isAppleSilicon = {{ $isAppleSilicon }}
   packageManager = {{ $packageManager | quote }}
-
-  brewFormulae   = {{ $brewFormulae   | toJson }}
-  brewCasks      = {{ $brewCasks      | toJson }}
-  aptPackages    = {{ $aptPackages    | toJson }}
-  snapPackages   = {{ $snapPackages   | toJson }}
-  pacmanPackages = {{ $pacmanPackages | toJson }}
-  aurPackages    = {{ $aurPackages    | toJson }}
-  dnfPackages    = {{ $dnfPackages    | toJson }}
 
 [scriptEnv]
   HELPERS = "{{ .chezmoi.homeDir }}/.config/bdb/bdb_helpers.sh"

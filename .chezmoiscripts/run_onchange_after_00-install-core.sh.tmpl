@@ -2,8 +2,10 @@
 # =============================================================================
 # Chezmoi Script: Install Core Packages
 # =============================================================================
-# Installs all packages for the current platform and machine type.
-# Package lists are defined in .chezmoi.toml.tmpl; this script only installs.
+# Builds install arrays by filtering .chezmoidata.toml at template render time.
+# One pass per install mechanism (apt-get, snap, pacman, AUR, dnf, brew).
+# GNOME-conditional packages (darkman, xdg-desktop-portal-gtk) are appended
+# explicitly — they depend on XDG_CURRENT_DESKTOP, not just machine type.
 #
 # Execution: chezmoi apply (only when this file's content changes)
 # Location:  .chezmoiscripts/run_onchange_after_00-install-core.sh.tmpl
@@ -64,7 +66,7 @@ fi
 
 {{- if eq .machine "workstation" }}
 
-# Brave Browser — not in official repos
+# Brave Browser — not in official repos (workstation only)
 if [[ ! -f /etc/apt/keyrings/brave-browser-archive-keyring.gpg ]]; then
     bdb_action "Setting up Brave Browser repository"
     sudo mkdir -p /etc/apt/keyrings
@@ -80,7 +82,7 @@ else
     bdb_success "Brave Browser repository already configured"
 fi
 
-# Zed — not in official repos; use dariogriffo/zed-debian
+# Zed — not in official repos; use dariogriffo/zed-debian (workstation only)
 if [[ ! -f /etc/apt/keyrings/zed.gpg ]]; then
     bdb_action "Setting up Zed repository"
     sudo mkdir -p /etc/apt/keyrings
@@ -101,8 +103,14 @@ fi
 # APT packages
 # -----------------------------------------------------------------------------
 APT_PACKAGES=(
-    {{- range .aptPackages }}
-    "{{ . }}"
+    {{- range .package }}
+    {{- if and (has $.machine .machines) (has "apt" .managers) }}
+    "{{ .name }}"
+    {{- end }}
+    {{- end }}
+    {{- if and (eq .machine "workstation") (contains "gnome" (env "XDG_CURRENT_DESKTOP" | lower)) }}
+    "darkman"
+    "xdg-desktop-portal-gtk"
     {{- end }}
 )
 
@@ -110,11 +118,13 @@ bdb_exec "Updating APT package lists" sudo apt-get update
 bdb_exec "Installing APT packages"    sudo apt-get install -y "${APT_PACKAGES[@]}"
 
 # -----------------------------------------------------------------------------
-# Snap packages (lazygit, nvim, yazi, chezmoi — absent/outdated in apt)
+# Snap packages (chezmoi, lazygit, nvim, yazi — absent/outdated in apt)
 # -----------------------------------------------------------------------------
 SNAP_PACKAGES=(
-    {{- range .snapPackages }}
-    "{{ . }}"
+    {{- range .package }}
+    {{- if and (has $.machine .machines) (has "snap" .managers) }}
+    "{{ .name }}"
+    {{- end }}
     {{- end }}
 )
 
@@ -194,8 +204,14 @@ fi
 # DNF packages
 # -----------------------------------------------------------------------------
 DNF_PACKAGES=(
-    {{- range .dnfPackages }}
-    "{{ . }}"
+    {{- range .package }}
+    {{- if and (has $.machine .machines) (has "dnf" .managers) }}
+    "{{ .name }}"
+    {{- end }}
+    {{- end }}
+    {{- if and (eq .machine "workstation") (contains "gnome" (env "XDG_CURRENT_DESKTOP" | lower)) }}
+    "darkman"
+    "xdg-desktop-portal-gtk"
     {{- end }}
 )
 
@@ -210,36 +226,45 @@ bdb_exec "Installing DNF packages" sudo dnf install -y "${DNF_PACKAGES[@]}"
 # Pacman packages
 # -----------------------------------------------------------------------------
 PACMAN_PACKAGES=(
-    {{- range .pacmanPackages }}
-    "{{ . }}"
+    {{- range .package }}
+    {{- if and (has $.machine .machines) (has "pacman" .managers) }}
+    "{{ .name }}"
+    {{- end }}
+    {{- end }}
+    {{- if contains "gnome" (env "XDG_CURRENT_DESKTOP" | lower) }}
+    "darkman"
+    "xdg-desktop-portal-gtk"
     {{- end }}
 )
 
 bdb_exec "Installing Pacman packages" sudo pacman -S --needed --noconfirm "${PACMAN_PACKAGES[@]}"
 
-        {{- if .aurPackages }}
 # -----------------------------------------------------------------------------
 # AUR packages
 # -----------------------------------------------------------------------------
-if ! bdb_test_cmd "yay"; then
-    bdb_action "Installing yay (AUR helper)"
-    # Refresh sudo timestamp once so both makepkg pacman calls share the session
-    sudo -v
-    git clone https://aur.archlinux.org/yay.git /tmp/yay
-    (cd /tmp/yay && makepkg -si --noconfirm)
-    rm -rf /tmp/yay
-    bdb_success "yay installed"
-else
-    bdb_success "yay already installed"
-fi
-
 AUR_PACKAGES=(
-    {{- range .aurPackages }}
-    "{{ . }}"
+    {{- range .package }}
+    {{- if and (has $.machine .machines) (has "aur" .managers) }}
+    "{{ .name }}"
+    {{- end }}
     {{- end }}
 )
-bdb_exec "Installing AUR packages" yay -S --needed --noconfirm "${AUR_PACKAGES[@]}"
-        {{- end }}
+
+if [[ ${#AUR_PACKAGES[@]} -gt 0 ]]; then
+    if ! bdb_test_cmd "yay"; then
+        bdb_action "Installing yay (AUR helper)"
+        # Refresh sudo timestamp once so both makepkg pacman calls share the session
+        sudo -v
+        git clone https://aur.archlinux.org/yay.git /tmp/yay
+        (cd /tmp/yay && makepkg -si --noconfirm)
+        rm -rf /tmp/yay
+        bdb_success "yay installed"
+    else
+        bdb_success "yay already installed"
+    fi
+
+    bdb_exec "Installing AUR packages" yay -S --needed --noconfirm "${AUR_PACKAGES[@]}"
+fi
 
     {{- end }}
 

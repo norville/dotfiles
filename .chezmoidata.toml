@@ -1,0 +1,294 @@
+# =============================================================================
+# .chezmoidata.toml — Canonical Package Matrix
+# =============================================================================
+# Single source of truth for all package data.
+# Edit this file to add, remove, or move packages.
+# The install script (00-install-core.sh.tmpl) and brewfile.tmpl build their
+# arrays by filtering this data at template render time.
+#
+# Fields:
+#   name     — package name as used by the package manager
+#   managers — which managers deliver this package:
+#              brew-formula | brew-cask | apt | snap | pacman | aur | dnf
+#   machines — which machine types receive this package:
+#              workstation | terminal | server
+#
+# Notes:
+#   - Name splits (same tool, different name per manager) are separate entries.
+#     Example: "fd" (brew/pacman) and "fd-find" (apt/dnf) are two entries.
+#   - GNOME-conditional packages (darkman, xdg-desktop-portal-gtk) are NOT in
+#     this file — they depend on a runtime env var (XDG_CURRENT_DESKTOP) that
+#     cannot be expressed as a machine type. They are appended explicitly in the
+#     install script under a GNOME template conditional.
+#   - snap and aur are separate install mechanisms, not mixed with apt/pacman.
+# =============================================================================
+
+[[package]]
+name     = "@development-tools"
+managers = ["dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "7zip"
+managers = ["pacman"]
+machines = ["workstation"]
+
+[[package]]
+name     = "base-devel"
+managers = ["pacman"]
+machines = ["workstation"]
+
+[[package]]
+name     = "bat"
+managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "bat-extras"
+managers = ["brew-formula", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "brave-bin"
+managers = ["aur"]
+machines = ["workstation"]
+
+[[package]]
+name     = "brave-browser"
+managers = ["brew-cask", "apt", "dnf"]
+machines = ["workstation"]
+
+[[package]]
+name     = "btop"
+managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "build-essential"
+managers = ["apt"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "chezmoi"
+managers = ["brew-formula", "snap", "pacman", "dnf"]
+machines = ["workstation", "terminal", "server"]
+
+[[package]]
+name     = "coreutils"
+managers = ["brew-formula"]
+machines = ["workstation"]
+
+[[package]]
+name     = "curl"
+managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation", "terminal", "server"]
+
+[[package]]
+name     = "eza"
+managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "fd"
+managers = ["brew-formula", "pacman"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "fd-find"
+managers = ["apt", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "ffmpeg"
+managers = ["pacman"]
+machines = ["workstation"]
+
+[[package]]
+name     = "ffmpeg-full"
+managers = ["brew-formula"]
+machines = ["workstation"]
+
+[[package]]
+name     = "findutils"
+managers = ["brew-formula"]
+machines = ["workstation"]
+
+[[package]]
+name     = "font-jetbrains-mono"
+managers = ["brew-cask"]
+machines = ["workstation"]
+
+[[package]]
+name     = "font-jetbrains-mono-nerd-font"
+managers = ["brew-cask"]
+machines = ["workstation"]
+
+[[package]]
+name     = "font-symbols-only-nerd-font"
+managers = ["brew-cask"]
+machines = ["workstation"]
+
+[[package]]
+name     = "fzf"
+managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "git"
+managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation", "terminal", "server"]
+
+[[package]]
+name     = "git-delta"
+managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "gnupg"
+managers = ["pacman"]
+machines = ["workstation"]
+
+[[package]]
+name     = "gnupg2"
+managers = ["dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "gpg"
+managers = ["apt"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "imagemagick"
+managers = ["pacman"]
+machines = ["workstation"]
+
+[[package]]
+name     = "imagemagick-full"
+managers = ["brew-formula"]
+machines = ["workstation"]
+
+[[package]]
+name     = "jq"
+managers = ["brew-formula", "pacman"]
+machines = ["workstation"]
+
+[[package]]
+name     = "kitty"
+managers = ["brew-cask", "apt", "pacman", "dnf"]
+machines = ["workstation"]
+
+[[package]]
+name     = "lazygit"
+managers = ["brew-formula", "snap", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "logi-options-plus"
+managers = ["brew-cask"]
+machines = ["workstation"]
+
+[[package]]
+name     = "moom"
+managers = ["brew-cask"]
+machines = ["workstation"]
+
+[[package]]
+name     = "moreutils"
+managers = ["brew-formula"]
+machines = ["workstation"]
+
+[[package]]
+name     = "neovim"
+managers = ["brew-formula", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "nvim"
+managers = ["snap"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "poppler"
+managers = ["brew-formula", "pacman"]
+machines = ["workstation"]
+
+[[package]]
+name     = "python3-neovim"
+managers = ["dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "resvg"
+managers = ["brew-formula", "pacman"]
+machines = ["workstation"]
+
+[[package]]
+name     = "ripgrep"
+managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "sevenzip"
+managers = ["brew-formula"]
+machines = ["workstation"]
+
+[[package]]
+name     = "starship"
+managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "tree-sitter"
+managers = ["pacman"]
+machines = ["workstation"]
+
+[[package]]
+name     = "tree-sitter-cli"
+managers = ["brew-formula", "apt"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "ttf-jetbrains-mono"
+managers = ["pacman"]
+machines = ["workstation"]
+
+[[package]]
+name     = "ttf-jetbrains-mono-nerd"
+managers = ["pacman"]
+machines = ["workstation"]
+
+[[package]]
+name     = "vim"
+managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation", "terminal", "server"]
+
+[[package]]
+name     = "wget"
+managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation", "terminal", "server"]
+
+[[package]]
+name     = "whatsapp"
+managers = ["brew-cask"]
+machines = ["workstation"]
+
+[[package]]
+name     = "yazi"
+managers = ["brew-formula", "snap", "pacman", "dnf"]
+machines = ["workstation"]
+
+[[package]]
+name     = "zed"
+managers = ["brew-cask", "apt", "pacman", "dnf"]
+machines = ["workstation"]
+
+[[package]]
+name     = "zoxide"
+managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "zsh"
+managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
