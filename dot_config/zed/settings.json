@@ -48,14 +48,16 @@
   },
 
   // ── Extensions ───────────────────────────────────────────────────────────────
-  // Auto-installed by run_onchange_after_01-config-env via `zed --install-extension`.
-  // These add language server support for languages not built into Zed:
-  //   ruby       → ruby-lsp
-  //   java       → jdtls
-  //   lua        → lua-language-server
-  //   terraform  → terraform-ls
-  //   dockerfile → dockerfile-language-server
-  //   sql        → sqls
+  // Zed auto-installs these on startup (auto_install_extensions setting).
+  // Language server support for languages not built into Zed.
+  "auto_install_extensions": {
+    "ruby":       true,
+    "java":       true,
+    "lua":        true,
+    "terraform":  true,
+    "dockerfile": true,
+    "sql":        true,
+  },
 
   // ── Languages ─────────────────────────────────────────────────────────────────
   // Only languages where Zed's automatic defaults need explicit guidance.

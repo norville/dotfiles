@@ -260,7 +260,7 @@ fi
 | Script | Trigger | W | T | S | Purpose |
 |--------|---------|---|---|---|---------|
 | `00-install-core` | onchange | ✅ | ✅ | ✅ | Platform packages (per-manager lists, machine-type filtered) |
-| `01-config-env` | onchange | ✅ | ✅ | — | Default shell, bat cache, font cache, Zed extensions, nvim dirs |
+| `01-config-env` | onchange | ✅ | ✅ | — | Default shell, bat cache, font cache, nvim dirs |
 | `02-install-1password` | onchange | ✅ | — | — | 1Password + op CLI (prompted; darwin: brew cask) |
 | `03-install-vscode` | onchange | ✅ | — | — | VS Code (prompted; darwin: brew cask) |
 | `04-install-ansible` | onchange | ✅ | ✅ | ✅ | Ansible (prompted on all platforms) |
