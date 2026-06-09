@@ -18,6 +18,21 @@ require("lazy").setup({
   spec = {
     -- add LazyVim and import its plugins
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+    -- LazyVim language extras — must follow lazyvim.plugins, precede user plugins
+    { import = "lazyvim.plugins.extras.lang.clangd" },     -- C · C++
+    { import = "lazyvim.plugins.extras.lang.go" },         -- Go
+    { import = "lazyvim.plugins.extras.lang.java" },       -- Java
+    { import = "lazyvim.plugins.extras.lang.rust" },       -- Rust
+    { import = "lazyvim.plugins.extras.lang.python" },     -- Python
+    { import = "lazyvim.plugins.extras.lang.ruby" },       -- Ruby
+    { import = "lazyvim.plugins.extras.lang.lua" },        -- Lua
+    { import = "lazyvim.plugins.extras.lang.typescript" }, -- JS · TS · JSX · TSX
+    { import = "lazyvim.plugins.extras.lang.json" },       -- JSON · JSONC
+    { import = "lazyvim.plugins.extras.lang.yaml" },       -- YAML
+    { import = "lazyvim.plugins.extras.lang.toml" },       -- TOML
+    { import = "lazyvim.plugins.extras.lang.markdown" },   -- Markdown
+    { import = "lazyvim.plugins.extras.lang.docker" },     -- Dockerfile
+    { import = "lazyvim.plugins.extras.lang.terraform" },  -- Terraform · OpenTofu
     -- import/override with your plugins
     { import = "plugins" },
   },
