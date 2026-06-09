@@ -46,4 +46,25 @@
   "session": {
     "trust_all_worktrees": true,
   },
+
+  // ── Extensions ───────────────────────────────────────────────────────────────
+  // Install via command palette: "zed: extensions" — search and install each.
+  // These add language server support for languages not built into Zed:
+  //   ruby       → ruby-lsp
+  //   java       → jdtls
+  //   lua        → lua-language-server
+  //   terraform  → terraform-ls
+  //   dockerfile → dockerfile-language-server
+  //   sql        → sqls
+
+  // ── Languages ─────────────────────────────────────────────────────────────────
+  // Only languages where Zed's automatic defaults need explicit guidance.
+  // Rust, Go, TypeScript, C/C++, JSON, YAML, TOML, HTML, CSS, Markdown, and Bash
+  // are handled automatically — no entry needed.
+  "languages": {
+    // Use both pyright (completions + diagnostics) and ruff (formatting + linting).
+    "Python": {
+      "language_servers": ["pyright", "ruff"]
+    },
+  },
 }
