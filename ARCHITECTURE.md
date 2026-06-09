@@ -66,6 +66,82 @@ install script.
 
 This file is a chezmoi special file (starts with `.chezmoi`) — not deployed to `~/`.
 
+#### Package Manager Name Splits
+
+Same logical tool delivered under a different name per manager:
+
+| Logical Tool | brew-formula | brew-cask | apt | snap | pacman | aur | dnf |
+|---|---|---|---|---|---|---|---|
+| Brave Browser | — | `brave-browser` | `brave-browser` | — | — | `brave-bin` | `brave-browser` |
+| fd | `fd` | — | `fd-find` | — | `fd` | — | `fd-find` |
+| Neovim | `neovim` | — | — | `nvim` | `neovim` | — | `neovim` |
+| ffmpeg | `ffmpeg-full` | — | — | — | `ffmpeg` | — | — |
+| ImageMagick | `imagemagick-full` | — | — | — | `imagemagick` | — | — |
+| GnuPG | — | — | `gpg` | — | `gnupg` | — | `gnupg2` |
+| 7-Zip | `sevenzip` | — | — | — | `7zip` | — | — |
+
+#### Full Package Matrix
+
+Column key: `bf`=brew-formula · `bc`=brew-cask · `pcm`=pacman · `W`=workstation · `T`=terminal · `S`=server.
+Source of truth: `.chezmoidata.toml` (machine type filtering applied at template render time).
+
+| Package | bf | bc | apt | snap | pcm | aur | dnf | W | T | S |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| `@development-tools` | | | | | | | ✓ | ✓ | ✓ | |
+| `7zip` | | | | | ✓ | | | ✓ | | |
+| `base-devel` | | | | | ✓ | | | ✓ | | |
+| `bat` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
+| `bat-extras` | ✓ | | | | ✓ | | ✓ | ✓ | ✓ | |
+| `brave-bin` | | | | | | ✓ | | ✓ | | |
+| `brave-browser` | | ✓ | ✓ | | | | ✓ | ✓ | | |
+| `btop` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
+| `build-essential` | | | ✓ | | | | | ✓ | ✓ | |
+| `chezmoi` | ✓ | | | ✓ | ✓ | | ✓ | ✓ | ✓ | ✓ |
+| `coreutils` | ✓ | | | | | | | ✓ | | |
+| `curl` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | ✓ |
+| `eza` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
+| `fd` | ✓ | | | | ✓ | | | ✓ | ✓ | |
+| `fd-find` | | | ✓ | | | | ✓ | ✓ | ✓ | |
+| `ffmpeg` | | | | | ✓ | | | ✓ | | |
+| `ffmpeg-full` | ✓ | | | | | | | ✓ | | |
+| `findutils` | ✓ | | | | | | | ✓ | | |
+| `font-jetbrains-mono` | | ✓ | | | | | | ✓ | | |
+| `font-jetbrains-mono-nerd-font` | | ✓ | | | | | | ✓ | | |
+| `font-symbols-only-nerd-font` | | ✓ | | | | | | ✓ | | |
+| `fzf` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
+| `git` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | ✓ |
+| `git-delta` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
+| `gnupg` | | | | | ✓ | | | ✓ | | |
+| `gnupg2` | | | | | | | ✓ | ✓ | ✓ | |
+| `gpg` | | | ✓ | | | | | ✓ | ✓ | |
+| `imagemagick` | | | | | ✓ | | | ✓ | | |
+| `imagemagick-full` | ✓ | | | | | | | ✓ | | |
+| `jq` | ✓ | | | | ✓ | | | ✓ | | |
+| `kitty` | | ✓ | ✓ | | ✓ | | ✓ | ✓ | | |
+| `lazygit` | ✓ | | | ✓ | ✓ | | ✓ | ✓ | ✓ | |
+| `logi-options-plus` | | ✓ | | | | | | ✓ | | |
+| `moom` | | ✓ | | | | | | ✓ | | |
+| `moreutils` | ✓ | | | | | | | ✓ | | |
+| `neovim` | ✓ | | | | ✓ | | ✓ | ✓ | ✓ | |
+| `nvim` (snap) | | | | ✓ | | | | ✓ | ✓ | |
+| `poppler` | ✓ | | | | ✓ | | | ✓ | | |
+| `python3-neovim` | | | | | | | ✓ | ✓ | ✓ | |
+| `resvg` | ✓ | | | | ✓ | | | ✓ | | |
+| `ripgrep` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
+| `sevenzip` | ✓ | | | | | | | ✓ | | |
+| `starship` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
+| `tree-sitter` | | | | | ✓ | | | ✓ | | |
+| `tree-sitter-cli` | ✓ | | ✓ | | | | | ✓ | ✓ | |
+| `ttf-jetbrains-mono` | | | | | ✓ | | | ✓ | | |
+| `ttf-jetbrains-mono-nerd` | | | | | ✓ | | | ✓ | | |
+| `vim` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | ✓ |
+| `wget` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | ✓ |
+| `whatsapp` | | ✓ | | | | | | ✓ | | |
+| `yazi` | ✓ | | | ✓ | ✓ | | ✓ | ✓ | | |
+| `zed` | | ✓ | ✓ | | ✓ | | ✓ | ✓ | | |
+| `zoxide` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
+| `zsh` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
+
 ### 4. Chezmoi Configuration (.chezmio.toml.tmpl)
 
 **Purpose**: Configure chezmoi behavior and define template variables
@@ -98,6 +174,30 @@ template processing (fresh machine), so list construction is deferred to script 
 
 Package lists are **not** exported here — scripts and `brewfile.tmpl` filter `.package`
 (from `.chezmoidata.toml`) directly at render time.
+
+#### OS / Distro → Machine Type
+
+| `osid` | workstation | terminal | server | Detection |
+|---|:---:|:---:|:---:|---|
+| `darwin` | ✓ | — | — | auto |
+| `linux-arch` | ✓ | — | — | auto |
+| `linux-cachyos` | ✓ | — | — | auto |
+| `linux-fedora` | ✓ | — | — | auto |
+| `linux-ubuntu` | ✓ | ✓ | ✓ | graphical session env vars → workstation; else `promptStringOnce` |
+| `linux-debian` | — | ✓ | ✓ | always `promptStringOnce` |
+| `linux-rocky` | — | ✓ | ✓ | always `promptStringOnce` |
+
+#### OS / Distro → Package Manager
+
+| `osid` | `packageManager` | Managers used |
+|---|---|---|
+| `darwin` | `brew` | brew-formula, brew-cask |
+| `linux-arch` | `pacman` | pacman, aur |
+| `linux-cachyos` | `pacman` | pacman, aur |
+| `linux-ubuntu` | `apt` | apt, snap |
+| `linux-debian` | `apt` | apt, snap |
+| `linux-fedora` | `dnf` | dnf |
+| `linux-rocky` | `dnf` | dnf |
 
 **Machine type detection**: `darwin`, `linux-arch`, `linux-cachyos`, and `linux-fedora`
 are always `workstation`. `linux-ubuntu` resolves to `workstation` if a graphical session
@@ -287,6 +387,41 @@ dotfiles/
     ├── private_norville_at_github.pub.tmpl
     └── private_norville_at_codeberg.pub.tmpl
 ```
+
+### Dotfiles Deployment Scope
+
+Canonical table of which machine types receive each config directory.
+Implemented via `.chezmoiignore` template conditionals. Source of truth: `.chezmoiignore`.
+
+| Source path | Deployed path | W | T | S | Extra gates |
+|---|---|:---:|:---:|:---:|---|
+| `dot_config/bdb` | `.config/bdb/` | ✓ | ✓ | ✓ | |
+| `dot_config/git` | `.config/git/` | ✓ | ✓ | ✓ | |
+| `dot_vim` | `.vim/` | ✓ | ✓ | ✓ | |
+| `dot_vimrc` | `.vimrc` | ✓ | ✓ | ✓ | |
+| `dot_config/bat` | `.config/bat/` | ✓ | ✓ | — | |
+| `dot_config/btop` | `.config/btop/` | ✓ | ✓ | — | |
+| `dot_config/delta` | `.config/delta/` | ✓ | ✓ | — | |
+| `dot_config/eza` | `.config/eza/` | ✓ | ✓ | — | |
+| `dot_config/lazygit` | `.config/lazygit/` | ✓ | ✓ | — | |
+| `dot_config/nvim` | `.config/nvim/` | ✓ | ✓ | — | |
+| `dot_config/starship` | `.config/starship/` | ✓ | ✓ | — | |
+| `dot_editorconfig` | `.editorconfig` | ✓ | ✓ | — | |
+| `dot_ssh` | `.ssh/` | ✓ | ✓ | — | `lookPath "op"` guards individual keys |
+| `dot_zsh` | `.zsh/` | ✓ | ✓ | — | |
+| `dot_zshrc.tmpl` | `.zshrc` | ✓ | ✓ | — | |
+| `dot_config/darkman` | `.config/darkman/` | ✓ | — | — | GNOME desktop (`contains "gnome" XDG_CURRENT_DESKTOP`) |
+| `dot_config/homebrew` | `.config/homebrew/` | ✓ | — | — | macOS (workstation is always darwin or linux-arch/cachyos/fedora) |
+| `dot_config/kitty` | `.config/kitty/` | ✓ | — | — | |
+| `dot_config/niri` | `.config/niri/` | ✓ | — | — | `lookPath "niri"` |
+| `dot_config/noctalia` | `.config/noctalia/` | ✓ | — | — | `lookPath "qs"` |
+| `dot_config/yay` | `.config/yay/` | ✓ | — | — | |
+| `dot_config/yazi` | `.config/yazi/` | ✓ | — | — | |
+| `dot_config/zed` | `.config/zed/` | ✓ | — | — | |
+| `dot_local/share/darkman` | `.local/share/darkman/` | ✓ | — | — | GNOME desktop |
+| `sddm/` | (deployed by script 06) | ✓ | — | — | |
+
+W = workstation, T = terminal, S = server.
 
 ### Naming Conventions
 
