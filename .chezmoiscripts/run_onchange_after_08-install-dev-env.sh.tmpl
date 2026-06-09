@@ -97,16 +97,23 @@ else
 fi
 
 # =============================================================================
-# JAVA — SDKMAN! (manages JDK, Maven, Gradle, and other JVM tools)
+# JAVA — OpenJDK
 # =============================================================================
 
 bdb_action "Checking java"
-if [[ -d "${HOME}/.sdkman" ]]; then
-    bdb_success "java/SDKMAN already installed — skipping"
-elif bdb_ask "Install java (SDKMAN!)?"; then
-    bdb_exec "Installing SDKMAN!" bash -c 'curl -s "https://get.sdkman.io" | bash'
-    bdb_success "SDKMAN installed"
-    bdb_info "Run 'sdk install java' in a new shell to install a JDK version"
+if bdb_has_cmd "java"; then
+    bdb_success "java already installed — skipping"
+elif bdb_ask "Install java (OpenJDK)?"; then
+{{- if eq .chezmoi.os "darwin" }}
+    bdb_exec "Installing OpenJDK" brew install openjdk
+{{- else if eq .packageManager "apt" }}
+    bdb_exec "Installing OpenJDK" sudo apt-get install -y default-jdk
+{{- else if eq .packageManager "dnf" }}
+    bdb_exec "Installing OpenJDK" sudo dnf install -y java-latest-openjdk-devel
+{{- else if eq .packageManager "pacman" }}
+    bdb_exec "Installing OpenJDK" sudo pacman -S --needed --noconfirm jdk-openjdk
+{{- end }}
+    bdb_success "java installed"
 else
     bdb_warn "Skipping java"
 fi
