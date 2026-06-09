@@ -124,18 +124,32 @@ binds {
     // Default terminal: Kitty
     Mod+Return          { spawn "kitty"; }
 
+    // Default GUI Editor: Zed
+    Mod+E               { spawn "zeditor"; }
+
     // Default browser: Brave
     Mod+B               { spawn "brave"; }
+
+    // Default file manager: Nautilus
+    Mod+X               { spawn "nautilus"; }
 {{- if lookPath "qs" }}
 
-    // Noctalia: show settings
+    // Noctalia: toggle settings
     Mod+Comma           { spawn-sh "qs -c noctalia-shell ipc call settings toggle"; }
+
+    // Noctalia: toggle launcher
+    Mod+Space           { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
+
+    // Noctalia: screenshots
+    Mod+Shift+1         { screenshot; }
+    Mod+Shift+2         { screenshot-screen; }
+    Mod+Shift+3         { screenshot-window; }
 {{- end }}
 
     // 1Password
     Shift+Ctrl+Space    { spawn-sh "1password --quick-access"; }
     Shift+Ctrl+L        { spawn-sh "1password --lock"; }
-    Shift+Ctrl+P        { spawn-sh "1password --toggle"; }
+    Shift+Ctrl+1        { spawn-sh "1password --toggle"; }
 
     Mod+Shift+H         { focus-monitor-left; }
     Mod+Shift+J         { focus-monitor-down; }

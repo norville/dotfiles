@@ -8,7 +8,28 @@
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
   // ── Appearance ───────────────────────────────────────────────────────────────
+  "cli_default_open_behavior": "existing_window",
+  "project_panel": {
+    "dock": "left"
+  },
+  "outline_panel": {
+    "dock": "left"
+  },
+  "collaboration_panel": {
+    "dock": "left"
+  },
+  "agent": {
+    "dock": "right",
+    "favorite_models": [],
+    "model_parameters": []
+  },
+  "git_panel": {
+    "dock": "left"
+  },
   "buffer_font_family": "JetBrains Mono",
+  "buffer_font_features": {
+    "calt": false // Disable ligatures
+  },
   "ui_font_size": 16,
   "buffer_font_size": 15,
   "theme": {
@@ -18,17 +39,13 @@
   },
 
   // ── Editor behaviour (mirrors nvim / LazyVim defaults) ────────────────────────
-  "vim_mode": true,
-
-  // Defer indent style, size, charset, and trailing-whitespace to ~/.editorconfig.
-  // Mirrors vim.g.editorconfig = true in nvim/lua/config/options.lua.
-  "use_editorconfig": true,
+  "vim_mode": false,
 
   // Format on save: off — run formatters manually, same as vim.g.autoformat = false.
   "format_on_save": "off",
 
   // Show both absolute and relative line numbers (matches LazyVim: number + relativenumber).
-  "relative_line_numbers": true,
+  "relative_line_numbers": "enabled",
 
   // Keep 8 lines of context above/below the cursor (matches LazyVim: scrolloff = 8).
   "vertical_scroll_margin": 8,
@@ -51,12 +68,13 @@
   // Zed auto-installs these on startup (auto_install_extensions setting).
   // Language server support for languages not built into Zed.
   "auto_install_extensions": {
-    "ruby":       true,
-    "java":       true,
-    "lua":        true,
-    "terraform":  true,
-    "dockerfile": true,
-    "sql":        true,
+    "dockerfile":   true,
+    "editorconfig": true,
+    "java":         true,
+    "lua":          true,
+    "ruby":         true,
+    "sql":          true,
+    "terraform":    true,
   },
 
   // ── Languages ─────────────────────────────────────────────────────────────────
