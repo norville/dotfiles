@@ -126,7 +126,7 @@ bdb_footer() {
 
 # Default: No — user must type y/Y to confirm
 bdb_ask() {
-    local response
+    local response=""
     printf "%s%s %s [y/N]: %s" "${C_MAG}" "${ICON_PROMPT}" "$*" "${C_RST}" >&3
     read -r response < /dev/tty
     _bdb_log "User prompt: $* - Response: ${response:-N}"
@@ -135,7 +135,7 @@ bdb_ask() {
 
 # Default: Yes — user must type n/N to decline
 bdb_ask_yes() {
-    local response
+    local response=""
     printf "%s%s %s [Y/n]: %s" "${C_MAG}" "${ICON_PROMPT}" "$*" "${C_RST}" >&3
     read -r response < /dev/tty
     _bdb_log "User prompt: $* - Response: ${response:-Y}"
@@ -143,7 +143,7 @@ bdb_ask_yes() {
 }
 
 bdb_input() {
-    local response
+    local response=""
     printf "%s%s %s: %s" "${C_MAG}" "${ICON_PROMPT}" "$*" "${C_RST}" >&3
     read -r response < /dev/tty
     _bdb_log "User input: $* - Response: ${response}"
