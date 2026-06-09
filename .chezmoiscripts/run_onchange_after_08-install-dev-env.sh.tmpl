@@ -6,7 +6,7 @@
 # install is prompted independently — already-installed tools are skipped.
 # Runs on workstation and terminal only; exits immediately on server.
 #
-# Environments: conda · golang · java · lua · nodejs · python · ruby · rust
+# Environments: conda · golang · java · lua · nodejs · ruby · rust
 #
 # Execution: run_onchange_after_08 — fires when file content changes
 # Location:  .chezmoiscripts/run_onchange_after_08-install-dev-env.sh.tmpl
@@ -164,38 +164,6 @@ elif bdb_ask "Install Node.js (nvm + LTS + npm)?"; then
     bdb_success "Node.js installed"
 else
     bdb_warn "Skipping Node.js"
-fi
-
-# =============================================================================
-# PYTHON — pyenv (version manager) + build dependencies
-# =============================================================================
-# python3 and pip3 are already present via 00-install-core.
-# Run 'pyenv install <version>' after setup to add a specific Python version.
-
-bdb_action "Checking Python"
-if [[ -d "${HOME}/.pyenv" ]] || bdb_has_cmd "pyenv"; then
-    bdb_success "Python/pyenv already installed — skipping"
-elif bdb_ask "Install Python (pyenv)?"; then
-{{- if eq .chezmoi.os "darwin" }}
-    bdb_exec "Installing pyenv" brew install pyenv
-{{- else if eq .packageManager "apt" }}
-    bdb_exec "Installing pyenv build dependencies" sudo apt-get install -y \
-        build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
-        libsqlite3-dev libncurses5-dev libncursesw5-dev xz-utils tk-dev \
-        libffi-dev liblzma-dev
-    bdb_exec "Installing pyenv" bash -c 'curl https://pyenv.run | bash'
-{{- else if eq .packageManager "dnf" }}
-    bdb_exec "Installing pyenv build dependencies" sudo dnf install -y \
-        gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel \
-        openssl-devel xz xz-devel libffi-devel
-    bdb_exec "Installing pyenv" bash -c 'curl https://pyenv.run | bash'
-{{- else if eq .packageManager "pacman" }}
-    bdb_exec "Installing pyenv" sudo pacman -S --needed --noconfirm pyenv
-{{- end }}
-    bdb_success "pyenv installed"
-    bdb_info "Run 'pyenv install <version>' in a new shell to install a Python version"
-else
-    bdb_warn "Skipping Python"
 fi
 
 # =============================================================================

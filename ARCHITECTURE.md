@@ -263,7 +263,7 @@ fi
 | `05-install-docker` | onchange | ✅ | — | ✅ | Docker (linux only; prompted) |
 | `06-install-sddm` | onchange | ✅ | — | — | SDDM config + Tokyo Night Moon → /etc/ and /usr/share/ |
 | `07-install-darkman` | onchange | ✅ | — | — | Enable darkman.service (GNOME workstation only) |
-| `08-install-dev-env` | onchange | ✅ | ✅ | — | Dev environment version managers: conda, golang, java, lua, nodejs, python, ruby, rust |
+| `08-install-dev-env` | onchange | ✅ | ✅ | — | Dev environment version managers: conda, golang, java, lua, nodejs, ruby, rust |
 | `90-update-env` | every update | ✅ | ✅ | ✅ | System packages (all); ZSH plugins + caches (non-server) |
 
 W = workstation, T = terminal, S = server.
