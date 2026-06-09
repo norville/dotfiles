@@ -25,7 +25,6 @@ require("lazy").setup({
     { import = "lazyvim.plugins.extras.lang.rust" },       -- Rust
     { import = "lazyvim.plugins.extras.lang.python" },     -- Python
     { import = "lazyvim.plugins.extras.lang.ruby" },       -- Ruby
-    { import = "lazyvim.plugins.extras.lang.lua" },        -- Lua
     { import = "lazyvim.plugins.extras.lang.typescript" }, -- JS · TS · JSX · TSX
     { import = "lazyvim.plugins.extras.lang.json" },       -- JSON · JSONC
     { import = "lazyvim.plugins.extras.lang.yaml" },       -- YAML
