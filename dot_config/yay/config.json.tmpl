@@ -44,6 +44,6 @@
 	"sudobin": "sudo",
 	"sudoflags": "",
 	"sudoloop": false,
-	"useask": false,
-	"version": "12.6.0"
+	"useask": false{{ if lookPath "yay" }},
+	"version": "{{ output "yay" "--version" | trim | trimPrefix "yay v" | splitList " " | first }}"{{ end }}
 }
