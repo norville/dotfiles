@@ -204,6 +204,21 @@ managers = ["brew-formula", "pacman", "dnf"]
 machines = ["workstation", "terminal"]
 
 [[package]]
+name     = "node"
+managers = ["brew-formula"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "nodejs"
+managers = ["apt", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "npm"
+managers = ["apt", "pacman"]
+machines = ["workstation", "terminal"]
+
+[[package]]
 name     = "nvim"
 managers = ["snap"]
 machines = ["workstation", "terminal"]

@@ -3,7 +3,7 @@
 # Chezmoi Script: Environment Setup
 # =============================================================================
 # Configures the shell environment and application settings: bat theme cache,
-# default shell (zsh), font cache, and Neovim directories.
+# default shell (zsh), font cache, Zed extensions, and Neovim directories.
 #
 # Execution: chezmoi apply (only when this file's content changes)
 # Location:  .chezmoiscripts/run_onchange_after_01-config-env.sh.tmpl
@@ -184,6 +184,34 @@ else
 fi
 
 {{- end }}
+
+# -----------------------------------------------------------------------------
+# Zed Extensions
+# -----------------------------------------------------------------------------
+bdb_action "Installing Zed extensions"
+if bdb_has_cmd "zed"; then
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    _ZED_EXT_DIR="${HOME}/Library/Application Support/Zed/extensions/installed"
+  else
+    _ZED_EXT_DIR="${HOME}/.local/share/zed/extensions/installed"
+  fi
+  _ZED_EXTENSIONS=(ruby java lua terraform dockerfile sql)
+  for _ext in "${_ZED_EXTENSIONS[@]}"; do
+    if [[ -d "${_ZED_EXT_DIR}/${_ext}" ]]; then
+      bdb_success "Zed extension already installed: ${_ext}"
+    else
+      bdb_action "Installing Zed extension: ${_ext}"
+      if zed --install-extension "${_ext}" >/dev/null 2>&1; then
+        bdb_success "Zed extension installed: ${_ext}"
+      else
+        bdb_warn "Could not install '${_ext}' — install manually: zed: extensions"
+      fi
+    fi
+  done
+  unset _ZED_EXT_DIR _ZED_EXTENSIONS _ext
+else
+  bdb_warn "Zed not found — skipping extension installation"
+fi
 
 # -----------------------------------------------------------------------------
 # Neovim Configuration

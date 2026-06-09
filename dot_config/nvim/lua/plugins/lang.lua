@@ -33,8 +33,8 @@ return {
 
   -- ── LSP servers for languages without a LazyVim extra ────────────────────────
   -- Configured via nvim-lspconfig; Mason auto-installs the servers.
-  -- Note: bashls, html, cssls, vimls, sqls are all npm-based — require node+npm
-  -- (installed by 08-install-dev-env). sqls requires go.
+  -- Note: bashls, html, cssls, vimls are npm-based — require node+npm (in
+  -- package matrix). sqls is a Go binary; Mason downloads a prebuilt release.
 
   {
     "neovim/nvim-lspconfig",

@@ -75,6 +75,7 @@ Same logical tool delivered under a different name per manager:
 | Brave Browser | — | `brave-browser` | `brave-browser` | — | — | `brave-bin` | `brave-browser` |
 | fd | `fd` | — | `fd-find` | — | `fd` | — | `fd-find` |
 | Neovim | `neovim` | — | — | `nvim` | `neovim` | — | `neovim` |
+| Node.js | `node` | — | `nodejs` | — | `nodejs` | — | `nodejs` |
 | ffmpeg | `ffmpeg-full` | — | — | — | `ffmpeg` | — | — |
 | ImageMagick | `imagemagick-full` | — | — | — | `imagemagick` | — | — |
 | GnuPG | — | — | `gpg` | — | `gnupg` | — | `gnupg2` |
@@ -123,6 +124,9 @@ Source of truth: `.chezmoidata.toml` (machine type filtering applied at template
 | `moom` | | ✓ | | | | | | ✓ | | |
 | `moreutils` | ✓ | | | | | | | ✓ | | |
 | `neovim` | ✓ | | | | ✓ | | ✓ | ✓ | ✓ | |
+| `node` | ✓ | | | | | | | ✓ | ✓ | |
+| `nodejs` | | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
+| `npm` | | | ✓ | | ✓ | | | ✓ | ✓ | |
 | `nvim` (snap) | | | | ✓ | | | | ✓ | ✓ | |
 | `poppler` | ✓ | | | | ✓ | | | ✓ | | |
 | `python3-neovim` | | | | | | | ✓ | ✓ | ✓ | |
@@ -256,14 +260,13 @@ fi
 | Script | Trigger | W | T | S | Purpose |
 |--------|---------|---|---|---|---------|
 | `00-install-core` | onchange | ✅ | ✅ | ✅ | Platform packages (per-manager lists, machine-type filtered) |
-| `01-config-env` | onchange | ✅ | ✅ | — | Default shell, bat cache, font cache, nvim dirs |
+| `01-config-env` | onchange | ✅ | ✅ | — | Default shell, bat cache, font cache, Zed extensions, nvim dirs |
 | `02-install-1password` | onchange | ✅ | — | — | 1Password + op CLI (prompted; darwin: brew cask) |
 | `03-install-vscode` | onchange | ✅ | — | — | VS Code (prompted; darwin: brew cask) |
 | `04-install-ansible` | onchange | ✅ | ✅ | ✅ | Ansible (prompted on all platforms) |
 | `05-install-docker` | onchange | ✅ | — | ✅ | Docker (linux only; prompted) |
 | `06-install-sddm` | onchange | ✅ | — | — | SDDM config + Tokyo Night Moon → /etc/ and /usr/share/ |
 | `07-install-darkman` | onchange | ✅ | — | — | Enable darkman.service (GNOME workstation only) |
-| `08-install-dev-env` | onchange | ✅ | ✅ | — | Dev environment version managers: conda, golang, java, lua, nodejs, ruby, rust |
 | `90-update-env` | every update | ✅ | ✅ | ✅ | System packages (all); ZSH plugins + caches (non-server) |
 
 W = workstation, T = terminal, S = server.
@@ -311,8 +314,7 @@ bdb_bootstrap.sh
               ├── 04-install-ansible (prompted — all machine types)
               ├── 05-install-docker  (prompted — W+S, linux only)
               ├── 06-install-sddm    (SDDM theme — Arch workstation only)
-              ├── 07-install-darkman (enable service — GNOME workstation only)
-              └── 08-install-dev-env (prompted — W+T only)
+              └── 07-install-darkman (enable service — GNOME workstation only)
 ```
 
 ### Update Flow
@@ -355,7 +357,6 @@ dotfiles/
 │   ├── run_onchange_after_05-install-docker.sh.tmpl       # workstation + server, linux only
 │   ├── run_onchange_after_06-install-sddm.sh.tmpl         # workstation only
 │   ├── run_onchange_after_07-install-darkman.sh.tmpl      # GNOME workstation only
-│   ├── run_onchange_after_08-install-dev-env.sh.tmpl     # workstation + terminal
 │   └── run_after_90-update-env.sh.tmpl
 ├── dot_config/
 │   ├── bdb/
