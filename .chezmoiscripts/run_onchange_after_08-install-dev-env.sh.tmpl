@@ -1,0 +1,261 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Chezmoi Script: Install Development Environments
+# =============================================================================
+# For each dev environment, installs the version manager and runtime. Each
+# install is prompted independently — already-installed tools are skipped.
+# Runs on workstation and terminal only; exits immediately on server.
+#
+# Environments: conda · golang · java · lua · nodejs · python · ruby · rust
+#
+# Execution: run_onchange_after_08 — fires when file content changes
+# Location:  .chezmoiscripts/run_onchange_after_08-install-dev-env.sh.tmpl
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Setup
+# -----------------------------------------------------------------------------
+# shellcheck disable=SC1090,SC1091
+source "${HELPERS}"
+
+SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl)"
+SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/$(date +%Y%m%d_%H%M%S)_${SCRIPT_NAME}.log"
+mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
+bdb_init_logging "${SCRIPT_LOG_FILE}"
+
+_bdb_log "========================================="
+_bdb_log "Script: ${SCRIPT_NAME}"
+_bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
+_bdb_log "========================================="
+
+set -euo pipefail
+trap 'bdb_handle_error' ERR
+trap 'bdb_cleanup' EXIT
+
+bdb_begin_section "Installing Development Environments ({{ .osid }} / {{ .machine }})"
+
+{{- if eq .machine "server" }}
+bdb_warn "Skipping dev environment installs — not applicable on server machines"
+bdb_end_section
+exit 0
+{{- end }}
+
+# =============================================================================
+# CONDA — Miniforge (conda-forge distribution)
+# =============================================================================
+# conda serves as both package manager and environment manager.
+
+bdb_action "Checking conda"
+if bdb_has_cmd "conda" || [[ -d "${HOME}/miniforge3" ]] || [[ -d "${HOME}/miniconda3" ]]; then
+    bdb_success "conda already installed — skipping"
+elif bdb_ask "Install conda (Miniforge)?"; then
+{{- if eq .chezmoi.os "darwin" }}
+    bdb_exec "Installing Miniforge" brew install --cask miniforge
+{{- else }}
+    _CONDA_INSTALLER="Miniforge3-$(uname -s)-$(uname -m).sh"
+    bdb_action "Downloading Miniforge installer"
+    curl -fsSL \
+        "https://github.com/conda-forge/miniforge/releases/latest/download/${_CONDA_INSTALLER}" \
+        -o "/tmp/${_CONDA_INSTALLER}"
+    bdb_exec "Running Miniforge installer" bash "/tmp/${_CONDA_INSTALLER}" -b -p "${HOME}/miniforge3"
+    rm -f "/tmp/${_CONDA_INSTALLER}"
+    unset _CONDA_INSTALLER
+{{- end }}
+    bdb_success "conda installed"
+    bdb_info "Run 'conda init zsh' in a new shell to activate the base environment"
+else
+    bdb_warn "Skipping conda"
+fi
+
+# =============================================================================
+# GOLANG — go (runtime + module system) + goenv (version manager)
+# =============================================================================
+
+bdb_action "Checking golang"
+if [[ -d "${HOME}/.goenv" ]] || bdb_has_cmd "goenv"; then
+    bdb_success "golang already installed — skipping"
+elif bdb_ask "Install golang (go + goenv)?"; then
+{{- if eq .chezmoi.os "darwin" }}
+    bdb_exec "Installing go and goenv" brew install go goenv
+{{- else if eq .packageManager "apt" }}
+    bdb_exec "Installing go"    sudo apt-get install -y golang-go
+    bdb_exec "Installing goenv" git clone https://github.com/go-nv/goenv.git "${HOME}/.goenv"
+{{- else if eq .packageManager "dnf" }}
+    bdb_exec "Installing go"    sudo dnf install -y golang
+    bdb_exec "Installing goenv" git clone https://github.com/go-nv/goenv.git "${HOME}/.goenv"
+{{- else if eq .packageManager "pacman" }}
+    bdb_exec "Installing go" sudo pacman -S --needed --noconfirm go
+    if bdb_has_cmd "yay"; then
+        bdb_exec "Installing goenv (AUR)" yay -S --needed --noconfirm goenv
+    else
+        bdb_exec "Installing goenv" git clone https://github.com/go-nv/goenv.git "${HOME}/.goenv"
+    fi
+{{- end }}
+    bdb_success "golang installed"
+else
+    bdb_warn "Skipping golang"
+fi
+
+# =============================================================================
+# JAVA — SDKMAN! (manages JDK, Maven, Gradle, and other JVM tools)
+# =============================================================================
+
+bdb_action "Checking java"
+if [[ -d "${HOME}/.sdkman" ]]; then
+    bdb_success "java/SDKMAN already installed — skipping"
+elif bdb_ask "Install java (SDKMAN!)?"; then
+    bdb_exec "Installing SDKMAN!" bash -c 'curl -s "https://get.sdkman.io" | bash'
+    bdb_success "SDKMAN installed"
+    bdb_info "Run 'sdk install java' in a new shell to install a JDK version"
+else
+    bdb_warn "Skipping java"
+fi
+
+# =============================================================================
+# LUA — lua (runtime) + luarocks (package manager)
+# =============================================================================
+
+bdb_action "Checking lua"
+if bdb_has_cmd "lua" && bdb_has_cmd "luarocks"; then
+    bdb_success "lua already installed — skipping"
+elif bdb_ask "Install lua (lua + luarocks)?"; then
+{{- if eq .chezmoi.os "darwin" }}
+    bdb_exec "Installing lua and luarocks" brew install lua luarocks
+{{- else if eq .packageManager "apt" }}
+    bdb_exec "Installing lua and luarocks" sudo apt-get install -y lua5.4 luarocks
+{{- else if eq .packageManager "dnf" }}
+    bdb_exec "Installing lua and luarocks" sudo dnf install -y lua luarocks
+{{- else if eq .packageManager "pacman" }}
+    bdb_exec "Installing lua and luarocks" sudo pacman -S --needed --noconfirm lua luarocks
+{{- end }}
+    bdb_success "lua installed"
+else
+    bdb_warn "Skipping lua"
+fi
+
+# =============================================================================
+# NODE.JS — nvm (version manager) + Node.js LTS (ships with npm)
+# =============================================================================
+
+bdb_action "Checking Node.js"
+if [[ -d "${HOME}/.nvm" ]]; then
+    bdb_success "Node.js already installed — skipping"
+elif bdb_ask "Install Node.js (nvm + LTS + npm)?"; then
+{{- if eq .chezmoi.os "darwin" }}
+    bdb_exec "Installing nvm" brew install nvm
+    mkdir -p "${HOME}/.nvm"
+    export NVM_DIR="${HOME}/.nvm"
+    # shellcheck source=/dev/null
+    source "$(brew --prefix nvm)/nvm.sh"
+{{- else }}
+    bdb_exec "Installing nvm" bash -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash'
+    export NVM_DIR="${HOME}/.nvm"
+    # shellcheck source=/dev/null
+    [[ -s "${NVM_DIR}/nvm.sh" ]] && source "${NVM_DIR}/nvm.sh"
+{{- end }}
+    bdb_exec "Installing Node.js LTS" nvm install --lts
+    bdb_success "Node.js installed"
+else
+    bdb_warn "Skipping Node.js"
+fi
+
+# =============================================================================
+# PYTHON — pyenv (version manager) + build dependencies
+# =============================================================================
+# python3 and pip3 are already present via 00-install-core.
+# Run 'pyenv install <version>' after setup to add a specific Python version.
+
+bdb_action "Checking Python"
+if [[ -d "${HOME}/.pyenv" ]] || bdb_has_cmd "pyenv"; then
+    bdb_success "Python/pyenv already installed — skipping"
+elif bdb_ask "Install Python (pyenv)?"; then
+{{- if eq .chezmoi.os "darwin" }}
+    bdb_exec "Installing pyenv" brew install pyenv
+{{- else if eq .packageManager "apt" }}
+    bdb_exec "Installing pyenv build dependencies" sudo apt-get install -y \
+        build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
+        libsqlite3-dev libncurses5-dev libncursesw5-dev xz-utils tk-dev \
+        libffi-dev liblzma-dev
+    bdb_exec "Installing pyenv" bash -c 'curl https://pyenv.run | bash'
+{{- else if eq .packageManager "dnf" }}
+    bdb_exec "Installing pyenv build dependencies" sudo dnf install -y \
+        gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel \
+        openssl-devel xz xz-devel libffi-devel
+    bdb_exec "Installing pyenv" bash -c 'curl https://pyenv.run | bash'
+{{- else if eq .packageManager "pacman" }}
+    bdb_exec "Installing pyenv" sudo pacman -S --needed --noconfirm pyenv
+{{- end }}
+    bdb_success "pyenv installed"
+    bdb_info "Run 'pyenv install <version>' in a new shell to install a Python version"
+else
+    bdb_warn "Skipping Python"
+fi
+
+# =============================================================================
+# RUBY — rbenv (version manager) + ruby-build (compile plugin)
+# =============================================================================
+# gem is bundled with each Ruby version installed via rbenv.
+# Run 'rbenv install <version>' after setup to install a Ruby version.
+
+bdb_action "Checking Ruby"
+if [[ -d "${HOME}/.rbenv" ]] || bdb_has_cmd "rbenv"; then
+    bdb_success "Ruby/rbenv already installed — skipping"
+elif bdb_ask "Install Ruby (rbenv + ruby-build)?"; then
+{{- if eq .chezmoi.os "darwin" }}
+    bdb_exec "Installing rbenv and ruby-build" brew install rbenv ruby-build
+{{- else if eq .packageManager "apt" }}
+    bdb_exec "Installing rbenv" \
+        git clone https://github.com/rbenv/rbenv.git "${HOME}/.rbenv"
+    bdb_exec "Installing ruby-build plugin" \
+        git clone https://github.com/rbenv/ruby-build.git "${HOME}/.rbenv/plugins/ruby-build"
+{{- else if eq .packageManager "dnf" }}
+    bdb_exec "Installing rbenv" \
+        git clone https://github.com/rbenv/rbenv.git "${HOME}/.rbenv"
+    bdb_exec "Installing ruby-build plugin" \
+        git clone https://github.com/rbenv/ruby-build.git "${HOME}/.rbenv/plugins/ruby-build"
+{{- else if eq .packageManager "pacman" }}
+    bdb_exec "Installing rbenv and ruby-build" \
+        sudo pacman -S --needed --noconfirm rbenv ruby-build
+{{- end }}
+    bdb_success "rbenv installed"
+    bdb_info "Run 'rbenv install <version>' in a new shell to install a Ruby version"
+else
+    bdb_warn "Skipping Ruby"
+fi
+
+# =============================================================================
+# RUST — rustup (toolchain manager) → installs stable toolchain (cargo + rustc)
+# =============================================================================
+
+bdb_action "Checking Rust"
+if bdb_has_cmd "rustup" || bdb_has_cmd "cargo"; then
+    bdb_success "Rust already installed — skipping"
+elif bdb_ask "Install Rust (rustup + stable toolchain)?"; then
+{{- if eq .chezmoi.os "darwin" }}
+    bdb_exec "Installing rustup" brew install rustup-init
+    bdb_exec "Initialising stable toolchain" rustup-init -y --no-modify-path
+{{- else if eq .packageManager "pacman" }}
+    bdb_exec "Installing rustup" sudo pacman -S --needed --noconfirm rustup
+    bdb_exec "Installing stable toolchain" rustup default stable
+{{- else }}
+    bdb_exec "Installing rustup" \
+        bash -c 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path'
+{{- end }}
+    bdb_success "Rust installed"
+    bdb_info "Restart shell or run 'source ~/.cargo/env' to use cargo"
+else
+    bdb_warn "Skipping Rust"
+fi
+
+# =============================================================================
+# COMPLETION
+# =============================================================================
+bdb_success "Development environment setup complete"
+
+if [[ -n "${BDB_LOG_FILE:-}" ]]; then
+    bdb_var "Log file" "${BDB_LOG_FILE}"
+fi
+
+bdb_end_section
+
+exit 0

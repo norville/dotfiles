@@ -86,6 +86,7 @@ These scripts run automatically during `chezmoi apply` or `chezmoi update`:
 | `run_onchange_after_05-install-docker.sh.tmpl` | on change | Prompts for and installs Docker |
 | `run_onchange_after_06-install-sddm.sh.tmpl` | on change | Deploy SDDM config + Tokyo Night Moon theme to `/etc/` and `/usr/share/` |
 | `run_onchange_after_07-install-darkman.sh.tmpl` | on change | Enable darkman.service (GNOME workstations only) |
+| `run_onchange_after_08-install-dev-env.sh.tmpl` | on change | Prompts for and installs dev environment version managers (conda, golang, java, lua, nodejs, python, ruby, rust) |
 | `run_after_90-update-env.sh.tmpl` | every update | Update system packages, ZSH plugins, bat theme cache, font cache |
 
 ### Shell Configuration (`.zsh/`)
