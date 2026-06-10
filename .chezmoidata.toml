@@ -159,6 +159,21 @@ managers = ["apt"]
 machines = ["workstation", "terminal"]
 
 [[package]]
+name     = "go"
+managers = ["brew-formula", "pacman"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "golang"
+managers = ["dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "golang-go"
+managers = ["apt"]
+machines = ["workstation", "terminal"]
+
+[[package]]
 name     = "imagemagick"
 managers = ["pacman"]
 machines = ["workstation"]
@@ -240,6 +255,11 @@ machines = ["workstation"]
 
 [[package]]
 name     = "ripgrep"
+managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "ruby"
 managers = ["brew-formula", "apt", "pacman", "dnf"]
 machines = ["workstation", "terminal"]
 
