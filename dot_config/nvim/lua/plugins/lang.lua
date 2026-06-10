@@ -14,6 +14,19 @@ return {
         cssls  = {},  -- CSS · SCSS · Less (vscode-css-language-server)
         vimls  = {},  -- Vimscript         (vim-language-server)
         sqls   = {},  -- SQL               (sqls)
+        -- clangd 22+ requires --function-arg-placeholders=<bool>; LazyVim passes
+        -- it without a value, which clangd 22 rejects. Override the full cmd list.
+        clangd = {
+          cmd = {
+            "clangd",
+            "--background-index",
+            "--clang-tidy",
+            "--header-insertion=iwyu",
+            "--completion-style=detailed",
+            "--function-arg-placeholders=true",
+            "--fallback-style=llvm",
+          },
+        },
       },
     },
   },

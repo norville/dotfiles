@@ -184,6 +184,26 @@ managers = ["brew-formula"]
 machines = ["workstation"]
 
 [[package]]
+name     = "jdk-openjdk"
+managers = ["pacman"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "openjdk"
+managers = ["brew-formula"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "default-jdk"
+managers = ["apt"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "java-latest-openjdk-devel"
+managers = ["dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
 name     = "jq"
 managers = ["brew-formula", "pacman"]
 machines = ["workstation"]
@@ -267,6 +287,11 @@ machines = ["workstation", "terminal"]
 name     = "sevenzip"
 managers = ["brew-formula"]
 machines = ["workstation"]
+
+[[package]]
+name     = "shellcheck"
+managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
 
 [[package]]
 name     = "starship"
