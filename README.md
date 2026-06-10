@@ -78,15 +78,15 @@ These scripts run automatically during `chezmoi apply` or `chezmoi update`:
 
 | File | Trigger | Description |
 |------|---------|-------------|
-| `run_onchange_after_00-install-core.sh.tmpl` | on change | Essential packages: zsh, neovim/vim, bat, eza, fzf, ripgrep, lazygit, kitty… |
-| `run_onchange_after_01-config-env.sh.tmpl` | on change | Set ZSH as default shell, verify themes and fonts |
+| `run_onchange_after_00-install-core.sh.tmpl` | on change | Essential packages: zsh, neovim/vim, bat, eza, fzf, ripgrep, lazygit, kitty, Go, Ruby, Rust, Java, OpenTofu… |
+| `run_onchange_after_01-config-env.sh.tmpl` | on change | Default shell, themes/fonts; Go GOPATH/GOBIN; Ruby gems (bundler, erb); Rust stable toolchain + rust-analyzer via rustup |
 | `run_onchange_after_02-install-1password.sh.tmpl` | on change | Prompts for and installs 1Password + CLI (workstation only) |
 | `run_onchange_after_03-install-vscode.sh.tmpl` | on change | Prompts for and installs VS Code (workstation only) |
 | `run_onchange_after_04-install-ansible.sh.tmpl` | on change | Prompts for and installs Ansible |
 | `run_onchange_after_05-install-docker.sh.tmpl` | on change | Prompts for and installs Docker |
 | `run_onchange_after_06-install-sddm.sh.tmpl` | on change | Deploy SDDM config + Tokyo Night Moon theme to `/etc/` and `/usr/share/` |
 | `run_onchange_after_07-install-darkman.sh.tmpl` | on change | Enable darkman.service (GNOME workstations only) |
-| `run_after_90-update-env.sh.tmpl` | every update | Update system packages, ZSH plugins, bat theme cache, font cache |
+| `run_after_90-update-env.sh.tmpl` | every update | Update system packages, ZSH plugins, bat theme cache, font cache; `rustup update`; `gem update bundler erb` |
 
 ### Shell Configuration (`.zsh/`)
 
@@ -135,7 +135,17 @@ These scripts run automatically during `chezmoi apply` or `chezmoi update`:
 | `man` | `batman` | Man pages with bat syntax highlighting |
 | `cd` | `zoxide` | Frecency-based directory jumping (`z` / `zi`) |
 
-Also: lazygit, fzf, git-delta, jq, resvg, tree-sitter-cli, Node.js + npm.
+Also: lazygit, fzf, git-delta, jq, resvg, tree-sitter-cli, Node.js + npm, shellcheck.
+
+### Language Runtimes (Workstation + Terminal)
+
+| Language | Runtime | Toolchain notes |
+|----------|---------|-----------------|
+| Go | `go` | GOPATH (`~/go`) and GOBIN (`~/go/bin`) configured via `go env -w` |
+| Ruby | `ruby` | `bundler` and `erb` gems installed to user gem dir (`GEM_HOME`) |
+| Rust | `rustup` | Stable toolchain + `rust-analyzer` component installed via rustup |
+| Java | JDK | `jdk-openjdk` / `openjdk` / `default-jdk` / `java-devel` per platform |
+| Terraform/OpenTofu | `opentofu` (`tofu` on apt) | LazyVim terraform extra redirected to `tofu` binary |
 
 ### Workstation-Only Tools
 
@@ -214,6 +224,8 @@ This will:
 4. Update system packages
 5. Update ZSH plugins via Zinit
 6. Rebuild bat theme cache and font cache
+7. Update Rust toolchain (`rustup update`)
+8. Update Ruby user gems (`bundler`, `erb`)
 
 ### Apply Config Changes Only (No System Updates)
 

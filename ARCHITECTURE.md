@@ -74,8 +74,12 @@ Same logical tool delivered under a different name per manager:
 |---|---|---|---|---|---|---|---|
 | Brave Browser | — | `brave-browser` | `brave-browser` | — | — | `brave-bin` | `brave-browser` |
 | fd | `fd` | — | `fd-find` | — | `fd` | — | `fd-find` |
+| Go | `go` | — | `golang-go` | — | `go` | — | `golang` |
+| Java JDK | `openjdk` | — | `default-jdk` | — | `jdk-openjdk` | — | `java-devel` |
 | Neovim | `neovim` | — | — | `nvim` | `neovim` | — | `neovim` |
 | Node.js | `node` | — | `nodejs` | — | `nodejs` | — | `nodejs` |
+| OpenTofu | `opentofu` | — | `tofu` | — | `opentofu` | — | `opentofu` |
+| rustup | `rustup` | — | — | `rustup` | `rustup` | — | `rustup` |
 | ffmpeg | `ffmpeg-full` | — | — | — | `ffmpeg` | — | — |
 | ImageMagick | `imagemagick-full` | — | — | — | `imagemagick` | — | — |
 | GnuPG | — | — | `gpg` | — | `gnupg` | — | `gnupg2` |
@@ -100,6 +104,7 @@ Source of truth: `.chezmoidata.toml` (machine type filtering applied at template
 | `chezmoi` | ✓ | | | ✓ | ✓ | | ✓ | ✓ | ✓ | ✓ |
 | `coreutils` | ✓ | | | | | | | ✓ | | |
 | `curl` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | ✓ |
+| `default-jdk` | | | ✓ | | | | | ✓ | ✓ | |
 | `eza` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
 | `fd` | ✓ | | | | ✓ | | | ✓ | ✓ | |
 | `fd-find` | | | ✓ | | | | ✓ | ✓ | ✓ | |
@@ -114,9 +119,14 @@ Source of truth: `.chezmoidata.toml` (machine type filtering applied at template
 | `git-delta` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
 | `gnupg` | | | | | ✓ | | | ✓ | | |
 | `gnupg2` | | | | | | | ✓ | ✓ | ✓ | |
+| `go` | ✓ | | | | ✓ | | | ✓ | ✓ | |
+| `golang` | | | | | | | ✓ | ✓ | ✓ | |
+| `golang-go` | | | ✓ | | | | | ✓ | ✓ | |
 | `gpg` | | | ✓ | | | | | ✓ | ✓ | |
 | `imagemagick` | | | | | ✓ | | | ✓ | | |
 | `imagemagick-full` | ✓ | | | | | | | ✓ | | |
+| `java-devel` | | | | | | | ✓ | ✓ | ✓ | |
+| `jdk-openjdk` | | | | | ✓ | | | ✓ | ✓ | |
 | `jq` | ✓ | | | | ✓ | | | ✓ | | |
 | `kitty` | | ✓ | ✓ | | ✓ | | ✓ | ✓ | | |
 | `lazygit` | ✓ | | | ✓ | ✓ | | ✓ | ✓ | ✓ | |
@@ -128,12 +138,18 @@ Source of truth: `.chezmoidata.toml` (machine type filtering applied at template
 | `nodejs` | | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
 | `npm` | | | ✓ | | ✓ | | | ✓ | ✓ | |
 | `nvim` (snap) | | | | ✓ | | | | ✓ | ✓ | |
+| `opentofu` | ✓ | | | | ✓ | | ✓ | ✓ | ✓ | |
+| `openjdk` | ✓ | | | | | | | ✓ | ✓ | |
 | `poppler` | ✓ | | | | ✓ | | | ✓ | | |
 | `python3-neovim` | | | | | | | ✓ | ✓ | ✓ | |
 | `resvg` | ✓ | | | | ✓ | | | ✓ | | |
 | `ripgrep` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
+| `ruby` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
+| `rustup` | ✓ | | | ✓ | ✓ | | ✓ | ✓ | ✓ | |
 | `sevenzip` | ✓ | | | | | | | ✓ | | |
+| `shellcheck` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
 | `starship` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
+| `tofu` | | | ✓ | | | | | ✓ | ✓ | |
 | `tree-sitter` | | | | | ✓ | | | ✓ | | |
 | `tree-sitter-cli` | ✓ | | ✓ | | | | | ✓ | ✓ | |
 | `ttf-jetbrains-mono` | | | | | ✓ | | | ✓ | | |
@@ -260,14 +276,14 @@ fi
 | Script | Trigger | W | T | S | Purpose |
 |--------|---------|---|---|---|---------|
 | `00-install-core` | onchange | ✅ | ✅ | ✅ | Platform packages (per-manager lists, machine-type filtered) |
-| `01-config-env` | onchange | ✅ | ✅ | — | Default shell, bat cache, font cache, nvim dirs |
+| `01-config-env` | onchange | ✅ | ✅ | — | Default shell, bat cache, font cache, nvim dirs; Go GOPATH/GOBIN; Ruby gems (bundler, erb); Rust stable + rust-analyzer via rustup |
 | `02-install-1password` | onchange | ✅ | — | — | 1Password + op CLI (prompted; darwin: brew cask) |
 | `03-install-vscode` | onchange | ✅ | — | — | VS Code (prompted; darwin: brew cask) |
 | `04-install-ansible` | onchange | ✅ | ✅ | ✅ | Ansible (prompted on all platforms) |
 | `05-install-docker` | onchange | ✅ | — | ✅ | Docker (linux only; prompted) |
 | `06-install-sddm` | onchange | ✅ | — | — | SDDM config + Tokyo Night Moon → /etc/ and /usr/share/ |
 | `07-install-darkman` | onchange | ✅ | — | — | Enable darkman.service (GNOME workstation only) |
-| `90-update-env` | every update | ✅ | ✅ | ✅ | System packages (all); ZSH plugins + caches (non-server) |
+| `90-update-env` | every update | ✅ | ✅ | ✅ | System packages (all); ZSH plugins + caches + `rustup update` + `gem update bundler erb` (non-server) |
 
 W = workstation, T = terminal, S = server.
 
@@ -326,7 +342,7 @@ chezmoi update
   Pull latest from GitHub
   Apply configuration changes
   Run run_after_* scripts:
-    └── 90-update-env    (system packages for all; zinit + caches for W+T only)
+    └── 90-update-env    (system packages for all; zinit + caches + rustup update + gem update for W+T only)
 ```
 
 ## File Organization
