@@ -163,6 +163,23 @@ if bdb_test_cmd "fc-cache"; then
 fi
 {{- end }}
 
+# -----------------------------------------------------------------------------
+# Update Rust toolchain
+# -----------------------------------------------------------------------------
+if bdb_test_cmd "rustup"; then
+    bdb_exec "Updating Rust toolchain" rustup update
+    bdb_success "Rust toolchain updated"
+fi
+
+# -----------------------------------------------------------------------------
+# Update Ruby user gems
+# -----------------------------------------------------------------------------
+if bdb_test_cmd "gem"; then
+    bdb_exec "Updating bundler" gem update --user-install --no-document bundler
+    bdb_exec "Updating erb"     gem update --user-install --no-document erb
+    bdb_success "Ruby gems updated"
+fi
+
 {{- end }}
 
 # =============================================================================

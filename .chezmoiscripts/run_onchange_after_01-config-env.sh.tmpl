@@ -76,6 +76,67 @@ else
   bdb_warn "btop theme not found, check chezmoi external"
 fi
 
+# -----------------------------------------------------------------------------
+# Go Environment
+# -----------------------------------------------------------------------------
+
+if bdb_test_cmd "go"; then
+  bdb_action "Configuring Go environment"
+
+  # Write explicit values to ~/.config/go/env so GOPATH/GOBIN are stable
+  # across Go upgrades regardless of whether the tool changes its defaults.
+  bdb_exec "Setting GOPATH" go env -w GOPATH="${HOME}/go"
+  bdb_exec "Setting GOBIN"  go env -w GOBIN="${HOME}/go/bin"
+
+  # Ensure standard GOPATH directory tree exists
+  bdb_mkdir "${HOME}/go/bin" "Failed to create GOPATH/bin"
+  bdb_mkdir "${HOME}/go/pkg" "Failed to create GOPATH/pkg"
+  bdb_mkdir "${HOME}/go/src" "Failed to create GOPATH/src"
+
+  bdb_var "GOPATH"      "$(go env GOPATH)"
+  bdb_var "GOBIN"       "$(go env GOBIN)"
+  bdb_var "Go version"  "$(go version)"
+  bdb_success "Go environment configured"
+else
+  bdb_warn "go not installed — skipping Go environment setup"
+fi
+
+# -----------------------------------------------------------------------------
+# Ruby Gems
+# -----------------------------------------------------------------------------
+
+if bdb_test_cmd "ruby" && bdb_test_cmd "gem"; then
+  bdb_action "Installing required Ruby gems"
+
+  # bundler: required by ruby-lsp to manage its internal bundle.
+  # erb: required by rubocop (config loader, HTML formatter, server cache).
+  # --user-install targets Gem.user_dir (same dir as GEM_HOME in .zshrc) so
+  # these gems are never written to the root-owned system gem directory.
+  bdb_exec "Installing bundler" gem install --user-install --no-document bundler
+  bdb_exec "Installing erb"     gem install --user-install --no-document erb
+
+  bdb_var "Gem user dir" "$(ruby -e 'puts Gem.user_dir' 2>/dev/null)"
+  bdb_success "Ruby gems installed"
+else
+  bdb_warn "ruby/gem not installed — skipping Ruby gem setup"
+fi
+
+# -----------------------------------------------------------------------------
+# Rust / rustup
+# -----------------------------------------------------------------------------
+
+if bdb_test_cmd "rustup"; then
+  bdb_action "Configuring Rust toolchain"
+  bdb_exec "Installing stable toolchain" rustup toolchain install stable
+  bdb_exec "Setting default toolchain"   rustup default stable
+  bdb_exec "Installing rust-analyzer"    rustup component add rust-analyzer
+  bdb_var "Rust version"                 "$(rustc --version 2>/dev/null)"
+  bdb_var "Cargo version"                "$(cargo --version 2>/dev/null)"
+  bdb_success "Rust toolchain configured"
+else
+  bdb_warn "rustup not installed — skipping Rust setup"
+fi
+
 {{- /* -------------------------------------------------------------------- */ -}}
 {{- /* Linux-Specific Configuration                                         */ -}}
 {{- /* -------------------------------------------------------------------- */ -}}

@@ -255,6 +255,22 @@ fi
 # Personal scripts and tools
 [[ -d "${HOME}/.bin" ]] && path=("${HOME}/.bin" $path)
 
+# Go binaries (GOBIN / GOPATH/bin — set explicitly by 01-config-env via go env -w)
+[[ -d "${HOME}/go/bin" ]] && path=("${HOME}/go/bin" $path)
+
+# Rust/Cargo binaries (rustup official installer; on Arch pacman-rustup uses /usr/bin/)
+[[ -d "${HOME}/.cargo/bin" ]] && path=("${HOME}/.cargo/bin" $path)
+
+# Ruby user gems — redirect gem/bundler installs away from the root-owned system dir
+if command -v ruby >/dev/null 2>&1; then
+    _gem_user_dir="$(ruby -e 'puts Gem.user_dir' 2>/dev/null)"
+    if [[ -n "${_gem_user_dir}" ]]; then
+        export GEM_HOME="${_gem_user_dir}"
+        [[ -d "${GEM_HOME}/bin" ]] && path=("${GEM_HOME}/bin" $path)
+    fi
+    unset _gem_user_dir
+fi
+
 # Remove duplicate entries from PATH
 typeset -U path
 

@@ -1,6 +1,6 @@
-- [x] kitty: verify keybinds to save/load sessions
-- [ ] enable nvim on terminal machines
-- [x] zoxide: `zi` non working
-- [ ] optional packages: conda, golang, java, lua, nodejs, ruby, rust
+- [ ] add script to install hypervisor
+- [ ] add script to install syncthing
+- [ ] normalize indentation
 - [ ] automate macos configuration via 'defaults'
 - [ ] test usage of ansible over bdb
+

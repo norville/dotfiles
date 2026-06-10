@@ -199,7 +199,7 @@ managers = ["apt"]
 machines = ["workstation", "terminal"]
 
 [[package]]
-name     = "java-latest-openjdk-devel"
+name     = "java-devel"
 managers = ["dnf"]
 machines = ["workstation", "terminal"]
 
@@ -236,6 +236,21 @@ machines = ["workstation"]
 [[package]]
 name     = "neovim"
 managers = ["brew-formula", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "opentofu"
+managers = ["brew-formula", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "tofu"
+managers = ["apt"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "rustup"
+managers = ["brew-formula", "snap", "pacman", "dnf"]
 machines = ["workstation", "terminal"]
 
 [[package]]
@@ -282,6 +297,7 @@ machines = ["workstation", "terminal"]
 name     = "ruby"
 managers = ["brew-formula", "apt", "pacman", "dnf"]
 machines = ["workstation", "terminal"]
+
 
 [[package]]
 name     = "sevenzip"
