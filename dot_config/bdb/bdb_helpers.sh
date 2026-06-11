@@ -3,10 +3,22 @@
 # BDB Helper Functions
 # =============================================================================
 # Utility functions for Bassa's Dotfiles Bootstrapper.
-# Provides colored terminal output, comprehensive logging, and command helpers.
+# Provides colored terminal output, structured logging, and command helpers.
 #
-# All user-facing output goes to FD3; stdout/stderr are redirected to the log
-# file by bdb_init_logging so command output never leaks to the terminal.
+# Output model:
+#   - FD3 → terminal: short, color-coded status lines for the watching user.
+#   - FD1/FD2 → log file (redirected by bdb_init_logging): structured records,
+#     exactly one line per event, every line timestamped:
+#
+#         [2026-06-11 10:38:41] [LEVEL  ] message
+#
+#     Levels: START END SECTION ACTION CMD OUT OK FAIL INFO WARN ERROR ASK
+#
+#     Command output is recorded as [OUT] lines between the opening [CMD]
+#     record (description + command line) and the closing [OK]/[FAIL] record
+#     (exit code + duration), so every output line is attributable to the
+#     command that produced it. ANSI escape codes and progress-bar redraws
+#     are stripped from captured output.
 # =============================================================================
 
 # shellcheck disable=SC2148
@@ -33,48 +45,90 @@ readonly ICON_PROMPT="?"
 readonly ICON_ARROW="→"
 
 # =============================================================================
-# LOGGING FUNCTIONS
+# LOGGING CORE
 # =============================================================================
 
-# Timestamps on section markers and key events only; other lines get [LOG] prefix.
-_bdb_log() {
-    local message="$*"
-    if [[ "$message" =~ ^===+$ ]] || \
-       [[ "$message" =~ SECTION:|Script:|Action:|SUCCESS:|ERROR:|Command: ]]; then
-        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [LOG] $message" >&1
-    else
-        echo "[LOG] $message" >&1
-    fi
+# Write one structured log record: _bdb_log LEVEL message...
+# bash >= 4.2 formats the timestamp via the printf builtin (no fork per line);
+# older bash (macOS ships 3.2) falls back to date(1).
+if printf -v _BDB_TS_PROBE '%(%s)T' -1 2>/dev/null; then
+    _bdb_log() {
+        local level="$1" ts
+        shift
+        printf -v ts '%(%Y-%m-%d %H:%M:%S)T' -1
+        printf '[%s] [%-7s] %s\n' "${ts}" "${level}" "$*"
+    }
+else
+    _bdb_log() {
+        local level="$1"
+        shift
+        printf '[%s] [%-7s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${level}" "$*"
+    }
+fi
+unset -v _BDB_TS_PROBE
+
+# Line-buffered sed flag, so [OUT] records are timestamped when the command
+# produces them, not when a 4KB block flushes: GNU sed uses -u, BSD sed -l.
+if echo | sed -u '' >/dev/null 2>&1; then
+    _BDB_SED_UNBUF="-u"
+elif echo | sed -l '' >/dev/null 2>&1; then
+    _BDB_SED_UNBUF="-l"
+else
+    _BDB_SED_UNBUF=""
+fi
+
+# Capture command output for the log: strip ANSI escapes (CSI, OSC, and
+# two-char sequences), collapse carriage-return redraws to their final state,
+# drop blank lines and progress-bar spam, and tag each line as [OUT].
+_bdb_log_output() {
+    local line
+    # shellcheck disable=SC2086
+    sed ${_BDB_SED_UNBUF} -E $'s/\x1b\\[[0-9;?]*[a-zA-Z]//g; s/\x1b\\][^\x07]*\x07//g; s/\x1b[@-_]//g' \
+        | while IFS= read -r line || [[ -n "${line}" ]]; do
+            line="${line%$'\r'}"      # CRLF line endings
+            line="${line##*$'\r'}"    # progress redraws: keep what remains visible
+            [[ -z "${line//[[:space:]]/}" ]] && continue
+            [[ "${line}" == *'####'* ]] && continue
+            _bdb_log OUT "${line}"
+        done
 }
 
 # =============================================================================
 # TERMINAL OUTPUT FUNCTIONS
 # =============================================================================
-# All output goes to FD3 (terminal), not stdout (log file).
+# Status lines go to FD3 (terminal); each function also writes exactly one
+# log record so terminal and log stay in sync without duplication.
+
+# Internal: colored status line on the terminal only.
+_bdb_term() {
+    local color="$1" icon="$2"
+    shift 2
+    printf "%s%s %s%s\n" "${color}" "${icon}" "$*" "${C_RST}" >&3
+}
 
 bdb_action() {
-    printf "%s%s %s%s\n" "${C_CYN}" "${ICON_ARROW}" "$*" "${C_RST}" >&3
-    _bdb_log "Action: $*"
+    _bdb_term "${C_CYN}" "${ICON_ARROW}" "$*"
+    _bdb_log ACTION "$*"
 }
 
 bdb_success() {
-    printf "%s%s %s%s\n" "${C_GRN}" "${ICON_OK}" "$*" "${C_RST}" >&3
-    _bdb_log "SUCCESS: $*"
+    _bdb_term "${C_GRN}" "${ICON_OK}" "$*"
+    _bdb_log OK "$*"
 }
 
 bdb_error() {
-    printf "%s%s %s%s\n" "${C_RED}" "${ICON_ERR}" "$*" "${C_RST}" >&3
-    _bdb_log "ERROR: $*"
+    _bdb_term "${C_RED}" "${ICON_ERR}" "$*"
+    _bdb_log ERROR "$*"
 }
 
 bdb_warn() {
-    printf "%s%s %s%s\n" "${C_YLW}" "${ICON_WARN}" "$*" "${C_RST}" >&3
-    _bdb_log "WARN: $*"
+    _bdb_term "${C_YLW}" "${ICON_WARN}" "$*"
+    _bdb_log WARN "$*"
 }
 
 bdb_info() {
-    printf "%s%s %s%s\n" "${C_WHT}" "${ICON_INFO}" "$*" "${C_RST}" >&3
-    _bdb_log "INFO: $*"
+    _bdb_term "${C_WHT}" "${ICON_INFO}" "$*"
+    _bdb_log INFO "$*"
 }
 
 bdb_header() {
@@ -106,7 +160,7 @@ bdb_ask() {
     local response=""
     printf "%s%s %s [y/N]: %s" "${C_MAG}" "${ICON_PROMPT}" "$*" "${C_RST}" >&3
     read -r response < /dev/tty
-    _bdb_log "User prompt: $* - Response: ${response:-N}"
+    _bdb_log ASK "$* → ${response:-N}"
     [[ "${response}" =~ ^[yY]$ ]]
 }
 
@@ -114,24 +168,34 @@ bdb_ask() {
 # COMMAND EXECUTION FUNCTIONS
 # =============================================================================
 
-# Show action, run command, report success or failure
+# Show action on the terminal, run the command with its output captured as
+# [OUT] records, close with [OK]/[FAIL] carrying exit code and duration.
 bdb_exec() {
     local description="$1"
     shift
-    bdb_action "${description}"
-    _bdb_log "========================================="
-    _bdb_log "Action: ${description}"
-    _bdb_log "Command: $*"
-    _bdb_log "========================================="
-    if "$@" >&1 2>&1; then
-        bdb_success "${description}"
-        _bdb_log "Success: ${description}"
+    local exit_code=0
+    local start=${SECONDS}
+
+    _bdb_term "${C_CYN}" "${ICON_ARROW}" "${description}"
+    _bdb_log CMD "${description}"
+    _bdb_log CMD "\$ $*"
+
+    # if-guard keeps errexit from firing before we log the result;
+    # PIPESTATUS[0] is the command's own status regardless of pipefail.
+    if "$@" 2>&1 | _bdb_log_output; then
+        exit_code=${PIPESTATUS[0]}
+    else
+        exit_code=${PIPESTATUS[0]}
+    fi
+
+    if (( exit_code == 0 )); then
+        _bdb_term "${C_GRN}" "${ICON_OK}" "${description}"
+        _bdb_log OK "${description} (exit 0, $(( SECONDS - start ))s)"
         return 0
     else
-        local exit_code=$?
-        bdb_error "${description} (exit code: ${exit_code})"
-        _bdb_log "Error: ${description} failed with exit code ${exit_code}"
-        return ${exit_code}
+        _bdb_term "${C_RED}" "${ICON_ERR}" "${description} (exit code: ${exit_code})"
+        _bdb_log FAIL "${description} (exit ${exit_code}, $(( SECONDS - start ))s)"
+        return "${exit_code}"
     fi
 }
 
@@ -140,11 +204,9 @@ bdb_test_cmd() {
     local cmd="$1"
     if command -v "${cmd}" >/dev/null 2>&1; then
         bdb_info "Found: ${cmd}"
-        _bdb_log "Command exists: ${cmd}"
         return 0
     else
         bdb_info "Not found: ${cmd}"
-        _bdb_log "Command not found: ${cmd}"
         return 1
     fi
 }
@@ -153,7 +215,6 @@ bdb_var() {
     local name="$1"
     local value="$2"
     bdb_info "${name}: ${value}"
-    _bdb_log "Variable: ${name}=${value}"
 }
 
 # =============================================================================
@@ -163,17 +224,12 @@ bdb_var() {
 bdb_mkdir() {
     local dir="$1"
     local error_msg="${2:-Failed to create directory: ${dir}}"
-    if [[ -d "${dir}" ]]; then
-        _bdb_log "Directory already exists: ${dir}"
-        return 0
-    fi
-    _bdb_log "Creating directory: ${dir}"
-    if mkdir -p "${dir}" 2>&1 | tee -a /dev/fd/1 >/dev/null; then
-        _bdb_log "Directory created: ${dir}"
+    [[ -d "${dir}" ]] && return 0
+    if mkdir -p "${dir}"; then
+        _bdb_log INFO "Created directory: ${dir}"
         return 0
     else
         bdb_error "${error_msg}"
-        _bdb_log "Failed to create directory: ${dir}"
         return 1
     fi
 }
@@ -193,12 +249,7 @@ bdb_handle_error() {
     local exit_code=$?
     local cmd="${BASH_COMMAND}"
     { set +x; } 2>/dev/null
-    _bdb_log "========================================="
-    _bdb_log "ERROR OCCURRED"
-    _bdb_log "Exit code: ${exit_code}"
-    _bdb_log "Command: ${cmd}"
-    _bdb_log "Line: ${BASH_LINENO[0]}"
-    _bdb_log "========================================="
+    _bdb_log ERROR "exit=${exit_code} line=${BASH_LINENO[0]} cmd: ${cmd}"
     bdb_error "Script failed (exit code: ${exit_code})"
     bdb_info "Check log file for details: ${BDB_LOG_FILE:-bdb.log}"
     exit "${exit_code}"
@@ -206,18 +257,17 @@ bdb_handle_error() {
 
 bdb_cleanup() {
     { set +x; } 2>/dev/null
-    _bdb_log "========================================="
-    _bdb_log "Cleanup started"
-    _bdb_log "========================================="
 
     if [[ -n "${BDB_TEMP_FILES:-}" ]]; then
         for file in ${BDB_TEMP_FILES}; do
             if [[ -f "${file}" ]]; then
                 rm -f "${file}" 2>/dev/null || true
-                _bdb_log "Removed temporary file: ${file}"
+                _bdb_log INFO "Removed temporary file: ${file}"
             fi
         done
     fi
+
+    _bdb_log END "Log session closed"
 
     # unset -v handles readonly variables gracefully (2>/dev/null || true)
     {
@@ -234,8 +284,6 @@ bdb_cleanup() {
         exec 1>&3 2>&1
         exec 3>&-
     fi
-
-    _bdb_log "Cleanup complete"
 }
 
 # =============================================================================
@@ -243,17 +291,15 @@ bdb_cleanup() {
 # =============================================================================
 
 bdb_begin_section() {
+    _BDB_SECTION="$*"
     bdb_header "$*"
-    _bdb_log "========================================="
-    _bdb_log "SECTION: $*"
-    _bdb_log "========================================="
+    _bdb_log SECTION ">>> $*"
 }
 
 bdb_end_section() {
     bdb_footer
-    _bdb_log "========================================="
-    _bdb_log "SECTION END"
-    _bdb_log "========================================="
+    _bdb_log SECTION "<<< ${_BDB_SECTION:-}"
+    _BDB_SECTION=""
 }
 
 # =============================================================================
@@ -267,13 +313,15 @@ bdb_end_section() {
 bdb_script_init() {
     local script_name
     script_name="$(basename "$1" .tmpl)"
+    # chezmoi runs scripts from a temp copy named "<random digits>.<name>" —
+    # strip the prefix so log files carry the real script name.
+    if [[ "${script_name}" =~ ^[0-9]+\.(.+)$ ]]; then
+        script_name="${BASH_REMATCH[1]}"
+    fi
     mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
     bdb_init_logging "${HOME}/.cache/chezmoi/$(date +%Y%m%d_%H%M%S)_${script_name}.log"
 
-    _bdb_log "========================================="
-    _bdb_log "Script: ${script_name}"
-    _bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
-    _bdb_log "========================================="
+    _bdb_log START "Script: ${script_name}"
 
     set -euo pipefail
     trap 'bdb_handle_error' ERR
@@ -299,11 +347,7 @@ bdb_script_end() {
 # so chezmoi scripts can share the bootstrap's log session.
 bdb_init_logging() {
     if [[ -n "${BDB_LOG_FILE:-}" ]] && [[ -t 3 ]]; then
-        _bdb_log "========================================="
-        _bdb_log "BDB Logging already initialized"
-        _bdb_log "Existing log file: ${BDB_LOG_FILE}"
-        _bdb_log "Continuing with parent logging setup"
-        _bdb_log "========================================="
+        _bdb_log INFO "Logging already initialized — appending to ${BDB_LOG_FILE}"
         return 0
     fi
 
@@ -323,11 +367,8 @@ bdb_init_logging() {
     exec 2>&1
 
     # set -x is intentionally NOT enabled here: we want command OUTPUT logged,
-    # not the commands themselves. _bdb_log calls already document each operation.
+    # not the commands themselves. The [CMD]/[OUT] records already document
+    # each operation.
 
-    _bdb_log "========================================="
-    _bdb_log "BDB Bootstrap Log"
-    _bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
-    _bdb_log "Log file: ${BDB_LOG_FILE}"
-    _bdb_log "========================================="
+    _bdb_log START "Log session: ${BDB_LOG_FILE}"
 }

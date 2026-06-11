@@ -420,9 +420,24 @@ deployment, state tracking, and native update mechanism.
 
 **Terminal** (FD3): Clean, color-coded status lines for the watching user.
 
-**Log file**: Full command output and timestamps for debugging. All chezmoi scripts
-detect an existing `BDB_LOG_FILE` from bootstrap and append to it, producing a single
-audit trail for the entire installation.
+**Log file**: Structured records for debugging — one line per event, every line
+timestamped:
+
+```
+[2026-06-11 10:38:41] [CMD    ] Installing Pacman packages
+[2026-06-11 10:38:41] [CMD    ] $ sudo pacman -S --needed --noconfirm bat eza …
+[2026-06-11 10:38:41] [OUT    ] warning: bat-0.26.1-2.1 is up to date -- skipping
+[2026-06-11 10:38:42] [OK     ] Installing Pacman packages (exit 0, 1s)
+```
+
+Levels: `START`/`END` (session), `SECTION`, `ACTION`, `CMD`/`OUT`/`OK`/`FAIL`
+(command execution — every `[OUT]` line belongs to the `[CMD]` above it),
+`INFO`/`WARN`/`ERROR`, `ASK` (prompt + response). Captured command output is
+stripped of ANSI escapes; carriage-return progress redraws collapse to their
+final state.
+
+All chezmoi scripts detect an existing `BDB_LOG_FILE` from bootstrap and append
+to it, producing a single audit trail for the entire installation.
 
 ### Why Machine Types?
 
