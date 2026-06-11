@@ -148,6 +148,12 @@
 [scriptEnv]
   HELPERS = "{{ .chezmoi.homeDir }}/.config/bdb/bdb_helpers.sh"
 
+# Full system/toolchain upgrade runs ONLY after `chezmoi update`.
+# (run_after_ scripts would fire on every `chezmoi apply` — chezmoi has no
+# update-only script class, so this lives in a post-update hook instead.)
+[hooks.update.post]
+  command = "{{ .chezmoi.homeDir }}/.config/bdb/bdb_update.sh"
+
 [git]
   autoCommit = false
   autoPush   = false
