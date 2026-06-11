@@ -464,6 +464,33 @@ dev machines, and minimal homelab servers:
 across Vim, Neovim, VSCode, and Zed. Per-editor settings files (`settings.json`,
 `options.lua`) only contain what EditorConfig cannot govern (e.g. vim mode, scrolloff).
 
+#### Indentation in chezmoi templates
+
+`.tmpl` files mix two languages, so two indentation rules coexist per file
+(EditorConfig can only express the first — it cannot match compound extensions
+like `.sh.tmpl`):
+
+1. **Go template directives** (lines that are entirely `{{ ... }}`) indent in
+   **2-space steps, one per template nesting depth** — each enclosing
+   `if`/`range`/`with` adds a level, `else`/`end` sit at the parent level, and
+   comment directives (`{{ /* ... */ }}`) align with the directive they precede.
+2. **All other lines follow the underlying filetype's rules** — shell in a
+   `.sh.tmpl` uses 4 spaces, TOML/JSON content uses 2. The base name decides the
+   type (`dot_zshrc.tmpl` → zsh).
+
+Alignment-style continuation lines (e.g. `&& cmp -s` chains aligned under
+`if cmp`) are exempt from the unit check.
+
+**Enforcement** lives in the Neovim config as a local module,
+`dot_config/nvim/lua/indent-audit/` (wired up by `lua/plugins/indent-audit.lua`):
+
+- `:IndentAudit` — reports violations as buffer diagnostics (directive depth,
+  tabs, off-unit indents)
+- `:IndentFix` — reindents directive lines; content lines are only flagged,
+  never rewritten (alignment continuations are legal)
+- `<leader>cf` in a `.tmpl` buffer — same fix via the conform.nvim formatter
+  `chezmoi_indent` (manual only; format-on-save is disabled)
+
 ### Why a Source-Only `sddm/` Directory?
 
 Chezmoi targets `~/`. System-level files in `/etc/` and `/usr/share/` cannot be deployed
