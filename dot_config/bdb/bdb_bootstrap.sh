@@ -127,64 +127,10 @@ detect_os() {
 }
 
 # =============================================================================
-# SYSTEM UPDATE FUNCTIONS
+# SYSTEM UPDATE
 # =============================================================================
-
-# -----------------------------------------------------------------------------
-# Arch / CachyOS / Manjaro
-# -----------------------------------------------------------------------------
-update_arch() {
-    bdb_exec "Updating system packages" sudo pacman -Syu --noconfirm
-
-    local orphans
-    orphans="$(pacman -Qdtq 2>/dev/null || true)"
-    if [[ -n "${orphans}" ]]; then
-        bdb_exec "Removing orphaned packages" bash -c "echo '${orphans}' | sudo pacman -Rns --noconfirm -"
-    fi
-
-    bdb_exec "Cleaning package cache" sudo pacman -Scc --noconfirm
-
-    if bdb_test_cmd "yay"; then
-        bdb_exec "Updating AUR packages" yay -Syu --noconfirm
-        bdb_success "AUR packages updated"
-    fi
-}
-
-# -----------------------------------------------------------------------------
-# Debian / Ubuntu
-# -----------------------------------------------------------------------------
-update_debian() {
-    bdb_exec "Updating package lists" sudo apt-get update
-    bdb_exec "Upgrading packages" sudo apt-get full-upgrade -y
-    bdb_exec "Removing unused packages" sudo apt-get autoremove --purge -y
-    bdb_exec "Cleaning package cache" sudo apt-get clean
-
-    if bdb_test_cmd "snap"; then
-        bdb_exec "Updating Snap packages" sudo snap refresh
-        bdb_success "Snap packages updated"
-    fi
-}
-
-# -----------------------------------------------------------------------------
-# Fedora / Rocky Linux
-# -----------------------------------------------------------------------------
-update_fedora() {
-    bdb_exec "Upgrading system packages" sudo dnf upgrade -y
-    bdb_exec "Removing unused packages" sudo dnf autoremove -y
-    bdb_exec "Cleaning package cache" sudo dnf clean all
-
-    if bdb_test_cmd "flatpak"; then
-        bdb_exec "Updating Flatpak packages" flatpak update -y
-        bdb_success "Flatpak packages updated"
-    fi
-}
-
-# -----------------------------------------------------------------------------
-# macOS
-# -----------------------------------------------------------------------------
-update_macos() {
-    bdb_exec "Updating macOS system" sudo softwareupdate --install --recommended
-}
+# Package updates are implemented once in bdb_update_packages (bdb_helpers.sh),
+# shared with the chezmoi update hook (~/.config/bdb/bdb_update.sh).
 
 update_system() {
     if ! bdb_ask "Update the system now"; then
@@ -192,24 +138,13 @@ update_system() {
         return 0
     fi
 
-    case "${DISTRO}" in
-    arch | cachyos)
-        update_arch
-        ;;
-    debian | ubuntu)
-        update_debian
-        ;;
-    fedora | rocky)
-        update_fedora
-        ;;
-    macos)
-        update_macos
-        ;;
-    *)
-        bdb_error "Unsupported distribution for system update: ${DISTRO}"
-        return 1
-        ;;
-    esac
+    if [[ "${DISTRO}" == "macos" ]]; then
+        # Homebrew is not installed yet at this stage — update the OS itself;
+        # brew packages are kept current later by the chezmoi update hook.
+        bdb_exec "Updating macOS system" sudo softwareupdate --install --recommended
+    else
+        bdb_update_packages
+    fi
 
     bdb_success "System updated successfully"
 }
@@ -219,9 +154,9 @@ update_system() {
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Arch / CachyOS / Manjaro
+# Arch / CachyOS / Fedora / Rocky — git and chezmoi from native repos
 # -----------------------------------------------------------------------------
-install_deps_arch() {
+install_deps_native() {
     local packages_to_install=()
 
     if bdb_test_cmd "git"; then
@@ -236,19 +171,22 @@ install_deps_arch() {
         packages_to_install+=("chezmoi")
     fi
 
-    if [[ ${#packages_to_install[@]} -gt 0 ]]; then
+    [[ ${#packages_to_install[@]} -eq 0 ]] && return 0
+
+    if bdb_has_cmd "pacman"; then
         # --needed: skip reinstall if already up to date
-        bdb_exec "Installing dependencies (Arch/CachyOS/Manjaro)" sudo pacman -S --needed --noconfirm "${packages_to_install[@]}"
+        bdb_exec "Installing dependencies (pacman)" sudo pacman -S --needed --noconfirm "${packages_to_install[@]}"
+    else
+        bdb_exec "Installing dependencies (dnf)" sudo dnf install -y "${packages_to_install[@]}"
     fi
 }
 
 # -----------------------------------------------------------------------------
-# Debian
-# -----------------------------------------------------------------------------
-# chezmoi installed via snap (--classic) to match Ubuntu and avoid piping a
-# remote script into a shell. Follows the official Debian snap guide:
+# Debian / Ubuntu — git via apt; chezmoi via snap (--classic), avoiding a
+# remote script piped into a shell. Follows the official Debian snap guide:
 # https://snapcraft.io/docs/tutorials/install-the-daemon/debian/
-install_deps_debian() {
+# -----------------------------------------------------------------------------
+install_deps_apt() {
     local packages_to_install=()
     local snapd_freshly_installed=false
 
@@ -269,8 +207,8 @@ install_deps_debian() {
         bdb_exec "Installing dependencies" sudo apt-get install -y "${packages_to_install[@]}"
     fi
 
-    # After a fresh snapd install on Debian, snap core must be installed to
-    # bring the snapd daemon to its latest version before other snaps are added
+    # After a fresh snapd install, snap core must be installed to bring the
+    # snapd daemon to its latest version before other snaps are added
     if [[ "${snapd_freshly_installed}" == true ]]; then
         bdb_exec "Installing snap core" sudo snap install core
     fi
@@ -279,58 +217,6 @@ install_deps_debian() {
         bdb_success "Chezmoi already installed"
     else
         bdb_exec "Installing chezmoi via snap" sudo snap install chezmoi --classic
-    fi
-}
-
-# -----------------------------------------------------------------------------
-# Ubuntu
-# -----------------------------------------------------------------------------
-install_deps_ubuntu() {
-    local packages_to_install=()
-
-    if bdb_test_cmd "git"; then
-        bdb_success "Git already installed"
-    else
-        packages_to_install+=("git")
-    fi
-
-    if bdb_test_cmd "snap"; then
-        bdb_success "Snapd already installed"
-    else
-        packages_to_install+=("snapd")
-    fi
-
-    if [[ ${#packages_to_install[@]} -gt 0 ]]; then
-        bdb_exec "Installing dependencies (Ubuntu)" sudo apt-get install -y "${packages_to_install[@]}"
-    fi
-
-    if bdb_test_cmd "chezmoi"; then
-        bdb_success "Chezmoi already installed"
-    else
-        bdb_exec "Installing chezmoi via snap" sudo snap install chezmoi --classic
-    fi
-}
-
-# -----------------------------------------------------------------------------
-# Fedora / Rocky Linux
-# -----------------------------------------------------------------------------
-install_deps_fedora() {
-    local packages_to_install=()
-
-    if bdb_test_cmd "git"; then
-        bdb_success "Git already installed"
-    else
-        packages_to_install+=("git")
-    fi
-
-    if bdb_test_cmd "chezmoi"; then
-        bdb_success "Chezmoi already installed"
-    else
-        packages_to_install+=("chezmoi")
-    fi
-
-    if [[ ${#packages_to_install[@]} -gt 0 ]]; then
-        bdb_exec "Installing dependencies (Fedora/Rocky)" sudo dnf install -y "${packages_to_install[@]}"
     fi
 }
 
@@ -399,17 +285,11 @@ install_deps_macos() {
 
 install_dependencies() {
     case "${DISTRO}" in
-    arch | cachyos)
-        install_deps_arch
+    arch | cachyos | fedora | rocky)
+        install_deps_native
         ;;
-    debian)
-        install_deps_debian
-        ;;
-    ubuntu)
-        install_deps_ubuntu
-        ;;
-    fedora | rocky)
-        install_deps_fedora
+    debian | ubuntu)
+        install_deps_apt
         ;;
     macos)
         install_deps_macos
@@ -424,7 +304,7 @@ install_dependencies() {
     # add it so the chezmoi snap is visible for the rest of this script run.
     if [[ -d "/snap/bin" ]] && [[ ":${PATH}:" != *":/snap/bin:"* ]]; then
         export PATH="/snap/bin:${PATH}"
-        _bdb_log "Added /snap/bin to PATH"
+        _bdb_log INFO "Added /snap/bin to PATH"
     fi
 
     if ! bdb_test_cmd "chezmoi"; then

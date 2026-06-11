@@ -71,6 +71,7 @@ chezmoi init --apply norville
 |------|-------------|
 | `bdb_bootstrap.sh` | Main bootstrap script for fresh system setup (not deployed) |
 | `bdb_helpers.sh` | Helper functions: colored output, user prompts, logging, error handling |
+| `bdb_update.sh` | System/toolchain update — runs as a chezmoi `[hooks.update.post]` hook |
 
 ### Installation Scripts (`.chezmoiscripts/`)
 
@@ -86,7 +87,11 @@ These scripts run automatically during `chezmoi apply` or `chezmoi update`:
 | `run_onchange_after_05-install-docker.sh.tmpl` | on change | Prompts for and installs Docker |
 | `run_onchange_after_06-install-sddm.sh.tmpl` | on change | Deploy SDDM config + Tokyo Night Moon theme to `/etc/` and `/usr/share/` |
 | `run_onchange_after_07-install-darkman.sh.tmpl` | on change | Enable darkman.service (GNOME workstations only) |
-| `run_after_90-update-env.sh.tmpl` | every update | Update system packages, ZSH plugins, bat theme cache, font cache; `rustup update`; `gem update bundler erb` |
+
+System and toolchain updates (`~/.config/bdb/bdb_update.sh`) run as a chezmoi
+`[hooks.update.post]` hook — only after `chezmoi update`, never on plain
+`chezmoi apply`. The hook updates system packages, ZSH plugins, bat theme cache,
+font cache, `rustup update`, and `gem update bundler erb`.
 
 ### Shell Configuration (`.zsh/`)
 
@@ -107,6 +112,8 @@ These scripts run automatically during `chezmoi apply` or `chezmoi update`:
 | `.config/git/` | Git config, global ignore, delta integration | all |
 | `.config/kitty/` | Kitty terminal — config, tab bar, Tokyo Night theme, session management | workstation |
 | `.config/lazygit/` | Lazygit TUI — Tokyo Night theme | workstation + terminal |
+| `.config/niri/` | niri tiling compositor | workstation (niri installed) |
+| `.config/noctalia/` | Noctalia desktop shell — Tokyo Night colors | workstation (qs installed) |
 | `.config/nvim/` | Neovim (LazyVim + Tokyo Night Moon, transparent bg) | workstation + terminal |
 | `.config/starship/` | Starship cross-shell prompt | workstation + terminal |
 | `.config/yay/` | yay AUR helper — build dir and config | workstation (pacman only) |
@@ -116,9 +123,9 @@ These scripts run automatically during `chezmoi apply` or `chezmoi update`:
 
 ## Installed Tools
 
-### Core Tools (All Machine Types)
+### Core Tools
 
-- **Version Control**: Git
+- **Version Control**: Git (all machine types)
 - **Editor**: Vim (all) + Neovim (workstation + terminal)
 - **Shell**: ZSH with Zinit plugin manager (workstation + terminal)
 - **Prompt**: Starship cross-shell prompt (workstation + terminal)
@@ -220,7 +227,7 @@ chezmoi update
 This will:
 1. Pull the latest changes from the repository
 2. Apply any configuration updates
-3. Run the environment update script (`90-update-env`)
+3. Run the post-update hook (`~/.config/bdb/bdb_update.sh`)
 4. Update system packages
 5. Update ZSH plugins via Zinit
 6. Rebuild bat theme cache and font cache
