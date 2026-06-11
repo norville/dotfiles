@@ -1,17 +1,10 @@
 #!/bin/zsh
 # =============================================================================
-# Shell Aliases Configuration
+# Shell Aliases
 # =============================================================================
-# This file contains shell aliases for improved command-line experience
-# Aliases are only created if the required tools are installed
-#
-# Organization:
-# - Modern replacements for classic Unix tools
-# - Enhanced output and formatting
-# - Safety improvements for destructive commands
-# - Utility shortcuts
-#
-# Last updated: 2025
+# Grouped as: modern tool replacements, enhanced system commands, process
+# management, development shortcuts, and system maintenance.
+# Every alias is guarded — only defined when the underlying tool is installed.
 # =============================================================================
 
 # =============================================================================
@@ -140,7 +133,7 @@ alias mv='mv -iv'
 # -v: Verbose (show what's being removed)
 alias rm='rm -Iv'
 
-# Copy: Interactive mode, preserve attributes, verbose
+# Copy: Interactive mode (prompt before overwrite), verbose output
 alias cp='cp -iv'
 
 # Create parent directories as needed
@@ -178,7 +171,7 @@ alias pscpu='ps auxf | sort -nr -k 3 | head -10'
 # Show processes sorted by memory usage
 alias psmem='ps auxf | sort -nr -k 4 | head -10'
 
-# Interactive process viewer (use htop if available)
+# Interactive process viewer — btop replaces top when installed
 if command -v btop >/dev/null 2>&1; then
     alias top='btop'
 fi
@@ -244,10 +237,10 @@ fi
 # -----------------------------------------------------------------------------
 # Quick system status commands
 
-# Reload shell configuration
+# Reload shell configuration — exec replaces the process, so all state
+# (env, options, completions) is rebuilt from scratch
 alias reload='exec zsh'
 
-# Clear screen properly
 alias cls='clear'
 alias c='clear'
 

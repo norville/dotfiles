@@ -1,5 +1,5 @@
--- Explore, edit, and develop on a remote machine via sshfs
--- Requires snacks.nvim
+-- Explore and edit files on a remote machine over SSH (mounts via sshfs).
+-- Hosts are read from ~/.ssh/config; the picker UI is provided by snacks.nvim.
 return {
   "nosduco/remote-sshfs.nvim",
   dependencies = {
@@ -9,43 +9,39 @@ return {
   opts = {
     ui = {
       picker = "snacks",
-      select_prompts = false, -- not yet implemented
+      select_prompts = false,
       confirm = {
-        connect = true, -- prompt y/n when host is selected to connect to
-        change_dir = false, -- prompt y/n to change working directory on connection (only applicable if handlers.on_connect.change_dir is enabled)
+        connect = true, -- ask before connecting to the selected host
+        change_dir = false, -- on_connect.change_dir below already switches cwd; no extra prompt
       },
     },
     connections = {
-      ssh_configs = { -- which ssh configs to parse for hosts list
+      ssh_configs = {
         vim.fn.expand "$HOME" .. "/.ssh/config",
-        -- "/etc/ssh/ssh_config",
-        -- "/path/to/custom/ssh_config"
       },
       ssh_known_hosts = vim.fn.expand "$HOME" .. "/.ssh/known_hosts",
-      -- NOTE: Can define ssh_configs similarly to include all configs in a folder
-      -- ssh_configs = vim.split(vim.fn.globpath(vim.fn.expand "$HOME" .. "/.ssh/configs", "*"), "\n")
-      sshfs_args = { -- arguments to pass to the sshfs command
-        "-o reconnect",
+      sshfs_args = {
+        "-o reconnect", -- survive network drops instead of leaving a dead mount
         "-o ConnectTimeout=5",
       },
     },
     mounts = {
-      base_dir = vim.fn.expand "$HOME" .. "/.sshfs/", -- base directory for mount points
-      unmount_on_exit = true, -- run sshfs as foreground, will unmount on vim exit
+      base_dir = vim.fn.expand "$HOME" .. "/.sshfs/", -- mount points live under here
+      unmount_on_exit = true, -- sshfs runs in the foreground and unmounts when vim exits
     },
     handlers = {
       on_connect = {
-        change_dir = true, -- when connected change vim working directory to mount point
+        change_dir = true, -- cd into the mount point once connected
       },
       on_disconnect = {
-        clean_mount_folders = false, -- remove mount point folder on disconnect/unmount
+        clean_mount_folders = false, -- keep empty mount dirs for faster reconnects
       },
-      on_edit = {}, -- not yet implemented
+      on_edit = {},
     },
     log = {
-      enabled = false, -- enable logging
-      truncate = false, -- truncate logs
-      types = { -- enabled log types
+      enabled = false,
+      truncate = false,
+      types = {
         all = false,
         util = false,
         handler = false,
@@ -54,5 +50,3 @@ return {
     },
   },
 }
-
-

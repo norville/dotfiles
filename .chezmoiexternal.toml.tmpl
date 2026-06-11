@@ -1,8 +1,9 @@
 # =============================================================================
-# Chezmoi External Files Configuration
+# Chezmoi External Resources
 # =============================================================================
-# This file defines external resources to download and manage
-# Chezmoi will automatically download and keep these files updated
+# Files chezmoi downloads and keeps up to date itself (themes, fonts) —
+# nothing here is tracked in git; each entry re-downloads after its
+# refreshPeriod expires ("720h" = monthly).
 #
 # Documentation: https://www.chezmoi.io/reference/special-files-and-directories/chezmoiexternal-format/
 # =============================================================================
@@ -51,14 +52,14 @@
 {{- /* -------------------------------------------------------------------- */ -}}
 {{- if eq .chezmoi.os "linux" }}
 # -----------------------------------------------------------------------------
-# Linux External Resources
+# Fonts (apt/dnf only)
 # -----------------------------------------------------------------------------
-
-# Nerd Font (JetBrains Mono) — for distros without Nerd Fonts in repositories
+# Debian/Ubuntu/Fedora repos lack Nerd Fonts packages, so the font files are
+# deployed here. pacman and brew ship dedicated font packages instead — on
+# those platforms this section renders empty and packages own the fonts.
   {{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
-# For distributions without Nerd Fonts in repositories
 
-# JetBrains Mono - Official Release (non-patched)
+# JetBrains Mono — official release (non-patched)
 [".local/share/fonts/JetBrainsMono/official"]
   type = "archive"
   url = "https://github.com/JetBrains/JetBrainsMono/releases/download/v2.304/JetBrainsMono-2.304.zip"
@@ -66,7 +67,7 @@
   include = ["fonts/ttf/*.ttf"]   # Only include TTF files
   refreshPeriod = "720h"
 
-# JetBrains Mono Nerd Font - Patched with Nerd Font icons
+# JetBrains Mono Nerd Font — patched with Nerd Font icons
 [".local/share/fonts/JetBrainsMono/nerd"]
   type = "archive"
   url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz"
@@ -77,19 +78,3 @@
   {{- end }}{{- /* end apt/dnf fonts */ -}}
 {{- end }}{{- /* end linux */ -}}
 
-# =============================================================================
-# External Resources Management Notes
-# =============================================================================
-#
-# Commands:
-#   chezmoi apply           - Download and install all external resources
-#   chezmoi update          - Update all external resources if refresh period expired
-#   chezmoi verify          - Check if external resources need updating
-#
-# Refresh Period Format:
-#   "0"      - Never refresh (only download once)
-#   "168h"   - Refresh weekly
-#   "720h"   - Refresh monthly
-#   "8760h"  - Refresh yearly
-#
-# =============================================================================

@@ -1,11 +1,5 @@
--- Autocmds are automatically loaded on the VeryLazy event
--- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
---
--- Add any additional autocmds here
--- with `vim.api.nvim_create_autocmd`
---
--- Or remove existing autocmds by their group name (which is prefixed with `lazyvim_` for the defaults)
--- e.g. vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
+-- Custom autocmds, loaded on the VeryLazy event.
+-- LazyVim defaults: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 
 -- Chezmoi templates — detect filetype from the base name before .tmpl
 -- e.g. dot_zshrc.tmpl → zsh, dot_vimrc.tmpl → vim, dot_bashrc.tmpl → bash

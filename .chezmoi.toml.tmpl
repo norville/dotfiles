@@ -119,7 +119,8 @@
 {{- /* ========================================================================== */ -}}
 {{- /* Editor / Merge Commands                                                    */ -}}
 {{- /* ========================================================================== */ -}}
-{{- /* server has no neovim (S:N); workstation and terminal both have nvim (T:Y). */ -}}
+{{- /* Neovim is installed on workstation and terminal machines; servers only     */ -}}
+{{- /* get plain vim, so they fall back to vim/vimdiff.                           */ -}}
 
 {{- $mergeCmd := "vimdiff" -}}
 {{- $editCmd  := "vim" -}}

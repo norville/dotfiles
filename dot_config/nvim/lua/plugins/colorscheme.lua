@@ -1,6 +1,6 @@
+-- Tokyo Night Moon with transparent background
 return {
 
-  -- config tokyonight theme
   {
     "folke/tokyonight.nvim",
     lazy = false,    -- must load at startup so the colorscheme is set before any UI renders
