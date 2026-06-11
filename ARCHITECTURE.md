@@ -295,63 +295,65 @@ Plain `chezmoi apply` does **not** trigger the update hook.
 
 ```
 dotfiles/
-├── .chezmoi.toml.tmpl              # Chezmoi config + template variables (no package lists)
-├── .chezmoidata.toml               # Canonical package matrix (never deployed)
-├── .chezmoiexternal.toml.tmpl      # External resources (themes, fonts)
-├── .chezmoiignore                  # OS/platform/machine exclusions
+├── .chezmoiroot                    # Tells chezmoi to use home/ as source root
 ├── CLAUDE.md                       # Context for Claude Code (not deployed, gitignored)
 ├── ARCHITECTURE.md                 # This file (not deployed)
 ├── README.md                       # User documentation (not deployed)
 ├── TODO.md                         # Open tasks (not deployed)
-├── sddm/                           # Source-only: SDDM config + Tokyo Night Moon theme
-│   ├── etc/sddm.conf
-│   ├── etc/sddm.conf.d/tokyonight-moon.conf
-│   ├── etc/sddm/Xsetup
-│   └── themes/tokyonight-moon/     # metadata.desktop, Main.qml, LoginFormComponent.qml, background.jpg
-├── .chezmoiscripts/
-│   ├── run_onchange_after_00-install-core.sh.tmpl        # all machine types
-│   ├── run_onchange_after_01-config-env.sh.tmpl           # workstation + terminal
-│   ├── run_onchange_after_02-install-1password.sh.tmpl    # workstation only
-│   ├── run_onchange_after_03-install-vscode.sh.tmpl       # workstation only
-│   ├── run_onchange_after_04-install-ansible.sh.tmpl      # all machine types
-│   ├── run_onchange_after_05-install-docker.sh.tmpl       # workstation + server, linux only
-│   ├── run_onchange_after_06-install-sddm.sh.tmpl         # workstation only
-│   └── run_onchange_after_07-install-darkman.sh.tmpl      # GNOME workstation only
-├── dot_config/
-│   ├── bdb/
-│   │   ├── bdb_bootstrap.sh        # Not deployed
-│   │   ├── bdb_helpers.sh
-│   │   └── executable_bdb_update.sh.tmpl  # post-update hook (system/toolchain updates)
-│   ├── bat/                        # Bat config and Tokyo Night theme
-│   ├── btop/                       # Btop config and Tokyo Night theme
-│   ├── darkman/                    # darkman config.yaml (GNOME workstation only)
-│   ├── delta/                      # Delta pager Tokyo Night config
-│   ├── eza/                        # Eza color theme (downloaded via chezmoiexternal)
-│   ├── git/                        # Git config, ignore, delta integration
-│   ├── kitty/                      # Kitty config, tab_bar.py, Tokyo Night theme, sessions/
-│   ├── lazygit/                    # Lazygit config with Tokyo Night theme
-│   ├── niri/                       # niri compositor config (workstation, niri installed)
-│   ├── noctalia/                   # Noctalia shell config (workstation, qs installed)
-│   ├── nvim/                       # Neovim (LazyVim, workstation + terminal)
-│   ├── starship/                   # Starship prompt config
-│   ├── yay/                        # yay AUR helper config (pacman only)
-│   ├── yazi/                       # yazi file manager (workstation only)
-│   └── zed/                        # Zed editor (workstation only)
-├── dot_local/share/darkman/
-│   └── executable_gtk3-theme.sh    # GTK3 dark/light switch script
-├── dot_zsh/
-│   ├── plugins.zsh
-│   └── aliases.zsh
-├── dot_zshrc.tmpl
-├── dot_editorconfig
-├── dot_vimrc
-├── dot_vim/
-└── dot_ssh/
-    ├── private_config.tmpl
-    ├── private_norville_at_chikyu.pub.tmpl
-    ├── private_ansible_at_chikyu.pub.tmpl
-    ├── private_norville_at_github.pub.tmpl
-    └── private_norville_at_codeberg.pub.tmpl
+└── home/                           # chezmoi source root (set by .chezmoiroot)
+    ├── .chezmoi.toml.tmpl          # Chezmoi config + template variables (no package lists)
+    ├── .chezmoidata.toml           # Canonical package matrix (never deployed)
+    ├── .chezmoiexternal.toml.tmpl  # External resources (themes, fonts)
+    ├── .chezmoiignore              # OS/platform/machine exclusions
+    ├── sddm/                       # Source-only: SDDM config + Tokyo Night Moon theme
+    │   ├── etc/sddm.conf
+    │   ├── etc/sddm.conf.d/tokyonight-moon.conf
+    │   ├── etc/sddm/Xsetup
+    │   └── themes/tokyonight-moon/ # metadata.desktop, Main.qml, LoginFormComponent.qml, background.jpg
+    ├── .chezmoiscripts/
+    │   ├── run_onchange_after_00-install-core.sh.tmpl        # all machine types
+    │   ├── run_onchange_after_01-config-env.sh.tmpl           # workstation + terminal
+    │   ├── run_onchange_after_02-install-1password.sh.tmpl    # workstation only
+    │   ├── run_onchange_after_03-install-vscode.sh.tmpl       # workstation only
+    │   ├── run_onchange_after_04-install-ansible.sh.tmpl      # all machine types
+    │   ├── run_onchange_after_05-install-docker.sh.tmpl       # workstation + server, linux only
+    │   ├── run_onchange_after_06-install-sddm.sh.tmpl         # workstation only
+    │   └── run_onchange_after_07-install-darkman.sh.tmpl      # GNOME workstation only
+    ├── dot_config/
+    │   ├── bdb/
+    │   │   ├── bdb_bootstrap.sh        # Not deployed
+    │   │   ├── bdb_helpers.sh
+    │   │   └── executable_bdb_update.sh.tmpl  # post-update hook (system/toolchain updates)
+    │   ├── bat/                        # Bat config and Tokyo Night theme
+    │   ├── btop/                       # Btop config and Tokyo Night theme
+    │   ├── darkman/                    # darkman config.yaml (GNOME workstation only)
+    │   ├── delta/                      # Delta pager Tokyo Night config
+    │   ├── eza/                        # Eza color theme (downloaded via chezmoiexternal)
+    │   ├── git/                        # Git config, ignore, delta integration
+    │   ├── kitty/                      # Kitty config, tab_bar.py, Tokyo Night theme, sessions/
+    │   ├── lazygit/                    # Lazygit config with Tokyo Night theme
+    │   ├── niri/                       # niri compositor config (workstation, niri installed)
+    │   ├── noctalia/                   # Noctalia shell config (workstation, qs installed)
+    │   ├── nvim/                       # Neovim (LazyVim, workstation + terminal)
+    │   ├── starship/                   # Starship prompt config
+    │   ├── yay/                        # yay AUR helper config (pacman only)
+    │   ├── yazi/                       # yazi file manager (workstation only)
+    │   └── zed/                        # Zed editor (workstation only)
+    ├── dot_local/share/darkman/
+    │   └── executable_gtk3-theme.sh    # GTK3 dark/light switch script
+    ├── dot_zsh/
+    │   ├── plugins.zsh
+    │   └── aliases.zsh
+    ├── dot_zshrc.tmpl
+    ├── dot_editorconfig
+    ├── dot_vimrc
+    ├── dot_vim/
+    └── dot_ssh/
+        ├── private_config.tmpl
+        ├── private_norville_at_chikyu.pub.tmpl
+        ├── private_ansible_at_chikyu.pub.tmpl
+        ├── private_norville_at_github.pub.tmpl
+        └── private_norville_at_codeberg.pub.tmpl
 ```
 
 ### Dotfiles Deployment Scope

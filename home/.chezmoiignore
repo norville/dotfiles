@@ -13,16 +13,6 @@
 # Deployed to /etc/ and /usr/share/ by run_onchange_after_06-install-sddm.sh.
 sddm/
 
-# -----------------------------------------------------------------------------
-# Repository / Tooling Files (Never Installed)
-# -----------------------------------------------------------------------------
-.gitignore
-.claude
-CLAUDE.md
-ARCHITECTURE.md
-README.md
-TODO.md
-
 # Bootstrap script (only used for initial setup, not deployed)
 .config/bdb/bdb_bootstrap.sh
 

@@ -265,7 +265,7 @@ sudo pacman -Syu && yay -Syu
 chezmoi edit ~/.zshrc
 
 # Or edit the source directly
-nvim ~/.local/share/chezmoi/dot_zshrc.tmpl
+nvim ~/.local/share/chezmoi/home/dot_zshrc.tmpl
 chezmoi apply
 ```
 
