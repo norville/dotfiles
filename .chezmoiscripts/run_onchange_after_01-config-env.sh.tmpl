@@ -3,7 +3,7 @@
 # Chezmoi Script: Environment Setup
 # =============================================================================
 # Configures the shell environment and application settings: bat theme cache,
-# default shell (zsh), font cache, and Neovim directories.
+# default shell (zsh), font cache, and dev toolchains (Go, Ruby, Rust).
 #
 # Execution: chezmoi apply (only when this file's content changes)
 # Location:  .chezmoiscripts/run_onchange_after_01-config-env.sh.tmpl
@@ -14,19 +14,7 @@
 # -----------------------------------------------------------------------------
 source "${HELPERS}"
 
-SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl | sed 's/^[0-9]*\.//')"
-SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/$(date +%Y%m%d_%H%M%S)_${SCRIPT_NAME}.log"
-mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
-bdb_init_logging "${SCRIPT_LOG_FILE}"
-
-_bdb_log "========================================="
-_bdb_log "Script: ${SCRIPT_NAME}"
-_bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
-_bdb_log "========================================="
-
-set -euo pipefail
-trap 'bdb_handle_error' ERR
-trap 'bdb_cleanup' EXIT
+bdb_script_init "${BASH_SOURCE[0]}"
 
 # =============================================================================
 # ENVIRONMENT SETUP
@@ -44,37 +32,14 @@ exit 0
 # Application Configuration
 # -----------------------------------------------------------------------------
 
-{{- if or (eq .osid "linux-debian") (eq .osid "linux-ubuntu") }}
-# Debian/Ubuntu uses 'batcat' command name
-if bdb_test_cmd "batcat"; then
-  bdb_exec "Building bat theme cache" batcat cache --build >/dev/null 2>&1
-else
-  bdb_warn "batcat not found"
-fi
-{{- else }}
-# Other systems use 'bat' command name
-if bdb_test_cmd "bat"; then
-  bdb_exec "Building bat theme cache" bat cache --build >/dev/null 2>&1
+# bat is installed as 'batcat' on Debian/Ubuntu — detect the name at runtime
+_bat="$(command -v batcat || command -v bat || true)"
+if [[ -n "${_bat}" ]]; then
+  bdb_exec "Building bat theme cache" "${_bat}" cache --build
 else
   bdb_warn "bat not found"
 fi
-{{- end }}
-
-# Verify eza (modern ls replacement) theme installation
-bdb_action "Verifying eza theme installation"
-if [[ -f "${HOME}/.config/eza/theme.yml" ]]; then
-  bdb_success "eza theme configured"
-else
-  bdb_warn "eza theme not found, check chezmoi external"
-fi
-
-# Verify btop (system monitor) theme installation
-bdb_action "Verifying btop theme installation"
-if [[ -f "${HOME}/.config/btop/themes/tokyonight_moon.theme" ]]; then
-  bdb_success "btop theme configured"
-else
-  bdb_warn "btop theme not found, check chezmoi external"
-fi
+unset _bat
 
 # -----------------------------------------------------------------------------
 # Go Environment
@@ -167,8 +132,6 @@ else
   bdb_error "ZSH not found - cannot set as default shell"
 fi
 
-# Configure JetBrainsMono fonts
-
   {{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
 # Debian/Ubuntu/Fedora: Fonts installed via chezmoiexternal, just update font cache
 bdb_action "Updating font cache"
@@ -180,28 +143,6 @@ else
 fi
   {{- end }}
 
-# Verify fonts installation
-bdb_action "Verifying fonts installation"
-if bdb_test_cmd "fc-list"; then
-
-  # Verify JetBrainsMono fonts installation:
-  if fc-list | grep -E "JetBrainsMono[A-Z]{,2}-[a-zA-Z]+\.ttf"; then
-    bdb_success "JetBrainsMono fonts installed"
-  else
-    bdb_warn "JetBrainsMono fonts not found, check chezmoi logs for installation issues"
-  fi
-
-  # Verify JetBrainsMono Nerd fonts installation
-  if fc-list | grep -E "JetBrainsMono[A-Z]{,2}NerdFont[a-zA-Z]*-[a-zA-Z]+\.ttf"; then
-    bdb_success "JetBrainsMono Nerd fonts installed"
-  else
-    bdb_warn "JetBrainsMono Nerd fonts not found, check chezmoi logs for installation issues"
-  fi
-
-else
-  bdb_warn "fc-list command not found, cannot verify fonts"
-fi
-
 {{- /* -------------------------------------------------------------------- */ -}}
 {{- /* macOS-Specific Configuration                                         */ -}}
 {{- /* -------------------------------------------------------------------- */ -}}
@@ -209,30 +150,6 @@ fi
 # -----------------------------------------------------------------------------
 # macOS-Specific Configuration
 # -----------------------------------------------------------------------------
-
-# Configure macOS defaults (commented out - uncomment to enable)
-#bdb_action "Configuring macOS system defaults"
-
-# Show hidden files in Finder
-#bdb_exec "Show hidden files" defaults write com.apple.finder AppleShowAllFiles -bool true
-
-# Show path bar in Finder
-#bdb_exec "Show path bar" defaults write com.apple.finder ShowPathbar -bool true
-
-# Show status bar in Finder
-#bdb_exec "Show status bar" defaults write com.apple.finder ShowStatusBar -bool true
-
-# Disable press-and-hold for keys in favor of key repeat
-#bdb_exec "Disable press-and-hold" defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
-
-# Set fast key repeat rate
-#bdb_exec "Set key repeat rate" defaults write NSGlobalDomain KeyRepeat -int 2
-#bdb_exec "Set initial key repeat" defaults write NSGlobalDomain InitialKeyRepeat -int 15
-
-# Restart Finder to apply changes
-#bdb_exec "Restarting Finder" killall Finder 2>/dev/null || true
-
-#bdb_success "macOS defaults configured"
 
 # Configure Homebrew
 bdb_action "Configuring Homebrew"
@@ -246,34 +163,11 @@ fi
 
 {{- end }}
 
-# -----------------------------------------------------------------------------
-# Neovim Configuration
-# -----------------------------------------------------------------------------
-
-# Neovim plugin initialization is handled automatically by Lazy.nvim
-# on first nvim run. We just ensure directories exist.
-bdb_action "Initializing Neovim configuration"
-
-if bdb_test_cmd "nvim"; then
-  # Create necessary directories
-  bdb_mkdir "${HOME}/.local/share/nvim" "Failed to create nvim data dir"
-  bdb_mkdir "${HOME}/.local/state/nvim" "Failed to create nvim state dir"
-  bdb_success "Neovim directories created"
-else
-  bdb_warn "Neovim not installed"
-fi
-
 # =============================================================================
 # COMPLETION
 # =============================================================================
 
-bdb_success "Environment setup complete"
-
-if [[ -n "${BDB_LOG_FILE:-}" ]]; then
-  bdb_var "Log file" "${BDB_LOG_FILE}"
-fi
-
 bdb_info "NOTE: Please log out and log back in for all changes to take effect"
-bdb_end_section
+bdb_script_end "Environment setup complete"
 
 exit 0

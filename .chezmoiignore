@@ -1,7 +1,7 @@
 # =============================================================================
 # Chezmoi Ignore File
 # =============================================================================
-# Canonical deployment scope — derived from dotfiles-overhaul-spec.md §8.
+# Canonical deployment scope per machine type — see ARCHITECTURE.md.
 #
 # Documentation: https://www.chezmoi.io/reference/special-files-and-directories/chezmoiignore/
 # =============================================================================

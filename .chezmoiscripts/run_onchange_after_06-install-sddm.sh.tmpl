@@ -23,24 +23,14 @@
 # LoginFormComponent.qml: {{ include "sddm/themes/tokyonight-moon/LoginFormComponent.qml" | sha256sum }}
 # Xsetup:                 {{ include "sddm/etc/sddm/Xsetup" | sha256sum }}
 # background.jpg:         {{ output "sha256sum" (joinPath .chezmoi.sourceDir "sddm/themes/tokyonight-moon/background.jpg") }}
-{{- if not (lookPath "sddm") }}
+{{- /* Workstation machines with SDDM installed only. */ -}}
+{{- if or (ne .machine "workstation") (not (lookPath "sddm")) }}
 exit 0
 {{- end }}
 
 source "${HELPERS}"
 
-SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}" .tmpl)"
-SCRIPT_LOG_FILE="${HOME}/.cache/chezmoi/$(date +%Y%m%d_%H%M%S)_${SCRIPT_NAME}.log"
-mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
-bdb_init_logging "${SCRIPT_LOG_FILE}"
-
-_bdb_log "========================================="
-_bdb_log "Script: ${SCRIPT_NAME}"
-_bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
-_bdb_log "========================================="
-
-set -euo pipefail
-trap 'bdb_handle_error' ERR
+bdb_script_init "${BASH_SOURCE[0]}"
 
 SOURCE_DIR="{{ .chezmoi.sourceDir }}"
 THEME_DIR="/usr/share/sddm/themes/tokyonight-moon"

@@ -36,14 +36,6 @@ readonly ICON_ARROW="→"
 # LOGGING FUNCTIONS
 # =============================================================================
 
-# Used with DEBUG trap. Toggle set -x around the timestamp write to prevent
-# the trap from recursively logging itself.
-_bdb_log_timestamp() {
-    { set +x; } 2>/dev/null
-    printf "[%s] " "$(date '+%Y-%m-%d %H:%M:%S')" >&1
-    set -x 2>/dev/null
-}
-
 # Timestamps on section markers and key events only; other lines get [LOG] prefix.
 _bdb_log() {
     local message="$*"
@@ -52,21 +44,6 @@ _bdb_log() {
         echo "[$(date '+%Y-%m-%d %H:%M:%S')] [LOG] $message" >&1
     else
         echo "[LOG] $message" >&1
-    fi
-}
-
-_bdb_log_cmd() {
-    local desc="$1"
-    shift
-    _bdb_log "Running: $*"
-    _bdb_log "Description: ${desc}"
-    if "$@" >&1 2>&1; then
-        _bdb_log "Command completed successfully"
-        return 0
-    else
-        local exit_code=$?
-        _bdb_log "Command failed with exit code: ${exit_code}"
-        return ${exit_code}
     fi
 }
 
@@ -133,23 +110,6 @@ bdb_ask() {
     [[ "${response}" =~ ^[yY]$ ]]
 }
 
-# Default: Yes — user must type n/N to decline
-bdb_ask_yes() {
-    local response=""
-    printf "%s%s %s [Y/n]: %s" "${C_MAG}" "${ICON_PROMPT}" "$*" "${C_RST}" >&3
-    read -r response < /dev/tty
-    _bdb_log "User prompt: $* - Response: ${response:-Y}"
-    [[ ! "${response}" =~ ^[nN]$ ]]
-}
-
-bdb_input() {
-    local response=""
-    printf "%s%s %s: %s" "${C_MAG}" "${ICON_PROMPT}" "$*" "${C_RST}" >&3
-    read -r response < /dev/tty
-    _bdb_log "User input: $* - Response: ${response}"
-    echo "${response}"
-}
-
 # =============================================================================
 # COMMAND EXECUTION FUNCTIONS
 # =============================================================================
@@ -175,26 +135,6 @@ bdb_exec() {
     fi
 }
 
-# Run command silently; show only the final result (not the action first)
-bdb_run() {
-    local description="$1"
-    shift
-    _bdb_log "========================================="
-    _bdb_log "Check: ${description}"
-    _bdb_log "Command: $*"
-    _bdb_log "========================================="
-    if "$@" >&1 2>&1; then
-        bdb_success "${description}"
-        _bdb_log "Success: ${description}"
-        return 0
-    else
-        local exit_code=$?
-        bdb_error "${description}"
-        _bdb_log "Failed: ${description} (exit code: ${exit_code})"
-        return ${exit_code}
-    fi
-}
-
 # Show info (not success/error) since this is a test, not an operation
 bdb_test_cmd() {
     local cmd="$1"
@@ -205,27 +145,6 @@ bdb_test_cmd() {
     else
         bdb_info "Not found: ${cmd}"
         _bdb_log "Command not found: ${cmd}"
-        return 1
-    fi
-}
-
-bdb_test_path() {
-    local path="$1"
-    if [[ -e "${path}" ]]; then
-        if [[ -f "${path}" ]]; then
-            bdb_info "File exists: ${path}"
-            _bdb_log "File exists: ${path}"
-        elif [[ -d "${path}" ]]; then
-            bdb_info "Directory exists: ${path}"
-            _bdb_log "Directory exists: ${path}"
-        else
-            bdb_info "Path exists: ${path}"
-            _bdb_log "Path exists: ${path}"
-        fi
-        return 0
-    else
-        bdb_info "Not found: ${path}"
-        _bdb_log "Path not found: ${path}"
         return 1
     fi
 }
@@ -259,46 +178,9 @@ bdb_mkdir() {
     fi
 }
 
-# Try curl first, fall back to wget
-bdb_download() {
-    local url="$1"
-    local output="$2"
-    _bdb_log "Downloading: ${url} -> ${output}"
-    if command -v curl >/dev/null 2>&1; then
-        _bdb_log "Using curl"
-        if curl -fsSL "${url}" -o "${output}" 2>&1 | tee -a /dev/fd/1 >/dev/null; then
-            _bdb_log "Download successful"
-            return 0
-        fi
-    elif command -v wget >/dev/null 2>&1; then
-        _bdb_log "Using wget"
-        if wget -qO "${output}" "${url}" 2>&1 | tee -a /dev/fd/1 >/dev/null; then
-            _bdb_log "Download successful"
-            return 0
-        fi
-    else
-        bdb_error "Neither curl nor wget available"
-        _bdb_log "Error: No download tool available"
-        return 1
-    fi
-    bdb_error "Download failed: ${url}"
-    _bdb_log "Error: Download failed"
-    return 1
-}
-
 # Silent command check — use bdb_test_cmd when user-visible feedback is needed
 bdb_has_cmd() {
     command -v "$1" >/dev/null 2>&1
-}
-
-bdb_require() {
-    local cmd="$1"
-    local msg="${2:-Command required but not found: ${cmd}}"
-    if ! bdb_has_cmd "${cmd}"; then
-        bdb_error "${msg}"
-        _bdb_log "Fatal: Required command not found: ${cmd}"
-        exit 1
-    fi
 }
 
 # =============================================================================
@@ -374,12 +256,37 @@ bdb_end_section() {
     _bdb_log "========================================="
 }
 
-bdb_progress() {
-    local current="$1"
-    local total="$2"
-    local description="$3"
-    printf "%s[%d/%d] %s%s\n" "${C_CYN}" "${current}" "${total}" "${description}" "${C_RST}" >&3
-    _bdb_log "Progress: [${current}/${total}] ${description}"
+# =============================================================================
+# SCRIPT LIFECYCLE
+# =============================================================================
+# Shared preamble/epilogue for chezmoi scripts — keeps the per-script
+# boilerplate down to two lines (source + bdb_script_init).
+
+# Per-run log file, dual-output logging, strict mode, and traps.
+# Call immediately after sourcing this file: bdb_script_init "${BASH_SOURCE[0]}"
+bdb_script_init() {
+    local script_name
+    script_name="$(basename "$1" .tmpl)"
+    mkdir -p "${HOME}/.cache/chezmoi" 2>/dev/null || true
+    bdb_init_logging "${HOME}/.cache/chezmoi/$(date +%Y%m%d_%H%M%S)_${script_name}.log"
+
+    _bdb_log "========================================="
+    _bdb_log "Script: ${script_name}"
+    _bdb_log "Started: $(date '+%Y-%m-%d %H:%M:%S')"
+    _bdb_log "========================================="
+
+    set -euo pipefail
+    trap 'bdb_handle_error' ERR
+    trap 'bdb_cleanup' EXIT
+}
+
+# Final success message, log file pointer, and section close.
+bdb_script_end() {
+    bdb_success "$1"
+    if [[ -n "${BDB_LOG_FILE:-}" ]]; then
+        bdb_var "Log file" "${BDB_LOG_FILE}"
+    fi
+    bdb_end_section
 }
 
 # =============================================================================
