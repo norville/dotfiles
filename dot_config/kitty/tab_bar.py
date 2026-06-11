@@ -123,4 +123,3 @@ def draw_tab(
         screen.draw(clock)
 
     return screen.cursor.x
-

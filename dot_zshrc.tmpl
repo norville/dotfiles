@@ -168,10 +168,10 @@ setopt no_clobber           # Don't overwrite existing files with > (use >! to f
 # General Shell Behavior
 # -----------------------------------------------------------------------------
 setopt interactive_comments # Allow comments in interactive shell (lines starting with #)
-setopt no_beep             # Disable terminal beep on errors
-setopt multios             # Enable multiple redirections (tee-like behavior)
-setopt prompt_subst        # Enable parameter expansion in prompts
-unsetopt prompt_sp         # Don't add extra space before prompt
+setopt no_beep              # Disable terminal beep on errors
+setopt multios              # Enable multiple redirections (tee-like behavior)
+setopt prompt_subst         # Enable parameter expansion in prompts
+unsetopt prompt_sp          # Don't add extra space before prompt
 
 # Disable flow control (Ctrl-S/Ctrl-Q) to free up Ctrl-S for other uses
 if [[ -t 0 ]]; then
@@ -365,4 +365,3 @@ fi
 # =============================================================================
 # END OF CONFIGURATION
 # =============================================================================
-

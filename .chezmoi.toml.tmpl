@@ -4,7 +4,7 @@
 {{- /* This file configures chezmoi behavior and defines template variables       */ -}}
 {{- /* that are available in all chezmoi templates.                               */ -}}
 {{- /*                                                                            */ -}}
-{{- /* Package data lives in .chezmoidata.toml (loaded by chezmoi automatically, */ -}}
+{{- /* Package data lives in .chezmoidata.toml (loaded by chezmoi automatically,  */ -}}
 {{- /* but NOT available here during `chezmoi init` on a fresh machine).          */ -}}
 {{- /* Scripts and brewfile.tmpl filter .package directly at render time.         */ -}}
 {{- /*                                                                            */ -}}
@@ -15,7 +15,7 @@
 {{- /* Operating System Detection                                                 */ -}}
 {{- /* ========================================================================== */ -}}
 {{- /* Format: "darwin" for macOS, "linux-<distro>" for Linux variants            */ -}}
-{{- /* Supported: darwin, linux-arch, linux-cachyos, linux-ubuntu,               */ -}}
+{{- /* Supported: darwin, linux-arch, linux-cachyos, linux-ubuntu,                */ -}}
 {{- /*            linux-debian, linux-fedora, linux-rocky                         */ -}}
 
 {{- $osid := .chezmoi.os -}}
@@ -77,9 +77,9 @@
 {{- /* ========================================================================== */ -}}
 {{- /* Values: workstation | terminal | server                                    */ -}}
 {{- /*                                                                            */ -}}
-{{- /* darwin, arch, cachyos, fedora → always workstation (no prompt)            */ -}}
-{{- /* ubuntu → workstation if a graphical session is detected; else prompt      */ -}}
-{{- /* debian, rocky → always prompt (never workstation)                         */ -}}
+{{- /* darwin, arch, cachyos, fedora → always workstation (no prompt)             */ -}}
+{{- /* ubuntu → workstation if a graphical session is detected; else prompt       */ -}}
+{{- /* debian, rocky → always prompt (never workstation)                          */ -}}
 
 {{- $machine := "" -}}
 {{- if eq .chezmoi.os "darwin" -}}
@@ -104,8 +104,8 @@
 {{- /* ========================================================================== */ -}}
 {{- /* Desktop Environment Detection                                              */ -}}
 {{- /* ========================================================================== */ -}}
-{{- /* Lowercased XDG_CURRENT_DESKTOP. Empty on headless systems or bare WMs.    */ -}}
-{{- /* Ubuntu sets "ubuntu:GNOME"; use contains "gnome" rather than eq.          */ -}}
+{{- /* Lowercased XDG_CURRENT_DESKTOP. Empty on headless systems or bare WMs.     */ -}}
+{{- /* Ubuntu sets "ubuntu:GNOME"; use contains "gnome" rather than eq.           */ -}}
 
 {{- $desktop := env "XDG_CURRENT_DESKTOP" | lower -}}
 

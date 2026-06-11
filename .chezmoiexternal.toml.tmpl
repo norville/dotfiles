@@ -35,7 +35,7 @@
   executable = false
 
 {{- /* -------------------------------------------------------------------- */ -}}
-{{- /* Workstation-only themes                                               */ -}}
+{{- /* Workstation-only themes                                              */ -}}
 {{- /* -------------------------------------------------------------------- */ -}}
 {{- if eq .machine "workstation" }}
 # Tokyo Night theme for Zed (workstation only)
@@ -75,6 +75,5 @@
   include = ["*.ttf"]     # Only include TTF files
   refreshPeriod = "720h"
 
-  {{- end }}{{- /* end apt/dnf fonts */ -}}
-{{- end }}{{- /* end linux */ -}}
-
+  {{- end }}
+{{- end }}
