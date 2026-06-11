@@ -156,10 +156,6 @@ function! <SID>StripTrailingWhitespaces()
   call cursor(l,c)
 endfunction
 
-"function! SyntaxItem()
-"   return synIDattr(synID(line("."),col("."),1),"name")
-"endfunction
-
 function! TabsToWhites()
   set noexpandtab
   retab!
@@ -177,8 +173,11 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " MAPPINGS
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" F5 strips trailing whitespace, F6 deletes empty lines
+" (vimscript cannot have trailing comments on :map lines — they become
+" part of the mapping — so these notes live above instead)
 nnoremap <silent> <F5> :call <SID>StripTrailingWhitespaces()<CR>
-nnoremap <silent> <F6> g/^$/d<CR> "delete empty lines
+nnoremap <silent> <F6> :g/^$/d<CR>
 nmap <D-[> <<
 nmap <D-]> >>
 vmap <D-[> <gv
