@@ -255,22 +255,29 @@ bdb_update_packages() {
         bdb_success "Homebrew packages updated"
 
     elif bdb_has_cmd "pacman"; then
-        # Arch / CachyOS
-        bdb_exec "Updating system packages" sudo pacman -Syu --noconfirm
+        # Arch / CachyOS — once yay is installed it replaces pacman entirely
+        # (drop-in CLI, also updates AUR packages, invokes sudo itself).
+        # During bootstrap yay does not exist yet, so plain pacman is used.
+        local pac=(sudo pacman)
+        local pac_scope="system"
+        if bdb_has_cmd "yay"; then
+            pac=(yay)
+            pac_scope="system and AUR"
+        fi
 
+        bdb_exec "Updating ${pac_scope} packages" "${pac[@]}" -Syu --noconfirm
+
+        # Orphan removal always goes through pacman: once installed, AUR
+        # packages are regular local packages, so -Rns gains nothing from yay.
         local orphans
         orphans="$(pacman -Qdtq 2>/dev/null || true)"
         if [[ -n "${orphans}" ]]; then
             bdb_exec "Removing orphaned packages" bash -c "echo '${orphans}' | sudo pacman -Rns --noconfirm -"
         fi
 
-        bdb_exec "Cleaning package cache" sudo pacman -Scc --noconfirm
-        bdb_success "Pacman packages updated"
-
-        if bdb_has_cmd "yay"; then
-            bdb_exec "Updating AUR packages" yay -Syu --noconfirm
-            bdb_success "AUR packages updated"
-        fi
+        # yay -Scc additionally clears the AUR build cache
+        bdb_exec "Cleaning package cache" "${pac[@]}" -Scc --noconfirm
+        bdb_success "System packages updated"
 
     elif bdb_has_cmd "apt-get"; then
         # Debian / Ubuntu

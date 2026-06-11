@@ -133,11 +133,10 @@ else
 fi
 
   {{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
-# Debian/Ubuntu/Fedora: Fonts installed via chezmoiexternal, just update font cache
-bdb_action "Updating font cache"
-if bdb_test_cmd "fc-cache"; then
-  fc-cache -fv >/dev/null 2>&1
-  bdb_success "Font cache updated"
+# Debian/Ubuntu/Fedora: fonts deployed by .chezmoiexternal.toml.tmpl — refresh
+# the cache here; pacman/brew font packages maintain it themselves
+if bdb_has_cmd "fc-cache"; then
+  bdb_exec "Updating font cache" fc-cache -f
 else
   bdb_warn "fc-cache command not found, cannot update font cache"
 fi

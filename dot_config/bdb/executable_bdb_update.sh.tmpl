@@ -65,12 +65,16 @@ if [[ -n "${_bat}" ]]; then
 fi
 unset _bat
 
+{{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
 # -----------------------------------------------------------------------------
-# Update Font Cache (Linux only — fc-cache does not exist on macOS)
+# Update Font Cache — apt/dnf only: fonts on these platforms are deployed by
+# .chezmoiexternal.toml.tmpl, so chezmoi updating them does not refresh the
+# cache. pacman/brew deliver fonts as packages that maintain it themselves.
 # -----------------------------------------------------------------------------
 if bdb_has_cmd "fc-cache"; then
-    bdb_exec "Updating font cache" fc-cache -fv >/dev/null 2>&1
+    bdb_exec "Updating font cache" fc-cache -f
 fi
+{{- end }}
 
 # -----------------------------------------------------------------------------
 # Update Rust toolchain
