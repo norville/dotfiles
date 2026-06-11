@@ -28,13 +28,13 @@ A comprehensive, cross-platform dotfiles management system using [Chezmoi](https
 Run this single command to set up everything automatically:
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/norville/dotfiles/main/dot_config/bdb/bdb_bootstrap.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/norville/dotfiles/main/home/dot_config/bdb/bdb_bootstrap.sh)"
 ```
 
 Or with wget:
 
 ```bash
-bash -c "$(wget -qO- https://raw.githubusercontent.com/norville/dotfiles/main/dot_config/bdb/bdb_bootstrap.sh)"
+bash -c "$(wget -qO- https://raw.githubusercontent.com/norville/dotfiles/main/home/dot_config/bdb/bdb_bootstrap.sh)"
 ```
 
 The bootstrap script will:
@@ -56,14 +56,25 @@ chezmoi init --apply norville
 
 ## Repository Structure
 
-### Root Configuration Files
+### Repository Layout
+
+The repo root holds only documentation and the chezmoi root pointer:
 
 | File | Description |
 |------|-------------|
-| `.chezmoi.toml.tmpl` | Chezmoi config: OS/machine/packageManager detection, template variables |
-| `.chezmoidata.toml` | Canonical package matrix — single source of truth for all package data |
-| `.chezmoiignore` | Files excluded from deployment based on OS/platform/machine type |
-| `.chezmoiexternal.toml.tmpl` | External resources (Tokyo Night themes, fonts) downloaded by chezmoi |
+| `.chezmoiroot` | Tells chezmoi to use `home/` as the source root |
+| `README.md` | This file |
+| `ARCHITECTURE.md` | System architecture reference |
+| `TODO.md` | Open tasks |
+
+All chezmoi-managed files live under `home/`:
+
+| File | Description |
+|------|-------------|
+| `home/.chezmoi.toml.tmpl` | Chezmoi config: OS/machine/packageManager detection, template variables |
+| `home/.chezmoidata.toml` | Canonical package matrix — single source of truth for all package data |
+| `home/.chezmoiignore` | Files excluded from deployment based on OS/platform/machine type |
+| `home/.chezmoiexternal.toml.tmpl` | External resources (Tokyo Night themes, fonts) downloaded by chezmoi |
 
 ### Bootstrap Scripts (`.config/bdb/`)
 
@@ -73,7 +84,7 @@ chezmoi init --apply norville
 | `bdb_helpers.sh` | Helper functions: colored output, user prompts, logging, error handling |
 | `bdb_update.sh` | System/toolchain update — runs as a chezmoi `[hooks.update.post]` hook |
 
-### Installation Scripts (`.chezmoiscripts/`)
+### Installation Scripts (`home/.chezmoiscripts/`)
 
 These scripts run automatically during `chezmoi apply` or `chezmoi update`:
 
@@ -93,7 +104,7 @@ System and toolchain updates (`~/.config/bdb/bdb_update.sh`) run as a chezmoi
 `chezmoi apply`. The hook updates system packages, ZSH plugins, bat theme cache,
 font cache, `rustup update`, and `gem update bundler erb`.
 
-### Shell Configuration (`.zsh/`)
+### Shell Configuration (`home/.zsh/`)
 
 | File | Description |
 |------|-------------|
