@@ -240,6 +240,69 @@ bdb_has_cmd() {
 }
 
 # =============================================================================
+# SYSTEM UPDATE
+# =============================================================================
+# Single implementation of the system package update, shared by
+# bdb_bootstrap.sh (pre-chezmoi) and ~/.config/bdb/bdb_update.sh (the
+# chezmoi update hook). The package manager is detected at runtime so the
+# same code runs in both contexts.
+
+bdb_update_packages() {
+    if bdb_has_cmd "brew"; then
+        # macOS — brew upgrade covers formulae and casks
+        bdb_exec "Updating Homebrew" brew update
+        bdb_exec "Upgrading Homebrew packages" brew upgrade
+        bdb_success "Homebrew packages updated"
+
+    elif bdb_has_cmd "pacman"; then
+        # Arch / CachyOS
+        bdb_exec "Updating system packages" sudo pacman -Syu --noconfirm
+
+        local orphans
+        orphans="$(pacman -Qdtq 2>/dev/null || true)"
+        if [[ -n "${orphans}" ]]; then
+            bdb_exec "Removing orphaned packages" bash -c "echo '${orphans}' | sudo pacman -Rns --noconfirm -"
+        fi
+
+        bdb_exec "Cleaning package cache" sudo pacman -Scc --noconfirm
+        bdb_success "Pacman packages updated"
+
+        if bdb_has_cmd "yay"; then
+            bdb_exec "Updating AUR packages" yay -Syu --noconfirm
+            bdb_success "AUR packages updated"
+        fi
+
+    elif bdb_has_cmd "apt-get"; then
+        # Debian / Ubuntu
+        bdb_exec "Updating package lists" sudo apt-get update
+        bdb_exec "Upgrading packages" sudo apt-get full-upgrade -y
+        bdb_exec "Removing unused packages" sudo apt-get autoremove --purge -y
+        bdb_exec "Cleaning package cache" sudo apt-get clean
+        bdb_success "APT packages updated"
+
+        if bdb_has_cmd "snap"; then
+            bdb_exec "Updating Snap packages" sudo snap refresh
+            bdb_success "Snap packages updated"
+        fi
+
+    elif bdb_has_cmd "dnf"; then
+        # Fedora / Rocky
+        bdb_exec "Upgrading packages" sudo dnf upgrade --refresh -y
+        bdb_exec "Removing unused packages" sudo dnf autoremove -y
+        bdb_exec "Cleaning package cache" sudo dnf clean all
+        bdb_success "DNF packages updated"
+
+        if bdb_has_cmd "flatpak"; then
+            bdb_exec "Updating Flatpak packages" flatpak update -y
+            bdb_success "Flatpak packages updated"
+        fi
+
+    else
+        bdb_warn "No supported package manager found — skipping system update"
+    fi
+}
+
+# =============================================================================
 # ERROR HANDLING
 # =============================================================================
 # bdb_handle_error registered via: trap 'bdb_handle_error' ERR

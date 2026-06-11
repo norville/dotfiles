@@ -46,6 +46,9 @@ operating systems and architectures.
 - Interactive prompts (`bdb_ask` — reads from `/dev/tty`, safe in chezmoi scripts)
 - Command execution wrappers
 - Error handling and cleanup traps
+- Shared system package update (`bdb_update_packages`) — single implementation
+  with runtime package-manager detection, called by both `bdb_bootstrap.sh`
+  (pre-chezmoi) and `bdb_update.sh` (the `chezmoi update` post hook)
 
 **Design Pattern**: Sourced by both bootstrap and chezmoi scripts via the `HELPERS`
 environment variable set in `[scriptEnv]` of `.chezmoi.toml.tmpl`.

@@ -8,6 +8,9 @@
 # (chezmoi has no "update-only" script class; run_after_ scripts run on every
 # apply, which is not what we want for full system upgrades).
 #
+# System package updates live in bdb_update_packages (bdb_helpers.sh), shared
+# with bdb_bootstrap.sh.
+#
 # Execution: chezmoi update (post hook)
 # Location:  dot_config/bdb/executable_bdb_update.sh.tmpl
 #            → deployed to ~/.config/bdb/bdb_update.sh
@@ -29,89 +32,7 @@ bdb_script_init "${BASH_SOURCE[0]}"
 bdb_begin_section "Environment Update After Chezmoi Update"
 bdb_var "Machine type" "{{ .machine }}"
 
-{{- /* -------------------------------------------------------------------- */ -}}
-{{- /* macOS                                                                 */ -}}
-{{- /* -------------------------------------------------------------------- */ -}}
-{{- if eq .chezmoi.os "darwin" }}
-
-# -----------------------------------------------------------------------------
-# macOS: Homebrew Updates
-# -----------------------------------------------------------------------------
-
-# Update and upgrade Homebrew packages
-bdb_exec "Updating Homebrew" brew update
-bdb_exec "Upgrading Homebrew packages" brew upgrade
-bdb_success "Homebrew packages updated"
-
-# Update Homebrew casks
-bdb_exec "Upgrading Homebrew casks" brew upgrade --cask \
-  font-jetbrains-mono \
-  font-jetbrains-mono-nerd-font \
-  kitty
-bdb_success "Homebrew casks updated"
-
-{{- /* -------------------------------------------------------------------- */ -}}
-{{- /* Linux                                                                 */ -}}
-{{- /* -------------------------------------------------------------------- */ -}}
-{{- else if eq .chezmoi.os "linux" }}
-
-# -----------------------------------------------------------------------------
-# Linux: Package Manager Updates
-# -----------------------------------------------------------------------------
-
-  {{- if eq .packageManager "apt" }}
-
-# Debian/Ubuntu: APT updates
-bdb_exec "Updating package lists" sudo apt-get update
-bdb_exec "Upgrading packages" sudo apt-get full-upgrade -y
-bdb_exec "Removing unused packages" sudo apt-get autoremove --purge -y
-bdb_exec "Cleaning package cache" sudo apt-get clean
-bdb_success "APT packages updated"
-
-# Update Snap packages if installed
-if bdb_test_cmd "snap"; then
-  bdb_exec "Updating Snap packages" sudo snap refresh
-  bdb_success "Snap packages updated"
-fi
-
-  {{- else if eq .packageManager "dnf" }}
-
-# Fedora/RHEL: DNF updates
-bdb_exec "Upgrading packages" sudo dnf upgrade --refresh -y
-bdb_exec "Removing unused packages" sudo dnf autoremove -y
-bdb_exec "Cleaning package cache" sudo dnf clean all
-bdb_success "DNF packages updated"
-
-# Update Flatpak if installed
-if bdb_test_cmd "flatpak"; then
-  bdb_exec "Updating Flatpak packages" flatpak update -y
-  bdb_success "Flatpak packages updated"
-fi
-
-  {{- else if eq .packageManager "pacman" }}
-
-# Arch/Manjaro: Pacman updates
-bdb_exec "Updating system packages" sudo pacman -Syu --noconfirm
-
-# Clean orphaned packages
-orphans="$(pacman -Qdtq 2>/dev/null || true)"
-if [[ -n "${orphans}" ]]; then
-  bdb_exec "Removing orphaned packages" bash -c "echo '${orphans}' | sudo pacman -Rns --noconfirm -"
-fi
-
-# Clean package cache
-bdb_exec "Cleaning package cache" sudo pacman -Scc --noconfirm
-bdb_success "Pacman packages updated"
-
-# Update AUR packages if yay is installed
-if bdb_test_cmd "yay"; then
-  bdb_exec "Updating AUR packages" yay -Syu --noconfirm
-  bdb_success "AUR packages updated"
-fi
-
-  {{- end }}
-
-{{- end }}
+bdb_update_packages
 
 # =============================================================================
 # SHELL PLUGIN + APPLICATION UPDATES
@@ -144,15 +65,12 @@ if [[ -n "${_bat}" ]]; then
 fi
 unset _bat
 
-{{- /* Font cache: Linux non-server only (fonts not installed on server) */ -}}
-{{- if eq .chezmoi.os "linux" }}
 # -----------------------------------------------------------------------------
-# Update Font Cache (Linux)
+# Update Font Cache (Linux only — fc-cache does not exist on macOS)
 # -----------------------------------------------------------------------------
-if bdb_test_cmd "fc-cache"; then
+if bdb_has_cmd "fc-cache"; then
     bdb_exec "Updating font cache" fc-cache -fv >/dev/null 2>&1
 fi
-{{- end }}
 
 # -----------------------------------------------------------------------------
 # Update Rust toolchain
