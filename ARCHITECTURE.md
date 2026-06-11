@@ -87,86 +87,20 @@ Same logical tool delivered under a different name per manager:
 
 #### Full Package Matrix
 
-Column key: `bf`=brew-formula · `bc`=brew-cask · `pcm`=pacman · `W`=workstation · `T`=terminal · `S`=server.
-Source of truth: `.chezmoidata.toml` (machine type filtering applied at template render time).
+The full package list is **not** duplicated here — `.chezmoidata.toml` is the single
+source of truth and is readable directly (one `[[package]]` entry per package with
+`name`, `managers`, and `machines`). To see the resolved list for a given machine,
+render an install script:
 
-| Package | bf | bc | apt | snap | pcm | aur | dnf | W | T | S |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| `@development-tools` | | | | | | | ✓ | ✓ | ✓ | |
-| `7zip` | | | | | ✓ | | | ✓ | | |
-| `base-devel` | | | | | ✓ | | | ✓ | | |
-| `bat` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
-| `bat-extras` | ✓ | | | | ✓ | | ✓ | ✓ | ✓ | |
-| `brave-bin` | | | | | | ✓ | | ✓ | | |
-| `brave-browser` | | ✓ | ✓ | | | | ✓ | ✓ | | |
-| `btop` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
-| `build-essential` | | | ✓ | | | | | ✓ | ✓ | |
-| `chezmoi` | ✓ | | | ✓ | ✓ | | ✓ | ✓ | ✓ | ✓ |
-| `coreutils` | ✓ | | | | | | | ✓ | | |
-| `curl` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | ✓ |
-| `default-jdk` | | | ✓ | | | | | ✓ | ✓ | |
-| `eza` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
-| `fd` | ✓ | | | | ✓ | | | ✓ | ✓ | |
-| `fd-find` | | | ✓ | | | | ✓ | ✓ | ✓ | |
-| `ffmpeg` | | | | | ✓ | | | ✓ | | |
-| `ffmpeg-full` | ✓ | | | | | | | ✓ | | |
-| `findutils` | ✓ | | | | | | | ✓ | | |
-| `font-jetbrains-mono` | | ✓ | | | | | | ✓ | | |
-| `font-jetbrains-mono-nerd-font` | | ✓ | | | | | | ✓ | | |
-| `font-symbols-only-nerd-font` | | ✓ | | | | | | ✓ | | |
-| `fzf` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
-| `git` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | ✓ |
-| `git-delta` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
-| `gnupg` | | | | | ✓ | | | ✓ | | |
-| `gnupg2` | | | | | | | ✓ | ✓ | ✓ | |
-| `go` | ✓ | | | | ✓ | | | ✓ | ✓ | |
-| `golang` | | | | | | | ✓ | ✓ | ✓ | |
-| `golang-go` | | | ✓ | | | | | ✓ | ✓ | |
-| `gpg` | | | ✓ | | | | | ✓ | ✓ | |
-| `imagemagick` | | | | | ✓ | | | ✓ | | |
-| `imagemagick-full` | ✓ | | | | | | | ✓ | | |
-| `java-devel` | | | | | | | ✓ | ✓ | ✓ | |
-| `jdk-openjdk` | | | | | ✓ | | | ✓ | ✓ | |
-| `jq` | ✓ | | | | ✓ | | | ✓ | | |
-| `kitty` | | ✓ | ✓ | | ✓ | | ✓ | ✓ | | |
-| `lazygit` | ✓ | | | ✓ | ✓ | | ✓ | ✓ | ✓ | |
-| `logi-options-plus` | | ✓ | | | | | | ✓ | | |
-| `moom` | | ✓ | | | | | | ✓ | | |
-| `moreutils` | ✓ | | | | | | | ✓ | | |
-| `neovim` | ✓ | | | | ✓ | | ✓ | ✓ | ✓ | |
-| `node` | ✓ | | | | | | | ✓ | ✓ | |
-| `nodejs` | | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
-| `npm` | | | ✓ | | ✓ | | | ✓ | ✓ | |
-| `nvim` (snap) | | | | ✓ | | | | ✓ | ✓ | |
-| `opentofu` | ✓ | | | | ✓ | | ✓ | ✓ | ✓ | |
-| `openjdk` | ✓ | | | | | | | ✓ | ✓ | |
-| `poppler` | ✓ | | | | ✓ | | | ✓ | | |
-| `python3-neovim` | | | | | | | ✓ | ✓ | ✓ | |
-| `resvg` | ✓ | | | | ✓ | | | ✓ | | |
-| `ripgrep` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
-| `ruby` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
-| `rustup` | ✓ | | | ✓ | ✓ | | ✓ | ✓ | ✓ | |
-| `sevenzip` | ✓ | | | | | | | ✓ | | |
-| `shellcheck` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
-| `starship` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
-| `tofu` | | | ✓ | | | | | ✓ | ✓ | |
-| `tree-sitter` | | | | | ✓ | | | ✓ | | |
-| `tree-sitter-cli` | ✓ | | ✓ | | | | | ✓ | ✓ | |
-| `ttf-jetbrains-mono` | | | | | ✓ | | | ✓ | | |
-| `ttf-jetbrains-mono-nerd` | | | | | ✓ | | | ✓ | | |
-| `vim` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | ✓ |
-| `wget` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | ✓ |
-| `whatsapp` | | ✓ | | | | | | ✓ | | |
-| `yazi` | ✓ | | | ✓ | ✓ | | ✓ | ✓ | | |
-| `zed` | | ✓ | ✓ | | ✓ | | ✓ | ✓ | | |
-| `zoxide` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
-| `zsh` | ✓ | | ✓ | | ✓ | | ✓ | ✓ | ✓ | |
+```bash
+chezmoi execute-template < .chezmoiscripts/run_onchange_after_00-install-core.sh.tmpl
+```
 
-### 4. Chezmoi Configuration (.chezmio.toml.tmpl)
+### 4. Chezmoi Configuration (.chezmoi.toml.tmpl)
 
 **Purpose**: Configure chezmoi behavior and define template variables
 
-**Location**: `.chezmio.toml.tmpl`
+**Location**: `.chezmoi.toml.tmpl`
 
 **Key Responsibilities**:
 - OS and distribution detection
@@ -176,8 +110,8 @@ Source of truth: `.chezmoidata.toml` (machine type filtering applied at template
 - Package manager identification
 - Template variable definition
 
-**Note on package lists**: Package data lives in `.chezmoidata.toml`. `.chezmio.toml.tmpl`
-does not export package lists — `.chezmoidata.toml` is not available during `chezmio init`
+**Note on package lists**: Package data lives in `.chezmoidata.toml`. `.chezmoi.toml.tmpl`
+does not export package lists — `.chezmoidata.toml` is not available during `chezmoi init`
 template processing (fresh machine), so list construction is deferred to script render time.
 
 **Generated Variables** (available in all `.tmpl` files):
@@ -235,12 +169,16 @@ than `.desktop` to avoid a missing-key error on machines that haven't re-run `ch
 
 **Purpose**: Install and configure packages and environment
 
-**Execution**: Automatic during `chezmoi apply` (onchange) or `chezmoi update` (run_after)
+**Execution**: Automatic during `chezmoi apply` (`run_onchange_after_` scripts).
+The system-update script is **not** a chezmoi script — it is deployed to
+`~/.config/bdb/bdb_update.sh` and registered as a `[hooks.update.post]` hook so it
+runs only after `chezmoi update` (chezmoi has no update-only script class;
+`run_after_` scripts would fire on every apply).
 
 #### Idempotency pattern
 
-All install scripts (`01`–`04`) check whether the tool is already installed before
-prompting the user:
+All optional install scripts (`02`–`05`) check whether the tool is already installed
+before prompting the user:
 
 ```bash
 if bdb_has_cmd "docker"; then
@@ -276,14 +214,14 @@ fi
 | Script | Trigger | W | T | S | Purpose |
 |--------|---------|---|---|---|---------|
 | `00-install-core` | onchange | ✅ | ✅ | ✅ | Platform packages (per-manager lists, machine-type filtered) |
-| `01-config-env` | onchange | ✅ | ✅ | — | Default shell, bat cache, font cache, nvim dirs; Go GOPATH/GOBIN; Ruby gems (bundler, erb); Rust stable + rust-analyzer via rustup |
+| `01-config-env` | onchange | ✅ | ✅ | — | Default shell, bat cache, font cache; Go GOPATH/GOBIN; Ruby gems (bundler, erb); Rust stable + rust-analyzer via rustup |
 | `02-install-1password` | onchange | ✅ | — | — | 1Password + op CLI (prompted; darwin: brew cask) |
 | `03-install-vscode` | onchange | ✅ | — | — | VS Code (prompted; darwin: brew cask) |
 | `04-install-ansible` | onchange | ✅ | ✅ | ✅ | Ansible (prompted on all platforms) |
 | `05-install-docker` | onchange | ✅ | — | ✅ | Docker (linux only; prompted) |
-| `06-install-sddm` | onchange | ✅ | — | — | SDDM config + Tokyo Night Moon → /etc/ and /usr/share/ |
+| `06-install-sddm` | onchange | ✅ | — | — | SDDM config + Tokyo Night Moon → /etc/ and /usr/share/ (requires `sddm` on PATH) |
 | `07-install-darkman` | onchange | ✅ | — | — | Enable darkman.service (GNOME workstation only) |
-| `90-update-env` | every update | ✅ | ✅ | ✅ | System packages (all); ZSH plugins + caches + `rustup update` + `gem update bundler erb` (non-server) |
+| `bdb_update.sh` (hook) | `chezmoi update` only | ✅ | ✅ | ✅ | System packages (all); ZSH plugins + caches + `rustup update` + `gem update bundler erb` (non-server) |
 
 W = workstation, T = terminal, S = server.
 
@@ -329,7 +267,7 @@ bdb_bootstrap.sh
               ├── 03-install-vscode  (prompted — workstation only)
               ├── 04-install-ansible (prompted — all machine types)
               ├── 05-install-docker  (prompted — W+S, linux only)
-              ├── 06-install-sddm    (SDDM theme — Arch workstation only)
+              ├── 06-install-sddm    (SDDM theme — workstation with SDDM only)
               └── 07-install-darkman (enable service — GNOME workstation only)
 ```
 
@@ -341,9 +279,12 @@ chezmoi update
         ▼
   Pull latest from GitHub
   Apply configuration changes
-  Run run_after_* scripts:
-    └── 90-update-env    (system packages for all; zinit + caches + rustup update + gem update for W+T only)
+  Run [hooks.update.post]:
+    └── ~/.config/bdb/bdb_update.sh
+        (system packages for all; zinit + caches + rustup update + gem update for W+T only)
 ```
+
+Plain `chezmoi apply` does **not** trigger the update hook.
 
 ## File Organization
 
@@ -372,12 +313,12 @@ dotfiles/
 │   ├── run_onchange_after_04-install-ansible.sh.tmpl      # all machine types
 │   ├── run_onchange_after_05-install-docker.sh.tmpl       # workstation + server, linux only
 │   ├── run_onchange_after_06-install-sddm.sh.tmpl         # workstation only
-│   ├── run_onchange_after_07-install-darkman.sh.tmpl      # GNOME workstation only
-│   └── run_after_90-update-env.sh.tmpl
+│   └── run_onchange_after_07-install-darkman.sh.tmpl      # GNOME workstation only
 ├── dot_config/
 │   ├── bdb/
 │   │   ├── bdb_bootstrap.sh        # Not deployed
-│   │   └── bdb_helpers.sh
+│   │   ├── bdb_helpers.sh
+│   │   └── executable_bdb_update.sh.tmpl  # post-update hook (system/toolchain updates)
 │   ├── bat/                        # Bat config and Tokyo Night theme
 │   ├── btop/                       # Btop config and Tokyo Night theme
 │   ├── darkman/                    # darkman config.yaml (GNOME workstation only)
@@ -386,7 +327,9 @@ dotfiles/
 │   ├── git/                        # Git config, ignore, delta integration
 │   ├── kitty/                      # Kitty config, tab_bar.py, Tokyo Night theme, sessions/
 │   ├── lazygit/                    # Lazygit config with Tokyo Night theme
-│   ├── nvim/                       # Neovim (LazyVim, workstation only)
+│   ├── niri/                       # niri compositor config (workstation, niri installed)
+│   ├── noctalia/                   # Noctalia shell config (workstation, qs installed)
+│   ├── nvim/                       # Neovim (LazyVim, workstation + terminal)
 │   ├── starship/                   # Starship prompt config
 │   ├── yay/                        # yay AUR helper config (pacman only)
 │   ├── yazi/                       # yazi file manager (workstation only)
@@ -459,7 +402,7 @@ W = workstation, T = terminal, S = server.
 | Prefix | When it runs |
 |--------|-------------|
 | `run_onchange_after_NN-` | When script content changes, after file application |
-| `run_after_NN-` | After every `chezmoi update` |
+| `run_after_NN-` | After **every** `chezmoi apply` (not used — update-only logic lives in `[hooks.update.post]`) |
 
 Number prefix controls execution order within each group.
 
@@ -534,6 +477,9 @@ Scope: all `.chezmoiscripts/` files. Defined in `[scriptEnv]` in `.chezmoi.toml.
 |----------|---------|
 | `HELPERS` | Absolute path to `bdb_helpers.sh` |
 
+Hooks (`bdb_update.sh`) do not receive `[scriptEnv]` — they fall back to the
+deployed helpers path (`~/.config/bdb/bdb_helpers.sh`).
+
 ## SSH Key Management
 
 SSH public keys are managed as chezmoi templates that call `onepasswordRead` at apply time.
@@ -544,12 +490,14 @@ After `run_onchange_after_02` installs 1Password, a second `chezmoi apply` deplo
 
 ## Error Handling
 
-All scripts use a common trap pattern sourced from `bdb_helpers.sh`:
+All scripts share a common lifecycle via `bdb_script_init` from `bdb_helpers.sh`,
+which sets up per-run logging, strict mode, and traps:
 
 ```bash
-set -euo pipefail
-trap 'bdb_handle_error' ERR
-trap 'bdb_cleanup' EXIT
+source "${HELPERS}"
+bdb_script_init "${BASH_SOURCE[0]}"
+# equivalent to: per-script log file + set -euo pipefail
+#                + trap 'bdb_handle_error' ERR + trap 'bdb_cleanup' EXIT
 ```
 
 `bdb_handle_error` captures the exit code, failed command, and line number, logs them,
