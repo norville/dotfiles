@@ -11,26 +11,26 @@ Host *
 
 {{- if eq .machine "workstation" }}
   {{- if eq .chezmoi.os "darwin" }}
-    IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+  IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
   {{- else if eq .chezmoi.os "linux" }}
-    IdentityAgent ~/.1password/agent.sock
+  IdentityAgent ~/.1password/agent.sock
   {{- end }}
 {{- end }}
-    IdentitiesOnly yes  # offer only the keys listed below, not everything in the agent
+  IdentitiesOnly yes  # offer only the keys listed below, not everything in the agent
 
 Host jiraya
-    Port 25355
-    User norville
-    IdentityFile ~/.ssh/norville_at_chikyu.pub
-    ForwardAgent yes
+  Port 25355
+  User norville
+  IdentityFile ~/.ssh/norville_at_chikyu.pub
+  ForwardAgent yes
 
 Host hashirama asura indra shukaku matatabi isobu songoku kokuo nagato
-    Port 25355
-    User norville
-    IdentityFile ~/.ssh/norville_at_chikyu.pub
+  Port 25355
+  User norville
+  IdentityFile ~/.ssh/norville_at_chikyu.pub
 
 Host github.com
-    IdentityFile ~/.ssh/norville_at_github.pub
+  IdentityFile ~/.ssh/norville_at_github.pub
 
 Host codeberg.org
-    IdentityFile ~/.ssh/norville_at_codeberg.pub
+  IdentityFile ~/.ssh/norville_at_codeberg.pub

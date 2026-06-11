@@ -16,7 +16,7 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   spec = {
-    -- add LazyVim and import its plugins
+    -- LazyVim core and its default plugins
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
     -- LazyVim language extras — must follow lazyvim.plugins, precede user plugins
     { import = "lazyvim.plugins.extras.lang.clangd" },     -- C · C++
@@ -32,31 +32,28 @@ require("lazy").setup({
     { import = "lazyvim.plugins.extras.lang.markdown" },   -- Markdown
     { import = "lazyvim.plugins.extras.lang.docker" },     -- Dockerfile
     { import = "lazyvim.plugins.extras.lang.terraform" },  -- Terraform · OpenTofu
-    -- import/override with your plugins
+    -- User plugin specs from lua/plugins/ — imported last so they can
+    -- override both LazyVim defaults and the extras above
     { import = "plugins" },
   },
   defaults = {
     -- All custom plugins are lazy-loaded by default.
     -- Plugins that must load at startup (e.g. colorscheme) set `lazy = false` explicitly.
     lazy = true,
-    -- It's recommended to leave version=false for now, since a lot the plugin that support versioning,
-    -- have outdated releases, which may break your Neovim install.
-    version = false, -- always use the latest git commit
-    -- version = "*", -- try installing the latest stable version for plugins that support semver
+    -- Track latest git commits: many plugins tag releases rarely, so pinning
+    -- to release versions ("*") would install stale code that can break LazyVim
+    version = false,
   },
   install = { colorscheme = { "tokyonight", "habamax" } },
   checker = {
-    enabled = true, -- check for plugin updates periodically
-    notify = false, -- notify on update
-  }, -- automatically check for plugin updates
+    enabled = true, -- periodically check for plugin updates...
+    notify = false, -- ...but do not interrupt with a notification popup
+  },
   performance = {
     rtp = {
-      -- disable some rtp plugins
+      -- Built-in vim plugins that are never used here — skip loading them
       disabled_plugins = {
         "gzip",
-        -- "matchit",
-        -- "matchparen",
-        -- "netrwPlugin",
         "tarPlugin",
         "tohtml",
         "tutor",

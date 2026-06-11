@@ -21,11 +21,11 @@
 {{- $osid := .chezmoi.os -}}
 
 {{- if eq .chezmoi.os "linux" -}}
-    {{- if hasKey .chezmoi.osRelease "id" -}}
-        {{- $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
-    {{- else -}}
-        {{- $osid = "linux-unknown" -}}
-    {{- end -}}
+  {{- if hasKey .chezmoi.osRelease "id" -}}
+    {{- $osid = printf "%s-%s" .chezmoi.os .chezmoi.osRelease.id -}}
+  {{- else -}}
+    {{- $osid = "linux-unknown" -}}
+  {{- end -}}
 {{- end -}}
 
 {{- /* ========================================================================== */ -}}
@@ -39,16 +39,16 @@
 {{- $isAppleSilicon := false -}}
 
 {{- if or (eq $cpuArch "arm64") (eq $cpuArch "aarch64") (eq $cpuArch "arm") -}}
-    {{- $isARM = true -}}
-    {{- if eq .chezmoi.os "darwin" -}}
-        {{- $isAppleSilicon = true -}}
-    {{- else if eq $osid "linux-debian" -}}
-        {{- $isRPi = true -}}
-    {{- end -}}
+  {{- $isARM = true -}}
+  {{- if eq .chezmoi.os "darwin" -}}
+    {{- $isAppleSilicon = true -}}
+  {{- else if eq $osid "linux-debian" -}}
+    {{- $isRPi = true -}}
+  {{- end -}}
 {{- end -}}
 
 {{- if or (eq $cpuArch "amd64") (eq $cpuArch "x86_64") -}}
-    {{- $isIntel = true -}}
+  {{- $isIntel = true -}}
 {{- end -}}
 
 {{- /* ========================================================================== */ -}}
@@ -61,15 +61,15 @@
 
 {{- $packageManager := "unknown" -}}
 {{- if eq .chezmoi.os "darwin" -}}
-    {{- $packageManager = "brew" -}}
+  {{- $packageManager = "brew" -}}
 {{- else if eq .chezmoi.os "linux" -}}
-    {{- if or (eq $osid "linux-arch") (eq $osid "linux-cachyos") -}}
-        {{- $packageManager = "pacman" -}}
-    {{- else if or (eq $osid "linux-debian") (eq $osid "linux-ubuntu") -}}
-        {{- $packageManager = "apt" -}}
-    {{- else if or (eq $osid "linux-fedora") (eq $osid "linux-rocky") -}}
-        {{- $packageManager = "dnf" -}}
-    {{- end -}}
+  {{- if or (eq $osid "linux-arch") (eq $osid "linux-cachyos") -}}
+    {{- $packageManager = "pacman" -}}
+  {{- else if or (eq $osid "linux-debian") (eq $osid "linux-ubuntu") -}}
+    {{- $packageManager = "apt" -}}
+  {{- else if or (eq $osid "linux-fedora") (eq $osid "linux-rocky") -}}
+    {{- $packageManager = "dnf" -}}
+  {{- end -}}
 {{- end -}}
 
 {{- /* ========================================================================== */ -}}
@@ -83,22 +83,22 @@
 
 {{- $machine := "" -}}
 {{- if eq .chezmoi.os "darwin" -}}
-    {{- $machine = "workstation" -}}
+  {{- $machine = "workstation" -}}
 {{- else if or (eq $osid "linux-arch") (eq $osid "linux-cachyos") (eq $osid "linux-fedora") -}}
-    {{- $machine = "workstation" -}}
+  {{- $machine = "workstation" -}}
 {{- else if eq $osid "linux-ubuntu" -}}
-    {{- if or (eq (env "XDG_SESSION_TYPE") "x11")
-               (eq (env "XDG_SESSION_TYPE") "wayland")
-               (ne (env "DISPLAY") "")
-               (ne (env "WAYLAND_DISPLAY") "") -}}
-        {{- $machine = "workstation" -}}
-    {{- else -}}
-        {{- $machine = promptStringOnce . "machine" "Machine type [terminal/server]" -}}
-    {{- end -}}
-{{- else if or (eq $osid "linux-debian") (eq $osid "linux-rocky") -}}
+  {{- if or (eq (env "XDG_SESSION_TYPE") "x11")
+            (eq (env "XDG_SESSION_TYPE") "wayland")
+            (ne (env "DISPLAY") "")
+            (ne (env "WAYLAND_DISPLAY") "") -}}
+    {{- $machine = "workstation" -}}
+  {{- else -}}
     {{- $machine = promptStringOnce . "machine" "Machine type [terminal/server]" -}}
+  {{- end -}}
+{{- else if or (eq $osid "linux-debian") (eq $osid "linux-rocky") -}}
+  {{- $machine = promptStringOnce . "machine" "Machine type [terminal/server]" -}}
 {{- else -}}
-    {{- $machine = "terminal" -}}
+  {{- $machine = "terminal" -}}
 {{- end -}}
 
 {{- /* ========================================================================== */ -}}
@@ -119,13 +119,14 @@
 {{- /* ========================================================================== */ -}}
 {{- /* Editor / Merge Commands                                                    */ -}}
 {{- /* ========================================================================== */ -}}
-{{- /* server has no neovim (S:N); workstation and terminal both have nvim (T:Y). */ -}}
+{{- /* Neovim is installed on workstation and terminal machines; servers only     */ -}}
+{{- /* get plain vim, so they fall back to vim/vimdiff.                           */ -}}
 
 {{- $mergeCmd := "vimdiff" -}}
 {{- $editCmd  := "vim" -}}
 {{- if ne $machine "server" -}}
-    {{- $mergeCmd = "nvim" -}}
-    {{- $editCmd  = "nvim" -}}
+  {{- $mergeCmd = "nvim" -}}
+  {{- $editCmd  = "nvim" -}}
 {{- end -}}
 
 # =============================================================================

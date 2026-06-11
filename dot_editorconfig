@@ -274,12 +274,13 @@ indent_size  = 4
 # -----------------------------------------------------------------------------
 # Chezmoi Templates
 # .tmpl files wrap many underlying filetypes (shell, TOML, YAML, Lua, etc.).
-# The Go template directives ({{ }}) follow the same indentation as the
-# surrounding content, so the underlying filetype's indent size applies.
-# The global default (2 spaces) covers the majority of cases; shell-heavy
-# templates (.sh.tmpl) would ideally use 4 spaces but editorconfig cannot
-# match on compound extensions, so 2 spaces is used as the safe fallback.
-# Formatters for the underlying language will handle correctness on save.
+# Two indentation rules coexist in these files:
+#   - Go template directives ({{ }} lines) indent in 2-space steps, one step
+#     per nesting level of the enclosing template blocks (if/range/with)
+#   - All other lines follow the underlying filetype's rules — e.g. shell
+#     code in a .sh.tmpl uses 4 spaces per the [*.{sh,bash,zsh}] section
+# editorconfig cannot match compound extensions, so indent_size = 2 here
+# covers the directive rule; editors handle the embedded language manually.
 # -----------------------------------------------------------------------------
 [*.tmpl]
 indent_size = 2

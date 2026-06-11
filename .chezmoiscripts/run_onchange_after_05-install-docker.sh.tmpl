@@ -4,7 +4,7 @@
 # =============================================================================
 # Prompts for and installs Docker. Workstation + server, Linux only.
 #
-# Execution: run_onchange_after_05 — fires when file content changes
+# Execution: chezmoi apply (only when this file's content changes)
 # Location:  .chezmoiscripts/run_onchange_after_05-install-docker.sh.tmpl
 # =============================================================================
 
@@ -32,15 +32,15 @@ exit 0
 {{- end }}
 
 if bdb_has_cmd "docker"; then
-  bdb_success "Docker already installed"
-  bdb_end_section
-  exit 0
+    bdb_success "Docker already installed"
+    bdb_end_section
+    exit 0
 fi
 
 if ! bdb_ask "Do you want to install Docker"; then
-  bdb_warn "Skipping Docker installation"
-  bdb_end_section
-  exit 0
+    bdb_warn "Skipping Docker installation"
+    bdb_end_section
+    exit 0
 fi
 
 {{- if eq .chezmoi.os "linux" }}
@@ -49,9 +49,9 @@ fi
 bdb_action "Installing Docker (Debian/Ubuntu)"
 
 _old_docker=$(dpkg --get-selections docker.io docker-compose docker-compose-v2 \
-  docker-doc podman-docker containerd runc 2>/dev/null | cut -f1 | tr '\n' ' ' || true)
+    docker-doc podman-docker containerd runc 2>/dev/null | cut -f1 | tr '\n' ' ' || true)
 if [[ -n "${_old_docker}" ]]; then
-  bdb_exec "Removing old Docker versions" sudo apt remove ${_old_docker}
+    bdb_exec "Removing old Docker versions" sudo apt remove ${_old_docker}
 fi
 unset _old_docker
 
@@ -59,24 +59,24 @@ bdb_exec "Updating package lists" sudo apt-get update
 bdb_exec "Installing prerequisites" sudo apt-get install -y ca-certificates curl
 
 if [[ ! -f /etc/apt/keyrings/docker.asc ]]; then
-  bdb_exec "Creating keyrings directory" sudo install -m 0755 -d /etc/apt/keyrings
+    bdb_exec "Creating keyrings directory" sudo install -m 0755 -d /etc/apt/keyrings
 
     {{- if eq .osid "linux-ubuntu" }}
-  bdb_exec "Adding Docker GPG key (Ubuntu)" sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    bdb_exec "Adding Docker GPG key (Ubuntu)" sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
     {{- else if eq .osid "linux-debian" }}
-  bdb_exec "Adding Docker GPG key (Debian)" sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+    bdb_exec "Adding Docker GPG key (Debian)" sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
     {{- end }}
 
-  bdb_exec "Setting GPG key permissions" sudo chmod a+r /etc/apt/keyrings/docker.asc
+    bdb_exec "Setting GPG key permissions" sudo chmod a+r /etc/apt/keyrings/docker.asc
 else
-  bdb_success "Docker GPG key already present"
+    bdb_success "Docker GPG key already present"
 fi
 
 # Variables in the heredoc are evaluated at script execution time, not at
 # template processing time — do not escape $ with backslashes here.
 if [[ ! -f /etc/apt/sources.list.d/docker.sources ]]; then
     {{- if eq .osid "linux-ubuntu" }}
-  bdb_exec "Adding Docker repository (Ubuntu)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<DOCKER_REPO_EOF
+    bdb_exec "Adding Docker repository (Ubuntu)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<DOCKER_REPO_EOF
 Types: deb
 URIs: https://download.docker.com/linux/ubuntu
 Suites: $(. /etc/os-release && echo ${UBUNTU_CODENAME:-$VERSION_CODENAME})
@@ -85,7 +85,7 @@ Signed-By: /etc/apt/keyrings/docker.asc
 DOCKER_REPO_EOF
 
     {{- else if eq .osid "linux-debian" }}
-  bdb_exec "Adding Docker repository (Debian)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<DOCKER_REPO_EOF
+    bdb_exec "Adding Docker repository (Debian)" sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null <<DOCKER_REPO_EOF
 Types: deb
 URIs: https://download.docker.com/linux/debian
 Suites: $(. /etc/os-release && echo ${VERSION_CODENAME})
@@ -95,16 +95,16 @@ DOCKER_REPO_EOF
 
     {{- end }}
 else
-  bdb_success "Docker repository already configured"
+    bdb_success "Docker repository already configured"
 fi
 
 bdb_exec "Updating package lists with Docker repository" sudo apt-get update
 bdb_exec "Installing Docker packages" sudo apt-get install -y \
-  docker-ce \
-  docker-ce-cli \
-  containerd.io \
-  docker-buildx-plugin \
-  docker-compose-plugin
+    docker-ce \
+    docker-ce-cli \
+    containerd.io \
+    docker-buildx-plugin \
+    docker-compose-plugin
 
 bdb_exec "Adding user to docker group" sudo usermod -aG docker "${USER}"
 bdb_success "Docker installed"
@@ -114,22 +114,22 @@ bdb_warn "Please log out and back in for group membership to take effect"
 bdb_action "Installing Docker (Fedora/RHEL)"
 
 bdb_exec "Removing old Docker versions" sudo dnf remove -y \
-  docker docker-client docker-client-latest docker-common docker-latest \
-  docker-latest-logrotate docker-logrotate docker-selinux \
-  docker-engine-selinux docker-engine 2>/dev/null || true
+    docker docker-client docker-client-latest docker-common docker-latest \
+    docker-latest-logrotate docker-logrotate docker-selinux \
+    docker-engine-selinux docker-engine 2>/dev/null || true
 
 bdb_exec "Installing DNF plugins" sudo dnf -y install dnf-plugins-core
 
 if [[ ! -f /etc/yum.repos.d/docker-ce.repo ]]; then
     {{- if eq .osid "linux-rocky" }}
-    bdb_exec "Adding Docker repository (Rocky)" \
-        sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+        bdb_exec "Adding Docker repository (Rocky)" \
+                sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
     {{- else }}
-    bdb_exec "Adding Docker repository (Fedora)" \
-        sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+        bdb_exec "Adding Docker repository (Fedora)" \
+                sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
     {{- end }}
 else
-    bdb_success "Docker repository already configured"
+        bdb_success "Docker repository already configured"
 fi
 
 bdb_exec "Installing Docker" sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin

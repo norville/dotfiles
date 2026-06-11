@@ -1,11 +1,10 @@
 #!/bin/zsh
 # =============================================================================
-# ZSH Configuration File
+# ZSH Configuration
 # =============================================================================
-# This configuration follows XDG Base Directory specification and includes
-# robust error handling, portability checks, and extensive documentation.
-#
-# Last updated: 2025
+# Core shell setup: environment, options, history, PATH, and tool integration.
+# Plugins live in ~/.zsh/plugins.zsh, aliases in ~/.zsh/aliases.zsh — both
+# sourced near the end of this file.
 # =============================================================================
 
 # =============================================================================
@@ -116,8 +115,9 @@ unset _onepassword_sock
 autoload -Uz compinit colors
 colors
 
-# Performance optimization: Only regenerate compdump once a day
-# This speeds up shell startup by caching completion data
+# Full compinit rescans all completion functions — slow, so only do it when
+# the cached dump is stale. The glob qualifier (#qN.mh+24) matches the dump
+# file only if it is older than 24 hours; otherwise trust the cache (-C).
 if [[ -n "${ZDOTDIR:-$HOME}/.zcompdump"(#qN.mh+24) ]]; then
     compinit
 else
@@ -214,29 +214,20 @@ HISTORY_IGNORE="(ls|cd|pwd|exit|clear|history)"
 
 {{ if eq .chezmoi.os "darwin" -}}
 # -----------------------------------------------------------------------------
-# Homebrew Package Manager
+# Homebrew Package Manager (https://brew.sh)
 # -----------------------------------------------------------------------------
-# Homebrew: Package manager for macOS and Linux
-# Documentation: https://brew.sh
-#
-# This section handles multiple Homebrew installation locations:
-# - /opt/homebrew (Apple Silicon Macs)
-# - /usr/local (Intel Macs)
+# The install prefix depends on the CPU: /opt/homebrew on Apple Silicon,
+# /usr/local on Intel — probe both before initializing.
 
-# Check if brew is already in PATH
 if ! command -v brew >/dev/null 2>&1; then
-    # Try common Homebrew installation paths
-    # Apple Silicon Macs (M1/M2/M3)
-    if [[ -x "/opt/homebrew/bin/brew" ]]; then
+    if [[ -x "/opt/homebrew/bin/brew" ]]; then        # Apple Silicon
         export PATH="/opt/homebrew/bin:$PATH"
-    # Intel Macs
-    elif [[ -x "/usr/local/bin/brew" ]]; then
+    elif [[ -x "/usr/local/bin/brew" ]]; then         # Intel
         export PATH="/usr/local/bin:$PATH"
     fi
 fi
 
-# Initialize Homebrew environment if available
-# This sets up HOMEBREW_PREFIX, HOMEBREW_CELLAR, MANPATH, INFOPATH, etc.
+# shellenv sets HOMEBREW_PREFIX, HOMEBREW_CELLAR, MANPATH, INFOPATH, etc.
 if command -v brew >/dev/null 2>&1; then
     eval "$(brew shellenv)"
 fi
@@ -271,10 +262,8 @@ if command -v ruby >/dev/null 2>&1; then
     unset _gem_user_dir
 fi
 
-# Remove duplicate entries from PATH
+# typeset -U keeps only the first occurrence of each PATH entry
 typeset -U path
-
-# Export PATH for subprocesses
 export PATH
 
 # =============================================================================
@@ -284,7 +273,6 @@ export PATH
 # -----------------------------------------------------------------------------
 # Load ZSH Plugins
 # -----------------------------------------------------------------------------
-# Source plugin manager configuration
 _plugin_file="${HOME}/.zsh/plugins.zsh"
 if [[ -f "$_plugin_file" ]]; then
     source "$_plugin_file"
@@ -296,7 +284,6 @@ unset _plugin_file
 # -----------------------------------------------------------------------------
 # Load Custom Aliases
 # -----------------------------------------------------------------------------
-# Source shell aliases for command shortcuts and customizations
 _alias_file="${HOME}/.zsh/aliases.zsh"
 if [[ -f "$_alias_file" ]]; then
     source "$_alias_file"
@@ -370,8 +357,7 @@ fi
 # -----------------------------------------------------------------------------
 # Starship Prompt Initialization
 # -----------------------------------------------------------------------------
-# Starship: Fast, customizable, minimal prompt for any shell
-# Only initialize if starship is installed and in PATH
+# Starship: cross-shell prompt (https://starship.rs); config path set above
 if command -v starship >/dev/null 2>&1; then
     eval "$(starship init zsh)"
 fi

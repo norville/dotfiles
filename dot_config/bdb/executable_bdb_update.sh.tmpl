@@ -65,7 +65,7 @@ if [[ -n "${_bat}" ]]; then
 fi
 unset _bat
 
-{{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
+  {{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
 # -----------------------------------------------------------------------------
 # Update Font Cache — apt/dnf only: fonts on these platforms are deployed by
 # .chezmoiexternal.toml.tmpl, so chezmoi updating them does not refresh the
@@ -74,7 +74,7 @@ unset _bat
 if bdb_has_cmd "fc-cache"; then
     bdb_exec "Updating font cache" fc-cache -f
 fi
-{{- end }}
+  {{- end }}
 
 # -----------------------------------------------------------------------------
 # Update Rust toolchain

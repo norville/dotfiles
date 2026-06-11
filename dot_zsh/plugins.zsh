@@ -7,8 +7,6 @@
 #
 # Plugin loading order matters — see comments in the PLUGIN CONFIGURATION
 # section for the exact constraints.
-#
-# Last updated: 2026
 # =============================================================================
 
 # =============================================================================

@@ -1,29 +1,29 @@
 [user]
-    name = {{ .name }}
-    email = {{ .email }}
+  name = {{ .name }}
+  email = {{ .email }}
 [core]
-    # vim on terminal machines (neovim not installed); nvim on workstations
-    editor = {{ if eq .machine "workstation" }}nvim{{ else }}vim{{ end }}
-    pager = delta
-    excludesfile = ~/.config/git/ignore
+  # vim on terminal machines (neovim not installed); nvim on workstations
+  editor = {{ if eq .machine "workstation" }}nvim{{ else }}vim{{ end }}
+  pager = delta
+  excludesfile = ~/.config/git/ignore
 [init]
-    defaultBranch = main
+  defaultBranch = main
 [status]
-    submoduleSummary = true
-    showUntrackedFiles = normal
+  submoduleSummary = true
+  showUntrackedFiles = normal
 [color]
-    ui = auto
+  ui = auto
 [filter "lfs"]
-    clean = git-lfs clean %f
-    smudge = git-lfs smudge %f
-    required = true
+  clean = git-lfs clean %f
+  smudge = git-lfs smudge %f
+  required = true
 [interactive]
-    diffFilter = delta --color-only
+  diffFilter = delta --color-only
 [include]
-    path = ~/.config/delta/tokyonight_moon.gitconfig
+  path = ~/.config/delta/tokyonight_moon.gitconfig
 [delta]
-    navigate = true       # Use n and N to move between diff sections
-    line-numbers = true   # Show line numbers
-    side-by-side = true   # Show diffs side-by-side
+  navigate = true       # Use n and N to move between diff sections
+  line-numbers = true   # Show line numbers
+  side-by-side = true   # Show diffs side-by-side
 [merge]
-    conflictStyle = zdiff3
+  conflictStyle = zdiff3

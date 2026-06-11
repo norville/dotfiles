@@ -1,13 +1,13 @@
 # Formulae
 {{- range .package }}
-{{- if and (has "workstation" .machines) (has "brew-formula" .managers) }}
+  {{- if and (has "workstation" .machines) (has "brew-formula" .managers) }}
 brew "{{ .name }}"
-{{- end }}
+  {{- end }}
 {{- end }}
 
 # Casks
 {{- range .package }}
-{{- if and (has "workstation" .machines) (has "brew-cask" .managers) }}
+  {{- if and (has "workstation" .machines) (has "brew-cask" .managers) }}
 cask "{{ .name }}"
-{{- end }}
+  {{- end }}
 {{- end }}
