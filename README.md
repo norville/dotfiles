@@ -117,7 +117,7 @@ font cache, `rustup update`, and `gem update bundler erb`.
 |-----------|-------------|-----------|
 | `.config/bat/` | Bat syntax highlighter — config and Tokyo Night theme | workstation + terminal |
 | `.config/btop/` | Btop system monitor — config and Tokyo Night theme | workstation + terminal |
-| `.config/darkman/` | darkman auto dark/light mode — config and switch scripts | GNOME workstation |
+| `.config/darkman/` | darkman auto dark/light mode — config and switch scripts | GNOME workstation (pacman/dnf only) |
 | `.config/delta/` | Delta git diff pager — Tokyo Night theme | workstation + terminal |
 | `.config/eza/` | Eza (modern ls) — Tokyo Night color theme | workstation + terminal |
 | `.config/git/` | Git config, global ignore, delta integration | all |
@@ -171,7 +171,7 @@ Also: lazygit, fzf, git-delta, jq, resvg, tree-sitter-cli, Node.js + npm, shellc
 - **yazi**: Terminal file manager with image previews (requires Kitty)
 - **zed**: Modern code editor (Tokyo Night Moon theme, aligned with nvim settings)
 - **Brave Browser**: Web browser
-- **darkman**: Automatic dark/light mode switching by geographic position (GNOME only)
+- **darkman**: Automatic dark/light mode switching by geographic position (GNOME only; pacman/dnf only — not available in apt repos)
 
 ### Optional Tools (User Prompted on First Apply)
 

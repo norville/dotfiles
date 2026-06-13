@@ -65,7 +65,7 @@ this data at template render time using `range .package` + `has $.machine .machi
 
 GNOME-conditional packages (darkman, xdg-desktop-portal-gtk) are **not** in this file —
 they depend on `XDG_CURRENT_DESKTOP` at render time and are appended explicitly in the
-install script.
+install script, under pacman and dnf only (neither package is available in apt repos).
 
 This file is a chezmoi special file (starts with `.chezmoi`) — not deployed to `~/`.
 
@@ -378,7 +378,7 @@ Implemented via `.chezmoiignore` template conditionals. Source of truth: `.chezm
 | `dot_ssh` | `.ssh/` | ✓ | ✓ | — | `lookPath "op"` guards individual keys |
 | `dot_zsh` | `.zsh/` | ✓ | ✓ | — | |
 | `dot_zshrc.tmpl` | `.zshrc` | ✓ | ✓ | — | |
-| `dot_config/darkman` | `.config/darkman/` | ✓ | — | — | GNOME desktop (`contains "gnome" XDG_CURRENT_DESKTOP`) |
+| `dot_config/darkman` | `.config/darkman/` | ✓ | — | — | GNOME desktop; pacman/dnf only (not available on apt) |
 | `dot_config/homebrew` | `.config/homebrew/` | ✓ | — | — | macOS (workstation is always darwin or linux-arch/cachyos/fedora) |
 | `dot_config/kitty` | `.config/kitty/` | ✓ | — | — | |
 | `dot_config/niri` | `.config/niri/` | ✓ | — | — | `lookPath "niri"` |
@@ -386,7 +386,7 @@ Implemented via `.chezmoiignore` template conditionals. Source of truth: `.chezm
 | `dot_config/yay` | `.config/yay/` | ✓ | — | — | |
 | `dot_config/yazi` | `.config/yazi/` | ✓ | — | — | |
 | `dot_config/zed` | `.config/zed/` | ✓ | — | — | |
-| `dot_local/share/darkman` | `.local/share/darkman/` | ✓ | — | — | GNOME desktop |
+| `dot_local/share/darkman` | `.local/share/darkman/` | ✓ | — | — | GNOME desktop; pacman/dnf only (not available on apt) |
 | `sddm/` | (deployed by script 06) | ✓ | — | — | |
 
 W = workstation, T = terminal, S = server.
