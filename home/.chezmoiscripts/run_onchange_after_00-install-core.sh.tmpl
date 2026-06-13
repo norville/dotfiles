@@ -114,9 +114,6 @@ APT_PACKAGES=(
     "{{ .name }}"
       {{- end }}
     {{- end }}
-    {{- if and (eq .machine "workstation") (contains "gnome" (env "XDG_CURRENT_DESKTOP" | lower)) }}
-    "xdg-desktop-portal-gtk"
-    {{- end }}
 )
 
 bdb_exec "Updating APT package lists" sudo apt-get update
@@ -215,6 +212,7 @@ DNF_PACKAGES=(
       {{- end }}
     {{- end }}
     {{- if and (eq .machine "workstation") (contains "gnome" (env "XDG_CURRENT_DESKTOP" | lower)) }}
+    "darkman"
     "xdg-desktop-portal-gtk"
     {{- end }}
 )
@@ -236,6 +234,7 @@ PACMAN_PACKAGES=(
       {{- end }}
     {{- end }}
     {{- if contains "gnome" (env "XDG_CURRENT_DESKTOP" | lower) }}
+    "darkman"
     "xdg-desktop-portal-gtk"
     {{- end }}
 )

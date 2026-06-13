@@ -16,12 +16,11 @@
 # Notes:
 #   - Name splits (same tool, different name per manager) are separate entries.
 #     Example: "fd" (brew/pacman) and "fd-find" (apt/dnf) are two entries.
-#   - xdg-desktop-portal-gtk is NOT in this file — it is GNOME-specific and
-#     depends on XDG_CURRENT_DESKTOP at runtime; appended explicitly in the
-#     install script under a GNOME template conditional.
-#   - darkman is in this file with pacman/dnf managers only (not available in
-#     apt repos). It installs on all pacman/dnf workstations; the 07-install-
-#     darkman script gates service activation on GNOME.
+#   - GNOME-conditional packages (darkman, xdg-desktop-portal-gtk) are NOT in
+#     this file — they depend on a runtime env var (XDG_CURRENT_DESKTOP) that
+#     cannot be expressed as a machine type. They are appended explicitly in the
+#     install script under a GNOME template conditional (pacman/dnf only —
+#     neither package is available in apt repos).
 #   - snap and aur are separate install mechanisms, not mixed with apt/pacman.
 # =============================================================================
 
@@ -84,11 +83,6 @@ machines = ["workstation"]
 name     = "curl"
 managers = ["brew-formula", "apt", "pacman", "dnf"]
 machines = ["workstation", "terminal", "server"]
-
-[[package]]
-name     = "darkman"
-managers = ["pacman", "dnf"]
-machines = ["workstation"]
 
 [[package]]
 name     = "eza"
