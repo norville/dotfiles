@@ -299,6 +299,15 @@ name     = "ruby"
 managers = ["brew-formula", "apt", "pacman", "dnf"]
 machines = ["workstation", "terminal"]
 
+[[package]]
+name     = "ruby-dev"
+managers = ["apt"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "ruby-devel"
+managers = ["dnf"]
+machines = ["workstation", "terminal"]
 
 [[package]]
 name     = "sevenzip"

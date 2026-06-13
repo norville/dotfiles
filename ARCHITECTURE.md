@@ -83,6 +83,7 @@ Same logical tool delivered under a different name per manager:
 | Node.js | `node` | — | `nodejs` | — | `nodejs` | — | `nodejs` |
 | OpenTofu | `opentofu` | — | `tofu` | — | `opentofu` | — | `opentofu` |
 | rustup | `rustup` | — | — | `rustup` | `rustup` | — | `rustup` |
+| Ruby dev headers | — | — | `ruby-dev` | — | (bundled) | — | `ruby-devel` |
 | ffmpeg | `ffmpeg-full` | — | — | — | `ffmpeg` | — | — |
 | ImageMagick | `imagemagick-full` | — | — | — | `imagemagick` | — | — |
 | GnuPG | — | — | `gpg` | — | `gnupg` | — | `gnupg2` |
