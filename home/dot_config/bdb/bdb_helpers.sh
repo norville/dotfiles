@@ -417,6 +417,12 @@ bdb_script_end() {
 # so chezmoi scripts can share the bootstrap's log session.
 bdb_init_logging() {
     if [[ -n "${BDB_LOG_FILE:-}" ]] && [[ -t 3 ]]; then
+        # Shared session (running under a parent bootstrap process).
+        # Redirect fd1/fd2 to the shared log file so _bdb_log records go
+        # there directly instead of through the parent's bdb_exec pipe,
+        # which would wrap every structured line with an extra [OUT] prefix.
+        exec 1>>"${BDB_LOG_FILE}"
+        exec 2>&1
         _bdb_log INFO "Logging already initialized — appending to ${BDB_LOG_FILE}"
         return 0
     fi
