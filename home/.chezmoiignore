@@ -66,8 +66,8 @@ sddm/
 # Noctalia plugins are managed by Noctalia's plugin manager, not chezmoi
 .config/noctalia/plugins/
 
-# darkman: GNOME only, and not available on apt platforms
-{{- if or (not (contains "gnome" (env "XDG_CURRENT_DESKTOP" | lower))) (eq .packageManager "apt") }}
+# darkman: workstation only, GNOME only, not available on apt
+{{- if or (ne .machine "workstation") (not (contains "gnome" (env "XDG_CURRENT_DESKTOP" | lower))) (eq .packageManager "apt") }}
 .config/darkman/
 .local/share/darkman/
 {{- end }}
