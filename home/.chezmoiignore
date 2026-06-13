@@ -20,7 +20,6 @@ sddm/
 # Workstation-Only Paths — excluded on terminal and server
 # -----------------------------------------------------------------------------
 {{- if ne .machine "workstation" }}
-.config/darkman/
 .config/homebrew/
 .config/kitty/
 .config/niri/
@@ -28,7 +27,6 @@ sddm/
 .config/yay/
 .config/yazi/
 .config/zed/
-.local/share/darkman/
 sddm/
 {{- end }}
 
