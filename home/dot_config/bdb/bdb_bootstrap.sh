@@ -9,8 +9,8 @@
 # - Linux: Arch, CachyOS, Debian, Ubuntu, Fedora, Rocky Linux
 #
 # Usage:
-#   bash -c "$(curl -fsSL https://raw.githubusercontent.com/norville/dotfiles/main/dot_config/bdb/bdb_bootstrap.sh)"
-#   bash -c "$(wget -qO- https://raw.githubusercontent.com/norville/dotfiles/main/dot_config/bdb/bdb_bootstrap.sh)"
+#   bash -c "$(curl -fsSL https://raw.githubusercontent.com/norville/dotfiles/main/home/dot_config/bdb/bdb_bootstrap.sh)"
+#   bash -c "$(wget -qO- https://raw.githubusercontent.com/norville/dotfiles/main/home/dot_config/bdb/bdb_bootstrap.sh)"
 #   ./bdb_bootstrap.sh
 #
 # Repository: https://github.com/norville/dotfiles
@@ -27,7 +27,7 @@ readonly CHEZMOI_BRANCH="main"
 # Not readonly — must be unset-able during cleanup (bdb_cleanup uses unset -v)
 BDB_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BDB_HELPERS="${BDB_SCRIPT_DIR}/bdb_helpers.sh"
-BDB_HELPERS_URL="https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${CHEZMOI_BRANCH}/dot_config/bdb/bdb_helpers.sh"
+BDB_HELPERS_URL="https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${CHEZMOI_BRANCH}/home/dot_config/bdb/bdb_helpers.sh"
 
 # Not readonly — bdb_init_logging re-exports it; .txt distinguishes bootstrap
 # logs from chezmoi script logs (.log)
