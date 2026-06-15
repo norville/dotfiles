@@ -25,14 +25,19 @@ A comprehensive, cross-platform dotfiles management system using [Chezmoi](https
 
 ### Bootstrap a Fresh System
 
-Run this single command to set up everything automatically:
+**1. Download `install.sh`**
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/norville/dotfiles/main/install.sh \
-           2>/dev/null || wget -qO- https://raw.githubusercontent.com/norville/dotfiles/main/install.sh)"
+curl -fsSL https://raw.githubusercontent.com/norville/dotfiles/main/install.sh -o install.sh
+# or with wget:
+wget -qO install.sh https://raw.githubusercontent.com/norville/dotfiles/main/install.sh
 ```
 
-Uses `curl` if available, falls back to `wget` automatically.
+**2. Make it executable and run it**
+
+```bash
+chmod +x install.sh && ./install.sh
+```
 
 The bootstrap script will:
 1. Detect your operating system
