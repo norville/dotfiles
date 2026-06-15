@@ -359,7 +359,12 @@ fi
 # -----------------------------------------------------------------------------
 # Starship: cross-shell prompt (https://starship.rs); config path set above
 if command -v starship >/dev/null 2>&1; then
+{{- if eq .machine "terminal" }}
+    # Direct console logins on terminal machines may lack a Nerd Font.
+    [[ -n "${SSH_CLIENT:-}" || -n "${SSH_TTY:-}" ]] && eval "$(starship init zsh)"
+{{- else }}
     eval "$(starship init zsh)"
+{{- end }}
 fi
 
 # =============================================================================
