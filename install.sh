@@ -6,7 +6,10 @@
 # curl first and falling back to wget.
 #
 # Usage:
-#   bash -c "$(curl -fsSL URL 2>/dev/null || wget -qO- URL)"
+#   wget -qO install.sh https://bit.ly/4gm2dU8
+#   or
+#   curl -fsSL https://bit.ly/4gm2dU8 -o install.sh
+#   chmod +x install.sh && ./install.sh
 # =============================================================================
 
 set -euo pipefail

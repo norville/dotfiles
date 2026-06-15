@@ -25,7 +25,19 @@ A comprehensive, cross-platform dotfiles management system using [Chezmoi](https
 
 ### Bootstrap a Fresh System
 
-Download `install.sh` from this repository, make it executable, and run it.
+**1. Download `install.sh` from this repository**
+
+```bash
+wget -qO install.sh https://bit.ly/4gm2dU8
+# or with curl:
+curl -fsSL https://bit.ly/4gm2dU8 -o install.sh
+```
+
+**2. Make it executable, and run it**
+
+```bash
+chmod +x install.sh && ./install.sh
+```
 
 The bootstrap script will:
 1. Detect your operating system
