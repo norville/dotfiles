@@ -59,12 +59,11 @@ if [[ "${ubuntu_version}" =~ \.04$ ]]; then
     else
         bdb_success "Ansible PPA already configured"
     fi
-    bdb_exec "Installing Ansible from PPA" sudo apt-get install -y ansible python3-pip python3-argcomplete
-    bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete3 2>/dev/null || true
+    bdb_exec "Installing Ansible from PPA" sudo apt-get install -y ansible
     bdb_success "Ansible installed from PPA"
 else
     bdb_warn "PPA ansible/ansible may not be available for Ubuntu ${ubuntu_version}"
-    bdb_exec "Installing pipx" sudo apt-get install -y pipx python3-pip python3-argcomplete
+    bdb_exec "Installing pipx" sudo apt-get install -y pipx
     bdb_exec "Setting up pipx environment" pipx ensurepath
     bdb_exec "Installing Ansible via pipx" pipx install --include-deps ansible
 
@@ -73,30 +72,30 @@ else
         bdb_info "Added ~/.local/bin to PATH for current session"
     fi
 
-    bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete 2>/dev/null || true
+    # zsh completion is provided by zinit snippet OMZP::ansible in plugins.zsh
     bdb_success "Ansible installed via pipx"
     bdb_info "You may need to restart your shell for pipx PATH to take effect"
 fi
 
     {{- else if eq .osid "linux-debian" }}
-bdb_exec "Installing Ansible" sudo apt-get install -y ansible python3-pip python3-argcomplete
-bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete3 2>/dev/null || true
+bdb_exec "Installing Ansible" sudo apt-get install -y ansible
 bdb_success "Ansible installed"
 
     {{- end }}
 
   {{- else if eq .packageManager "dnf" }}
-bdb_action "Installing Ansible (Fedora/RHEL)"
+bdb_action "Installing Ansible (Fedora/Rocky)"
 
-bdb_exec "Installing Ansible" sudo dnf install -y ansible python3-pip python3-argcomplete
-bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete 2>/dev/null || true
+    {{- if eq .osid "linux-rocky" }}
+bdb_exec "Installing EPEL repositories" sudo dnf install -y epel-release
+    {{- end }}
+bdb_exec "Installing Ansible" sudo dnf install -y ansible
 bdb_success "Ansible installed"
 
   {{- else if eq .packageManager "pacman" }}
-bdb_action "Installing Ansible (Arch/Manjaro)"
+bdb_action "Installing Ansible (Arch/CachyOS)"
 
-bdb_exec "Installing Ansible" sudo pacman -S --needed --noconfirm ansible python-pip python-argcomplete
-bdb_exec "Enabling Ansible completion" sudo activate-global-python-argcomplete 2>/dev/null || true
+bdb_exec "Installing Ansible" sudo pacman -S --needed --noconfirm ansible
 bdb_success "Ansible installed"
 
   {{- end }}
