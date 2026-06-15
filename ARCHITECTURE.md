@@ -297,6 +297,7 @@ Plain `chezmoi apply` does **not** trigger the update hook.
 ```
 dotfiles/
 ├── .chezmoiroot                    # Tells chezmoi to use home/ as source root
+├── install.sh                      # Bootstrap entry point — short URL wrapper for bdb_bootstrap.sh
 ├── CLAUDE.md                       # Context for Claude Code (not deployed, gitignored)
 ├── ARCHITECTURE.md                 # This file (not deployed)
 ├── README.md                       # User documentation (not deployed)

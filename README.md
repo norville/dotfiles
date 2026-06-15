@@ -28,14 +28,11 @@ A comprehensive, cross-platform dotfiles management system using [Chezmoi](https
 Run this single command to set up everything automatically:
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/norville/dotfiles/main/home/dot_config/bdb/bdb_bootstrap.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/norville/dotfiles/main/install.sh \
+           2>/dev/null || wget -qO- https://raw.githubusercontent.com/norville/dotfiles/main/install.sh)"
 ```
 
-Or with wget:
-
-```bash
-bash -c "$(wget -qO- https://raw.githubusercontent.com/norville/dotfiles/main/home/dot_config/bdb/bdb_bootstrap.sh)"
-```
+Uses `curl` if available, falls back to `wget` automatically.
 
 The bootstrap script will:
 1. Detect your operating system
@@ -63,6 +60,7 @@ The repo root holds only documentation and the chezmoi root pointer:
 | File | Description |
 |------|-------------|
 | `.chezmoiroot` | Tells chezmoi to use `home/` as the source root |
+| `install.sh` | Bootstrap entry point — short URL wrapper for `bdb_bootstrap.sh` |
 | `README.md` | This file |
 | `ARCHITECTURE.md` | System architecture reference |
 | `TODO.md` | Open tasks |
