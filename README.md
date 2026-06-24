@@ -48,13 +48,17 @@ The bootstrap script will:
 
 ### Manual Installation
 
-```bash
-# Install chezmoi
-sh -c "$(curl -fsLS get.chezmoi.io)"
+Install chezmoi, clone the dotfiles, and apply — all in one command. Everything
+after `--` is handed to the freshly installed chezmoi binary, so this works
+without chezmoi already being on `PATH`:
 
-# Initialize and apply dotfiles
-chezmoi init --apply norville
+```bash
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply norville
 ```
+
+Unlike the bootstrap, this does not update the system or pre-install
+dependencies — git must already be present (see [Requirements](#requirements)),
+and the chezmoi scripts install the rest on first apply.
 
 ## Repository Structure
 
