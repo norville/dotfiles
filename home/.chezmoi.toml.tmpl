@@ -101,6 +101,13 @@
   {{- $machine = "terminal" -}}
 {{- end -}}
 
+{{- /* Only the two prompt answers can be invalid; auto-detection always yields   */ -}}
+{{- /* workstation or terminal. Reject any other entry (typos) so init fails fast */ -}}
+{{- /* rather than producing a machine with no matching deployment scope.         */ -}}
+{{- if not (has $machine (list "workstation" "terminal" "server")) -}}
+  {{- fail (printf "invalid machine type %q — must be 'terminal' or 'server'" $machine) -}}
+{{- end -}}
+
 {{- /* ========================================================================== */ -}}
 {{- /* Desktop Environment Detection                                              */ -}}
 {{- /* ========================================================================== */ -}}
