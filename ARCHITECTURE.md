@@ -27,7 +27,17 @@ operating systems and architectures.
 - Detect operating system and distribution
 - Update system packages (with user confirmation)
 - Install git and chezmoi
-- Initialize dotfiles repository
+- Initialize dotfiles repository — `chezmoi init` then `chezmoi apply` as two
+  separate calls (see note below)
+
+**`init`/`apply` split**: bootstrap runs `chezmoi init` and `chezmoi apply` as two
+calls rather than a single `chezmoi init --apply`. `init` renders
+`.chezmoi.toml.tmpl`, where `promptStringOnce` may ask for the machine type; chezmoi
+writes that prompt — and its raw-mode character echo — to **stdout**. `bdb_exec`
+pipes stdout through the logger (`… 2>&1 | _bdb_log_output`), which would swallow the
+prompt and leave it invisible while it blocked on input. So `init` is run with stdout
+and stderr routed to the terminal (`>&3 2>&3`), and only `apply` — the phase that runs
+the install scripts and produces log-worthy output — goes through `bdb_exec`.
 
 **Does NOT**:
 - Install application packages (handled by chezmoi scripts)
@@ -162,7 +172,9 @@ are always `workstation`. `linux-ubuntu` resolves to `workstation` if a graphica
 is detected (via `XDG_SESSION_TYPE` / `DISPLAY` / `WAYLAND_DISPLAY`); otherwise
 `promptStringOnce` asks the user to choose `terminal` or `server`. `linux-debian` and
 `linux-rocky` always prompt (never `workstation`). The answer is cached so subsequent
-`chezmoi apply` runs don't re-prompt.
+`chezmoi apply` runs don't re-prompt. During bootstrap this prompt is rendered by
+`chezmoi init`, which bootstrap runs routed to the terminal (`>&3 2>&3`) so it stays
+visible — see the `init`/`apply` split under the Bootstrap Phase.
 
 **Note on `desktop`**: `.chezmoi.toml.tmpl` is re-rendered only on `chezmoi init`, not
 on `chezmoi apply`. Templates that need GNOME detection in active conditionals
@@ -257,14 +269,15 @@ bdb_bootstrap.sh
   ├── Detect OS & distribution
   ├── Update system packages (prompted)
   ├── Install git + chezmoi
-  └── chezmoi init --apply norville
+  ├── chezmoi init norville          (→ terminal: machine-type prompt visible)
+  └── chezmoi apply                  (→ bdb_exec: logged)
               │
               ▼
       Chezmoi Initialization
-        ├── Clone repository → ~/.local/share/chezmoi
-        ├── Process .chezmoi.toml.tmpl → ~/.config/chezmoi/chezmoi.toml
-        ├── Deploy dotfiles (templates expanded, externals downloaded)
-        └── Run scripts in order:
+        ├── Clone repository → ~/.local/share/chezmoi      (init)
+        ├── Process .chezmoi.toml.tmpl → ~/.config/chezmoi/chezmoi.toml      (init)
+        ├── Deploy dotfiles (templates expanded, externals downloaded)      (apply)
+        └── Run scripts in order:      (apply)
               ├── 00-install-core    (packages — machine-type filtered)
               ├── 01-config-env      (shell, caches, fonts — W+T only)
               ├── 02-install-1pw     (prompted — workstation only)

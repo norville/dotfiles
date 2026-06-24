@@ -222,7 +222,8 @@ The dotfiles automatically detect and use the appropriate package manager:
 
 Three machine types are supported. `workstation` is auto-detected on macOS, Arch, CachyOS,
 and Fedora, or when a graphical session is detected on Ubuntu. On Debian, Rocky Linux, and
-headless Ubuntu the user is prompted on first `chezmoi init`.
+headless Ubuntu the user is prompted for `terminal` or `server` on first `chezmoi init`
+(shown interactively during bootstrap); the answer is cached for later applies.
 
 | Type | Description | Dev tools | GUI tools |
 |------|-------------|-----------|-----------|
