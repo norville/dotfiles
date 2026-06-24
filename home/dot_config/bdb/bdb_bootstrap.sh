@@ -334,7 +334,14 @@ init_dotfiles() {
         return 0
     fi
 
-    if bdb_exec "Initializing chezmoi with dotfiles" chezmoi init --branch "${CHEZMOI_BRANCH}" --apply "${GITHUB_USER}"; then
+    # init renders .chezmoi.toml.tmpl, which on Debian, Rocky and headless
+    # Ubuntu calls promptStringOnce for the machine type. chezmoi writes that
+    # prompt — and its raw-mode character echo — to stdout, so route stdout and
+    # stderr to the terminal (fd 3); bdb_exec's log pipe would swallow both,
+    # leaving an invisible prompt. apply runs the install scripts and is logged.
+    bdb_action "Initializing chezmoi with dotfiles"
+    if chezmoi init --branch "${CHEZMOI_BRANCH}" "${GITHUB_USER}" >&3 2>&3 &&
+        bdb_exec "Applying dotfiles configuration" chezmoi apply; then
         bdb_success "Dotfiles cloned and applied successfully"
     else
         bdb_error "Failed to initialize dotfiles"
