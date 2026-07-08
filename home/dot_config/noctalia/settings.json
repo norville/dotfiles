@@ -45,7 +45,7 @@
         "backgroundOpacity": 0.55,
         "barType": "floating",
         "capsuleColorKey": "none",
-        "capsuleOpacity": 1,
+        "capsuleOpacity": 0.5,
         "contentPadding": 2,
         "density": "default",
         "displayMode": "always_visible",
@@ -297,6 +297,15 @@
                     "useDistroLogo": true
                 },
                 {
+                    "clockColor": "none",
+                    "customFont": "",
+                    "formatHorizontal": "HH:mm ddd, MMM dd",
+                    "formatVertical": "HH mm - dd MM",
+                    "id": "Clock",
+                    "tooltipFormat": "HH:mm ddd, MMM dd",
+                    "useCustomFont": false
+                },
+                {
                     "compactMode": false,
                     "diskPath": "/",
                     "iconColor": "none",
@@ -321,13 +330,7 @@
             ],
             "right": [
                 {
-                    "clockColor": "none",
-                    "customFont": "",
-                    "formatHorizontal": "HH:mm ddd, MMM dd",
-                    "formatVertical": "HH mm - dd MM",
-                    "id": "Clock",
-                    "tooltipFormat": "HH:mm ddd, MMM dd",
-                    "useCustomFont": false
+                    "id": "plugin:syncthing-status"
                 },
                 {
                     "hideWhenZero": true,
@@ -347,19 +350,6 @@
                     "id": "Tray",
                     "pinned": [
                     ]
-                },
-                {
-                    "defaultSettings": {
-                        "apiKey": "",
-                        "apiUrl": "",
-                        "configPath": "",
-                        "enabled": true,
-                        "folderIds": [
-                        ],
-                        "pollIntervalMs": 10000,
-                        "verifyTls": false
-                    },
-                    "id": "plugin:syncthing-status"
                 },
                 {
                     "applyToAllMonitors": false,
