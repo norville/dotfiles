@@ -1,5 +1,12 @@
 # norville/dotfiles
-
+- [ ] fix sddm: install `xorg-xrandr`
+- [ ] fix 1password on cachyos (aur)
+- [ ] add keyboard config to env setup
+- [ ] add wallpapers to chezmoi
+- [ ] add script to enable brightness control
+- [ ] set alternative starship prompt for console
+- [ ] rename darkman script to autodark
+- [ ] add script to config cachyos
 - [ ] add script to install hypervisor
 - [ ] add script to install syncthing
 - [ ] automate macos configuration via 'defaults'
