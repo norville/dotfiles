@@ -51,7 +51,7 @@ machines = ["workstation", "terminal"]
 
 [[package]]
 name     = "brave-bin"
-managers = ["aur"]
+managers = ["pacman"]
 machines = ["workstation"]
 
 [[package]]
