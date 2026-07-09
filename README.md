@@ -69,6 +69,7 @@ The repo root holds only documentation and the chezmoi root pointer:
 | File | Description |
 |------|-------------|
 | `.chezmoiroot` | Tells chezmoi to use `home/` as the source root |
+| `.shellcheckrc` | ShellCheck config for editing repo scripts (outside `home/`, so not managed by chezmoi) |
 | `install.sh` | Bootstrap entry point — short URL wrapper for `bdb_bootstrap.sh` |
 | `README.md` | This file |
 | `ARCHITECTURE.md` | System architecture reference |

@@ -1,0 +1,26 @@
+# ShellCheck configuration for this repository.
+#
+# Repo-tooling only — this file lives at the repo root, OUTSIDE the chezmoi
+# source root (`home/`, set by .chezmoiroot), so chezmoi never manages or
+# deploys it. ShellCheck searches the checked file's directory and every parent
+# for a .shellcheckrc, so this one applies to every shell file in the repo,
+# including the chezmoi *.sh.tmpl scripts under home/.chezmoiscripts/.
+#
+# The disabled checks below are the fatal parse errors ShellCheck (and bashls,
+# which runs ShellCheck) emit when it hits Go template directives ({{ ... }}),
+# which are not valid shell. Rendered scripts are still fully checked via
+# `chezmoi execute-template <script> | shellcheck -` from outside the repo tree.
+# Trade-off: these seven codes are also silenced for real scripts edited inside
+# the repo, but they only ever fire on genuinely unparseable syntax, which bash
+# itself and the render-then-check workflow still catch.
+
+# Resolve `source`/`.` targets relative to the script's own directory.
+source-path=SCRIPTDIR
+
+disable=SC1009  # "The mentioned syntax error was in this brace group."
+disable=SC1036  # "'(' is invalid here."
+disable=SC1054  # "You need a space after the '{'."
+disable=SC1056  # "Expected a '}'."
+disable=SC1072  # "Missing '}'."
+disable=SC1073  # "Couldn't parse this brace group."
+disable=SC1083  # "This {/} is literal."

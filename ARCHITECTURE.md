@@ -310,6 +310,7 @@ Plain `chezmoi apply` does **not** trigger the update hook.
 ```
 dotfiles/
 ├── .chezmoiroot                    # Tells chezmoi to use home/ as source root
+├── .shellcheckrc                   # ShellCheck config for repo scripts (outside home/, unmanaged)
 ├── install.sh                      # Bootstrap entry point — short URL wrapper for bdb_bootstrap.sh
 ├── CLAUDE.md                       # Context for Claude Code (not deployed, gitignored)
 ├── ARCHITECTURE.md                 # This file (not deployed)
@@ -509,8 +510,14 @@ template it detects the base filetype and appends `.chezmoitmpl`, giving the
 buffer a compound filetype like `sh.chezmoitmpl` or `zsh.chezmoitmpl`. bashls is
 registered for `sh`/`bash`/`zsh` only, so it attaches to real scripts but skips
 the compound-filetype templates — no shellcheck parse errors on `{{ ... }}`,
-without disabling bashls anywhere. Raw templates are instead validated by
-rendering them first (`chezmoi execute-template | shellcheck`). Because conform
+without disabling bashls anywhere. As a backstop for cases where bashls still attaches to a template (e.g. when
+`xvzc/chezmoi.nvim`'s edit-watch re-opens the buffer via a `/tmp/chezmoi-edit*`
+hardlink and the compound filetype is lost), a repo-root **`.shellcheckrc`**
+disables the seven parse-error codes that Go template directives trigger
+(`SC1009/1036/1054/1056/1072/1073/1083`). It sits outside `home/`, so chezmoi
+never manages it, and ShellCheck finds it by searching parent directories from
+any script in the repo. Raw templates are instead validated by rendering them
+first (`chezmoi execute-template | shellcheck`). Because conform
 still sees the base filetype, its `shfmt` formatter is given a `condition` that
 skips `.tmpl` files (`lua/plugins/indent-audit.lua`) so it cannot choke on
 directives; `chezmoi_indent` (keyed on the `.tmpl` filename) still runs via
