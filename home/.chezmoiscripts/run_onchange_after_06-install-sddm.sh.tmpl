@@ -75,15 +75,18 @@ cp "${SOURCE_DIR}/sddm/themes/tokyonight-moon/background.jpg" "$_TMP/background.
 # =============================================================================
 # All target files are world-readable (644/755), so no sudo needed here.
 # cmp -s exits 0 only when files exist and are byte-identical.
+# xrandr must be present too — /etc/sddm/Xsetup calls it to lay out the
+# monitors, so a matching Xsetup with no xrandr binary is still broken.
 # If everything already matches, exit silently without prompting.
 
-if    cmp -s "$_TMP/sddm.conf"              /etc/sddm.conf                               2>/dev/null \
-   && cmp -s "$_TMP/tokyonight-moon.conf"   /etc/sddm.conf.d/tokyonight-moon.conf        2>/dev/null \
-   && cmp -s "$_TMP/Xsetup"                 /etc/sddm/Xsetup                             2>/dev/null \
-   && cmp -s "$_TMP/metadata.desktop"       "${THEME_DIR}/metadata.desktop"              2>/dev/null \
-   && cmp -s "$_TMP/Main.qml"               "${THEME_DIR}/Main.qml"                      2>/dev/null \
-   && cmp -s "$_TMP/LoginFormComponent.qml" "${THEME_DIR}/LoginFormComponent.qml"        2>/dev/null \
-   && cmp -s "$_TMP/background.jpg"         "${THEME_DIR}/background.jpg"                2>/dev/null; then
+if     cmp -s "$_TMP/sddm.conf"              /etc/sddm.conf                        2>/dev/null \
+    && cmp -s "$_TMP/tokyonight-moon.conf"   /etc/sddm.conf.d/tokyonight-moon.conf 2>/dev/null \
+    && cmp -s "$_TMP/Xsetup"                 /etc/sddm/Xsetup                      2>/dev/null \
+    && cmp -s "$_TMP/metadata.desktop"       "${THEME_DIR}/metadata.desktop"       2>/dev/null \
+    && cmp -s "$_TMP/Main.qml"               "${THEME_DIR}/Main.qml"               2>/dev/null \
+    && cmp -s "$_TMP/LoginFormComponent.qml" "${THEME_DIR}/LoginFormComponent.qml" 2>/dev/null \
+    && cmp -s "$_TMP/background.jpg"         "${THEME_DIR}/background.jpg"         2>/dev/null \
+    && bdb_has_cmd xrandr; then
     bdb_success "SDDM configuration and theme are already up to date"
     exit 0
 fi
@@ -95,6 +98,19 @@ bdb_ask "Install SDDM configuration and theme?" || { bdb_warn "Skipped by user";
 # =============================================================================
 
 bdb_begin_section "Installing SDDM configuration"
+
+{{- /* xrandr powers /etc/sddm/Xsetup — package name differs per manager. */}}
+    if ! bdb_has_cmd xrandr; then
+{{- if eq .packageManager "pacman" }}
+        bdb_exec "Installing xrandr (xorg-xrandr)" sudo pacman -S --needed --noconfirm xorg-xrandr
+{{- else if eq .packageManager "apt" }}
+        bdb_exec "Installing xrandr (x11-xserver-utils)" sudo apt-get install -y x11-xserver-utils
+{{- else if eq .packageManager "dnf" }}
+        bdb_exec "Installing xrandr" sudo dnf install -y xrandr
+{{- end }}
+    else
+        bdb_success "xrandr already installed"
+    fi
 
     bdb_action "Writing /etc/sddm.conf"
     sudo install -m 644 "$_TMP/sddm.conf" /etc/sddm.conf
