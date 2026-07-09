@@ -483,9 +483,10 @@ across Vim, Neovim, VSCode, and Zed. Per-editor settings files (`settings.json`,
 
 #### Indentation in chezmoi templates
 
-`.tmpl` files mix two languages, so two indentation rules coexist per file
-(EditorConfig can only express the first — it cannot match compound extensions
-like `.sh.tmpl`):
+`.tmpl` files mix two languages, so two indentation rules coexist per file.
+EditorConfig can only express **one width per file**, so it sets the *content*
+width (rule 2 below); the *directive* width (rule 1) is what it cannot express
+and is enforced by the indent-audit module instead:
 
 1. **Go template directives** (lines that are entirely `{{ ... }}`) indent in
    **2-space steps, one per template nesting depth** — each enclosing
@@ -494,6 +495,29 @@ like `.sh.tmpl`):
 2. **All other lines follow the underlying filetype's rules** — shell in a
    `.sh.tmpl` uses 4 spaces, TOML/JSON content uses 2. The base name decides the
    type (`dot_zshrc.tmpl` → zsh).
+
+A glob must match the whole filename, so `[*.{sh,bash,zsh}]` never matches a
+`.tmpl` name. `dot_editorconfig` therefore sets a `[*.tmpl]` default of 2, then
+restores 4 for embedded shell with compound-extension sections
+(`[*.{sh,bash,zsh}.tmpl]` and a by-name `[dot_zshrc.tmpl]`) placed **after**
+`[*.tmpl]` so they win (EditorConfig applies matching sections top-to-bottom,
+last wins).
+
+Language servers are kept off template source by the **`alker0/chezmoi.vim`**
+plugin (`lua/plugins/chezmoi.lua`, `chezmoi#use_tmp_buffer = true`): for a source
+template it detects the base filetype and appends `.chezmoitmpl`, giving the
+buffer a compound filetype like `sh.chezmoitmpl` or `zsh.chezmoitmpl`. bashls is
+registered for `sh`/`bash`/`zsh` only, so it attaches to real scripts but skips
+the compound-filetype templates — no shellcheck parse errors on `{{ ... }}`,
+without disabling bashls anywhere. Raw templates are instead validated by
+rendering them first (`chezmoi execute-template | shellcheck`). Because conform
+still sees the base filetype, its `shfmt` formatter is given a `condition` that
+skips `.tmpl` files (`lua/plugins/indent-audit.lua`) so it cannot choke on
+directives; `chezmoi_indent` (keyed on the `.tmpl` filename) still runs via
+`<leader>cf`. Non-LSP diagnostics such as indent-audit are unaffected.
+`xvzc/chezmoi.nvim` (the `util.chezmoi` LazyVim extra) is also enabled for its
+edit/apply/telescope workflow — it arms apply-on-save for buffers under the
+chezmoi source dir and is orthogonal to chezmoi.vim's filetype/syntax role.
 
 Alignment-style continuation lines (e.g. `&& cmp -s` chains aligned under
 `if cmp`) are exempt from the unit check.

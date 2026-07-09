@@ -28,8 +28,18 @@ return {
           callback(nil, result.fixed)
         end,
       }
-      -- "*" appends to every filetype's formatter list (templates keep the
-      -- filetype of their base name, e.g. dot_zshrc.tmpl → zsh)
+      -- Keep shfmt away from templates. chezmoi.vim gives *.tmpl buffers the
+      -- compound filetype `<base>.chezmoitmpl` (e.g. dot_zshrc.tmpl → zsh.chezmoitmpl,
+      -- a .sh.tmpl → sh.chezmoitmpl), so conform still runs the base formatter
+      -- (shfmt for the sh part). shfmt cannot parse Go template directives, fails,
+      -- and aborts the format chain before chezmoi_indent runs. Skip it on *.tmpl.
+      opts.formatters.shfmt = opts.formatters.shfmt or {}
+      opts.formatters.shfmt.condition = function(_, ctx)
+        return ctx.filename:match("%.tmpl$") == nil
+      end
+
+      -- "*" appends to every filetype's formatter list, so chezmoi_indent is
+      -- available regardless of the (compound) filetype a template ends up with.
       opts.formatters_by_ft = opts.formatters_by_ft or {}
       opts.formatters_by_ft["*"] = opts.formatters_by_ft["*"] or {}
       table.insert(opts.formatters_by_ft["*"], "chezmoi_indent")

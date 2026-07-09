@@ -33,7 +33,6 @@ insert_final_newline      = true
 # -----------------------------------------------------------------------------
 # Shell Scripts
 # sh, bash, zsh — 4 spaces is used across this dotfiles repo.
-# Applies to standalone scripts and chezmoi run scripts (.sh.tmpl).
 # shellcheck and shfmt both respect editorconfig via their own config files.
 # -----------------------------------------------------------------------------
 [*.{sh,bash,zsh}]
@@ -278,9 +277,21 @@ indent_size  = 4
 #   - Go template directives ({{ }} lines) indent in 2-space steps, one step
 #     per nesting level of the enclosing template blocks (if/range/with)
 #   - All other lines follow the underlying filetype's rules — e.g. shell
-#     code in a .sh.tmpl uses 4 spaces per the [*.{sh,bash,zsh}] section
-# editorconfig cannot match compound extensions, so indent_size = 2 here
-# covers the directive rule; editors handle the embedded language manually.
+#     code in a .sh.tmpl uses 4 spaces
+# The default below sets 2 (matching the directive rule) for template types
+# that are 2-space anyway (TOML, YAML, JSON, KDL). The shell-template overrides
+# that follow restore 4 for the embedded shell — they MUST come after [*.tmpl]
+# because editorconfig applies matching sections top-to-bottom, last wins.
 # -----------------------------------------------------------------------------
 [*.tmpl]
 indent_size = 2
+
+# Shell chezmoi templates: the embedded shell is 4-space, same as a plain
+# script. A glob must match the whole filename, so [*.{sh,bash,zsh}] never
+# matches a `.tmpl` name — hence these explicit compound globs. dot_zshrc.tmpl
+# is listed by name because its base carries no shell extension to match.
+[*.{sh,bash,zsh}.tmpl]
+indent_size = 4
+
+[dot_zshrc.tmpl]
+indent_size = 4

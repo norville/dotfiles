@@ -9,7 +9,14 @@ return {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
-        bashls = {},  -- sh · bash · zsh  (bash-language-server)
+        -- sh · bash · zsh  (bash-language-server).
+        -- Keep this entry so LazyVim installs and enables bashls. bashls
+        -- surfaces shellcheck diagnostics, which would flag the Go template
+        -- directives ({{ ... }}) in chezmoi *.tmpl files as parse errors — but
+        -- chezmoi.vim gives those buffers the compound filetype
+        -- `sh.chezmoitmpl`, and bashls only attaches to `sh`, so it skips
+        -- templates while still working on real scripts. See plugins/chezmoi.lua.
+        bashls = {},
         html   = {},  -- HTML · XML        (vscode-html-language-server)
         cssls  = {},  -- CSS · SCSS · Less (vscode-css-language-server)
         vimls  = {},  -- Vimscript         (vim-language-server)

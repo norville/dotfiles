@@ -1,23 +1,11 @@
 -- Custom autocmds, loaded on the VeryLazy event.
 -- LazyVim defaults: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 
--- Chezmoi templates — detect filetype from the base name before .tmpl
--- e.g. dot_zshrc.tmpl → zsh, dot_vimrc.tmpl → vim, dot_bashrc.tmpl → bash
-vim.filetype.add({
-  pattern = {
-    [".*%.tmpl"] = function(path, bufnr)
-      local base = path:match("(.+)%.tmpl$")
-      if not base then
-        return
-      end
-      -- Strip chezmoi prefix (dot_ → ., private_, empty_, etc.)
-      base = base:gsub(".*dot_", ".")
-      -- Ask Neovim what filetype the base name would get
-      local ft = vim.filetype.match({ filename = base, buf = bufnr })
-      return ft
-    end,
-  },
-})
+-- Chezmoi template filetype detection is handled by the alker0/chezmoi.vim
+-- plugin (see lua/plugins/chezmoi.lua): for a source template it detects the
+-- base filetype and appends `.chezmoitmpl` (e.g. dot_zshrc.tmpl → zsh.chezmoitmpl).
+-- A manual `vim.filetype.add` here would be a second, divergent detection path
+-- (it yielded plain `sh`/`zsh`), so it is intentionally omitted.
 
 -- Caddyfile — use real tabs (Caddy's canonical indent style)
 vim.api.nvim_create_autocmd("BufEnter", {
