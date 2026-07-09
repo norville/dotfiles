@@ -1,5 +1,4 @@
 # norville/dotfiles
-- [ ] fix sddm: install `xorg-xrandr`
 - [ ] fix 1password on cachyos (aur)
 - [ ] add keyboard config to env setup
 - [ ] add wallpapers to chezmoi
