@@ -21,8 +21,6 @@
 #     are stripped from captured output.
 # =============================================================================
 
-# shellcheck disable=SC2148
-
 # =============================================================================
 # COLOR DEFINITIONS
 # =============================================================================
@@ -82,7 +80,6 @@ fi
 # drop blank lines and progress-bar spam, and tag each line as [OUT].
 _bdb_log_output() {
     local line
-    # shellcheck disable=SC2086
     sed ${_BDB_SED_UNBUF} -E $'s/\x1b\\[[0-9;?]*[a-zA-Z]//g; s/\x1b\\][^\x07]*\x07//g; s/\x1b[@-_]//g' \
         | while IFS= read -r line || [[ -n "${line}" ]]; do
             line="${line%$'\r'}"      # CRLF line endings

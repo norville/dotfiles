@@ -513,11 +513,32 @@ the compound-filetype templates — no shellcheck parse errors on `{{ ... }}`,
 without disabling bashls anywhere. As a backstop for cases where bashls still attaches to a template (e.g. when
 `xvzc/chezmoi.nvim`'s edit-watch re-opens the buffer via a `/tmp/chezmoi-edit*`
 hardlink and the compound filetype is lost), a repo-root **`.shellcheckrc`**
-disables the seven parse-error codes that Go template directives trigger
-(`SC1009/1036/1054/1056/1072/1073/1083`). It sits outside `home/`, so chezmoi
-never manages it, and ShellCheck finds it by searching parent directories from
-any script in the repo. Raw templates are instead validated by rendering them
-first (`chezmoi execute-template | shellcheck`). Because conform
+suppresses three groups of codes. It sits outside `home/`, so chezmoi never
+manages it, and ShellCheck finds it by searching parent directories from any
+script in the repo.
+
+| Group | Codes | Why |
+| --- | --- | --- |
+| Template parse errors | `SC1009/1036/1054/1056/1072/1073/1083` | `{{ ... }}` is not valid shell |
+| Unfollowable `source` | `SC1090`, `SC1091` | every script does `source "${HELPERS}"`, injected via `[scriptEnv]` and unknowable statically |
+| Unparseable zsh | `SC1071` | ShellCheck has no zsh parser; `dot_zshrc.tmpl` and `dot_zsh/*.zsh` are skipped, not checked as bash |
+
+The `SC1090`/`SC1091` entries replace the per-file
+`# shellcheck disable=SC1090,SC1091` headers that scripts used to carry; **no
+shell file in the repo contains a `# shellcheck` directive any more.** The cost
+is that a misspelled *static* source path is no longer reported.
+
+Raw templates are instead validated by rendering them first — **from a directory
+outside the repo**, so this `.shellcheckrc` does not apply and every disabled
+code is restored:
+
+```bash
+cd /tmp && chezmoi execute-template < <script> | shellcheck -
+```
+
+ShellCheck resolves the rc from the checked file's own directory, or from the
+current directory when reading stdin; run the same pipeline from the repo root
+and the disables silently apply, hiding real findings. Because conform
 still sees the base filetype, its `shfmt` formatter is given a `condition` that
 skips `.tmpl` files (`lua/plugins/indent-audit.lua`) so it cannot choke on
 directives; `chezmoi_indent` (keyed on the `.tmpl` filename) still runs via

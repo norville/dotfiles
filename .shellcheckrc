@@ -6,17 +6,21 @@
 # for a .shellcheckrc, so this one applies to every shell file in the repo,
 # including the chezmoi *.sh.tmpl scripts under home/.chezmoiscripts/.
 #
-# The disabled checks below are the fatal parse errors ShellCheck (and bashls,
-# which runs ShellCheck) emit when it hits Go template directives ({{ ... }}),
-# which are not valid shell. Rendered scripts are still fully checked via
-# `chezmoi execute-template <script> | shellcheck -` from outside the repo tree.
-# Trade-off: these seven codes are also silenced for real scripts edited inside
-# the repo, but they only ever fire on genuinely unparseable syntax, which bash
-# itself and the render-then-check workflow still catch.
+# Rendered scripts are still fully checked — from a directory outside the repo,
+# so that this file does not apply:
+#   cd /tmp && chezmoi execute-template < <script> | shellcheck -
+# ShellCheck resolves this rc from the checked file's own directory (or, when
+# reading stdin, from the current directory), so staying outside the repo tree
+# restores every check disabled below.
 
 # Resolve `source`/`.` targets relative to the script's own directory.
 source-path=SCRIPTDIR
 
+# --- Group 1: fatal parse errors on Go template directives ({{ ... }}) --------
+# ShellCheck (and bashls, which runs it) cannot parse `{{ ... }}`, which is not
+# valid shell. Silenced repo-wide so *.tmpl files are editable. These also go
+# quiet for real scripts here, but they only fire on genuinely unparseable
+# syntax, which `bash -n` and the render-then-check workflow still catch.
 disable=SC1009  # "The mentioned syntax error was in this brace group."
 disable=SC1036  # "'(' is invalid here."
 disable=SC1054  # "You need a space after the '{'."
@@ -24,3 +28,19 @@ disable=SC1056  # "Expected a '}'."
 disable=SC1072  # "Missing '}'."
 disable=SC1073  # "Couldn't parse this brace group."
 disable=SC1083  # "This {/} is literal."
+
+# --- Group 2: unfollowable `source` targets -----------------------------------
+# Every script does `source "${HELPERS}"`, an env var injected by chezmoi's
+# [scriptEnv]; its value cannot be known statically. Disabling these two here
+# replaces the per-file `# shellcheck disable=SC1090,SC1091` directives that
+# used to head each script.
+# Cost: a *static* source path that is misspelled also stops being reported.
+disable=SC1090  # "Can't follow non-constant source. Use a directive to specify location."
+disable=SC1091  # "Not following: <file> was not specified as input."
+
+# --- Group 3: zsh files ShellCheck cannot parse at all ------------------------
+# ShellCheck has no zsh parser, so dot_zshrc.tmpl and dot_zsh/*.zsh each raise a
+# hard SC1071 in the editor. Disabling it makes ShellCheck skip those files
+# silently instead; it does NOT make it check them as bash. Nothing is lost —
+# they were never checkable. Zsh linting, if ever wanted, needs `zsh -n`.
+disable=SC1071  # "ShellCheck only supports sh/bash/dash/ksh scripts. Sorry!"
