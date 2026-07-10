@@ -45,6 +45,47 @@
   url = "https://raw.githubusercontent.com/ssaunderss/zed-tokyo-night/main/themes/tokyo-night.json"
   refreshPeriod = "720h"
   executable = false
+
+# -----------------------------------------------------------------------------
+# Wallpapers (workstation only)
+# -----------------------------------------------------------------------------
+# Filenames are load-bearing: dot_config/noctalia/settings.json references
+# Pictures/Wallpapers/<name> by absolute path. Renaming a file here breaks it.
+#
+# refreshPeriod is a year rather than the 720h used above: these are immutable
+# published images, so a monthly re-fetch of ~2 MB buys nothing and only widens
+# the window for a dead upstream URL to fail `chezmoi apply`.
+#
+# The unsplash `w=` parameter selects a server-side resize. Primary is pinned to
+# 2560 to match the display; secondary is portrait and pinned to 1920.
+
+# Primary desktop wallpaper — noctalia default
+["Pictures/Wallpapers/alex-knight-5-GNa303REg-unsplash.jpg"]
+  type = "file"
+  url = "https://unsplash.com/photos/5-GNa303REg/download?force=true&w=2560"
+  refreshPeriod = "8760h"
+  executable = false
+
+# Secondary desktop wallpaper (portrait monitor)
+["Pictures/Wallpapers/lf-franciz-wIZpOCdTb8I-unsplash.jpg"]
+  type = "file"
+  url = "https://unsplash.com/photos/wIZpOCdTb8I/download?force=true&w=1920"
+  refreshPeriod = "8760h"
+  executable = false
+
+# Login screen (SDDM)
+["Pictures/Wallpapers/wp6570018-tokyo-aesthetic-wallpapers.jpg"]
+  type = "file"
+  url = "https://wallpapercave.com/download/tokyo-aesthetic-wallpapers-wp6570018"
+  refreshPeriod = "8760h"
+  executable = false
+
+# Browser new-tab background
+["Pictures/Wallpapers/wp4866024-aesthetic-super-red-wallpapers.jpg"]
+  type = "file"
+  url = "https://wallpapercave.com/download/aesthetic-super-red-wallpapers-wp4866024"
+  refreshPeriod = "8760h"
+  executable = false
 {{- end }}
 
 {{- /* -------------------------------------------------------------------- */ -}}

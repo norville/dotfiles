@@ -1,7 +1,4 @@
 # norville/dotfiles
-- [ ] fix 1password on cachyos (aur)
-- [ ] add keyboard config to env setup
-- [ ] add wallpapers to chezmoi
 - [ ] add script to enable brightness control
 - [ ] set alternative starship prompt for console
 - [ ] rename darkman script to autodark
