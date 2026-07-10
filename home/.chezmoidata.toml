@@ -14,6 +14,7 @@
 #              workstation | terminal | server
 #
 # Notes:
+#   - Entries are kept sorted alphabetically by `name`.
 #   - Name splits (same tool, different name per manager) are separate entries.
 #     Example: "fd" (brew/pacman) and "fd-find" (apt/dnf) are two entries.
 #   - GNOME-conditional packages (darkman, xdg-desktop-portal-gtk) are NOT in
@@ -83,6 +84,11 @@ machines = ["workstation"]
 name     = "curl"
 managers = ["brew-formula", "apt", "pacman", "dnf"]
 machines = ["workstation", "terminal", "server"]
+
+[[package]]
+name     = "default-jdk"
+managers = ["apt"]
+machines = ["workstation", "terminal"]
 
 [[package]]
 name     = "eza"
@@ -155,11 +161,6 @@ managers = ["dnf"]
 machines = ["workstation", "terminal"]
 
 [[package]]
-name     = "gpg"
-managers = ["apt"]
-machines = ["workstation", "terminal"]
-
-[[package]]
 name     = "go"
 managers = ["brew-formula", "pacman"]
 machines = ["workstation", "terminal"]
@@ -175,6 +176,11 @@ managers = ["apt"]
 machines = ["workstation", "terminal"]
 
 [[package]]
+name     = "gpg"
+managers = ["apt"]
+machines = ["workstation", "terminal"]
+
+[[package]]
 name     = "imagemagick"
 managers = ["pacman"]
 machines = ["workstation"]
@@ -185,23 +191,13 @@ managers = ["brew-formula"]
 machines = ["workstation"]
 
 [[package]]
-name     = "jdk-openjdk"
-managers = ["pacman"]
-machines = ["workstation", "terminal"]
-
-[[package]]
-name     = "openjdk"
-managers = ["brew-formula"]
-machines = ["workstation", "terminal"]
-
-[[package]]
-name     = "default-jdk"
-managers = ["apt"]
-machines = ["workstation", "terminal"]
-
-[[package]]
 name     = "java-devel"
 managers = ["dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "jdk-openjdk"
+managers = ["pacman"]
 machines = ["workstation", "terminal"]
 
 [[package]]
@@ -240,21 +236,6 @@ managers = ["brew-formula", "pacman", "dnf"]
 machines = ["workstation", "terminal"]
 
 [[package]]
-name     = "opentofu"
-managers = ["brew-formula", "pacman", "dnf"]
-machines = ["workstation", "terminal"]
-
-[[package]]
-name     = "tofu"
-managers = ["apt"]
-machines = ["workstation", "terminal"]
-
-[[package]]
-name     = "rustup"
-managers = ["brew-formula", "snap", "pacman", "dnf"]
-machines = ["workstation", "terminal"]
-
-[[package]]
 name     = "node"
 managers = ["brew-formula"]
 machines = ["workstation", "terminal"]
@@ -272,6 +253,16 @@ machines = ["workstation", "terminal"]
 [[package]]
 name     = "nvim"
 managers = ["snap"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "openjdk"
+managers = ["brew-formula"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "opentofu"
+managers = ["brew-formula", "pacman", "dnf"]
 machines = ["workstation", "terminal"]
 
 [[package]]
@@ -310,6 +301,11 @@ managers = ["dnf"]
 machines = ["workstation", "terminal"]
 
 [[package]]
+name     = "rustup"
+managers = ["brew-formula", "snap", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
 name     = "sevenzip"
 managers = ["brew-formula"]
 machines = ["workstation"]
@@ -322,6 +318,11 @@ machines = ["workstation", "terminal"]
 [[package]]
 name     = "starship"
 managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "tofu"
+managers = ["apt"]
 machines = ["workstation", "terminal"]
 
 [[package]]
