@@ -134,6 +134,12 @@ binds {
     Mod+X               { spawn "nautilus"; }
 {{- if lookPath "qs" }}
 
+    // Noctalia: toggle notifications
+    Mod+N               { spawn-sh "qs -c noctalia-shell ipc call notifications toggleHistory"; }
+
+    // Noctalia: clear notifications
+    Mod+Shift+N         { spawn-sh "qs -c noctalia-shell ipc call notifications clear"; }
+
     // Noctalia: toggle settings
     Mod+Comma           { spawn-sh "qs -c noctalia-shell ipc call settings toggle"; }
 
