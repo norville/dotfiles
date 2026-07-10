@@ -22,7 +22,11 @@
 # Main.qml:               {{ include "sddm/themes/tokyonight-moon/Main.qml" | sha256sum }}
 # LoginFormComponent.qml: {{ include "sddm/themes/tokyonight-moon/LoginFormComponent.qml" | sha256sum }}
 # Xsetup:                 {{ include "sddm/etc/sddm/Xsetup" | sha256sum }}
-# background.jpg:         {{ output "sha256sum" (joinPath .chezmoi.sourceDir "sddm/themes/tokyonight-moon/background.jpg") }}
+# background.jpg is not tracked in git — a chezmoi external in
+# .chezmoiexternal.toml.tmpl downloads it into this source folder (.gitignored).
+# The `|| true` keeps a fresh machine from failing here on the first apply,
+# before that external has run; once present, its hash re-triggers this script.
+# background.jpg:         {{ output "sh" "-c" (printf "sha256sum %s 2>/dev/null || true" (joinPath .chezmoi.sourceDir "sddm/themes/tokyonight-moon/background.jpg")) }}
 {{- /* Workstation machines with SDDM installed only. */ -}}
 {{- if or (ne .machine "workstation") (not (lookPath "sddm")) }}
 exit 0

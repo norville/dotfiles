@@ -49,41 +49,50 @@
 # -----------------------------------------------------------------------------
 # Wallpapers (workstation only)
 # -----------------------------------------------------------------------------
-# Filenames are load-bearing: dot_config/noctalia/settings.json references
-# Pictures/Wallpapers/<name> by absolute path. Renaming a file here breaks it.
+# Named by function. The desktop wallpapers live in ~/Pictures/Wallpapers, which
+# noctalia scans wholesale (dot_config/noctalia/settings.json); its "primary"
+# favorite references primary.jpg by absolute path, so renaming breaks it.
+#
+# The login wallpaper is deliberately NOT in Pictures — that would drop it into
+# noctalia's desktop rotation. It targets the SDDM theme's source folder,
+# replacing the git-tracked background.jpg (now .gitignored);
+# run_onchange_after_06-install-sddm deploys it to /usr/share from there, and
+# Main.qml hardcodes the name background.jpg. The target path is derived from
+# .chezmoi.sourceDir so it survives a different username; it assumes the default
+# source dir under ~ (where chezmoi clones it).
 #
 # refreshPeriod is a year rather than the 720h used above: these are immutable
-# published images, so a monthly re-fetch of ~2 MB buys nothing and only widens
-# the window for a dead upstream URL to fail `chezmoi apply`.
+# published images, so a monthly re-fetch buys nothing and only widens the window
+# for a dead upstream URL to fail `chezmoi apply`.
 #
-# The unsplash `w=` parameter selects a server-side resize. Primary is pinned to
-# 2560 to match the display; secondary is portrait and pinned to 1920.
+# The unsplash `w=` parameter selects a server-side resize: primary is pinned to
+# 2560 to match the display, secondary is portrait and pinned to 1920.
 
 # Primary desktop wallpaper — noctalia default
-["Pictures/Wallpapers/alex-knight-5-GNa303REg-unsplash.jpg"]
+["Pictures/Wallpapers/primary.jpg"]
   type = "file"
   url = "https://unsplash.com/photos/5-GNa303REg/download?force=true&w=2560"
   refreshPeriod = "8760h"
   executable = false
 
 # Secondary desktop wallpaper (portrait monitor)
-["Pictures/Wallpapers/lf-franciz-wIZpOCdTb8I-unsplash.jpg"]
+["Pictures/Wallpapers/secondary.jpg"]
   type = "file"
   url = "https://unsplash.com/photos/wIZpOCdTb8I/download?force=true&w=1920"
   refreshPeriod = "8760h"
   executable = false
 
-# Login screen (SDDM)
-["Pictures/Wallpapers/wp6570018-tokyo-aesthetic-wallpapers.jpg"]
+# Browser new-tab background
+["Pictures/Wallpapers/browser.jpg"]
   type = "file"
-  url = "https://wallpapercave.com/download/tokyo-aesthetic-wallpapers-wp6570018"
+  url = "https://wallpapercave.com/download/aesthetic-super-red-wallpapers-wp4866024"
   refreshPeriod = "8760h"
   executable = false
 
-# Browser new-tab background
-["Pictures/Wallpapers/wp4866024-aesthetic-super-red-wallpapers.jpg"]
+# Login screen (SDDM) — deployed to /usr/share by 06-install-sddm; see note above
+["{{ .chezmoi.sourceDir | trimPrefix .chezmoi.homeDir | trimPrefix "/" }}/sddm/themes/tokyonight-moon/background.jpg"]
   type = "file"
-  url = "https://wallpapercave.com/download/aesthetic-super-red-wallpapers-wp4866024"
+  url = "https://wallpapercave.com/download/tokyo-aesthetic-wallpapers-wp6570018"
   refreshPeriod = "8760h"
   executable = false
 {{- end }}
