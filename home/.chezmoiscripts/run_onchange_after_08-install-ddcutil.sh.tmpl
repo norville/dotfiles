@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Chezmoi Script: Install and Configure ddcutil (Monitor Brightness Control)
+# =============================================================================
+# ddcutil controls external-monitor brightness/contrast over DDC/CI on the I2C
+# bus. It is an optional, prompted install — NOT part of the package matrix, so
+# it never lands on a workstation unless the user asks for it here. Beyond the
+# package itself, two things are needed:
+#   1. the i2c-dev kernel module must be loaded (and load on every boot)
+#   2. the user must belong to the `i2c` group that owns /dev/i2c-* (ddcutil's
+#      udev rules set that group ownership)
+#
+# On GNOME there is no native external-brightness slider, so this also points
+# the user at the shell extension that surfaces ddcutil in quick settings.
+#
+# Linux workstations only. Prompted; idempotent.
+#
+# Execution: chezmoi apply (only when this file's content changes)
+# Location:  .chezmoiscripts/run_onchange_after_08-install-ddcutil.sh.tmpl
+# =============================================================================
+{{- /* Linux workstations only — external displays with a DDC/CI bus. */ -}}
+{{- if not (and (eq .machine "workstation") (eq .chezmoi.os "linux")) }}
+exit 0
+{{- end }}
+
+source "${HELPERS}"
+
+bdb_script_init "${BASH_SOURCE[0]}"
+
+bdb_begin_section "Monitor brightness control (ddcutil)"
+
+# -----------------------------------------------------------------------------
+# Current state (checked up front so a fully-configured host skips the prompt)
+# -----------------------------------------------------------------------------
+_installed=false
+_module_persisted=false
+_module_loaded=false
+_in_group=false
+
+if bdb_has_cmd "ddcutil"; then _installed=true; fi
+if [[ -f /etc/modules-load.d/i2c-dev.conf ]]; then _module_persisted=true; fi
+if lsmod | grep -q '^i2c_dev'; then _module_loaded=true; fi
+if id -nG "${USER}" | grep -qw i2c; then _in_group=true; fi
+
+if "${_installed}" && "${_module_persisted}" && "${_module_loaded}" && "${_in_group}"; then
+    bdb_success "ddcutil already installed and configured (${USER} in i2c group)"
+    bdb_end_section
+    exit 0
+fi
+
+bdb_ask "Install and configure ddcutil for monitor brightness control?" \
+    || { bdb_warn "Skipped by user"; bdb_end_section; exit 0; }
+
+# -----------------------------------------------------------------------------
+# 1. Install ddcutil (package name is identical across pacman/apt/dnf)
+# -----------------------------------------------------------------------------
+if "${_installed}"; then
+    bdb_success "ddcutil already installed"
+else
+{{- if eq .packageManager "pacman" }}
+    bdb_exec "Installing ddcutil" sudo pacman -S --needed --noconfirm ddcutil
+{{- else if eq .packageManager "apt" }}
+    bdb_exec "Installing ddcutil" sudo apt-get install -y ddcutil
+{{- else if eq .packageManager "dnf" }}
+    bdb_exec "Installing ddcutil" sudo dnf install -y ddcutil
+{{- end }}
+fi
+
+# -----------------------------------------------------------------------------
+# 2. i2c-dev kernel module — load now and on every boot
+# -----------------------------------------------------------------------------
+if "${_module_persisted}"; then
+    bdb_success "i2c-dev already set to load on boot"
+else
+    bdb_action "Persisting i2c-dev module (/etc/modules-load.d/i2c-dev.conf)"
+    echo "i2c-dev" | sudo tee /etc/modules-load.d/i2c-dev.conf > /dev/null
+    bdb_success "i2c-dev will load on boot"
+fi
+
+if "${_module_loaded}"; then
+    bdb_success "i2c-dev already loaded"
+else
+    bdb_exec "Loading i2c-dev module now" sudo modprobe i2c-dev
+fi
+
+# -----------------------------------------------------------------------------
+# 3. i2c group — owns /dev/i2c-* via ddcutil's udev rules; user must be a member
+# -----------------------------------------------------------------------------
+if ! getent group i2c > /dev/null; then
+    bdb_exec "Creating i2c group" sudo groupadd i2c
+fi
+
+if "${_in_group}"; then
+    bdb_success "${USER} already in i2c group"
+else
+    bdb_exec "Adding ${USER} to i2c group" sudo usermod -aG i2c "${USER}"
+    bdb_warn "Log out and back in for i2c group membership to take effect"
+fi
+
+bdb_end_section
+
+{{- if contains "gnome" (env "XDG_CURRENT_DESKTOP" | lower) }}
+
+# GNOME has no built-in brightness control for external monitors; a shell
+# extension bridges ddcutil into the quick-settings panel.
+bdb_info "GNOME detected — install the 'Brightness control using ddcutil' extension:"
+bdb_info "  https://github.com/daitj/gnome-display-brightness-ddcutil"
+{{- end }}
+
+exit 0

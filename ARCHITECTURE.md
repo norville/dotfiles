@@ -283,6 +283,7 @@ fi
 | `05-install-docker` | onchange | ✅ | — | ✅ | Docker (linux only; prompted) |
 | `06-install-sddm` | onchange | ✅ | — | — | SDDM config + Tokyo Night Moon → /etc/ and /usr/share/ (requires `sddm` on PATH) |
 | `07-install-darkman` | onchange | ✅ | — | — | Enable darkman.service (GNOME workstation only) |
+| `08-install-ddcutil` | onchange | ✅ | — | — | ddcutil monitor brightness (linux workstation; **prompted**, not in matrix): install + load i2c-dev + join `i2c` group; GNOME reminder |
 | `bdb_update.sh` (hook) | `chezmoi update` only | ✅ | ✅ | ✅ | System packages (all); ZSH plugins + caches + `rustup update` + `gem update bundler erb` (non-server) |
 
 W = workstation, T = terminal, S = server.
@@ -331,7 +332,8 @@ bdb_bootstrap.sh
               ├── 04-install-ansible (prompted — all machine types)
               ├── 05-install-docker  (prompted — W+S, linux only)
               ├── 06-install-sddm    (SDDM theme — workstation with SDDM only)
-              └── 07-install-darkman (enable service — GNOME workstation only)
+              ├── 07-install-darkman (enable service — GNOME workstation only)
+              └── 08-install-ddcutil (monitor brightness — linux workstation only)
 ```
 
 ### Update Flow
@@ -380,7 +382,8 @@ dotfiles/
     │   ├── run_onchange_after_04-install-ansible.sh.tmpl      # all machine types
     │   ├── run_onchange_after_05-install-docker.sh.tmpl       # workstation + server, linux only
     │   ├── run_onchange_after_06-install-sddm.sh.tmpl         # workstation only
-    │   └── run_onchange_after_07-install-darkman.sh.tmpl      # GNOME workstation only
+    │   ├── run_onchange_after_07-install-darkman.sh.tmpl      # GNOME workstation only
+    │   └── run_onchange_after_08-install-ddcutil.sh.tmpl      # linux workstation only
     ├── dot_config/
     │   ├── bdb/
     │   │   ├── bdb_bootstrap.sh        # Not deployed
