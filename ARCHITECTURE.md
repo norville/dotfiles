@@ -85,7 +85,7 @@ Same logical tool delivered under a different name per manager:
 
 | Logical Tool | brew-formula | brew-cask | apt | snap | pacman | aur | dnf |
 |---|---|---|---|---|---|---|---|
-| Brave Browser | — | `brave-browser` | `brave-browser` | — | — | `brave-bin` | `brave-browser` |
+| Brave Browser | — | `brave-browser` | `brave-browser` | — | `brave-bin` | `brave-bin` | `brave-browser` |
 | fd | `fd` | — | `fd-find` | — | `fd` | — | `fd-find` |
 | Go | `go` | — | `golang-go` | — | `go` | — | `golang` |
 | Java JDK | `openjdk` | — | `default-jdk` | — | `jdk-openjdk` | — | `java-devel` |
@@ -98,6 +98,52 @@ Same logical tool delivered under a different name per manager:
 | ImageMagick | `imagemagick-full` | — | — | — | `imagemagick` | — | — |
 | GnuPG | — | — | `gpg` | — | `gnupg` | — | `gnupg2` |
 | 7-Zip | `sevenzip` | — | — | — | `7zip` | — | — |
+
+#### Dual-source packages (pacman + aur)
+
+The matrix has no distro axis below `packageManager` — one `pacman` value covers
+both plain Arch and CachyOS, whose repos differ. A package listed under **both**
+`pacman` and `aur` means *"available from the official repos on some derivatives,
+AUR-only on others; let the script decide."*
+
+`00-install-core` renders such packages into a third array,
+`REPO_OR_AUR_PACKAGES`, and routes each one at run time:
+
+```bash
+if pacman -Si "${_pkg}" &>/dev/null; then _repo_pkgs+=(…) ; else AUR_PACKAGES+=(…) ; fi
+```
+
+`pacman -Si` reads the local sync db, so the probe needs neither sudo nor
+network. Repo builds are preferred; anything absent falls through to `yay`.
+Packages listed under `pacman` **only** are never probed, and `aur`-only
+packages always go to `yay`.
+
+Current dual-source packages: `brave-bin` (in the `cachyos` repo, AUR-only on
+plain Arch).
+
+#### The AUR bootstrap (Arch / CachyOS)
+
+`yay` is declared in `.chezmoidata.toml` as `managers = ["aur"]`,
+`machines = ["workstation"]`. This entry is load-bearing, not decorative:
+
+- `00-install-core` only enters its AUR block when `${#AUR_PACKAGES[@]} -gt 0`,
+  and that block is what installs `yay`. **An empty aur list means `yay` is never
+  installed**, which in turn breaks `02-install-1password` (`1password`,
+  `1password-cli`) and `03-install-vscode` (`visual-studio-code-bin`) — all three
+  are AUR-only on Arch.
+- Listing `yay` keeps that list non-empty. It bootstraps itself; the subsequent
+  `yay -S --needed` over the list is then a no-op for it.
+- The bootstrap probes `pacman -Si yay` first and installs the prebuilt package
+  when present (CachyOS ships one), falling back to `git clone` + `makepkg -si`
+  from the AUR on plain Arch. It is skipped entirely if `yay` is already on PATH.
+- It stays `aur`-declared rather than dual-source: `yay` is the AUR helper
+  itself, so it cannot be installed *by* `yay` and needs this dedicated path.
+- Building it needs `base-devel` + `git`; both are already pacman packages, and
+  `base-devel` is workstation-scoped, which is why `yay` is too.
+
+`02` and `03` additionally gate their pacman branch on `bdb_has_cmd "yay"` and
+skip with a warning if it is absent, so a partial apply degrades instead of
+failing.
 
 #### Full Package Matrix
 
@@ -231,8 +277,8 @@ fi
 |--------|---------|---|---|---|---------|
 | `00-install-core` | onchange | ✅ | ✅ | ✅ | Platform packages (per-manager lists, machine-type filtered) |
 | `01-config-env` | onchange | ✅ | ✅ | — | Default shell, bat cache, font cache; Go GOPATH/GOBIN; Ruby gems (bundler, erb); Rust stable + rust-analyzer via rustup |
-| `02-install-1password` | onchange | ✅ | — | — | 1Password + op CLI (prompted; darwin: brew cask) |
-| `03-install-vscode` | onchange | ✅ | — | — | VS Code (prompted; darwin: brew cask) |
+| `02-install-1password` | onchange | ✅ | — | — | 1Password + op CLI (prompted; darwin: brew cask; pacman: needs `yay`, skips if absent) |
+| `03-install-vscode` | onchange | ✅ | — | — | VS Code (prompted; darwin: brew cask; pacman: needs `yay`, skips if absent) |
 | `04-install-ansible` | onchange | ✅ | ✅ | ✅ | Ansible (prompted on all platforms) |
 | `05-install-docker` | onchange | ✅ | — | ✅ | Docker (linux only; prompted) |
 | `06-install-sddm` | onchange | ✅ | — | — | SDDM config + Tokyo Night Moon → /etc/ and /usr/share/ (requires `sddm` on PATH) |

@@ -23,6 +23,9 @@
 #     install script under a GNOME template conditional (pacman/dnf only —
 #     neither package is available in apt repos).
 #   - snap and aur are separate install mechanisms, not mixed with apt/pacman.
+#   - The aur list must be non-empty for 00-install-core to bootstrap yay, which
+#     02-install-1password and 03-install-vscode both require. `yay` itself is
+#     the entry that guarantees this.
 # =============================================================================
 
 [[package]]
@@ -50,9 +53,12 @@ name     = "bat-extras"
 managers = ["brew-formula", "pacman", "dnf"]
 machines = ["workstation", "terminal"]
 
+# Both pacman and aur: CachyOS carries brave-bin in its own repo, plain Arch
+# does not. 00-install-core probes `pacman -Si` at run time and routes it to
+# whichever is available. See "Dual-source packages" in ARCHITECTURE.md.
 [[package]]
 name     = "brave-bin"
-managers = ["pacman"]
+managers = ["pacman", "aur"]
 machines = ["workstation"]
 
 [[package]]
@@ -358,6 +364,14 @@ machines = ["workstation", "terminal", "server"]
 [[package]]
 name     = "whatsapp"
 managers = ["brew-cask"]
+machines = ["workstation"]
+
+# yay bootstraps itself: 00-install-core builds it from source with makepkg
+# before running `yay -S` over this list, so listing it here is what makes the
+# AUR block run at all. Requires base-devel + git, both pacman/workstation.
+[[package]]
+name     = "yay"
+managers = ["aur"]
 machines = ["workstation"]
 
 [[package]]

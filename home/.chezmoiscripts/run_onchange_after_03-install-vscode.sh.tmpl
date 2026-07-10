@@ -82,6 +82,15 @@ bdb_exec "Installing VS Code" sudo dnf install -y code
 bdb_success "Visual Studio Code installed"
 
   {{- else if eq .packageManager "pacman" }}
+# visual-studio-code-bin is AUR-only, so yay is mandatory here.
+# 00-install-core bootstraps it from the `yay` entry in .chezmoidata.toml;
+# if that has not run yet, skip rather than fail the whole apply.
+if ! bdb_has_cmd "yay"; then
+    bdb_warn "Skipping VS Code — yay not found (00-install-core installs it)"
+    bdb_end_section
+    exit 0
+fi
+
 bdb_exec "Installing Visual Studio Code (Arch/Manjaro)" yay -S --needed --noconfirm visual-studio-code-bin
 bdb_success "Visual Studio Code installed"
 

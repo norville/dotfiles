@@ -225,11 +225,11 @@ bdb_exec "Installing DNF packages" sudo dnf install -y "${DNF_PACKAGES[@]}"
   {{- else if eq .packageManager "pacman" }}
 
 # -----------------------------------------------------------------------------
-# Pacman packages
+# Pacman packages — declared "pacman" only
 # -----------------------------------------------------------------------------
 PACMAN_PACKAGES=(
     {{- range .package }}
-      {{- if and (has $.machine .machines) (has "pacman" .managers) }}
+      {{- if and (has $.machine .machines) (has "pacman" .managers) (not (has "aur" .managers)) }}
     "{{ .name }}"
       {{- end }}
     {{- end }}
@@ -242,25 +242,66 @@ PACMAN_PACKAGES=(
 bdb_exec "Installing Pacman packages" sudo pacman -S --needed --noconfirm "${PACMAN_PACKAGES[@]}"
 
 # -----------------------------------------------------------------------------
-# AUR packages
+# AUR packages — declared "aur" only
 # -----------------------------------------------------------------------------
 AUR_PACKAGES=(
     {{- range .package }}
-      {{- if and (has $.machine .machines) (has "aur" .managers) }}
+      {{- if and (has $.machine .machines) (has "aur" .managers) (not (has "pacman" .managers)) }}
     "{{ .name }}"
       {{- end }}
     {{- end }}
 )
 
+# -----------------------------------------------------------------------------
+# Dual-source packages — declared both "pacman" and "aur"
+# -----------------------------------------------------------------------------
+# Available from the official repos on some Arch derivatives (e.g. brave-bin on
+# CachyOS) but AUR-only on plain Arch. `pacman -Si` reads the local sync db, so
+# the probe needs neither sudo nor network. Prefer the repo build when present.
+REPO_OR_AUR_PACKAGES=(
+    {{- range .package }}
+      {{- if and (has $.machine .machines) (has "pacman" .managers) (has "aur" .managers) }}
+    "{{ .name }}"
+      {{- end }}
+    {{- end }}
+)
+
+if [[ ${#REPO_OR_AUR_PACKAGES[@]} -gt 0 ]]; then
+    _repo_pkgs=()
+    for _pkg in "${REPO_OR_AUR_PACKAGES[@]}"; do
+        if pacman -Si "${_pkg}" &>/dev/null; then
+            _repo_pkgs+=("${_pkg}")
+        else
+            AUR_PACKAGES+=("${_pkg}")
+        fi
+    done
+
+    if [[ ${#_repo_pkgs[@]} -gt 0 ]]; then
+        bdb_exec "Installing repo-provided packages" \
+            sudo pacman -S --needed --noconfirm "${_repo_pkgs[@]}"
+    fi
+    unset _pkg _repo_pkgs
+fi
+
+# -----------------------------------------------------------------------------
+# AUR installation (requires yay)
+# -----------------------------------------------------------------------------
 if [[ ${#AUR_PACKAGES[@]} -gt 0 ]]; then
     if ! bdb_test_cmd "yay"; then
-        bdb_action "Installing yay (AUR helper)"
-        # Refresh sudo timestamp once so both makepkg pacman calls share the session
-        sudo -v
-        git clone https://aur.archlinux.org/yay.git /tmp/yay
-        (cd /tmp/yay && makepkg -si --noconfirm)
-        rm -rf /tmp/yay
-        bdb_success "yay installed"
+        # CachyOS ships yay in its own repo; plain Arch does not. Prefer the
+        # prebuilt package and fall back to building it from the AUR.
+        if pacman -Si yay &>/dev/null; then
+            bdb_exec "Installing yay (AUR helper) from repos" \
+                sudo pacman -S --needed --noconfirm yay
+        else
+            bdb_action "Building yay (AUR helper) from source"
+            # Refresh sudo timestamp once so both makepkg pacman calls share the session
+            sudo -v
+            git clone https://aur.archlinux.org/yay.git /tmp/yay
+            (cd /tmp/yay && makepkg -si --noconfirm)
+            rm -rf /tmp/yay
+            bdb_success "yay installed"
+        fi
     else
         bdb_success "yay already installed"
     fi
