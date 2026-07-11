@@ -1,5 +1,4 @@
 # norville/dotfiles
-- [ ] add script to enable brightness control
 - [ ] set alternative starship prompt for console
 - [ ] rename darkman script to autodark
 - [ ] add script to config cachyos
