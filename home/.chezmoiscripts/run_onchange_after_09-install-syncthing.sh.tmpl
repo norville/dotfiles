@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Chezmoi Script: Install and Configure Syncthing
+# =============================================================================
+# Syncthing continuously synchronizes files between your devices, peer-to-peer.
+# Optional, prompted install — NOT part of the package matrix. Installs the
+# package and enables the per-user service so it starts on login; the actual
+# sync setup (adding devices and folders) is done afterwards in the web GUI.
+#
+# Workstation and terminal machines only. Prompted; idempotent.
+#
+# Execution: chezmoi apply (only when this file's content changes)
+# Location:  .chezmoiscripts/run_onchange_after_09-install-syncthing.sh.tmpl
+# =============================================================================
+{{- /* Workstation + terminal only — never on servers. */ -}}
+{{- if not (or (eq .machine "workstation") (eq .machine "terminal")) }}
+exit 0
+{{- end }}
+
+source "${HELPERS}"
+
+bdb_script_init "${BASH_SOURCE[0]}"
+
+bdb_begin_section "File synchronization (syncthing)"
+
+# -----------------------------------------------------------------------------
+# Current state
+# -----------------------------------------------------------------------------
+_installed=false
+if bdb_has_cmd "syncthing"; then _installed=true; fi
+
+# Already installed with the service running? Skip without prompting.
+{{- if eq .chezmoi.os "linux" }}
+if "${_installed}" \
+    && systemctl --user is-enabled syncthing.service &>/dev/null \
+    && systemctl --user is-active syncthing.service &>/dev/null; then
+    bdb_success "syncthing already installed and running"
+    bdb_end_section
+    exit 0
+fi
+{{- else if eq .chezmoi.os "darwin" }}
+if "${_installed}" \
+    && brew services list | awk '$1=="syncthing" && $2=="started"{ok=1} END{exit !ok}'; then
+    bdb_success "syncthing already installed and running"
+    bdb_end_section
+    exit 0
+fi
+{{- end }}
+
+# -----------------------------------------------------------------------------
+# Install + enable (one prompt covers both)
+# -----------------------------------------------------------------------------
+bdb_ask "Install and configure syncthing (file synchronization)?" \
+    || { bdb_warn "Skipped by user"; bdb_end_section; exit 0; }
+
+if "${_installed}"; then
+    bdb_success "syncthing already installed"
+else
+{{- if eq .packageManager "pacman" }}
+    bdb_exec "Installing syncthing" sudo pacman -S --needed --noconfirm syncthing
+{{- else if eq .packageManager "apt" }}
+    bdb_exec "Installing syncthing" sudo apt-get install -y syncthing
+{{- else if eq .packageManager "dnf" }}
+    bdb_exec "Installing syncthing" sudo dnf install -y syncthing
+{{- else if eq .packageManager "brew" }}
+    bdb_exec "Installing syncthing" brew install syncthing
+{{- else }}
+    bdb_error "No install method for syncthing on {{ .packageManager }}"
+    bdb_end_section
+    exit 1
+{{- end }}
+fi
+
+{{- if eq .chezmoi.os "linux" }}
+# User service — starts on login. No linger: boot-without-login isn't required.
+bdb_exec "Enabling syncthing.service" systemctl --user enable --now syncthing.service
+{{- else if eq .chezmoi.os "darwin" }}
+# brew services installs a per-user LaunchAgent that starts syncthing on login.
+bdb_exec "Enabling syncthing service" brew services start syncthing
+{{- end }}
+bdb_success "syncthing installed and enabled on login"
+
+bdb_end_section
+
+# -----------------------------------------------------------------------------
+# Post-install: finish configuration in the web GUI
+# -----------------------------------------------------------------------------
+bdb_info "Finish syncthing setup in the web GUI: http://127.0.0.1:8384"
+bdb_info "  Add remote devices and choose which folders to sync there."
+
+exit 0
