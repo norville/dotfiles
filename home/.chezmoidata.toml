@@ -17,11 +17,6 @@
 #   - Entries are kept sorted alphabetically by `name`.
 #   - Name splits (same tool, different name per manager) are separate entries.
 #     Example: "fd" (brew/pacman) and "fd-find" (apt/dnf) are two entries.
-#   - GNOME-conditional packages (darkman, xdg-desktop-portal-gtk) are NOT in
-#     this file — they depend on a runtime env var (XDG_CURRENT_DESKTOP) that
-#     cannot be expressed as a machine type. They are appended explicitly in the
-#     install script under a GNOME template conditional (pacman/dnf only —
-#     neither package is available in apt repos).
 #   - snap and aur are separate install mechanisms, not mixed with apt/pacman.
 #   - The aur list must be non-empty for 00-install-core to bootstrap yay, which
 #     02-install-1password and 03-install-vscode both require. `yay` itself is

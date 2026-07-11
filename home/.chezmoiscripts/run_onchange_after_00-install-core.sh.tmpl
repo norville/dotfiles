@@ -4,8 +4,6 @@
 # =============================================================================
 # Builds install arrays by filtering .chezmoidata.toml at template render time.
 # One pass per install mechanism (apt-get, snap, pacman, AUR, dnf, brew).
-# GNOME-conditional packages (darkman, xdg-desktop-portal-gtk) are appended
-# explicitly — they depend on XDG_CURRENT_DESKTOP, not just machine type.
 #
 # Execution: chezmoi apply (only when this file's content changes)
 # Location:  .chezmoiscripts/run_onchange_after_00-install-core.sh.tmpl
@@ -211,10 +209,6 @@ DNF_PACKAGES=(
     "{{ .name }}"
       {{- end }}
     {{- end }}
-    {{- if and (eq .machine "workstation") (contains "gnome" (env "XDG_CURRENT_DESKTOP" | lower)) }}
-    "darkman"
-    "xdg-desktop-portal-gtk"
-    {{- end }}
 )
 
 bdb_exec "Installing DNF packages" sudo dnf install -y "${DNF_PACKAGES[@]}"
@@ -232,10 +226,6 @@ PACMAN_PACKAGES=(
       {{- if and (has $.machine .machines) (has "pacman" .managers) (not (has "aur" .managers)) }}
     "{{ .name }}"
       {{- end }}
-    {{- end }}
-    {{- if contains "gnome" (env "XDG_CURRENT_DESKTOP" | lower) }}
-    "darkman"
-    "xdg-desktop-portal-gtk"
     {{- end }}
 )
 

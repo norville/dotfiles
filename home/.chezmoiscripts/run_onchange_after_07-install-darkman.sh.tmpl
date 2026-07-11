@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Chezmoi Script: Enable darkman Service
+# Chezmoi Script: Install and Enable darkman
 # =============================================================================
-# Enables and starts the darkman systemd user service for automatic dark/light
-# mode switching based on geographic position.
+# Installs darkman (automatic dark/light mode switching based on geographic
+# position) together with its GTK backend xdg-desktop-portal-gtk, then enables
+# and starts the darkman systemd user service. A single prompt covers both.
 #
-# Only runs on Linux workstations with a GNOME desktop environment.
-# Requires darkman to be installed (via run_onchange_after_00-install-core.sh).
+# Only runs on Linux workstations with a GNOME desktop environment. Neither
+# package is available in apt repos, so on Debian/Ubuntu this reports and skips.
 #
 # Execution: chezmoi apply (only when this file's content changes)
 # Location:  .chezmoiscripts/run_onchange_after_07-install-darkman.sh.tmpl
@@ -19,30 +20,57 @@ source "${HELPERS}"
 
 bdb_script_init "${BASH_SOURCE[0]}"
 
-# =============================================================================
-# DARKMAN SERVICE
-# =============================================================================
+bdb_begin_section "Dark/light mode switching (darkman)"
 
-bdb_begin_section "Enabling darkman Service"
+# -----------------------------------------------------------------------------
+# Current state
+# -----------------------------------------------------------------------------
+_installed=false
+if bdb_has_cmd "darkman"; then _installed=true; fi
 
-if ! bdb_has_cmd "darkman"; then
-    bdb_warn "darkman not found — skipping service setup (install packages first)"
+# Already installed and running? Nothing to do — skip without prompting.
+if "${_installed}" \
+    && systemctl --user is-enabled darkman.service &>/dev/null \
+    && systemctl --user is-active darkman.service &>/dev/null; then
+    bdb_success "darkman already installed and running"
     bdb_end_section
     exit 0
 fi
 
-# Idempotency check: skip prompt and enable if already enabled and active.
-if systemctl --user is-enabled darkman.service &>/dev/null \
-   && systemctl --user is-active darkman.service &>/dev/null; then
-    bdb_success "darkman.service is already enabled and running"
+{{- if not (or (eq .packageManager "pacman") (eq .packageManager "dnf")) }}
+# darkman is not packaged for this manager; only proceed if it is already here.
+if ! "${_installed}"; then
+    bdb_warn "darkman is not packaged for {{ .packageManager }} — skipping"
     bdb_end_section
     exit 0
 fi
+{{- end }}
 
-bdb_ask "Enable and start darkman.service?" || { bdb_warn "Skipped by user"; bdb_end_section; exit 0; }
+# -----------------------------------------------------------------------------
+# Install + enable (one prompt for both)
+# -----------------------------------------------------------------------------
+bdb_ask "Install and enable darkman (automatic dark/light switching)?" \
+    || { bdb_warn "Skipped by user"; bdb_end_section; exit 0; }
 
+if "${_installed}"; then
+    bdb_success "darkman already installed"
+else
+{{- if eq .packageManager "pacman" }}
+    bdb_exec "Installing darkman + xdg-desktop-portal-gtk" \
+        sudo pacman -S --needed --noconfirm darkman xdg-desktop-portal-gtk
+{{- else if eq .packageManager "dnf" }}
+    bdb_exec "Installing darkman + xdg-desktop-portal-gtk" \
+        sudo dnf install -y darkman xdg-desktop-portal-gtk
+{{- else }}
+    bdb_error "darkman cannot be installed on {{ .packageManager }}"
+    bdb_end_section
+    exit 1
+{{- end }}
+fi
+
+# `enable --now` is idempotent — a no-op if the service is already running.
 bdb_exec "Enabling darkman.service" systemctl --user enable --now darkman.service
-bdb_success "darkman.service enabled and started"
+bdb_success "darkman installed and service enabled"
 
 bdb_end_section
 

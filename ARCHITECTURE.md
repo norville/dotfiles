@@ -74,8 +74,9 @@ and `machines` (workstation/terminal/server). Install scripts and `brewfile.tmpl
 this data at template render time using `range .package` + `has $.machine .machines`.
 
 GNOME-conditional packages (darkman, xdg-desktop-portal-gtk) are **not** in this file —
-they depend on `XDG_CURRENT_DESKTOP` at render time and are appended explicitly in the
-install script, under pacman and dnf only (neither package is available in apt repos).
+they depend on `XDG_CURRENT_DESKTOP` at render time, not just machine type. They are
+installed by `07-install-darkman` (pacman and dnf only — neither package is available in
+apt repos), which owns both their install and the service enable.
 
 This file is a chezmoi special file (starts with `.chezmoi`) — not deployed to `~/`.
 
@@ -284,7 +285,7 @@ fi
 | `04-install-ansible` | onchange | ✅ | ✅ | ✅ | Ansible (prompted on all platforms) |
 | `05-install-docker` | onchange | ✅ | — | ✅ | Docker (linux only; prompted) |
 | `06-install-sddm` | onchange | ✅ | — | — | SDDM config + Tokyo Night Moon → /etc/ and /usr/share/ (requires `sddm` on PATH) |
-| `07-install-darkman` | onchange | ✅ | — | — | Enable darkman.service (GNOME workstation only) |
+| `07-install-darkman` | onchange | ✅ | — | — | Install darkman + xdg-desktop-portal-gtk, enable darkman.service (GNOME workstation; pacman/dnf only) |
 | `08-install-ddcutil` | onchange | ✅ | — | — | ddcutil monitor brightness (linux workstation; **prompted**, not in matrix): install + load i2c-dev + join `i2c` group; GNOME reminder |
 | `bdb_update.sh` (hook) | `chezmoi update` only | ✅ | ✅ | ✅ | System packages (all); ZSH plugins + caches + `rustup update` + `gem update bundler erb` (non-server) |
 
@@ -334,7 +335,7 @@ bdb_bootstrap.sh
               ├── 04-install-ansible (prompted — all machine types)
               ├── 05-install-docker  (prompted — W+S, linux only)
               ├── 06-install-sddm    (SDDM theme — workstation with SDDM only)
-              ├── 07-install-darkman (enable service — GNOME workstation only)
+              ├── 07-install-darkman (install + enable service — GNOME workstation only)
               └── 08-install-ddcutil (monitor brightness — linux workstation only)
 ```
 
