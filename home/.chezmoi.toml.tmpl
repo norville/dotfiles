@@ -111,10 +111,11 @@
 {{- /* ========================================================================== */ -}}
 {{- /* Desktop Environment Detection                                              */ -}}
 {{- /* ========================================================================== */ -}}
-{{- /* Lowercased XDG_CURRENT_DESKTOP. Empty on headless systems or bare WMs.     */ -}}
-{{- /* Ubuntu sets "ubuntu:GNOME"; use contains "gnome" rather than eq.           */ -}}
-
-{{- $desktop := env "XDG_CURRENT_DESKTOP" | lower -}}
+{{- /* Intentionally NOT exported as a data var. This file re-renders only on     */ -}}
+{{- /* `chezmoi init`, so a captured value would go stale and (with               */ -}}
+{{- /* missingkey=error) break `apply` on any machine that hasn't re-init'd.      */ -}}
+{{- /* Templates that need GNOME detection read env "XDG_CURRENT_DESKTOP" | lower */ -}}
+{{- /* live at apply time instead — see .chezmoiignore and 00/07/08 scripts.      */ -}}
 
 {{- /* ========================================================================== */ -}}
 {{- /* User Configuration                                                         */ -}}
@@ -145,7 +146,6 @@
   name           = {{ $name           | quote }}
   osid           = {{ $osid           | quote }}
   machine        = {{ $machine        | quote }}
-  desktop        = {{ $desktop        | quote }}
   cpuArch        = {{ $cpuArch        | quote }}
   isARM          = {{ $isARM }}
   isRPi          = {{ $isRPi }}

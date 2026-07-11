@@ -222,10 +222,12 @@ is detected (via `XDG_SESSION_TYPE` / `DISPLAY` / `WAYLAND_DISPLAY`); otherwise
 `chezmoi init`, which bootstrap runs routed to the terminal (`>&3 2>&3`) so it stays
 visible — see the `init`/`apply` split under the Bootstrap Phase.
 
-**Note on `desktop`**: `.chezmoi.toml.tmpl` is re-rendered only on `chezmoi init`, not
-on `chezmoi apply`. Templates that need GNOME detection in active conditionals
-(`.chezmoiignore`, scripts) use `env "XDG_CURRENT_DESKTOP" | lower` directly rather
-than `.desktop` to avoid a missing-key error on machines that haven't re-run `chezmoi init`.
+**Note on desktop detection**: There is deliberately no `.desktop` data var.
+`.chezmoi.toml.tmpl` is re-rendered only on `chezmoi init`, not on `chezmoi apply`, so a
+captured value would go stale and — with `missingkey=error` — break `apply` on any machine
+that hasn't re-run `chezmoi init`. Templates that need GNOME detection in active
+conditionals (`.chezmoiignore`, scripts) read `env "XDG_CURRENT_DESKTOP" | lower` directly,
+live at apply time.
 
 ### 5. Installation Scripts (.chezmoiscripts/)
 
