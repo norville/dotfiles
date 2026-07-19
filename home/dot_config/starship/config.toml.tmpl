@@ -1,0 +1,299 @@
+{{- /* --------------------------------------------------------------------- */ -}}
+{{- /* OS accent color — resolved by chezmoi at `apply` time and baked in.    */ -}}
+{{- /* Sets $os_bg so the [os] segment background matches the live starship   */ -}}
+{{- /* os symbol. Colors mirror the map in [os.symbols] below — keep in sync. */ -}}
+{{- /* Order: macOS, then Windows, then Linux distro (by os-release id);      */ -}}
+{{- /* anything unlisted falls back to the $os_bg default ("black").          */ -}}
+{{- /* --------------------------------------------------------------------- */ -}}
+{{- $os_bg := "black" -}}
+{{- $distro := dict "arch" "blue2" "cachyos" "teal" "debian" "magenta2" "fedora" "blue1" "rocky" "green2" "ubuntu" "orange" -}}
+{{- if eq .chezmoi.os "darwin" }}
+  {{- $os_bg = "term_white_bright" }}
+{{- else if eq .chezmoi.os "windows" }}
+  {{- $os_bg = "blue0" }}
+{{- else if hasKey $distro .chezmoi.osRelease.id }}
+  {{- $os_bg = index $distro .chezmoi.osRelease.id }}
+{{- end -}}
+palette = "tokyonight_moon"
+
+# ═══ Prompt layout ═══════════════════════════════════════════════════════════
+# Line 1: ╭ os user host dir git-branch/commit git-status  →$fill→  runtimes package duration status
+# Line 2: │
+# Line 3: ╰ shlvl character
+format = """
+[╭](fg:ui_bg_highlight)\
+$os\
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_commit\
+$git_status\
+$fill\
+$c\
+$conda\
+$golang\
+$java\
+$lua\
+$nodejs\
+$python\
+$ruby\
+$rust\
+$terraform\
+$package\
+$cmd_duration\
+$status\
+$line_break\
+[│](fg:ui_bg_highlight)\
+$line_break\
+[╰](fg:ui_bg_highlight)\
+$shlvl\
+$character"""
+
+# ── os · bg per-OS, resolved by the $os_bg template above ── distro icon; opens the bar ──
+[os]
+disabled  = false
+style     = "bg:{{ $os_bg }} fg:ui_fg bold"
+format    = "[](fg:{{ $os_bg }})[$symbol ]($style)[](bg:ui_bg_highlight fg:{{ $os_bg }})"
+
+# Icon per OS; the trailing note is the bg color it selects via the $distro map above.
+[os.symbols]
+Arch        = "󰣇"   # blue2
+CachyOS     = "C"  # teal
+Debian      = "󰣚"   # magenta2
+Fedora      = "󰣛"   # blue1
+Macos       = "󰀵"   # term_white_bright
+RockyLinux  = ""   # green2
+Ubuntu      = "󰕈"   # orange
+Windows     = ""   # blue0
+
+# ── username · yellow ── user icon + name; starts the ui_bg_highlight bar body ──
+[username]
+style_user  = "bg:ui_bg_highlight fg:term_yellow bold"
+format      = "[  ](bg:term_yellow fg:ui_bg_highlight)[ $user]($style)"
+
+# ── hostname · yellow ── @host, continuing the username segment ──────────────
+[hostname]
+style   = "bg:ui_bg_highlight fg:term_yellow bold"
+format  = "[@$hostname ]($style)"
+
+# ── directory · cyan ── folder icon + path, truncated to the repo root ───────
+[directory]
+read_only           = "󰌾"
+truncation_length   = 5
+truncation_symbol   = "…/"
+truncate_to_repo    = true
+style               = "bg:ui_bg_highlight fg:term_cyan bold"
+format              = "[  ](bg:term_cyan fg:ui_bg_highlight)[ $path $read_only ]($style)"
+
+# ── git_branch · magenta ── branch icon + name ──────────────────────────────
+[git_branch]
+symbol  = ""
+style   = "bg:ui_bg_highlight fg:term_magenta bold"
+format  = "[ $symbol ](bg:term_magenta fg:ui_bg_highlight)[ $branch(:$remote_branch)]($style)"
+
+# ── git_commit · magenta ── @hash / tag, continuing the git_branch segment ───
+[git_commit]
+only_detached       = false  # show hash on normal branches too, not just detached HEAD
+tag_disabled        = false
+tag_max_candidates  = 1
+style               = "bg:ui_bg_highlight fg:term_magenta bold"
+format              = "[@$hash$tag ]($style)"
+
+# ── git_status · per-state bubbles ── one colored badge per change type ──────
+[git_status]
+ahead       = "[](bg:ui_bg_highlight fg:git_change)[  ${count} ](bg:git_change fg:ui_bg)[](bg:ui_bg_highlight fg:git_change)"
+behind      = "[](bg:ui_bg_highlight fg:git_change)[  ${count} ](bg:git_change fg:ui_bg)[](bg:ui_bg_highlight fg:git_change)"
+conflicted  = "[](bg:ui_bg_highlight fg:git_delete)[ 󰉀 ${count} ](bg:git_delete fg:ui_bg)[](bg:ui_bg_highlight fg:git_delete)"
+deleted     = "[](bg:ui_bg_highlight fg:git_delete)[ 󰆴 ${count} ](bg:git_delete fg:ui_bg)[](bg:ui_bg_highlight fg:git_delete)"
+diverged    = "[](bg:ui_bg_highlight fg:git_delete)[ 󰃻 ${count} ](bg:git_delete fg:ui_bg)[](bg:ui_bg_highlight fg:git_delete)"
+modified    = "[](bg:ui_bg_highlight fg:git_change)[ 󰤀 ${count} ](bg:git_change fg:ui_bg)[](bg:ui_bg_highlight fg:git_change)"
+renamed     = "[](bg:ui_bg_highlight fg:git_change)[  ${count} ](bg:git_change fg:ui_bg)[](bg:ui_bg_highlight fg:git_change)"
+staged      = "[](bg:ui_bg_highlight fg:git_add)[  ${count} ](bg:git_add fg:ui_bg)[](bg:ui_bg_highlight fg:git_add)"
+stashed     = "[](bg:ui_bg_highlight fg:git_change)[ 󰏔 ${count} ](bg:git_change fg:ui_bg)[](bg:ui_bg_highlight fg:git_change)"
+untracked   = "[](bg:ui_bg_highlight fg:git_ignore)[ 󱧊 ${count} ](bg:git_ignore)[](bg:ui_bg_highlight fg:git_ignore)"
+style       = "bold"
+format      = "[$all_status$ahead_behind]($style)"
+
+# ── fill · stretches the bar bg and pushes the modules after it to the right ──
+[fill]
+symbol  = " "
+style   = "bg:ui_bg_highlight"
+
+# ═══ Right side · runtime bar (bg:ui_bg_highlight, italic) ════════════════════
+# Language runtimes & tooling — each module shows only inside a matching project,
+# colored per language; the thin powerline separators are baked into each format.
+# Covers: c conda golang java lua nodejs python ruby rust terraform.
+[c]
+symbol  = ""
+style   = "bg:ui_bg_highlight fg:blue7 bold italic"
+format  = "[ $symbol $version ]($style)"
+
+[conda]
+ignore_base = false  # default hides "base" env; keep it visible
+symbol      = ""
+style       = "bg:ui_bg_highlight fg:green bold italic"
+format      = "[ $symbol $environment ]($style)"
+
+[golang]
+symbol  = "󰟓"
+style   = "bg:ui_bg_highlight fg:cyan bold italic"
+format  = "[ $symbol $version ]($style)"
+
+[java]
+symbol  = ""
+style   = "bg:ui_bg_highlight fg:orange bold italic"
+format  = "[ $symbol $version ]($style)"
+
+[lua]
+symbol  = ""
+style   = "bg:ui_bg_highlight fg:blue bold italic"
+format  = "[ $symbol $version ]($style)"
+
+[nodejs]
+symbol  = ""
+style   = "bg:ui_bg_highlight fg:green1 bold italic"
+format  = "[ $symbol $version ]($style)"
+
+[python]
+pyenv_prefix  = "venv "
+python_binary = ["./venv/bin/python", "python", "python3", "python2"]  # local venv detected without activation
+symbol        = ""
+style         = "bg:ui_bg_highlight fg:yellow bold italic"
+format        = "[ $symbol $version(\\($virtualenv\\)) ]($style)"
+
+[ruby]
+symbol  = ""
+style   = "bg:ui_bg_highlight fg:red bold italic"
+format  = "[ $symbol $version ]($style)"
+
+[rust]
+symbol  = "󱘗"
+style   = "bg:ui_bg_highlight fg:red1 bold italic"
+format  = "[ $symbol $version ]($style)"
+
+[terraform]
+symbol  = ""
+style   = "bg:ui_bg_highlight fg:blue1 bold italic"
+format  = "[ $symbol $version:$workspace ]($style)"
+
+# ── package · white ── version read from the manifest in the cwd ─────────────
+[package]
+symbol  = ""
+style   = "bg:ui_bg_highlight fg:term_white bold italic"
+format  = "[ $symbol $version:$workspace ]($style)"
+
+# ── cmd_duration · orange ── wall-clock time of the last command (≥ min_time) ─
+[cmd_duration]
+min_time  = 500
+style     = "bg:ui_bg_highlight fg:orange bold italic"
+format    = "[ 󱦟 $duration ]($style)"
+
+# ── status · red on failure / green on success ── exit code; its cap closes the bar ──
+[status]
+disabled        = false
+success_symbol  = " " # required to render module
+style           = "bg:ui_bg_highlight fg:red bold italic"
+success_style   = "bg:ui_bg_highlight fg:green1 bold italic"
+format          = "[ 󰿅 $status$signal_number( $common_meaning$signal_name$maybe_int)]($style)[](bg:ui_bg fg:ui_bg_highlight)"
+
+# ── shlvl · line 3 ── one ❯ per extra shell nesting level ────────────────────
+[shlvl]
+disabled      = false
+repeat        = true
+repeat_offset = 1  # shows shlvl-1 symbols: silent at level 1, one ❯ at level 2, etc.
+symbol        = "❯"
+style         = "fg:ui_bg_highlight"
+format        = "[$symbol]($style)"
+
+[palettes.tokyonight_moon]
+
+# named accent colors and their tonal variants
+black     = "#1b1d2b"
+blue      = "#82aaff"
+blue0     = "#3e68d7"
+blue1     = "#65bcff"
+blue2     = "#0db9d7"
+blue5     = "#89ddff"
+blue6     = "#b4f9f8"
+blue7     = "#394b70"
+cyan      = "#86e1fc"
+green     = "#c3e88d"
+green1    = "#4fd6be"
+green2    = "#41a6b5"
+magenta   = "#c099ff"
+magenta2  = "#ff007c"
+orange    = "#ff966c"
+purple    = "#fca7ea"
+red       = "#ff757f"
+red1      = "#c53b53"
+teal      = "#4fd6be"
+yellow    = "#ffc777"
+
+# semantic roles: surfaces, borders, text, and status indicators
+ui_bg               = "#222436"
+ui_bg_dark          = "#1e2030"
+ui_bg_dark1         = "#191B29"
+ui_bg_float         = "#1e2030"
+ui_bg_highlight     = "#2f334d"
+ui_bg_popup         = "#1e2030"
+ui_bg_search        = "#3e68d7"
+ui_bg_sidebar       = "#1e2030"
+ui_bg_statusline    = "#1e2030"
+ui_bg_visual        = "#2d3f76"
+ui_border           = "#1b1d2b"
+ui_border_highlight = "#589ed7"
+ui_comment          = "#636da6"
+ui_dark3            = "#545c7e"
+ui_dark5            = "#737aa2"
+ui_error            = "#c53b53"
+ui_fg               = "#c8d3f5"
+ui_fg_dark          = "#828bb8"
+ui_fg_float         = "#c8d3f5"
+ui_fg_gutter        = "#3b4261"
+ui_fg_sidebar       = "#828bb8"
+ui_hint             = "#4fd6be"
+ui_info             = "#0db9d7"
+ui_terminal_black   = "#444a73"
+ui_todo             = "#82aaff"
+ui_warning          = "#ffc777"
+
+# ordered spectrum for cycle-coloring (brackets, indent guides, etc.)
+rainbow_periwinkle  = "#82aaff"
+rainbow_yellow      = "#ffc777"
+rainbow_lime        = "#c3e88d"
+rainbow_teal        = "#4fd6be"
+rainbow_violet      = "#c099ff"
+rainbow_purple      = "#fca7ea"
+rainbow_orange      = "#ff966c"
+rainbow_red         = "#ff757f"
+
+# diff hunk background tints
+diff_add    = "#2a4556"
+diff_change = "#252a3f"
+diff_delete = "#4b2a3d"
+diff_text   = "#394b70"
+
+# git gutter sign foregrounds
+git_add     = "#b8db87"
+git_change  = "#7ca1f2"
+git_delete  = "#e26a75"
+git_ignore  = "#545c7e"
+
+# ANSI 16-color palette (8 normal + 8 bright)
+term_black          = "#1b1d2b"
+term_black_bright   = "#444a73"
+term_blue           = "#82aaff"
+term_blue_bright    = "#9ab8ff"
+term_cyan           = "#86e1fc"
+term_cyan_bright    = "#b2ebff"
+term_green          = "#c3e88d"
+term_green_bright   = "#c7fb6d"
+term_magenta        = "#c099ff"
+term_magenta_bright = "#caabff"
+term_red            = "#ff757f"
+term_red_bright     = "#ff8d94"
+term_white          = "#828bb8"
+term_white_bright   = "#c8d3f5"
+term_yellow         = "#ffc777"
+term_yellow_bright  = "#ffd8ab"
