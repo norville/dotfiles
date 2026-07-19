@@ -20,6 +20,7 @@ sddm/
 # Workstation-Only Paths — excluded on terminal and server
 # -----------------------------------------------------------------------------
 {{- if ne .machine "workstation" }}
+.config/fastfetch/
 .config/homebrew/
 .config/kitty/
 .config/niri/

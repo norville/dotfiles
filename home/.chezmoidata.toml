@@ -97,6 +97,11 @@ managers = ["brew-formula", "apt", "pacman", "dnf"]
 machines = ["workstation", "terminal"]
 
 [[package]]
+name     = "fastfetch"
+managers = ["brew-formula", "apt", "pacman", "dnf"]
+machines = ["workstation"]
+
+[[package]]
 name     = "fd"
 managers = ["brew-formula", "pacman"]
 machines = ["workstation", "terminal"]

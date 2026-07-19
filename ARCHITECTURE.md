@@ -400,8 +400,9 @@ dotfiles/
     │   ├── darkman/                    # darkman config.yaml (GNOME workstation only)
     │   ├── delta/                      # Delta pager Tokyo Night config
     │   ├── eza/                        # Eza color theme (downloaded via chezmoiexternal)
+    │   ├── fastfetch/                  # System info screen (Tokyo Night Moon, workstation only)
     │   ├── git/                        # Git config, ignore, delta integration
-    │   ├── kitty/                      # Kitty config, tab_bar.py, Tokyo Night theme, sessions/
+    │   ├── kitty/                      # Kitty config, tab_bar.py, Tokyo Night theme, startup.session (fastfetch), sessions/
     │   ├── lazygit/                    # Lazygit config with Tokyo Night theme
     │   ├── niri/                       # niri compositor config (workstation, niri installed)
     │   ├── noctalia/                   # Noctalia shell config (workstation, qs installed)
@@ -450,6 +451,7 @@ Implemented via `.chezmoiignore` template conditionals. Source of truth: `.chezm
 | `dot_zsh` | `.zsh/` | ✓ | ✓ | — | |
 | `dot_zshrc.tmpl` | `.zshrc` | ✓ | ✓ | — | |
 | `dot_config/darkman` | `.config/darkman/` | ✓ | — | — | GNOME desktop; pacman/dnf only (not available on apt) |
+| `dot_config/fastfetch` | `.config/fastfetch/` | ✓ | — | — | |
 | `dot_config/homebrew` | `.config/homebrew/` | ✓ | — | — | macOS (workstation is always darwin or linux-arch/cachyos/fedora) |
 | `dot_config/kitty` | `.config/kitty/` | ✓ | — | — | |
 | `dot_config/niri` | `.config/niri/` | ✓ | — | — | `lookPath "niri"` |

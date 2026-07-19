@@ -1,0 +1,5 @@
+# kitty startup session — used at launch via `startup_session` in kitty.conf.
+# Show fastfetch once in the first window, then hand off to an interactive
+# login shell. The `command -v` guard keeps things quiet if fastfetch is absent
+# (e.g. before the package matrix has installed it on a fresh machine).
+launch sh -c "command -v fastfetch >/dev/null 2>&1 && fastfetch; exec zsh -l"
