@@ -122,10 +122,12 @@ bdb_exec "Installing DNF plugins" sudo dnf -y install dnf-plugins-core
 if [[ ! -f /etc/yum.repos.d/docker-ce.repo ]]; then
     {{- if eq .osid "linux-rocky" }}
         bdb_exec "Adding Docker repository (Rocky)" \
-                sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+                sudo dnf config-manager --add-repo \
+                https://download.docker.com/linux/rhel/docker-ce.repo
     {{- else }}
         bdb_exec "Adding Docker repository (Fedora)" \
-                sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+                sudo dnf config-manager addrepo --from-repofile \
+                https://download.docker.com/linux/fedora/docker-ce.repo
     {{- end }}
 else
         bdb_success "Docker repository already configured"
