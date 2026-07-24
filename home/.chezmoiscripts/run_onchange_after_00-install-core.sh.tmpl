@@ -188,11 +188,8 @@ fi
 # Zed — via Terra repository (workstation only)
 if [[ ! -f /etc/yum.repos.d/terra.repo ]]; then
     bdb_action "Setting up Terra repository (for Zed)"
-    sudo dnf install -y \
-        "https://github.com/terrapkg/subatomic-repos/raw/main/terra.repo" \
-        2>/dev/null || \
-    sudo dnf config-manager addrepo \
-        https://terra.fyralabs.com/terra.repo
+    sudo dnf install --nogpgcheck --repofrompath \
+        'terra,https://repos.fyralabs.com/terra$releasever' terra-release
     bdb_success "Terra repository configured"
 else
     bdb_success "Terra repository already configured"
