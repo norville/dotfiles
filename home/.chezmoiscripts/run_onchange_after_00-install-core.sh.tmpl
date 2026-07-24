@@ -188,7 +188,7 @@ fi
 # Zed — via Terra repository (workstation only)
 if [[ ! -f /etc/yum.repos.d/terra.repo ]]; then
     bdb_action "Setting up Terra repository (for Zed)"
-    sudo dnf install --nogpgcheck --repofrompath \
+    sudo dnf install -y --nogpgcheck --repofrompath \
         'terra,https://repos.fyralabs.com/terra$releasever' terra-release
     bdb_success "Terra repository configured"
 else
