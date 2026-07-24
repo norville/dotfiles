@@ -191,7 +191,7 @@ if [[ ! -f /etc/yum.repos.d/terra.repo ]]; then
     sudo dnf install -y \
         "https://github.com/terrapkg/subatomic-repos/raw/main/terra.repo" \
         2>/dev/null || \
-    sudo dnf config-manager --add-repo \
+    sudo dnf config-manager addrepo \
         https://terra.fyralabs.com/terra.repo
     bdb_success "Terra repository configured"
 else

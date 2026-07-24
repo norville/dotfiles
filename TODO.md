@@ -1,5 +1,13 @@
 # norville/dotfiles
-- [ ] handle debian on RPi as 'terminal'
 - [ ] add script to config cachyos
-- [ ] add script to install hypervisor
+  - edit `/etc/limine-snapper-sync.conf`
+    - `MAX_SNAPSHOT_ENTRIES=10`
+    - `SNAPSHOT_FORMAT_CHOICE=8`
+- [ ] add script to install hypervisor on cachyos
+  - install `qemu-full` `virt-manager`
+  - `echo 'firewall_backend = "iptables"' | sudo tee -a /etc/libvirt/network.conf`
+  - `sudo usermod -aG libvirt $USER`
+  - `systemctl enable --now libvirtd.socket`
+  - `sudo virsh net-autostart default`
+  - `sudo ufw route allow from 192.168.122.0/24`
 - [ ] automate macos configuration via 'defaults'
