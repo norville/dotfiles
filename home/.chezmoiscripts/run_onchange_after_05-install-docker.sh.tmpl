@@ -143,7 +143,7 @@ bdb_success "Docker installed"
 bdb_warn "Please log out and back in for group membership to take effect"
 
   {{- else if eq .packageManager "pacman" }}
-bdb_exec "Installing Docker (Arch/Manjaro)" sudo pacman -S --needed --noconfirm docker docker-compose
+bdb_exec "Installing Docker (Arch/CachyOS)" sudo pacman -S --needed --noconfirm docker docker-compose
 
 bdb_exec "Starting Docker service" sudo systemctl start docker.service
 bdb_exec "Enabling Docker service" sudo systemctl enable docker.service
