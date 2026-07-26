@@ -2,8 +2,8 @@
 # =============================================================================
 # Chezmoi Script: Install Ansible
 # =============================================================================
-# Installs Ansible. Prompts before installing on all platforms.
-# Runs on workstation, terminal, and server machine types.
+# Installs Ansible. Auto-installs on workstation; prompts on terminal.
+# Runs on workstation and terminal machine types (never on servers).
 #
 # Execution: chezmoi apply (only when this file's content changes)
 # Location:  .chezmoiscripts/run_onchange_after_04-install-ansible.sh.tmpl
@@ -18,6 +18,12 @@ bdb_script_init "${BASH_SOURCE[0]}"
 
 bdb_begin_section "Ansible Installation"
 
+{{- if eq .machine "server" }}
+bdb_warn "Skipping Ansible — not installed on servers"
+bdb_end_section
+exit 0
+{{- end }}
+
 if bdb_has_cmd "ansible"; then
     bdb_success "Ansible already installed"
     bdb_end_section
@@ -25,23 +31,20 @@ if bdb_has_cmd "ansible"; then
 fi
 
 {{- if eq .chezmoi.os "darwin" }}
-
-if ! bdb_ask "Do you want to install Ansible"; then
-    bdb_warn "Skipping Ansible installation"
-    bdb_end_section
-    exit 0
-fi
+{{- /* darwin is always a workstation → auto-install, no prompt. */}}
 
 bdb_exec "Installing Ansible (macOS)" brew install ansible
 bdb_success "Ansible installed"
 
 {{- else if eq .chezmoi.os "linux" }}
+  {{- if eq .machine "terminal" }}
 
 if ! bdb_ask "Do you want to install Ansible"; then
     bdb_warn "Skipping Ansible installation"
     bdb_end_section
     exit 0
 fi
+  {{- end }}
 
   {{- if eq .packageManager "apt" }}
 bdb_action "Installing Ansible (Debian/Ubuntu)"

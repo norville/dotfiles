@@ -13,7 +13,7 @@
 # On GNOME there is no native external-brightness slider, so this also points
 # the user at the shell extension that surfaces ddcutil in quick settings.
 #
-# Linux workstations only. Prompted; idempotent.
+# Linux workstations only. Auto-installed (no prompt); idempotent.
 #
 # Execution: chezmoi apply (only when this file's content changes)
 # Location:  .chezmoiscripts/run_onchange_after_08-install-ddcutil.sh.tmpl
@@ -47,9 +47,6 @@ if "${_installed}" && "${_module_persisted}" && "${_module_loaded}" && "${_in_gr
     bdb_end_section
     exit 0
 fi
-
-bdb_ask "Install and configure ddcutil for monitor brightness control?" \
-    || { bdb_warn "Skipped by user"; bdb_end_section; exit 0; }
 
 # -----------------------------------------------------------------------------
 # 1. Install ddcutil (package name is identical across pacman/apt/dnf)

@@ -7,7 +7,7 @@
 # package and enables the per-user service so it starts on login; the actual
 # sync setup (adding devices and folders) is done afterwards in the web GUI.
 #
-# Workstation and terminal machines only. Prompted; idempotent.
+# Workstation (auto) and terminal (prompted) machines only. Idempotent.
 #
 # Execution: chezmoi apply (only when this file's content changes)
 # Location:  .chezmoiscripts/run_onchange_after_09-install-syncthing.sh.tmpl
@@ -48,10 +48,12 @@ fi
 {{- end }}
 
 # -----------------------------------------------------------------------------
-# Install + enable (one prompt covers both)
+# Install + enable (auto on workstation; prompt on terminal)
 # -----------------------------------------------------------------------------
+{{- if eq .machine "terminal" }}
 bdb_ask "Install and configure syncthing (file synchronization)?" \
     || { bdb_warn "Skipped by user"; bdb_end_section; exit 0; }
+{{- end }}
 
 if "${_installed}"; then
     bdb_success "syncthing already installed"

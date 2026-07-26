@@ -223,6 +223,13 @@ is detected (via `XDG_SESSION_TYPE` / `DISPLAY` / `WAYLAND_DISPLAY`); otherwise
 `chezmoi init`, which bootstrap runs routed to the terminal (`>&3 2>&3`) so it stays
 visible — see the `init`/`apply` split under the Bootstrap Phase.
 
+**`terminal` and `server` are Linux-only.** `darwin` unconditionally resolves to
+`workstation` (see the table above — no `✓` under terminal/server for `darwin`), so a
+macOS host is never a `terminal` or `server`. Consequently any `darwin`/`brew` code path is
+implicitly workstation-scoped, and a `terminal`/`server` conditional can never coincide with
+`darwin` — a `{{ if eq .machine "terminal" }}` guard nested inside a `darwin` branch is dead
+code and should be omitted.
+
 **Note on desktop detection**: There is deliberately no `.desktop` data var.
 `.chezmoi.toml.tmpl` is re-rendered only on `chezmoi init`, not on `chezmoi apply`, so a
 captured value would go stale and — with `missingkey=error` — break `apply` on any machine
@@ -280,14 +287,14 @@ fi
 |--------|---------|---|---|---|---------|
 | `00-install-core` | onchange | ✅ | ✅ | ✅ | Platform packages (per-manager lists, machine-type filtered) |
 | `01-config-env` | onchange | ✅ | ✅ | — | Default shell, bat cache, font cache; Go GOPATH/GOBIN; Ruby gems (bundler, erb); Rust stable + rust-analyzer via rustup |
-| `02-install-1password` | onchange | ✅ | — | — | 1Password + op CLI (prompted; darwin: brew cask; pacman: needs `yay`, skips if absent) |
+| `02-install-1password` | onchange | ✅ | — | — | 1Password + op CLI (auto-installed; darwin: brew cask; pacman: needs `yay`, skips if absent) |
 | `03-install-vscode` | onchange | ✅ | — | — | VS Code (prompted; darwin: brew cask; pacman: needs `yay`, skips if absent) |
-| `04-install-ansible` | onchange | ✅ | ✅ | ✅ | Ansible (prompted on all platforms) |
-| `05-install-docker` | onchange | ✅ | — | ✅ | Docker (linux only; prompted) |
+| `04-install-ansible` | onchange | ✅ | ✅ | — | Ansible (auto on workstation, prompted on terminal; never on servers) |
+| `05-install-docker` | onchange | ✅ | — | — | Docker (linux only, workstation only; prompted) |
 | `06-install-sddm` | onchange | ✅ | — | — | SDDM config + Tokyo Night Moon → /etc/ and /usr/share/ (requires `sddm` on PATH) |
 | `07-install-darkman` | onchange | ✅ | — | — | Install darkman + xdg-desktop-portal-gtk, enable darkman.service (GNOME workstation; pacman/dnf only) |
-| `08-install-ddcutil` | onchange | ✅ | — | — | ddcutil monitor brightness (linux workstation; **prompted**, not in matrix): install + load i2c-dev + join `i2c` group; GNOME reminder |
-| `09-install-syncthing` | onchange | ✅ | ✅ | — | Syncthing file sync (workstation + terminal; **prompted**, not in matrix): install + enable user service on login; web-GUI reminder |
+| `08-install-ddcutil` | onchange | ✅ | — | — | ddcutil monitor brightness (linux workstation; auto-installed, not in matrix): install + load i2c-dev + join `i2c` group; GNOME reminder |
+| `09-install-syncthing` | onchange | ✅ | ✅ | — | Syncthing file sync (workstation auto, terminal prompted; not in matrix): install + enable user service on login; web-GUI reminder |
 | `bdb_update.sh` (hook) | `chezmoi update` only | ✅ | ✅ | ✅ | System packages (all); ZSH plugins + caches + `rustup update` + `gem update bundler erb` (non-server) |
 
 W = workstation, T = terminal, S = server.
@@ -331,10 +338,10 @@ bdb_bootstrap.sh
         └── Run scripts in order:      (apply)
               ├── 00-install-core    (packages — machine-type filtered)
               ├── 01-config-env      (shell, caches, fonts — W+T only)
-              ├── 02-install-1pw     (prompted — workstation only)
+              ├── 02-install-1pw     (auto — workstation only)
               ├── 03-install-vscode  (prompted — workstation only)
-              ├── 04-install-ansible (prompted — all machine types)
-              ├── 05-install-docker  (prompted — W+S, linux only)
+              ├── 04-install-ansible (auto on W, prompted on T — never on servers)
+              ├── 05-install-docker  (prompted — workstation only, linux)
               ├── 06-install-sddm    (SDDM theme — workstation with SDDM only)
               ├── 07-install-darkman (install + enable service — GNOME workstation only)
               ├── 08-install-ddcutil (monitor brightness — linux workstation only)
@@ -384,8 +391,8 @@ dotfiles/
     │   ├── run_onchange_after_01-config-env.sh.tmpl           # workstation + terminal
     │   ├── run_onchange_after_02-install-1password.sh.tmpl    # workstation only
     │   ├── run_onchange_after_03-install-vscode.sh.tmpl       # workstation only
-    │   ├── run_onchange_after_04-install-ansible.sh.tmpl      # all machine types
-    │   ├── run_onchange_after_05-install-docker.sh.tmpl       # workstation + server, linux only
+    │   ├── run_onchange_after_04-install-ansible.sh.tmpl      # workstation + terminal
+    │   ├── run_onchange_after_05-install-docker.sh.tmpl       # workstation only, linux only
     │   ├── run_onchange_after_06-install-sddm.sh.tmpl         # workstation only
     │   ├── run_onchange_after_07-install-darkman.sh.tmpl      # GNOME workstation only
     │   ├── run_onchange_after_08-install-ddcutil.sh.tmpl      # linux workstation only

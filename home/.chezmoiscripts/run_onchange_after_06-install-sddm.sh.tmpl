@@ -27,8 +27,8 @@
 # The `|| true` keeps a fresh machine from failing here on the first apply,
 # before that external has run; once present, its hash re-triggers this script.
 # background.jpg:         {{ output "sh" "-c" (printf "sha256sum %s 2>/dev/null || true" (joinPath .chezmoi.sourceDir "sddm/themes/tokyonight-moon/background.jpg")) }}
-{{- /* Workstation machines with SDDM installed only. */ -}}
-{{- if or (ne .machine "workstation") (not (lookPath "sddm")) }}
+{{- /* Linux workstations with SDDM installed only. */ -}}
+{{- if or (ne .machine "workstation") (ne .chezmoi.os "linux") (not (lookPath "sddm")) }}
 exit 0
 {{- end }}
 
@@ -94,8 +94,6 @@ if     cmp -s "$_TMP/sddm.conf"              /etc/sddm.conf                     
     bdb_success "SDDM configuration and theme are already up to date"
     exit 0
 fi
-
-bdb_ask "Install SDDM configuration and theme?" || { bdb_warn "Skipped by user"; exit 0; }
 
 # =============================================================================
 # SDDM SYSTEM CONFIGURATION

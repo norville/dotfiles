@@ -4,7 +4,7 @@
 # =============================================================================
 # Installs darkman (automatic dark/light mode switching based on geographic
 # position) together with its GTK backend xdg-desktop-portal-gtk, then enables
-# and starts the darkman systemd user service. A single prompt covers both.
+# and starts the darkman systemd user service. Installed automatically (no prompt).
 #
 # Only runs on Linux workstations with a GNOME desktop environment. Neither
 # package is available in apt repos, so on Debian/Ubuntu this reports and skips.
@@ -47,11 +47,8 @@ fi
 {{- end }}
 
 # -----------------------------------------------------------------------------
-# Install + enable (one prompt for both)
+# Install + enable
 # -----------------------------------------------------------------------------
-bdb_ask "Install and enable darkman (automatic dark/light switching)?" \
-    || { bdb_warn "Skipped by user"; bdb_end_section; exit 0; }
-
 if "${_installed}"; then
     bdb_success "darkman already installed"
 else

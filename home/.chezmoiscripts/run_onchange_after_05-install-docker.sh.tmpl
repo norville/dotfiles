@@ -2,7 +2,7 @@
 # =============================================================================
 # Chezmoi Script: Install Docker
 # =============================================================================
-# Prompts for and installs Docker. Workstation + server, Linux only.
+# Prompts for and installs Docker. Workstation only, Linux only.
 #
 # Execution: chezmoi apply (only when this file's content changes)
 # Location:  .chezmoiscripts/run_onchange_after_05-install-docker.sh.tmpl
@@ -17,8 +17,8 @@ bdb_script_init "${BASH_SOURCE[0]}"
 
 bdb_begin_section "Docker Installation"
 
-{{- if eq .machine "terminal" }}
-bdb_warn "Skipping Docker — not available on terminal machines"
+{{- if ne .machine "workstation" }}
+bdb_warn "Skipping Docker — workstation machines only"
 bdb_end_section
 exit 0
 {{- end }}

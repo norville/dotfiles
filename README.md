@@ -100,10 +100,10 @@ These scripts run automatically during `chezmoi apply` or `chezmoi update`:
 |------|---------|-------------|
 | `run_onchange_after_00-install-core.sh.tmpl` | on change | Essential packages: zsh, neovim/vim, bat, eza, fzf, ripgrep, lazygit, kitty, Go, Ruby, Rust, Java, OpenTofu… |
 | `run_onchange_after_01-config-env.sh.tmpl` | on change | Default shell, themes/fonts; Go GOPATH/GOBIN; Ruby gems (bundler, erb); Rust stable toolchain + rust-analyzer via rustup |
-| `run_onchange_after_02-install-1password.sh.tmpl` | on change | Prompts for and installs 1Password + CLI (workstation only) |
+| `run_onchange_after_02-install-1password.sh.tmpl` | on change | Installs 1Password + CLI (workstation only, no prompt) |
 | `run_onchange_after_03-install-vscode.sh.tmpl` | on change | Prompts for and installs VS Code (workstation only) |
-| `run_onchange_after_04-install-ansible.sh.tmpl` | on change | Prompts for and installs Ansible |
-| `run_onchange_after_05-install-docker.sh.tmpl` | on change | Prompts for and installs Docker |
+| `run_onchange_after_04-install-ansible.sh.tmpl` | on change | Installs Ansible (auto on workstation, prompted on terminal; never on servers) |
+| `run_onchange_after_05-install-docker.sh.tmpl` | on change | Prompts for and installs Docker (workstation only, Linux) |
 | `run_onchange_after_06-install-sddm.sh.tmpl` | on change | Deploy SDDM config + Tokyo Night Moon theme to `/etc/` and `/usr/share/` |
 | `run_onchange_after_07-install-darkman.sh.tmpl` | on change | Enable darkman.service (GNOME workstations only) |
 
@@ -181,14 +181,14 @@ Also: lazygit, fzf, git-delta, jq, resvg, tree-sitter-cli, Node.js + npm, shellc
 - **Brave Browser**: Web browser
 - **darkman**: Automatic dark/light mode switching by geographic position (GNOME only; pacman/dnf only — not available in apt repos)
 
-### Optional Tools (User Prompted on First Apply)
+### Optional Tools (Installed by Dedicated Scripts)
 
-All optional installs are idempotent — if the tool is already present, the prompt is skipped.
+All optional installs are idempotent — skipped if the tool is already present:
 
-- **1Password**: Password manager with SSH agent (workstation only)
-- **Visual Studio Code**: Code editor (workstation only)
-- **Docker**: Container platform (workstation + server)
-- **Ansible**: IT automation platform (all machine types)
+- **1Password**: Password manager with SSH agent (workstation only, auto-installed)
+- **Visual Studio Code**: Code editor (workstation only, prompted)
+- **Docker**: Container platform (workstation only, Linux; prompted)
+- **Ansible**: IT automation platform (workstation auto, terminal prompted; never on servers)
 
 ## Themes & Appearance
 
@@ -229,6 +229,8 @@ Three machine types are supported. `workstation` is auto-detected on macOS, Arch
 and Fedora, or when a graphical session is detected on Ubuntu. On Debian, Rocky Linux, and
 headless Ubuntu the user is prompted for `terminal` or `server` on first `chezmoi init`
 (shown interactively during bootstrap); the answer is cached for later applies.
+
+`terminal` and `server` are **Linux-only** — macOS always resolves to `workstation`.
 
 | Type | Description | Dev tools | GUI tools |
 |------|-------------|-----------|-----------|
