@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Chezmoi Script: Install and Configure virt-manager / libvirt (QEMU/KVM)
+# =============================================================================
+# Sets up a local QEMU/KVM virtualization stack managed through virt-manager:
+# installs qemu-full + virt-manager, points libvirt's network firewall backend
+# at iptables, joins the user to the libvirt group, enables the libvirtd socket,
+# autostarts the default NAT network, and opens its subnet through ufw.
+#
+# CachyOS workstations only (pacman). Auto-installed (no prompt); idempotent.
+#
+# Execution: chezmoi apply (only when this file's content changes)
+# Location:  .chezmoiscripts/run_onchange_after_10-install-virt-manager.sh.tmpl
+# =============================================================================
+{{- /* CachyOS workstations only — QEMU/KVM host via pacman. */ -}}
+{{- if not (and (eq .machine "workstation") (eq .osid "linux-cachyos")) }}
+exit 0
+{{- end }}
+
+source "${HELPERS}"
+
+bdb_script_init "${BASH_SOURCE[0]}"
+
+bdb_begin_section "Virtualization (virt-manager / libvirt)"
+
+# -----------------------------------------------------------------------------
+# 1. Install qemu-full + virt-manager (pulls in libvirt)
+# -----------------------------------------------------------------------------
+if bdb_has_cmd "virt-manager"; then
+    bdb_success "virt-manager already installed"
+else
+    bdb_exec "Installing qemu-full + virt-manager" \
+        sudo pacman -S --needed --noconfirm qemu-full virt-manager
+fi
+
+# -----------------------------------------------------------------------------
+# 2. libvirt network firewall backend → iptables
+# -----------------------------------------------------------------------------
+if grep -q '^firewall_backend' /etc/libvirt/network.conf 2>/dev/null; then
+    bdb_success "libvirt firewall_backend already configured"
+else
+    bdb_action "Setting libvirt firewall_backend = iptables"
+    echo 'firewall_backend = "iptables"' | sudo tee -a /etc/libvirt/network.conf > /dev/null
+    bdb_success "libvirt firewall_backend set to iptables"
+fi
+
+# -----------------------------------------------------------------------------
+# 3. libvirt group — lets the user manage VMs without root
+# -----------------------------------------------------------------------------
+if id -nG "${USER}" | grep -qw libvirt; then
+    bdb_success "${USER} already in libvirt group"
+else
+    bdb_exec "Adding ${USER} to libvirt group" sudo usermod -aG libvirt "${USER}"
+    bdb_warn "Log out and back in for libvirt group membership to take effect"
+fi
+
+# -----------------------------------------------------------------------------
+# 4. libvirtd socket — enable + start (socket-activated daemon)
+# -----------------------------------------------------------------------------
+if systemctl is-enabled libvirtd.socket &>/dev/null \
+    && systemctl is-active libvirtd.socket &>/dev/null; then
+    bdb_success "libvirtd.socket already enabled and active"
+else
+    bdb_exec "Enabling libvirtd.socket" sudo systemctl enable --now libvirtd.socket
+fi
+
+# -----------------------------------------------------------------------------
+# 5. Default NAT network — autostart on boot
+# -----------------------------------------------------------------------------
+if ! sudo virsh net-info default &>/dev/null; then
+    bdb_warn "libvirt 'default' network not defined — skipping autostart"
+elif sudo virsh net-info default 2>/dev/null | grep -qi '^Autostart:.*yes'; then
+    bdb_success "libvirt default network already autostarts"
+else
+    bdb_exec "Enabling autostart for libvirt default network" \
+        sudo virsh net-autostart default
+fi
+
+# -----------------------------------------------------------------------------
+# 6. ufw — allow the default libvirt subnet to route
+# -----------------------------------------------------------------------------
+if ! bdb_has_cmd "ufw"; then
+    bdb_warn "ufw not installed — skipping firewall route for libvirt subnet"
+elif sudo ufw status | grep -q '192.168.122.0/24'; then
+    bdb_success "ufw route for libvirt subnet already present"
+else
+    bdb_exec "Allowing libvirt subnet through ufw" \
+        sudo ufw route allow from 192.168.122.0/24
+fi
+
+bdb_script_end "virt-manager / libvirt setup complete"
+
+exit 0

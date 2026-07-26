@@ -295,6 +295,7 @@ fi
 | `07-install-darkman` | onchange | ✅ | — | — | Install darkman + xdg-desktop-portal-gtk, enable darkman.service (GNOME workstation; pacman/dnf only) |
 | `08-install-ddcutil` | onchange | ✅ | — | — | ddcutil monitor brightness (linux workstation; auto-installed, not in matrix): install + load i2c-dev + join `i2c` group; GNOME reminder |
 | `09-install-syncthing` | onchange | ✅ | ✅ | — | Syncthing file sync (workstation auto, terminal prompted; not in matrix): install + enable user service on login; web-GUI reminder |
+| `10-install-virt-manager` | onchange | ✅ | — | — | QEMU/KVM + virt-manager (**CachyOS workstation only**, auto-installed, not in matrix): install qemu-full + virt-manager, libvirt iptables backend, `libvirt` group, enable libvirtd.socket, autostart default net, ufw route for `192.168.122.0/24` |
 | `bdb_update.sh` (hook) | `chezmoi update` only | ✅ | ✅ | ✅ | System packages (all); ZSH plugins + caches + `rustup update` + `gem update bundler erb` (non-server) |
 
 W = workstation, T = terminal, S = server.
@@ -345,7 +346,8 @@ bdb_bootstrap.sh
               ├── 06-install-sddm    (SDDM theme — workstation with SDDM only)
               ├── 07-install-darkman (install + enable service — GNOME workstation only)
               ├── 08-install-ddcutil (monitor brightness — linux workstation only)
-              └── 09-install-syncthing (file sync — workstation + terminal)
+              ├── 09-install-syncthing (file sync — workstation + terminal)
+              └── 10-install-virt-manager (QEMU/KVM + virt-manager — CachyOS workstation only)
 ```
 
 ### Update Flow
@@ -396,7 +398,8 @@ dotfiles/
     │   ├── run_onchange_after_06-install-sddm.sh.tmpl         # workstation only
     │   ├── run_onchange_after_07-install-darkman.sh.tmpl      # GNOME workstation only
     │   ├── run_onchange_after_08-install-ddcutil.sh.tmpl      # linux workstation only
-    │   └── run_onchange_after_09-install-syncthing.sh.tmpl    # workstation + terminal
+    │   ├── run_onchange_after_09-install-syncthing.sh.tmpl    # workstation + terminal
+    │   └── run_onchange_after_10-install-virt-manager.sh.tmpl # CachyOS workstation only
     ├── dot_config/
     │   ├── bdb/
     │   │   ├── bdb_bootstrap.sh        # Not deployed

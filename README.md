@@ -105,7 +105,10 @@ These scripts run automatically during `chezmoi apply` or `chezmoi update`:
 | `run_onchange_after_04-install-ansible.sh.tmpl` | on change | Installs Ansible (auto on workstation, prompted on terminal; never on servers) |
 | `run_onchange_after_05-install-docker.sh.tmpl` | on change | Prompts for and installs Docker (workstation only, Linux) |
 | `run_onchange_after_06-install-sddm.sh.tmpl` | on change | Deploy SDDM config + Tokyo Night Moon theme to `/etc/` and `/usr/share/` |
-| `run_onchange_after_07-install-darkman.sh.tmpl` | on change | Enable darkman.service (GNOME workstations only) |
+| `run_onchange_after_07-install-darkman.sh.tmpl` | on change | Install + enable darkman.service (GNOME workstations only) |
+| `run_onchange_after_08-install-ddcutil.sh.tmpl` | on change | Install + configure ddcutil monitor brightness (Linux workstations only) |
+| `run_onchange_after_09-install-syncthing.sh.tmpl` | on change | Install + enable Syncthing (workstation auto, terminal prompted) |
+| `run_onchange_after_10-install-virt-manager.sh.tmpl` | on change | Install QEMU/KVM + virt-manager and configure libvirt (CachyOS workstations only) |
 
 System and toolchain updates (`~/.config/bdb/bdb_update.sh`) run as a chezmoi
 `[hooks.update.post]` hook — only after `chezmoi update`, never on plain
