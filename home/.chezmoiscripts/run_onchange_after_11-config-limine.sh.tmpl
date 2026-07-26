@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Chezmoi Script: Configure limine-snapper-sync (CachyOS)
+# =============================================================================
+# limine-snapper-sync keeps the Limine boot menu in sync with Btrfs/snapper
+# snapshots. Its config is a bash-sourced /etc/ file (KEY=value), so it can't be
+# targeted from the ~/ chezmoi tree — this script edits it in place via sudo,
+# setting each key (replacing an existing line or appending if absent).
+#
+# CachyOS only (the sole distro here that ships Limine + snapper). Idempotent:
+# keys already at the desired value are left untouched.
+#
+# Execution: chezmoi apply (only when this file's content changes)
+# Location:  .chezmoiscripts/run_onchange_after_11-config-limine.sh.tmpl
+# =============================================================================
+{{- /* CachyOS only — Limine bootloader + snapper snapshot integration. */ -}}
+{{- if ne .osid "linux-cachyos" }}
+exit 0
+{{- end }}
+
+source "${HELPERS}"
+
+bdb_script_init "${BASH_SOURCE[0]}"
+
+bdb_begin_section "Limine snapshot sync (limine-snapper-sync)"
+
+_conf="/etc/limine-snapper-sync.conf"
+
+# The config ships with the limine-snapper-sync package; if it is missing the
+# tool isn't installed, so there is nothing to configure.
+if [[ ! -f "${_conf}" ]]; then
+    bdb_warn "${_conf} not found — limine-snapper-sync not installed; skipping"
+    bdb_end_section
+    exit 0
+fi
+
+# Set KEY=value: no-op if already correct, replace an existing line, else append.
+_set_kv() {
+    local key="$1" value="$2" line="$1=$2"
+    if grep -qxF "${line}" "${_conf}"; then
+        bdb_success "${key}=${value} already set"
+    elif grep -qE "^${key}=" "${_conf}"; then
+        bdb_action "Updating ${key} → ${value}"
+        sudo sed -i -E "s|^${key}=.*|${line}|" "${_conf}"
+        bdb_success "${key}=${value} set"
+    else
+        bdb_action "Adding ${key}=${value}"
+        printf '%s\n' "${line}" | sudo tee -a "${_conf}" > /dev/null
+        bdb_success "${key}=${value} added"
+    fi
+}
+
+_set_kv MAX_SNAPSHOT_ENTRIES 10
+_set_kv SNAPSHOT_FORMAT_CHOICE 8
+
+bdb_end_section
+
+exit 0

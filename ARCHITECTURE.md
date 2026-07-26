@@ -296,6 +296,7 @@ fi
 | `08-install-ddcutil` | onchange | ✅ | — | — | ddcutil monitor brightness (linux workstation; auto-installed, not in matrix): install + load i2c-dev + join `i2c` group; GNOME reminder |
 | `09-install-syncthing` | onchange | ✅ | ✅ | — | Syncthing file sync (workstation auto, terminal prompted; not in matrix): install + enable user service on login; web-GUI reminder |
 | `10-install-virt-manager` | onchange | ✅ | — | — | QEMU/KVM + virt-manager (**CachyOS workstation only**, auto-installed, not in matrix): install qemu-full + virt-manager, libvirt iptables backend, `libvirt` group, enable libvirtd.socket, autostart default net, ufw route for `192.168.122.0/24` |
+| `11-config-limine` | onchange | ✅ | — | — | Configure limine-snapper-sync (**CachyOS only**): set `MAX_SNAPSHOT_ENTRIES=10` and `SNAPSHOT_FORMAT_CHOICE=8` in `/etc/limine-snapper-sync.conf` (replace-or-append; skips if the file is absent) |
 | `bdb_update.sh` (hook) | `chezmoi update` only | ✅ | ✅ | ✅ | System packages (all); ZSH plugins + caches + `rustup update` + `gem update bundler erb` (non-server) |
 
 W = workstation, T = terminal, S = server.
@@ -347,7 +348,8 @@ bdb_bootstrap.sh
               ├── 07-install-darkman (install + enable service — GNOME workstation only)
               ├── 08-install-ddcutil (monitor brightness — linux workstation only)
               ├── 09-install-syncthing (file sync — workstation + terminal)
-              └── 10-install-virt-manager (QEMU/KVM + virt-manager — CachyOS workstation only)
+              ├── 10-install-virt-manager (QEMU/KVM + virt-manager — CachyOS workstation only)
+              └── 11-config-limine   (limine-snapper-sync.conf — CachyOS only)
 ```
 
 ### Update Flow
@@ -399,7 +401,8 @@ dotfiles/
     │   ├── run_onchange_after_07-install-darkman.sh.tmpl      # GNOME workstation only
     │   ├── run_onchange_after_08-install-ddcutil.sh.tmpl      # linux workstation only
     │   ├── run_onchange_after_09-install-syncthing.sh.tmpl    # workstation + terminal
-    │   └── run_onchange_after_10-install-virt-manager.sh.tmpl # CachyOS workstation only
+    │   ├── run_onchange_after_10-install-virt-manager.sh.tmpl # CachyOS workstation only
+    │   └── run_onchange_after_11-config-limine.sh.tmpl        # CachyOS only
     ├── dot_config/
     │   ├── bdb/
     │   │   ├── bdb_bootstrap.sh        # Not deployed
