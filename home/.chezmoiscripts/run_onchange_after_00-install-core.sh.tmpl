@@ -315,7 +315,20 @@ if [[ ! -f "${BREWFILE}" ]]; then
 fi
 
 bdb_var "Brewfile" "${BREWFILE}"
-bdb_exec "Installing Homebrew packages" brew bundle --file="${BREWFILE}"
+
+# brew bundle exits non-zero if any formula's post-install step fails, even
+# when the keg itself installed cleanly — e.g. Homebrew's keg-only `rustup`,
+# whose post-install merely creates convenience symlinks. Don't abort on that:
+# if `brew bundle check` confirms every Brewfile entry is present afterwards,
+# treat it as success; only a genuinely missing package is fatal.
+if bdb_exec "Installing Homebrew packages" brew bundle --file="${BREWFILE}"; then
+    :
+elif brew bundle check --file="${BREWFILE}" --no-upgrade >/dev/null 2>&1; then
+    bdb_warn "brew bundle reported a non-fatal post-install failure; all Brewfile packages are present"
+else
+    bdb_error "brew bundle failed: one or more packages are missing"
+    exit 1
+fi
 
 {{- end }}
 

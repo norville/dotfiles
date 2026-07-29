@@ -251,6 +251,11 @@ fi
 
 # Rust/Cargo binaries (rustup official installer; on Arch pacman-rustup uses /usr/bin/)
 [[ -d "${HOME}/.cargo/bin" ]] && path=("${HOME}/.cargo/bin" $path)
+{{- if eq .chezmoi.os "darwin" }}
+# Homebrew's rustup is keg-only (conflicts with rust), so its proxies
+# (rustup, cargo, rustc, …) stay in the keg rather than ~/.cargo/bin.
+[[ -d "${HOMEBREW_PREFIX}/opt/rustup/bin" ]] && path=("${HOMEBREW_PREFIX}/opt/rustup/bin" $path)
+{{- end }}
 
 # Ruby user gems — redirect gem/bundler installs away from the root-owned system dir
 if command -v ruby >/dev/null 2>&1; then

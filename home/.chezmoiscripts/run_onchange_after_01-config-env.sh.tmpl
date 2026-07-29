@@ -89,6 +89,13 @@ fi
 # -----------------------------------------------------------------------------
 # Rust / rustup
 # -----------------------------------------------------------------------------
+{{- if eq .chezmoi.os "darwin" }}
+# Homebrew's rustup is keg-only (not symlinked into the prefix bin), so put its
+# keg bin on PATH before probing — otherwise rustup looks uninstalled here.
+_rustup_bin="$(brew --prefix rustup 2>/dev/null)/bin"
+[[ -d "${_rustup_bin}" ]] && export PATH="${_rustup_bin}:${PATH}"
+unset _rustup_bin
+{{- end }}
 
 if bdb_test_cmd "rustup"; then
     bdb_action "Configuring Rust toolchain"
