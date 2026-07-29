@@ -80,7 +80,10 @@ fi
 # drop blank lines and progress-bar spam, and tag each line as [OUT].
 _bdb_log_output() {
     local line
-    sed ${_BDB_SED_UNBUF} -E $'s/\x1b\\[[0-9;?]*[a-zA-Z]//g; s/\x1b\\][^\x07]*\x07//g; s/\x1b[@-_]//g' \
+    # LC_ALL=C: process byte-wise so BSD sed accepts the [@-_] byte range
+    # (a UTF-8 locale rejects it with "RE error: invalid character range")
+    # and never chokes on non-UTF-8 output ("illegal byte sequence").
+    LC_ALL=C sed ${_BDB_SED_UNBUF} -E $'s/\x1b\\[[0-9;?]*[a-zA-Z]//g; s/\x1b\\][^\x07]*\x07//g; s/\x1b[@-_]//g' \
         | while IFS= read -r line || [[ -n "${line}" ]]; do
             line="${line%$'\r'}"      # CRLF line endings
             line="${line##*$'\r'}"    # progress redraws: keep what remains visible
