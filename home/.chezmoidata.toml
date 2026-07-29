@@ -222,11 +222,6 @@ managers = ["brew-formula", "snap", "pacman", "dnf"]
 machines = ["workstation", "terminal"]
 
 [[package]]
-name     = "logi-options-plus"
-managers = ["brew-cask"]
-machines = ["workstation"]
-
-[[package]]
 name     = "moom"
 managers = ["brew-cask"]
 machines = ["workstation"]

@@ -1,2 +1,5 @@
 # norville/dotfiles
-- [ ] automate macos configuration via 'defaults'
+- [ ] track syncthing config
+- [ ] macos
+  - [ ] automate configuration via 'defaults'
+  - [ ] install and config aerospace
