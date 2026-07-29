@@ -232,15 +232,34 @@ install_deps_macos() {
         bdb_success "Xcode Command Line Tools already installed"
     else
         bdb_warn "Xcode Command Line Tools not installed"
-        bdb_exec "Installing Xcode Command Line Tools" xcode-select --install
 
-        # xcode-select --install returns immediately; installation runs in the background
-        bdb_action "Waiting for Xcode installation to complete"
-        until xcode-select -p &>/dev/null; do
-            sleep 5
-        done
+        # Install headlessly via softwareupdate — the same method Homebrew's
+        # installer uses. Avoids the interactive `xcode-select --install` GUI
+        # (dialog + license click) and the busy-wait loop that follows it.
+        # The placeholder file makes softwareupdate list the CLT package.
+        local clt_placeholder="/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress"
+        sudo touch "${clt_placeholder}"
 
-        bdb_success "Xcode Command Line Tools installed"
+        local clt_label
+        clt_label="$(softwareupdate -l 2>/dev/null | grep -B1 'Command Line Tools' |
+            awk -F'*' '/^ *\*/ {print $2}' | sed -e 's/^ *Label: //' -e 's/^ *//' |
+            sort -V | tail -n1)"
+
+        if [[ -n "${clt_label}" ]]; then
+            bdb_exec "Installing Xcode Command Line Tools" sudo softwareupdate -i "${clt_label}"
+            sudo rm -f "${clt_placeholder}"
+            bdb_success "Xcode Command Line Tools installed"
+        else
+            # Fallback: no CLT label found (rare) — use the interactive installer.
+            sudo rm -f "${clt_placeholder}"
+            bdb_warn "Could not find a Command Line Tools update; falling back to GUI installer"
+            bdb_exec "Installing Xcode Command Line Tools" xcode-select --install
+            bdb_action "Waiting for Xcode installation to complete"
+            until xcode-select -p &>/dev/null; do
+                sleep 5
+            done
+            bdb_success "Xcode Command Line Tools installed"
+        fi
     fi
 
     # --- Step 2: Homebrew ---
@@ -253,7 +272,9 @@ install_deps_macos() {
         bdb_exec "Upgrading Homebrew packages" brew upgrade
     else
         bdb_warn "Homebrew not installed"
-        bdb_exec "Installing Homebrew" /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        # NONINTERACTIVE=1 skips the installer's "Press RETURN to continue"
+        # prompt and makes its own CLT check headless (no GUI fallback).
+        bdb_exec "Installing Homebrew" env NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
         # Homebrew path differs between Apple Silicon (/opt/homebrew) and Intel (/usr/local)
         if [[ -x "/opt/homebrew/bin/brew" ]]; then
