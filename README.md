@@ -110,6 +110,7 @@ These scripts run automatically during `chezmoi apply` or `chezmoi update`:
 | `run_onchange_after_09-install-syncthing.sh.tmpl` | on change | Install + enable Syncthing (workstation auto, terminal prompted) |
 | `run_onchange_after_10-install-virt-manager.sh.tmpl` | on change | Install QEMU/KVM + virt-manager and configure libvirt (CachyOS workstations only) |
 | `run_onchange_after_11-config-limine.sh.tmpl` | on change | Set snapshot options in `/etc/limine-snapper-sync.conf` (CachyOS only) |
+| `run_onchange_after_12-config-syncthing.sh.tmpl` | on change | Enforce the `<defaults>` block (folder/device + ignore patterns) in Syncthing's `config.xml` (workstation + terminal) |
 
 System and toolchain updates (`~/.config/bdb/bdb_update.sh`) run as a chezmoi
 `[hooks.update.post]` hook — only after `chezmoi update`, never on plain

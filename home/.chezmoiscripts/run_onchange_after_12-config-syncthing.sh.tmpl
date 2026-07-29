@@ -1,0 +1,434 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Chezmoi Script: Configure Syncthing defaults
+# =============================================================================
+# Enforces the <defaults> template (default folder, default device and the
+# default ignore patterns) in syncthing's config.xml. The rest of config.xml is
+# owned by syncthing (device IDs, GUI credentials, API key, live folders) and is
+# NOT tracked by chezmoi — this script only owns the <defaults> block.
+#
+# run_onchange: re-runs only when this file's content changes (i.e. when the
+# canonical block below is edited) or on a fresh machine — never on every apply,
+# so it never fights syncthing's own rewrites of the surrounding file.
+#
+# Workstation (linux/darwin) and terminal (linux) machines only. Idempotent:
+# skips when the on-disk block already matches, restarting syncthing only when a
+# change is actually applied.
+#
+# Execution: chezmoi apply (only when this file's content changes)
+# Location:  .chezmoiscripts/run_onchange_after_12-config-syncthing.sh.tmpl
+# =============================================================================
+{{- /* Syncthing scope: workstation + terminal, never servers. */ -}}
+{{- if not (or (eq .machine "workstation") (eq .machine "terminal")) }}
+exit 0
+{{- end }}
+
+source "${HELPERS}"
+
+bdb_script_init "${BASH_SOURCE[0]}"
+
+bdb_begin_section "Syncthing defaults"
+
+# Nothing to configure if syncthing was never installed (e.g. declined on a
+# terminal). 09-install-syncthing runs first, so on a fresh apply it is present.
+if ! bdb_has_cmd "syncthing"; then
+    bdb_warn "Skipping — syncthing is not installed"
+    bdb_end_section
+    exit 0
+fi
+
+# -----------------------------------------------------------------------------
+# Locate config.xml (cross-platform via `syncthing paths`)
+# -----------------------------------------------------------------------------
+_conf="$(syncthing paths 2>/dev/null |
+    awk '/^Configuration file:/{getline; gsub(/^[ \t]+/, ""); print; exit}')"
+
+if [[ -z "${_conf}" ]]; then
+    # Fallback to the documented default locations.
+    {{- if eq .chezmoi.os "darwin" }}
+    _conf="${HOME}/Library/Application Support/Syncthing/config.xml"
+    {{- else }}
+    _conf="${XDG_STATE_HOME:-${HOME}/.local/state}/syncthing/config.xml"
+    {{- end }}
+fi
+bdb_var "Config file" "${_conf}"
+
+# Create a default config if syncthing has never generated one yet. `generate`
+# writes config + keys without starting the daemon and is a no-op if present.
+if [[ ! -f "${_conf}" ]]; then
+    bdb_exec "Generating initial syncthing config" \
+        syncthing generate --config "$(dirname "${_conf}")"
+fi
+
+# -----------------------------------------------------------------------------
+# Canonical <defaults> block
+# -----------------------------------------------------------------------------
+# Quoted heredoc: patterns such as $RECYCLE.BIN, $WINDOWS.~BT and ~$* must NOT be
+# shell-expanded. Indentation matches syncthing's own (4 spaces for <defaults>).
+_block="$(mktemp)"
+# Register temp files with bdb_cleanup (do NOT set an EXIT trap here — that
+# would override the one bdb_script_init installs for logging cleanup).
+BDB_TEMP_FILES="${BDB_TEMP_FILES:-} ${_block}"
+
+cat > "${_block}" <<'SYNCTHING_DEFAULTS_EOF'
+    <defaults>
+        <folder id="" label="" path="" type="sendreceive" rescanIntervalS="3600" fsWatcherEnabled="true" fsWatcherDelayS="10" fsWatcherTimeoutS="0" ignorePerms="true" autoNormalize="true">
+            <filesystemType>basic</filesystemType>
+            <minDiskFree unit="%">1</minDiskFree>
+            <versioning>
+                <cleanupIntervalS>3600</cleanupIntervalS>
+                <fsPath></fsPath>
+                <fsType>basic</fsType>
+            </versioning>
+            <copiers>0</copiers>
+            <pullerMaxPendingKiB>0</pullerMaxPendingKiB>
+            <hashers>0</hashers>
+            <order>random</order>
+            <ignoreDelete>false</ignoreDelete>
+            <scanProgressIntervalS>0</scanProgressIntervalS>
+            <pullerPauseS>0</pullerPauseS>
+            <pullerDelayS>1</pullerDelayS>
+            <maxConflicts>10</maxConflicts>
+            <disableSparseFiles>false</disableSparseFiles>
+            <paused>false</paused>
+            <markerName>.stfolder</markerName>
+            <copyOwnershipFromParent>false</copyOwnershipFromParent>
+            <modTimeWindowS>0</modTimeWindowS>
+            <maxConcurrentWrites>16</maxConcurrentWrites>
+            <disableFsync>false</disableFsync>
+            <blockPullOrder>standard</blockPullOrder>
+            <copyRangeMethod>standard</copyRangeMethod>
+            <caseSensitiveFS>false</caseSensitiveFS>
+            <junctionsAsDirs>false</junctionsAsDirs>
+            <syncOwnership>false</syncOwnership>
+            <sendOwnership>false</sendOwnership>
+            <syncXattrs>false</syncXattrs>
+            <sendXattrs>false</sendXattrs>
+            <blockIndexing>true</blockIndexing>
+            <xattrFilter>
+                <maxSingleEntrySize>1024</maxSingleEntrySize>
+                <maxTotalSize>4096</maxTotalSize>
+            </xattrFilter>
+        </folder>
+        <device id="" compression="metadata" introducer="false" skipIntroductionRemovals="false" introducedBy="">
+            <address>dynamic</address>
+            <paused>false</paused>
+            <autoAcceptFolders>false</autoAcceptFolders>
+            <maxSendKbps>0</maxSendKbps>
+            <maxRecvKbps>0</maxRecvKbps>
+            <maxRequestKiB>0</maxRequestKiB>
+            <untrusted>false</untrusted>
+            <remoteGUIPort>0</remoteGUIPort>
+            <numConnections>0</numConnections>
+        </device>
+        <ignores>
+            <line>// ============================================</line>
+            <line>// DOWNLOADS IN PROGRESS (files only)</line>
+            <line>// ============================================</line>
+            <line>*.part</line>
+            <line>*.crdownload</line>
+            <line></line>
+            <line>// ============================================</line>
+            <line>// TEMPORARY &amp; BACKUP FILES</line>
+            <line>// ============================================</line>
+            <line>*~</line>
+            <line>*.tmp</line>
+            <line>*.TMP</line>
+            <line>*.temp</line>
+            <line>*.bak</line>
+            <line>*.old</line>
+            <line>*.log</line>
+            <line>*.lock</line>
+            <line>*.shm</line>
+            <line>*.wal</line>
+            <line>*.sqlite*</line>
+            <line>*.stackdump</line>
+            <line>~$*</line>
+            <line>.~lock.*</line>
+            <line>~WRL*.tmp</line>
+            <line>*.wbk</line>
+            <line>*.asd</line>
+            <line>.#*</line>
+            <line>.~lock.*</line>
+            <line></line>
+            <line>// ============================================</line>
+            <line>// EDITOR SWAP FILES</line>
+            <line>// ============================================</line>
+            <line>*.swp</line>
+            <line>*.sw[a-p]</line>
+            <line>*.swo</line>
+            <line>*.swn</line>
+            <line></line>
+            <line>// ============================================</line>
+            <line>// macOS &amp; UNIX SYSTEM FILES</line>
+            <line>// ============================================</line>
+            <line>.DS_Store</line>
+            <line>.AppleDouble</line>
+            <line>.LSOverride</line>
+            <line>.directory</line>
+            <line>.localized</line>
+            <line>*.icloud</line>
+            <line>.apdisk</line>
+            <line>.gvfs</line>
+            <line></line>
+            <line>// ============================================</line>
+            <line>// macOS SYSTEM DIRECTORIES (directories only)</line>
+            <line>// ============================================</line>
+            <line>(?d).Spotlight-V100</line>
+            <line>(?d).Trashes</line>
+            <line>(?d).fseventsd</line>
+            <line>(?d).DocumentRevisions-V100</line>
+            <line>(?d).TemporaryItems</line>
+            <line>(?d).VolumeIcon.icns</line>
+            <line>(?d).com.apple.timemachine.donotpresent</line>
+            <line>(?d).AppleDB</line>
+            <line>(?d).AppleDesktop</line>
+            <line>(?d)Network Trash Folder</line>
+            <line>(?d).iCloud*</line>
+            <line></line>
+            <line>// ============================================</line>
+            <line>// WINDOWS SYSTEM FILES</line>
+            <line>// ============================================</line>
+            <line>Thumbs.db</line>
+            <line>Thumbs.db:encryptable</line>
+            <line>ehthumbs.db</line>
+            <line>ehthumbs_vista.db</line>
+            <line>desktop.ini</line>
+            <line>Icon*</line>
+            <line>pagefile.sys</line>
+            <line>hiberfil.sys</line>
+            <line>swapfile.sys</line>
+            <line></line>
+            <line>// NOTE: *.lnk and *.url are NOT ignored - they sync normally</line>
+            <line></line>
+            <line>// ============================================</line>
+            <line>// WINDOWS SYSTEM DIRECTORIES (directories only)</line>
+            <line>// ============================================</line>
+            <line>(?d)$RECYCLE.BIN</line>
+            <line>(?d)System Volume Information</line>
+            <line>(?d)Trash-*</line>
+            <line>(?d)Recovery</line>
+            <line>(?d)Windows.old</line>
+            <line>(?d)$WINDOWS.~BT</line>
+            <line>(?d)$WINDOWS.~LS</line>
+            <line></line>
+            <line>// ============================================</line>
+            <line>// LINUX/UNIX SYSTEM DIRECTORIES</line>
+            <line>// ============================================</line>
+            <line>(?d)lost+found</line>
+            <line>(?d)dev</line>
+            <line>(?d)proc</line>
+            <line>(?d)sys</line>
+            <line>(?d)run</line>
+            <line>(?d)selinux</line>
+            <line>(?d)tmp</line>
+            <line>(?d)var/lib/lxcfs</line>
+            <line>(?d).Trash-*</line>
+            <line>(?d).trash-*</line>
+            <line>(?d).local/share/trash</line>
+            <line></line>
+            <line>// ============================================</line>
+            <line>// SYNCING APP METADATA (directories only)</line>
+            <line>// ============================================</line>
+            <line>(?d).stfolder</line>
+            <line>(?d).stversions</line>
+            <line>(?d).syncthing</line>
+            <line>(?d).syncthing*</line>
+            <line>(?d).sync</line>
+            <line>(?d).dropbox</line>
+            <line>(?d).dropbox.attr</line>
+            <line>(?d).parallels-vm-directory</line>
+            <line>(?d).@__thumb</line>
+            <line></line>
+            <line>// ============================================</line>
+            <line>// SYNCING APP METADATA (files only or mixed)</line>
+            <line>// ============================================</line>
+            <line>.stignore</line>
+            <line>.SyncID</line>
+            <line>.SyncIgnore</line>
+            <line>.SyncArchive</line>
+            <line>*.!Sync</line>
+            <line>*.SyncPart</line>
+            <line>*.SyncTemp</line>
+            <line>*.SyncOld</line>
+            <line>*.bts</line>
+            <line>*.rsls</line>
+            <line></line>
+            <line>// ============================================</line>
+            <line>// NAS &amp; DEVICE-SPECIFIC DIRECTORIES</line>
+            <line>// ============================================</line>
+            <line>(?d)@eaDir</line>
+            <line>(?d).@__thumb</line>
+            <line>(?d).AppleDB</line>
+            <line>(?d).AppleDesktop</line>
+            <line></line>
+            <line>// ============================================</line>
+            <line>// VERSION CONTROL (directories)</line>
+            <line>// ============================================</line>
+            <line>(?d).git</line>
+            <line>(?d).svn</line>
+            <line>(?d).hg</line>
+            <line>(?d).bzr</line>
+            <line>(?d).cvs</line>
+            <line></line>
+            <line>// ============================================</line>
+            <line>// VERSION CONTROL (files)</line>
+            <line>// ============================================</line>
+            <line>*.git</line>
+            <line>*.svn</line>
+            <line></line>
+            <line>// ============================================</line>
+            <line>// CACHE &amp; TEMP DIRECTORIES</line>
+            <line>// ============================================</line>
+            <line>(?d).cache</line>
+            <line>(?d).thumbnails</line>
+            <line>(?d)cache</line>
+            <line>(?d)temp</line>
+            <line>(?d)TEMP</line>
+            <line>(?d)Temp</line>
+            <line>(?d)trash</line>
+            <line>(?d)Trash</line>
+            <line>(?d).Trash</line>
+            <line>(?d).Trash-*</line>
+            <line>(?d)thumbnails</line>
+            <line>(?d)templates_c</line>
+            <line>(?d)asset-cache</line>
+            <line>(?d)captcha_tmp</line>
+            <line>(?d)checkouts</line>
+            <line>(?d)staging.*</line>
+            <line>(?d)nobackup</line>
+            <line>(?d)tmp_uploads</line>
+            <line>(?d)files_trashbin</line>
+            <line>(?d)data/searchIndex</line>
+            <line>(?d)searchIndex</line>
+            <line>(?d)__pycache__</line>
+            <line>(?d).venv</line>
+            <line>(?d)venv</line>
+            <line>(?d)node_modules</line>
+            <line>(?d).idea</line>
+            <line>(?d).vscode</line>
+            <line>(?d).pytest_cache</line>
+            <line>(?d).mypy_cache</line>
+            <line>(?d).tox</line>
+            <line></line>
+            <line>// ============================================</line>
+            <line>// CACHE &amp; TEMP FILES</line>
+            <line>// ============================================</line>
+            <line>*.cache</line>
+            <line>*CACHE*</line>
+            <line>*cache*</line>
+            <line>*.pyc</line>
+            <line>*.pyo</line>
+            <line>*.class</line>
+            <line>*.o</line>
+            <line>*.obj</line>
+            <line></line>
+            <line>// ============================================</line>
+            <line>// CONFLICT &amp; LOCK FILES</line>
+            <line>// ============================================</line>
+            <line>*Conflict*</line>
+            <line>*conflict*</line>
+            <line>*S*Conflict*</line>
+            <line>*s*conflict*</line>
+            <line>*inaccessible*</line>
+            <line>*.lock</line>
+            <line>*.LCK</line>
+            <line></line>
+            <line>// ============================================</line>
+            <line>// MISCELLANEOUS</line>
+            <line>// ============================================</line>
+            <line>(?d).Shared</line>
+            <line>(?d).Prullenbak</line>
+            <line>(?d)a_writable</line>
+            <line>(?d)selinux</line>
+            <line>.escheck.tmp</line>
+            <line>forms.json</line>
+            <line>a_writable</line>
+            <line>captcha_tmp</line>
+            <line>checkouts</line>
+            <line>staging.*</line>
+            <line>nobackup</line>
+            <line>tmp_uploads</line>
+            <line>files_trashbin/</line>
+            <line>forms.json</line>
+            <line>searchIndex</line>
+            <line>templates_c</line>
+            <line>thumbnails</line>
+            <line>trash</line>
+            <line>.Prullenbak</line>
+            <line>.Shared</line>
+            <line>LOST.DIR</line>
+            <line>Trash*</line>
+            <line>.trash*</line>
+            <line>.Trash*</line>
+        </ignores>
+    </defaults>
+SYNCTHING_DEFAULTS_EOF
+
+# -----------------------------------------------------------------------------
+# Idempotency: skip if the on-disk <defaults> block already matches
+# -----------------------------------------------------------------------------
+_current="$(mktemp)"
+BDB_TEMP_FILES="${BDB_TEMP_FILES:-} ${_current}"
+awk '/<defaults>/{f=1} f{print} /<\/defaults>/{exit}' "${_conf}" > "${_current}"
+
+if cmp -s "${_current}" "${_block}"; then
+    bdb_success "Syncthing defaults already up to date"
+    bdb_end_section
+    exit 0
+fi
+
+if ! grep -q '<defaults>' "${_conf}"; then
+    bdb_error "No <defaults> block found in ${_conf} — refusing to edit"
+    bdb_end_section
+    exit 1
+fi
+
+# -----------------------------------------------------------------------------
+# Apply: stop syncthing (edits to config.xml are only read at startup), splice
+# in the canonical block, then restart if it had been running.
+# -----------------------------------------------------------------------------
+_was_running=false
+{{- if eq .chezmoi.os "linux" }}
+if systemctl --user is-active syncthing.service &>/dev/null; then
+    _was_running=true
+    bdb_exec "Stopping syncthing" systemctl --user stop syncthing.service
+fi
+{{- else if eq .chezmoi.os "darwin" }}
+if brew services list | awk '$1=="syncthing" && $2=="started"{ok=1} END{exit !ok}'; then
+    _was_running=true
+    bdb_exec "Stopping syncthing" brew services stop syncthing
+fi
+{{- end }}
+
+bdb_action "Updating <defaults> block in config.xml"
+_new="$(mktemp)"
+BDB_TEMP_FILES="${BDB_TEMP_FILES:-} ${_new}"
+awk -v blockfile="${_block}" '
+    /<defaults>/ && !done {
+        while ((getline line < blockfile) > 0) print line
+        close(blockfile)
+        inblock = 1; done = 1; next
+    }
+    inblock && /<\/defaults>/ { inblock = 0; next }
+    inblock { next }
+    { print }
+' "${_conf}" > "${_new}"
+
+# Preserve ownership/permissions by writing back in place.
+cat "${_new}" > "${_conf}"
+bdb_success "Syncthing defaults applied"
+
+{{- if eq .chezmoi.os "linux" }}
+if "${_was_running}"; then
+    bdb_exec "Starting syncthing" systemctl --user start syncthing.service
+fi
+{{- else if eq .chezmoi.os "darwin" }}
+if "${_was_running}"; then
+    bdb_exec "Starting syncthing" brew services start syncthing
+fi
+{{- end }}
+
+bdb_end_section
+
+exit 0
