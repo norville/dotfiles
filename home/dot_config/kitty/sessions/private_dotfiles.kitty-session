@@ -1,0 +1,12 @@
+
+new_tab
+layout tall:bias=50;full_size=1;mirrored=false
+enabled_layouts tall:bias=50;full_size=1;mirrored=false
+set_layout_state {"main_bias": [0.6, 0.4], "biased_map": {}, "opts": {"full_size": 1, "bias": 50, "mirrored": "n"}, "class": "Tall", "all_windows": {"active_group_idx": 1, "active_group_history": [2, 1], "window_groups": [{"id": 1, "window_ids": [1]}, {"id": 2, "window_ids": [2]}]}}
+cd /home/norville/.local/share/chezmoi
+
+launch 'kitty-unserialize-data={"id": 1, "cmd_at_shell_startup": "nvim"}'
+launch 'kitty-unserialize-data={"id": 2}'
+focus_matching_window id:1
+
+focus_tab 0

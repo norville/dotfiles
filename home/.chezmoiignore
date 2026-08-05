@@ -71,9 +71,6 @@ sddm/
 .local/share/darkman/
 {{- end }}
 
-# kitty session files are runtime artefacts — never track them
-.config/kitty/sessions/*.kitty-session
-
 # -----------------------------------------------------------------------------
 # 1Password-Managed SSH Keys
 # -----------------------------------------------------------------------------
