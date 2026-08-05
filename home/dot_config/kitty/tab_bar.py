@@ -5,38 +5,48 @@ from kitty.tab_bar import DrawData, ExtraData, TabBarData, as_rgb
 
 opts = get_options()
 
-# Tab colors from kitty.conf — edit there, not here.
-ACTIVE_BG   = as_rgb(color_as_int(opts.active_tab_background))
-ACTIVE_FG   = as_rgb(color_as_int(opts.active_tab_foreground))
-INACTIVE_BG = as_rgb(color_as_int(opts.inactive_tab_background))
-INACTIVE_FG = as_rgb(color_as_int(opts.inactive_tab_foreground))
+# Mirrors the starship prompt (home/dot_config/starship/config.toml.tmpl):
+# a ui_bg_highlight bar carrying solid accent blocks, each entered and left by
+# slanted powerline seps and floating on the bar with a gap between them. Each
+# tab is a two-tone capsule — a solid accent block for the index (icon-capsule)
+# followed by the title on the bar in that accent's color.
+
+# Bar body + terminal bg. Tab colors come from kitty.conf — edit there, not here.
+HL_BG       = as_rgb(0x2f334d)  # ui_bg_highlight — the continuous bar body
+DARK_FG     = as_rgb(0x1e2030)  # ui_bg_dark — dark fg on light accent blocks
 BAR_BG      = as_rgb(color_as_int(
     opts.tab_bar_background if opts.tab_bar_background is not None else opts.background
 ))
-BELL_FG     = as_rgb(0xff757f)  # red — fixed
-CLOCK_BG    = as_rgb(0xcaabff)  # term_magenta_bright — Tokyo Night Moon
-CLOCK_FG    = as_rgb(0x1e2030)  # ui_bg_dark — dark fg for contrast on orange
-SESSION_BG  = as_rgb(0x4fd6be)  # term_cyan_bright — Tokyo Night Moon
-SESSION_FG  = as_rgb(0x1e2030)  # ui_bg_dark — dark fg for contrast on teal
 
-# U+E0BC  (upper-left triangle): fg fills the upper-left half of the cell, bg the lower-right.
-# Drawing with fg=departing_bg, bg=arriving_bg: the departing segment occupies the upper-left,
-# producing the / slanted entry into the arriving segment.
-SEP      = ''   # used around the active tab
-THIN_SEP = ''   # thin separator between two inactive tabs
+ACTIVE_BG   = as_rgb(color_as_int(opts.active_tab_background))    # #82aaff blue
+ACTIVE_FG   = as_rgb(color_as_int(opts.active_tab_foreground))    # #1e2030 dark
+INACT_IDX   = as_rgb(0x545c7e)  # ui_dark3 — muted index block for inactive tabs
+INACT_FG    = as_rgb(0x828bb8)  # term_white — readable inactive title on the bar
+BELL_FG     = as_rgb(0xff757f)  # term_red — needs-attention marker
 
-_prev_bg = BAR_BG
+# Right cluster accents, echoing the prompt's italic runtime bar. Tokyo Night Moon.
+OPENER_BG   = as_rgb(0x589ed7)  # ui_border_highlight — bar opener (os-like)
+SESSION_BG  = as_rgb(0x4fd6be)  # term_cyan_bright
+CLOCK_BG    = as_rgb(0xcaabff)  # term_magenta_bright
+
+# Slanted separator (Nerd Font). Draw with fg = departing color, bg = arriving
+# color, moving left→right.
+SLANT = ''  # top-left triangle powerline separator
+
+# Icons (Nerd Font). MDI coverage is confirmed by the starship config's glyphs.
+CAT      = '\U000f011b'  # nf-md-cat — kitty brand, opens the bar
+TERM     = ''      # nf-fa-terminal — session segment
+CLOCK    = ''      # nf-fa-clock — clock segment
 
 
 def _clock() -> str:
-    # U+F017 is the Nerd Font clock icon; surrounding spaces pad the segment.
-    return f'  {datetime.now().strftime("%H:%M")} '
+    return f' {CLOCK} {datetime.now().strftime("%H:%M")} '
 
 
 def _session_label(session_name: str) -> str:
     if session_name:
-        return f' [{session_name}] '
-    return ' <F1> save session | <F4> load session '
+        return f' {TERM} [{session_name}] '
+    return f' {TERM} <F1> save session | <F4> load session '
 
 
 def draw_tab(
@@ -49,77 +59,101 @@ def draw_tab(
     is_last: bool,
     extra_data: ExtraData,
 ) -> int:
-    global _prev_bg
-
+    # ── Bar opener: flat-edged accent block with the cat icon, slant into bar ──
     if index == 1:
-        _prev_bg = BAR_BG
+        screen.cursor.bold = False
+        screen.cursor.italic = False
+        screen.cursor.fg = DARK_FG
+        screen.cursor.bg = OPENER_BG
+        screen.draw(f' {CAT} ')
+        screen.cursor.fg = OPENER_BG
+        screen.cursor.bg = HL_BG
+        screen.draw(SLANT)
 
-    tab_bg = ACTIVE_BG if tab.is_active else INACTIVE_BG
-    tab_fg = ACTIVE_FG if tab.is_active else INACTIVE_FG
+    idx_bg = ACTIVE_BG if tab.is_active else INACT_IDX
+    title_fg = ACTIVE_BG if tab.is_active else INACT_FG
 
-    if index != 1:
-        if tab.is_active or _prev_bg == ACTIVE_BG:
-            # Full separator around the active tab
-            screen.cursor.fg = _prev_bg
-            screen.cursor.bg = tab_bg
-            screen.draw(SEP)
-        else:
-            # Thin separator between two inactive tabs; INACTIVE_FG on INACTIVE_BG
-            # since both share the same bg, fg=_prev_bg would be invisible.
-            screen.cursor.fg = INACTIVE_FG
-            screen.cursor.bg = INACTIVE_BG
-            screen.draw(THIN_SEP)
+    # ── Tab capsule: highlight → accent index block → slant → title, floating ──
+    # on the bar with the padding spaces preserved as the gap between tabs.
+    # Entry ramp: the HL-colored slant is invisible on the HL bar, so the accent
+    # index block simply gains a slanted left edge.
+    screen.cursor.bold = False
+    screen.cursor.italic = False
+    screen.cursor.fg = HL_BG
+    screen.cursor.bg = idx_bg
+    screen.draw(SLANT)
 
-    # Tab body
-    screen.cursor.fg = tab_fg
-    screen.cursor.bg = tab_bg
+    # Index block on solid accent
+    screen.cursor.bold = True
+    screen.cursor.fg = ACTIVE_FG if tab.is_active else DARK_FG
+    screen.cursor.bg = idx_bg
+    screen.draw(f' {index} ')
+
+    # Capsule → body: same slanted separator (accent → highlight)
+    screen.cursor.bold = False
+    screen.cursor.fg = idx_bg
+    screen.cursor.bg = HL_BG
+    screen.draw(SLANT)
+
+    # Title body on the highlight bar, in the accent's color
+    screen.cursor.bold = True
+    screen.cursor.fg = title_fg
+    screen.cursor.bg = HL_BG
+    title = tab.title or '~'
+    available = max_title_length - 6  # opener + index block + seps already consumed
+    if len(title) > available:
+        title = title[:max(available - 1, 1)] + '…'
     if tab.needs_attention:
         screen.cursor.fg = BELL_FG
-        screen.draw('! ')
-        screen.cursor.fg = tab_fg
-    title = f'{index}: {tab.title or "~"}'
-    available = max_title_length - 3
-    if len(title) > available:
-        title = title[:available - 1] + '…'
-    screen.draw(f' {title} ')
-
-    _prev_bg = tab_bg
+        screen.draw(' ! ')
+        screen.cursor.fg = title_fg
+        screen.draw(f'{title} ')
+    else:
+        screen.draw(f' {title} ')
 
     if is_last:
         session = _session_label(tab.session_name)
         clock = _clock()
-        right_width = 1 + len(session) + 1 + len(clock)  # session_sep + session + clock_sep + clock
+        # session_entry + session + session_exit + gap + clock_entry + clock
+        right_width = 1 + len(session) + 1 + 1 + 1 + len(clock)
 
-        # Close last tab into bar strip
-        screen.cursor.fg = tab_bg
-        screen.cursor.bg = BAR_BG
-        screen.draw(SEP)
-
-        # Fill bar until session section
+        # Stretch the highlight bar up to the right cluster (continuous bar)
+        screen.cursor.bold = False
+        screen.cursor.italic = False
         fill = screen.columns - right_width - screen.cursor.x
         if fill > 0:
-            screen.cursor.fg = BAR_BG
-            screen.cursor.bg = BAR_BG
+            screen.cursor.fg = HL_BG
+            screen.cursor.bg = HL_BG
             screen.draw(' ' * fill)
 
-        # Session left cap: bar → session
-        screen.cursor.fg = BAR_BG
+        # Session: highlight → solid cyan block, italic
+        screen.cursor.fg = HL_BG
         screen.cursor.bg = SESSION_BG
-        screen.draw(SEP)
-
-        # Session body
-        screen.cursor.fg = SESSION_FG
+        screen.draw(SLANT)
+        screen.cursor.italic = True
+        screen.cursor.fg = DARK_FG
         screen.cursor.bg = SESSION_BG
         screen.draw(session)
 
-        # Session → clock cap
+        # Gap: session → bar, a bar space, then bar → clock (floats them apart)
+        screen.cursor.italic = False
         screen.cursor.fg = SESSION_BG
-        screen.cursor.bg = CLOCK_BG
-        screen.draw(SEP)
+        screen.cursor.bg = HL_BG
+        screen.draw(SLANT)
+        screen.cursor.fg = HL_BG
+        screen.cursor.bg = HL_BG
+        screen.draw(' ')
 
-        # Clock body
-        screen.cursor.fg = CLOCK_FG
+        # Clock: highlight → solid magenta block, italic
+        screen.cursor.fg = HL_BG
+        screen.cursor.bg = CLOCK_BG
+        screen.draw(SLANT)
+        screen.cursor.italic = True
+        screen.cursor.fg = DARK_FG
         screen.cursor.bg = CLOCK_BG
         screen.draw(clock)
 
+    # Reset so styling never bleeds into the terminal
+    screen.cursor.bold = False
+    screen.cursor.italic = False
     return screen.cursor.x
