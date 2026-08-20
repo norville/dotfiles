@@ -1,4 +1,9 @@
+
 # norville/dotfiles
-- [ ] macos
-  - [ ] automate configuration via 'defaults'
-  - [ ] install and config aerospace
+
+- [ ] automate macos configuration via 'defaults'
+- [ ] edit kitty tab bar:
+  - remove section clock
+  - fix section session:
+    - no session: show keys
+    - update session name when changing tab
