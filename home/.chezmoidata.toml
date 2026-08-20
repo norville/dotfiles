@@ -361,6 +361,11 @@ name     = "whatsapp"
 managers = ["brew-cask"]
 machines = ["workstation"]
 
+[[package]]
+name     = "winbox"
+managers = ["brew-cask", "aur"]
+machines = ["workstation"]
+
 # yay bootstraps itself: 00-install-core builds it from source with makepkg
 # before running `yay -S` over this list, so listing it here is what makes the
 # AUR block run at all. Requires base-devel + git, both pacman/workstation.
