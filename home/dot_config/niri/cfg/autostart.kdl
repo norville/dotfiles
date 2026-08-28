@@ -1,0 +1,7 @@
+    // ────────────── Startup Applications ──────────────
+
+    // Launch Noctalia v4
+    spawn-sh-at-startup "qs -c noctalia-shell"
+
+    // Launch Noctalia v5
+    //spawn-at-startup "noctalia"

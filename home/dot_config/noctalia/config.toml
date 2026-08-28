@@ -1,0 +1,278 @@
+[audio]
+sound_volume = 0.84999998100101948
+
+[backdrop]
+blur_intensity = 0.24999999441206455
+tint_intensity = 0.0
+
+[bar.default]
+background_opacity = 0.54999998770654202
+capsule_opacity = 0.59999998658895493
+center = [ "privacy", "active_window" ]
+end = [ "notifications", "tray", "clipboard", "bar", "control-center", "clock", "session" ]
+margin_edge = 12
+margin_ends = 12
+padding = 12
+start = [ "launcher", "workspaces" ]
+
+    [bar.default.monitor.HDMI-A-1]
+    center = [ "shelly", "privacy" ]
+    end = [ "group:g1" ]
+    scale = 0.95000000670552254
+    start = [ "workspaces", "media" ]
+    thickness = 28
+
+        [[bar.default.monitor.HDMI-A-1.capsule_group]]
+        accordion = false
+        accordion_direction = "end"
+        enabled = true
+        fill = "surface_variant"
+        id = "g1"
+        members = [ "temp", "cpu", "ram", "sysmon", "network_rx", "network_tx" ]
+        opacity = 0.0
+        padding = 0.0
+
+[brightness]
+enable_ddcutil = true
+minimum_brightness = 0.04999999888241291
+sync_all_monitors = true
+
+[control_center]
+hidden_tabs = [ "media", "calendar", "notifications", "screen-time" ]
+sidebar = "full"
+sidebar_section = "full"
+
+    [[control_center.shortcuts]]
+    type = "dark_mode"
+
+    [[control_center.shortcuts]]
+    type = "nightlight"
+
+    [[control_center.shortcuts]]
+    type = "audio"
+
+    [[control_center.shortcuts]]
+    type = "mic_mute"
+
+[desktop_widgets]
+enabled = false
+
+[hooks]
+session_locked = "1password --lock"
+started = "1password --silent"
+
+[idle]
+behavior_order = [ "lock", "screen-off", "lock-and-suspend" ]
+
+    [idle.behavior.lock]
+    action = "lock"
+    enabled = true
+    timeout = 300.0
+
+    [idle.behavior.lock-and-suspend]
+    action = "suspend"
+    enabled = true
+    lock_before_suspend = false
+    timeout = 900.0
+
+    [idle.behavior.screen-off]
+    action = "screen_off"
+    enabled = true
+    timeout = 600.0
+
+[location]
+address = "Alessandria, IT"
+
+[lockscreen_widgets]
+enabled = false
+schema_version = 2
+widget_order = [ "lockscreen-login-box@HDMI-A-1", "lockscreen-login-box@DP-1" ]
+
+    [lockscreen_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
+    [lockscreen_widgets.widget."lockscreen-login-box@DP-1"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 1280.0
+    cy = 1258.0
+    output = "DP-1"
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@DP-1".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
+
+    [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-1"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 540.0
+    cy = 1738.0
+    output = "HDMI-A-1"
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-1".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
+
+[plugins]
+enabled = [ "rylos/syncthing" ]
+
+[shell]
+show_location = false
+
+    [shell.panel]
+    control_center_placement = "floating"
+    control_center_position = "center"
+    session_placement = "floating"
+    session_position = "center"
+    wallpaper_placement = "floating"
+
+    [shell.screen_corners]
+    enabled = true
+    size = 12
+
+    [[shell.session.actions]]
+    action = "lock"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "1"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "logout"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "2"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "suspend"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "3"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "reboot"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "4"
+    variant = "default"
+
+    [[shell.session.actions]]
+    action = "shutdown"
+    countdown_seconds = 0.0
+    enabled = true
+    shortcut = "5"
+    variant = "destructive"
+
+[theme]
+builtin = "Tokyo-Night"
+custom_palette = "tokyonight_moon"
+mode = "auto"
+source = "custom"
+
+[wallpaper.default]
+path = "/home/norville/Pictures/Wallpapers/primary.jpg"
+
+[wallpaper.last]
+path = "/home/norville/Pictures/Wallpapers/secondary.jpg"
+
+[wallpaper.monitors.DP-1]
+path = "/home/norville/Pictures/Wallpapers/primary.jpg"
+
+[wallpaper.monitors.HDMI-A-1]
+path = "/home/norville/Pictures/Wallpapers/secondary.jpg"
+
+[widget.active_window]
+max_length = 800
+
+[widget.bar]
+type = "rylos/syncthing:bar"
+
+[widget.cpu]
+font_family = "JetBrains Mono"
+visualization = "none"
+
+[widget.launcher]
+custom_image = "/usr/share/icons/cachyos.svg"
+custom_image_colorize = true
+
+[widget.media]
+hide_when_no_media = true
+
+[widget.network]
+show_label = false
+
+[widget.network_rx]
+font_family = "JetBrains Mono"
+network_speed_compact = true
+visualization = "none"
+
+[widget.network_tx]
+font_family = "JetBrains Mono"
+network_speed_compact = true
+visualization = "none"
+
+[widget.notifications]
+hide_when_no_unread = true
+
+[widget.privacy]
+active_color = "error"
+hide_inactive = true
+icon_spacing = 6
+
+[widget.ram]
+font_family = "JetBrains Mono"
+visualization = "none"
+
+[widget.session]
+color = "error"
+
+[widget.shelly]
+bar_label = "count_only"
+color = "error"
+glyph_size = 16
+hide_when_up_to_date = true
+type = "joshuaslate/shelly:shelly"
+
+[widget.sysmon]
+font_family = "JetBrains Mono"
+stat = "disk_used_pct"
+visualization = "none"
+
+[widget.temp]
+font_family = "JetBrains Mono"
+visualization = "none"
+
+[widget.workspaces]
+focused_output_only = true
