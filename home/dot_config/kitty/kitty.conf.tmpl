@@ -30,14 +30,16 @@ scrollbar                     never
 ## Mouse
 strip_trailing_spaces smart
 
-## Window layout
+## Layouts
+enabled_layouts           tall:bias=50;full_size=1;mirrored=false,stack
+
+## Windows
 hide_window_decorations   titlebar-only
-enabled_layouts           tall:bias=50;full_size=1;mirrored=false
+inactive_text_alpha       0.25
 remember_window_size      yes
 remember_window_position  yes
 window_padding_width      4
 window_border_width       2
-inactive_text_alpha       0.25
 
 ## Tab bar
 tab_bar_min_tabs  1
@@ -51,11 +53,39 @@ shell_integration no-cursor
 # run fastfetch in the first window at launch, then drop to the shell (see startup.session)
 startup_session ~/.config/kitty/sessions/startup.kitty-session
 
-## Keyboard shortcuts
-# close all SSH connections shared by kitten ssh (e.g. after a network change)
-map ctrl+alt+super+k  close_shared_ssh_connections
+## Keybinds
+{{ $kbd := "ctrl+alt" -}}
+{{ if eq .chezmoi.os "darwin" -}}
+  {{ $kbd = "cmd+ctrl" -}}
+{{ end -}}
+# modifier is ctrl+alt on Linux, cmd+ctrl on macOS (leaves Option free for
+# special chars on non-US layouts; both are clear of kitty's default binds)
 
-## Sessions
+# switch to specific layout
+#map {{ $kbd }}+t goto_layout tall
+#map {{ $kbd }}+s goto_layout stack
+
+# switch to last layout
+#map {{ $kbd }}+h last_used_layout
+
+# switch to next layout
+map {{ $kbd }}+l next_layout
+
+# toggle stack layout (zoom)
+map {{ $kbd }}+z toggle_layout stack
+
+# toggle tall layout mirror
+map {{ $kbd }}+m layout_action mirror toggle
+
+# cycle tall layout bias (window width)
+map {{ $kbd }}+b layout_action bias 33 50 66
+
+# decrease tall layout full-height windows
+map {{ $kbd }}+, layout_action decrease_num_full_size_windows
+
+# increase tall layout full-height windows
+map {{ $kbd }}+. layout_action increase_num_full_size_windows
+
 # save window state to a session file; prompts for name, default dir: ~/.config/kitty/sessions/
 map f1 save_as_session --use-foreground-process --base-dir ~/.config/kitty/sessions
 
