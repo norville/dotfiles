@@ -92,6 +92,12 @@ layout {
 // https://niri-wm.github.io/niri/FAQ.html#why-are-transparent-windows-tinted-why-is-the-borderfocus-ring-showing-up-through-semitransparent-windows
 window-rule { draw-border-with-background false; }
 
+// Rounded corners for a modern look.
+window-rule {
+    geometry-corner-radius  12
+    clip-to-geometry        true
+}
+
 // Default terminal: Kitty
 window-rule {
     match           app-id="kitty"
@@ -114,9 +120,10 @@ window-rule {
 }
 
 // ────────────── Startup Applications ──────────────
-// sleep 3: give the compositor and Noctalia shell time to fully initialize before opening clients
+// sleep: give the compositor and Noctalia shell time to fully initialize before
+// opening clients; kitty waits longer so it spawns last and grabs startup focus
 spawn-sh-at-startup "sleep 3; brave"
-spawn-sh-at-startup "sleep 3; kitty"
+spawn-sh-at-startup "sleep 6; kitty"
 
 // ────────────── Keybindings ──────────────
 binds {
@@ -138,13 +145,16 @@ binds {
     Mod+N               { spawn-sh "qs -c noctalia-shell ipc call notifications toggleHistory"; }
 
     // Noctalia: clear notifications
-    Mod+Shift+N         { spawn-sh "qs -c noctalia-shell ipc call notifications clear"; }
+    Mod+Alt+N           { spawn-sh "qs -c noctalia-shell ipc call notifications clear"; }
 
     // Noctalia: toggle settings
     Mod+Comma           { spawn-sh "qs -c noctalia-shell ipc call settings toggle"; }
 
     // Noctalia: toggle launcher
     Mod+Space           { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
+
+    // Noctalia: toggle session menu
+    Mod+Alt+Q           { spawn-sh "qs -c noctalia-shell ipc call sessionMenu toggle"; }
 
     // Noctalia: screenshots
     Mod+Shift+1         { screenshot; }
