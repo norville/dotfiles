@@ -1,8 +1,8 @@
 // ────────────── NIRI ──────────────
 
-{{ if lookPath "qs" -}}
+{{ if lookPath "noctalia" -}}
 // ────────────── Noctalia Shell ──────────────
-// cfg/ files are owned and managed by Noctalia; only load them when qs is installed
+// cfg/ files are owned and managed by Noctalia; only load them when noctalia is installed
 include "./cfg/animation.kdl"
 include "./cfg/autostart.kdl"
 include "./cfg/keybinds.kdl"
@@ -72,7 +72,7 @@ overview { workspace-shadow { off; }; }
 
 // ────────────── Layout ──────────────
 layout {
-{{- if lookPath "qs" }}
+{{- if lookPath "noctalia" }}
     // noctalia-shell renders its wallpaper as a compositor layer;
     // must be transparent or the wallpaper is hidden
     background-color      "transparent"
@@ -132,19 +132,16 @@ binds {
 
     // Default file manager: Nautilus
     Mod+X               { spawn "nautilus"; }
-{{- if lookPath "qs" }}
+{{- if lookPath "noctalia" }}
 
     // Noctalia: toggle notifications
-    Mod+N               { spawn-sh "qs -c noctalia-shell ipc call notifications toggleHistory"; }
+    Mod+N               { spawn-sh "noctalia msg notification-invoke-latest"; }
 
     // Noctalia: clear notifications
-    Mod+Shift+N         { spawn-sh "qs -c noctalia-shell ipc call notifications clear"; }
+    Mod+Alt+N           { spawn-sh "noctalia msg notification-clear-history"; }
 
-    // Noctalia: toggle settings
-    Mod+Comma           { spawn-sh "qs -c noctalia-shell ipc call settings toggle"; }
-
-    // Noctalia: toggle launcher
-    Mod+Space           { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
+    // Noctalia: toggle session menu
+    Mod+Alt+Q           { spawn-sh "noctalia msg panel-toggle session"; }
 
     // Noctalia: screenshots
     Mod+Shift+1         { screenshot; }
