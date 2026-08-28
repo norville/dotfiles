@@ -1,7 +1,10 @@
 
 # norville/dotfiles
 
-- [ ] automate macos configuration via 'defaults'
+- [ ] macos
+  - [ ] automate configuration via 'defaults'
+  - [ ] replace `moom` with `aerospace`
+  - [ ] create `aerospace` dotfiles
 - [ ] edit kitty tab bar:
   - remove section clock
   - fix section session:

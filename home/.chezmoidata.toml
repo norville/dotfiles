@@ -77,6 +77,21 @@ managers = ["brew-formula", "snap", "pacman", "dnf"]
 machines = ["workstation", "terminal", "server"]
 
 [[package]]
+name     = "claude"
+managers = ["brew-cask"]
+machines = ["workstation"]
+
+[[package]]
+name     = "claude-desktop"
+managers = ["pacman"]
+machines = ["workstation"]
+
+[[package]]
+name     = "claude-code"
+managers = ["brew-cask", "pacman"]
+machines = ["workstation"]
+
+[[package]]
 name     = "coreutils"
 managers = ["brew-formula"]
 machines = ["workstation"]
