@@ -421,7 +421,7 @@ dotfiles/
     │   ├── kitty/                      # Kitty config, tab_bar.py, Tokyo Night theme, startup.session (fastfetch), sessions/
     │   ├── lazygit/                    # Lazygit config with Tokyo Night theme
     │   ├── niri/                       # niri compositor config (workstation, niri installed)
-    │   ├── noctalia/                   # Noctalia shell config (workstation, qs installed)
+    │   ├── noctalia/                   # Noctalia v5 shell config (workstation, noctalia installed)
     │   ├── nvim/                       # Neovim (LazyVim, workstation + terminal)
     │   ├── starship/                   # Starship prompt config
     │   ├── yay/                        # yay AUR helper config (pacman only)
@@ -471,7 +471,7 @@ Implemented via `.chezmoiignore` template conditionals. Source of truth: `.chezm
 | `dot_config/homebrew` | `.config/homebrew/` | ✓ | — | — | macOS (workstation is always darwin or linux-arch/cachyos/fedora) |
 | `dot_config/kitty` | `.config/kitty/` | ✓ | — | — | |
 | `dot_config/niri` | `.config/niri/` | ✓ | — | — | `lookPath "niri"` |
-| `dot_config/noctalia` | `.config/noctalia/` | ✓ | — | — | `lookPath "qs"` |
+| `dot_config/noctalia` | `.config/noctalia/` | ✓ | — | — | `lookPath "noctalia"` |
 | `dot_config/yay` | `.config/yay/` | ✓ | — | — | |
 | `dot_config/yazi` | `.config/yazi/` | ✓ | — | — | |
 | `dot_config/zed` | `.config/zed/` | ✓ | — | — | |

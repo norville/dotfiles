@@ -137,7 +137,7 @@ font cache, `rustup update`, and `gem update bundler erb`.
 | `.config/kitty/` | Kitty terminal — config, tab bar, Tokyo Night theme, session management | workstation |
 | `.config/lazygit/` | Lazygit TUI — Tokyo Night theme | workstation + terminal |
 | `.config/niri/` | niri tiling compositor | workstation (niri installed) |
-| `.config/noctalia/` | Noctalia desktop shell — Tokyo Night colors | workstation (qs installed) |
+| `.config/noctalia/` | Noctalia desktop shell (v5) — Tokyo Night colors | workstation (noctalia installed) |
 | `.config/nvim/` | Neovim (LazyVim + Tokyo Night Moon, transparent bg) | workstation + terminal |
 | `.config/starship/` | Starship cross-shell prompt | workstation + terminal |
 | `.config/yay/` | yay AUR helper — build dir and config | workstation (pacman only) |
