@@ -8,22 +8,6 @@ window-rule {
     geometry-corner-radius  12
     clip-to-geometry        true
 }
-{{- if lookPath "noctalia" }}
-
-// Noctalia: floating settings window
-window-rule {
-    match                 app-id="dev.noctalia.Noctalia"
-    open-floating         true
-    default-column-width  { fixed 1080; }
-    default-window-height { fixed 920; }
-}
-
-// Config wallpaper
-layer-rule {
-    match                 namespace="^noctalia-wallpaper*"
-    place-within-backdrop true
-}
-{{- end }}
 
 // Default terminal: Kitty
 window-rule {
@@ -45,3 +29,19 @@ window-rule {
     open-focused    true
     shadow          { on; }
 }
+{{- if lookPath "noctalia" }}
+
+// Noctalia: floating settings window
+window-rule {
+    match                 app-id="dev.noctalia.Noctalia"
+    open-floating         true
+    default-column-width  { fixed 1080; }
+    default-window-height { fixed 920; }
+}
+
+// Config wallpaper
+layer-rule {
+    match                 namespace="^noctalia-wallpaper*"
+    place-within-backdrop true
+}
+{{- end }}
