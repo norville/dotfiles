@@ -147,6 +147,8 @@ widget_order = [ "lockscreen-login-box@HDMI-A-1", "lockscreen-login-box@DP-1" ]
 enabled = [ "rylos/syncthing" ]
 
 [shell]
+avatar_path = "/home/norville/.face"
+polkit_agent = true
 show_location = false
 
     [shell.panel]
