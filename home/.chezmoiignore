@@ -58,7 +58,7 @@ sddm/
 {{- end }}
 
 # noctalia: deploy only when installed
-{{- if not (lookPath "qs") }}
+{{- if not (lookPath "noctalia") }}
 .config/noctalia/
 {{- end }}
 

@@ -353,16 +353,6 @@ fc-cache -fv
 fc-list | grep "JetBrainsMono Nerd Font"
 ```
 
-## Branches
-
-- **`main`** — the stable branch; all day-to-day changes land here.
-- **`noctalia-v5`** — tracks the Noctalia v5 beta, which drops the quickshell
-  dependency, together with its matching niri configuration. It merges into
-  `main` once v5 is stable; until then `main` keeps the v4 setup. While a
-  machine runs the v5 beta but is checked out on `main`, `chezmoi status` will
-  report niri/noctalia differences — don't `chezmoi apply` them on `main`
-  unless reverting the machine to v4.
-
 ## Resources
 
 - [Chezmoi Documentation](https://www.chezmoi.io/)

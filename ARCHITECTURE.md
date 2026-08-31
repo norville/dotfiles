@@ -713,36 +713,6 @@ trap 'rm -rf "$_TMP"; bdb_cleanup' EXIT
 - `allow_remote_control` is **not** enabled in Kitty — no remote control socket exposed.
 - External resources are downloaded over HTTPS; content hashes are tracked by chezmoi.
 
-## Branching Strategy
-
-The default branch `main` holds the stable, canonical configuration and
-receives all day-to-day maintenance. When an upstream tool ships a breaking
-beta worth tracking before it stabilizes, that work lives on a dedicated branch
-and merges into `main` only once the beta is stable — so `main` always deploys
-cleanly.
-
-Current experimental branch — `noctalia-v5`, tracking the
-[Noctalia](https://noctalia.dev) v5 beta (which drops the quickshell
-dependency). It diverges from `main` as follows:
-
-- `niri/config.kdl.tmpl` gates on `lookPath "noctalia"` (not `"qs"`), and its
-  Noctalia keybinds call `noctalia msg`.
-- `niri/cfg/{autostart,keybinds,rules}.kdl` are tracked (previously
-  app-owned and untracked).
-- Noctalia config is a single `noctalia/config.toml` + `palettes/`, replacing
-  the v4 `settings.json` / `plugins.json` / `colors.json` / `colorschemes/`.
-- `.chezmoiignore` gates `noctalia/` on `lookPath "noctalia"`.
-
-**Operational note:** a machine may run the beta (its live config on disk)
-while its checkout stays on `main`. In that state `chezmoi status`/`diff`
-reports niri/noctalia differences (disk = beta, source = stable) — this is
-expected. Never `chezmoi apply` those on `main` unless the intent is to revert
-the machine to the stable config.
-
-When the beta stabilizes, merge the branch into `main`, then flip the
-[Dotfiles Deployment Scope](#dotfiles-deployment-scope) gate for `noctalia/`
-(`lookPath "qs"` → `"noctalia"`) and remove this branch from the section.
-
 ## Common Workflows
 
 ### Adding a New App Configuration
