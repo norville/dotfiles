@@ -1,0 +1,47 @@
+// ────────────── Window & Layer Rules ──────────────
+// Disable border background
+// https://niri-wm.github.io/niri/FAQ.html#why-are-transparent-windows-tinted-why-is-the-borderfocus-ring-showing-up-through-semitransparent-windows
+window-rule { draw-border-with-background false; }
+
+// Rounded corners for a modern look.
+window-rule {
+    geometry-corner-radius  12
+    clip-to-geometry        true
+}
+{{- if lookPath "noctalia" }}
+
+// Noctalia: floating settings window
+window-rule {
+    match                 app-id="dev.noctalia.Noctalia"
+    open-floating         true
+    default-column-width  { fixed 1080; }
+    default-window-height { fixed 920; }
+}
+
+// Config wallpaper
+layer-rule {
+    match                 namespace="^noctalia-wallpaper*"
+    place-within-backdrop true
+}
+{{- end }}
+
+// Default terminal: Kitty
+window-rule {
+    match           app-id="kitty"
+    open-on-output  "DP-1"
+}
+
+// Default browser: Brave
+window-rule {
+    match           app-id="brave-browser"
+    open-on-output  "HDMI-A-1"
+}
+
+// 1Password: treat all windows as floating
+window-rule {
+    match           app-id="1password"
+    open-on-output  "DP-1"
+    open-floating   true
+    open-focused    true
+    shadow          { on; }
+}

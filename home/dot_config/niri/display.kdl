@@ -1,0 +1,38 @@
+// ────────────── Outputs ──────────────
+output "DP-1" {
+    // main display, right position, default orientation
+    focus-at-startup
+    mode                      "2560x1440@59.951"
+    position                  x=1080 y=0
+    layout {
+        default-column-width  { proportion 0.5; }
+        preset-column-widths {
+            proportion        0.33333
+            proportion        0.5
+            proportion        0.66667
+            proportion        1.0
+        }
+        preset-window-heights {
+            proportion        0.5
+            proportion        1.0
+        }
+    }
+}
+
+output "HDMI-A-1" {
+    // secondary monitor, left position, vertical orientation
+    variable-refresh-rate
+    mode                      "1920x1080@60"
+    transform                 "90"
+    position                  x=0 y=0
+    layout {
+        default-column-width  { proportion 1.0; }
+        preset-column-widths  { proportion 1.0; }
+        preset-window-heights {
+            proportion        0.33333
+            proportion        0.5
+            proportion        0.66667
+            proportion        1.0
+        }
+    }
+}

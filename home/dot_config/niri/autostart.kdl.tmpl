@@ -1,0 +1,8 @@
+// ────────────── Startup Applications ──────────────
+{{- if lookPath "noctalia" }}
+// Noctalia shell — bar, panels, wallpaper
+spawn-at-startup "noctalia"
+{{- end }}
+// sleep 3: give the compositor and shell time to fully initialize before opening clients
+spawn-sh-at-startup "sleep 3; brave"
+spawn-sh-at-startup "sleep 3; kitty"
