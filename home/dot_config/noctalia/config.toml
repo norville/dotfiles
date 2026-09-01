@@ -6,13 +6,14 @@ blur_intensity = 0.24999999441206455
 tint_intensity = 0.0
 
 [bar.default]
-background_opacity = 0.54999998770654202
+background_opacity = 0.64999998547136784
 capsule_opacity = 0.59999998658895493
 center = [ "privacy", "active_window" ]
 end = [ "notifications", "tray", "clipboard", "bar", "control-center", "clock", "session" ]
 margin_edge = 12
 margin_ends = 12
 padding = 12
+scale = 1.1000000089406967
 start = [ "launcher", "workspaces" ]
 
     [bar.default.monitor.HDMI-A-1]
@@ -59,6 +60,7 @@ enabled = false
 
 [hooks]
 session_locked = "1password --lock"
+session_unlocked = "1password --toggle"
 started = "1password --silent"
 
 [idle]
@@ -143,6 +145,12 @@ widget_order = [ "lockscreen-login-box@HDMI-A-1", "lockscreen-login-box@DP-1" ]
         show_unlock_hint = true
         show_weather = true
 
+[osd]
+background_opacity = 0.54999998770654202
+
+    [osd.kinds]
+    media = false
+
 [plugins]
 enabled = [ "rylos/syncthing" ]
 
@@ -163,36 +171,36 @@ show_location = false
     size = 12
 
     [[shell.session.actions]]
-    action = "lock"
-    countdown_seconds = 0.0
+    action = "logout"
+    countdown_seconds = 10.0
     enabled = true
     shortcut = "1"
     variant = "default"
 
     [[shell.session.actions]]
-    action = "logout"
-    countdown_seconds = 0.0
+    action = "lock"
+    countdown_seconds = 10.0
     enabled = true
     shortcut = "2"
     variant = "default"
 
     [[shell.session.actions]]
     action = "suspend"
-    countdown_seconds = 0.0
+    countdown_seconds = 10.0
     enabled = true
     shortcut = "3"
     variant = "default"
 
     [[shell.session.actions]]
     action = "reboot"
-    countdown_seconds = 0.0
+    countdown_seconds = 10.0
     enabled = true
     shortcut = "4"
     variant = "default"
 
     [[shell.session.actions]]
     action = "shutdown"
-    countdown_seconds = 0.0
+    countdown_seconds = 10.0
     enabled = true
     shortcut = "5"
     variant = "destructive"
