@@ -398,7 +398,7 @@
         ]
     },
     "colorSchemes": {
-        "darkMode": false,
+        "darkMode": true,
         "generationMethod": "tonal-spot",
         "manualSunrise": "06:30",
         "manualSunset": "18:30",
@@ -802,10 +802,10 @@
                 "darkMode": false,
                 "generationMethod": "tonal-spot",
                 "paletteColors": [
-                    "#2d3f76",
-                    "#7847bd",
-                    "#385f0d",
-                    "#8c4351"
+                    "#82aaff",
+                    "#c099ff",
+                    "#c3e88d",
+                    "#ff757f"
                 ],
                 "path": "/home/norville/Pictures/Wallpapers/primary.jpg",
                 "useWallpaperColors": false
