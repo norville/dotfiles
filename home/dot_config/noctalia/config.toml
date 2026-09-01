@@ -1,25 +1,25 @@
 [audio]
-sound_volume = 0.84999998100101948
+sound_volume = 0.85
 
 [backdrop]
-blur_intensity = 0.24999999441206455
+blur_intensity = 0.25
 tint_intensity = 0.0
 
 [bar.default]
-background_opacity = 0.64999998547136784
-capsule_opacity = 0.59999998658895493
+background_opacity = 0.65
+capsule_opacity = 0.55
 center = [ "privacy", "active_window" ]
 end = [ "notifications", "tray", "clipboard", "bar", "control-center", "clock", "session" ]
 margin_edge = 12
 margin_ends = 12
 padding = 12
-scale = 1.1000000089406967
+scale = 1.10
 start = [ "launcher", "workspaces" ]
 
     [bar.default.monitor.HDMI-A-1]
     center = [ "shelly", "privacy" ]
     end = [ "group:g1" ]
-    scale = 0.95000000670552254
+    scale = 0.95
     start = [ "workspaces", "media" ]
     thickness = 28
 
@@ -35,7 +35,7 @@ start = [ "launcher", "workspaces" ]
 
 [brightness]
 enable_ddcutil = true
-minimum_brightness = 0.04999999888241291
+minimum_brightness = 0.05
 sync_all_monitors = true
 
 [control_center]
@@ -60,7 +60,7 @@ enabled = false
 
 [hooks]
 session_locked = "1password --lock"
-session_unlocked = "1password --toggle"
+session_unlocked = "1password --quick-access"
 started = "1password --silent"
 
 [idle]
@@ -146,7 +146,7 @@ widget_order = [ "lockscreen-login-box@HDMI-A-1", "lockscreen-login-box@DP-1" ]
         show_weather = true
 
 [osd]
-background_opacity = 0.54999998770654202
+background_opacity = 0.55
 
     [osd.kinds]
     media = false
