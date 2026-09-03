@@ -1,26 +1,26 @@
 ## Color scheme
-include             ~/.config/kitty/themes/Tokyo-Night-Moon.conf
-background_opacity  0.95
+include                       ~/.config/kitty/themes/Tokyo-Night-Moon.conf
+background_opacity            0.95
 
 ## Fonts
 {{ if eq .chezmoi.os "linux" -}}
 # Linux uses the plain "Nerd Font" variant at 12pt (HiDPI handled by compositor).
-font_family       family='JetBrainsMono Nerd Font' style=Regular
-font_size         12.0
+font_family                   family='JetBrainsMono Nerd Font' style=Regular
+font_size                     12.0
 {{ else if eq .chezmoi.os "darwin" -}}
 # macOS uses the "Nerd Font Mono" variant at 15pt (Retina display scaling).
-font_family       family='JetBrainsMono Nerd Font Mono' style=Regular
-font_size         15.0
+font_family                   family='JetBrainsMono Nerd Font Mono' style=Regular
+font_size                     15.0
 {{ end -}}
-font_features     none
-disable_ligatures always
-italic_font       auto
-bold_font         auto
-bold_italic_font  auto
+font_features                 none
+disable_ligatures             always
+italic_font                   auto
+bold_font                     auto
+bold_italic_font              auto
 
 ## Text cursor customization
-cursor_shape            block
-cursor_shape_unfocused  hollow
+cursor_shape                  block
+cursor_shape_unfocused        hollow
 
 ## Scrollback
 scrollback_lines              5000
@@ -28,30 +28,30 @@ scrollback_pager_history_size 10
 scrollbar                     never
 
 ## Mouse
-strip_trailing_spaces smart
+strip_trailing_spaces         smart
 
 ## Layouts
-enabled_layouts           tall:bias=50;full_size=1;mirrored=false,stack
+enabled_layouts               tall:bias=50;full_size=1;mirrored=false,stack
 
 ## Windows
-hide_window_decorations   titlebar-only
-inactive_text_alpha       0.25
-remember_window_size      yes
-remember_window_position  yes
-window_padding_width      4
-window_border_width       2
+hide_window_decorations       titlebar-only
+inactive_text_alpha           0.25
+remember_window_size          yes
+remember_window_position      yes
+window_padding_width          4
+window_border_width           2
 
 ## Tab bar
-tab_bar_min_tabs  1
-tab_bar_edge      bottom
-tab_bar_style     custom
+tab_bar_min_tabs              1
+tab_bar_edge                  bottom
+tab_bar_style                 custom
 
 ## Advanced
-shell_integration no-cursor
+shell_integration             no-cursor
 
 ## Startup
 # run fastfetch in the first window at launch, then drop to the shell (see startup.session)
-startup_session ~/.config/kitty/sessions/startup.kitty-session
+startup_session               ~/.config/kitty/sessions/welcome.kitty-session
 
 ## Keybinds
 {{ $kbd := "ctrl+alt" -}}
