@@ -9,27 +9,26 @@ window-rule {
     clip-to-geometry        true
 }
 
-// Default terminal: Kitty — claim focus at startup (see focus race note below)
+// Default terminal: Kitty — always open focused on main display
 window-rule {
     match           app-id="kitty"
     open-on-output  "DP-1"
     open-focused    true
 }
 
-// Default browser: Brave — never steal focus on open; kitty stays focused
-// even though brave (heavier) maps last in the startup race.
+// Default browser: Brave — at startup open unfocused on secondary display
 window-rule {
-    match           app-id="brave-browser"
+    match           app-id="brave-browser" at-startup=true
     open-on-output  "HDMI-A-1"
     open-focused    false
 }
 
-// 1Password: treat all windows as floating
+// Default password manager: 1Password — always open floating and focused on main display
 window-rule {
     match           app-id="1password"
     open-on-output  "DP-1"
-    open-floating   true
     open-focused    true
+    open-floating   true
     shadow          { on; }
 }
 {{- if lookPath "noctalia" }}
