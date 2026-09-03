@@ -27,8 +27,8 @@ window-rule {
 window-rule {
     match           app-id="1password"
     open-on-output  "DP-1"
-    open-focused    true
     open-floating   true
+    open-focused    true
     shadow          { on; }
 }
 {{- if lookPath "noctalia" }}
@@ -36,9 +36,9 @@ window-rule {
 // Noctalia: floating settings window
 window-rule {
     match                 app-id="dev.noctalia.Noctalia"
-    open-floating         true
     default-column-width  { fixed 1080; }
     default-window-height { fixed 920; }
+    open-floating         true
 }
 
 // Config wallpaper

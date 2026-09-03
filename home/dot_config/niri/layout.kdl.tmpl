@@ -1,0 +1,14 @@
+// ────────────── Layout ──────────────
+layout {
+    gaps                  12
+    center-focused-column "never"
+{{- if lookPath "noctalia" }}
+    // noctalia-shell renders its wallpaper as a compositor layer;
+    // must be transparent or the wallpaper is hidden
+    background-color      "transparent"
+{{- end }}
+    focus-ring {
+        active-color      "#82aaff"
+        inactive-color    "#545c7e"
+    }
+}

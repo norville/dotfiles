@@ -1,16 +1,18 @@
 // ────────────── Input ──────────────
 input {
-    workspace-auto-back-and-forth
-    touchpad                      { off; }
-    trackpoint                    { off; }
-    mouse                         { natural-scroll; }
     keyboard {
-        // 'us' layout + deadkeys for international characters
         xkb {
+            // 'us' layout + deadkeys for international characters
             layout                "us"
             model                 "pc105"
             variant               "altgr-intl"
             options               "eurosign:5"
         }
     }
+    touchpad                      { off; }
+    mouse                         { natural-scroll; }
+    trackpoint                    { off; }
+    trackball                     { off; }
+    tablet                        { off; }
+    workspace-auto-back-and-forth
 }
