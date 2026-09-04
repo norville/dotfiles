@@ -418,7 +418,7 @@ dotfiles/
     │   ├── eza/                        # Eza color theme (downloaded via chezmoiexternal)
     │   ├── fastfetch/                  # System info screen (Tokyo Night Moon, workstation only)
     │   ├── git/                        # Git config, ignore, delta integration
-    │   ├── kitty/                      # Kitty config, tab_bar.py, Tokyo Night theme, startup.session (fastfetch), sessions/
+    │   ├── kitty/                      # Kitty config, tab_bar.py, Tokyo Night theme, welcome.session (fastfetch), sessions/
     │   ├── lazygit/                    # Lazygit config with Tokyo Night theme
     │   ├── niri/                       # niri compositor config (workstation, niri installed)
     │   ├── noctalia/                   # Noctalia v5 shell config (workstation, noctalia installed)
