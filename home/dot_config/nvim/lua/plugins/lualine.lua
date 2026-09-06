@@ -5,6 +5,12 @@
 --       section (filled):     | component (line):  
 --  2. Swap the y/z slots: y shows encoding + fileformat, z keeps
 --     LazyVim's progress + location (moved down from y).
+-- Only render the y/z slots for real file buffers; hide them on
+-- neo-tree, dashboard, terminals, help, [No Name], etc.
+local function is_file()
+  return vim.bo.buftype == "" and vim.api.nvim_buf_get_name(0) ~= ""
+end
+
 return {
   "nvim-lualine/lualine.nvim",
   opts = {
@@ -14,13 +20,13 @@ return {
     },
     sections = {
       lualine_y = {
-        { "fileformat", separator = " ", padding = { left = 1, right = 0 } },
-        { "encoding", separator = " " },
-        { "filesize", padding = { left = 0, right = 1 } },
+        { "fileformat", cond = is_file, separator = " ", padding = { left = 1, right = 0 } },
+        { "encoding", cond = is_file, separator = " " },
+        { "filesize", cond = is_file, padding = { left = 0, right = 1 } },
       },
       lualine_z = {
-        { "progress", separator = " ", padding = { left = 1, right = 0 } },
-        { "location", padding = { left = 0, right = 1 } },
+        { "progress", cond = is_file, separator = " ", padding = { left = 1, right = 0 } },
+        { "location", cond = is_file, padding = { left = 0, right = 1 } },
       },
     },
   },
