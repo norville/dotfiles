@@ -117,6 +117,8 @@ fi
 # Linux-Specific Configuration
 # -----------------------------------------------------------------------------
 
+  {{- /* zsh is workstation/terminal only; servers keep the system default */}}
+  {{- if ne .machine "server" }}
 bdb_action "Configuring default shell"
 
 if bdb_test_cmd "zsh"; then
@@ -138,6 +140,7 @@ if bdb_test_cmd "zsh"; then
 else
     bdb_error "ZSH not found - cannot set as default shell"
 fi
+  {{- end }}
 
   {{- if or (eq .packageManager "apt") (eq .packageManager "dnf") }}
 # Debian/Ubuntu/Fedora: fonts deployed by .chezmoiexternal.toml.tmpl — refresh
