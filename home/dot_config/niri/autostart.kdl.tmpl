@@ -2,7 +2,11 @@
 {{- if lookPath "noctalia" }}
 // Noctalia shell — bar, panels, wallpaper
 spawn-at-startup "noctalia"
-{{- end }}
+{{ end }}
 // sleep 3: give the compositor and shell time to fully initialize before opening clients
+// default browser
 spawn-sh-at-startup "sleep 3; brave"
+// default terminal
 spawn-sh-at-startup "sleep 3; kitty"
+// default password manager
+spawn-sh-at-startup "sleep 3; 1password --toggle"
