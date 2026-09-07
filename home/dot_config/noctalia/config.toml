@@ -71,7 +71,6 @@ enabled = false
 [hooks]
 session_locked = "1password --lock"
 session_unlocked = "1password --quick-access"
-started = "1password --silent"
 
 [idle]
 behavior_order = [ "lock", "screen-off", "lock-and-suspend" ]

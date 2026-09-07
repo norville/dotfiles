@@ -41,9 +41,10 @@ window-rule {
     open-floating         true
 }
 
-// Config wallpaper
+// Stationary overview wallpaper
+// requires [niri/backdrop] disbaled
 layer-rule {
-    match                 namespace="^noctalia-wallpaper*"
+    match                 namespace="^noctalia-wallpaper"
     place-within-backdrop true
 }
 {{- end }}
