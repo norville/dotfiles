@@ -71,6 +71,12 @@ sddm/
 .local/share/darkman/
 {{- end }}
 
+# Claude Desktop launcher: CachyOS workstation only — claude-desktop ships in
+# the cachyos repo there (AUR-only on other Arch distros)
+{{- if or (ne .machine "workstation") (ne .osid "linux-cachyos") }}
+.local/share/applications/com.anthropic.Claude.desktop
+{{- end }}
+
 # -----------------------------------------------------------------------------
 # 1Password-Managed SSH Keys
 # -----------------------------------------------------------------------------

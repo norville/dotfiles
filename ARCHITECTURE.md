@@ -476,6 +476,7 @@ Implemented via `.chezmoiignore` template conditionals. Source of truth: `.chezm
 | `dot_config/yazi` | `.config/yazi/` | ✓ | — | — | |
 | `dot_config/zed` | `.config/zed/` | ✓ | — | — | |
 | `dot_local/share/darkman` | `.local/share/darkman/` | ✓ | — | — | GNOME desktop; pacman/dnf only (not available on apt) |
+| `dot_local/share/applications/com.anthropic.Claude.desktop` | `.local/share/applications/com.anthropic.Claude.desktop` | ✓ | — | — | CachyOS only (`osid = linux-cachyos`; claude-desktop ships in the cachyos repo, AUR-only elsewhere) |
 | `sddm/` | (deployed by script 06) | ✓ | — | — | |
 
 W = workstation, T = terminal, S = server.
