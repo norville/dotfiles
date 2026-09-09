@@ -30,7 +30,7 @@ SLANT = ''  # top-left triangle powerline separator
 
 # Icons (Nerd Font). MDI coverage is confirmed by the starship config's glyphs.
 CAT      = '\U000f011b'  # nf-md-cat — kitty brand, opens the bar
-TERM     = ''      # nf-fa-terminal — session segment
+TERM     = '\uebf1'  # session segment glyph
 
 
 # Muted hint floated before the session capsule while on the default
