@@ -1,45 +1,45 @@
 // =============================================================================
 // fastfetch — Tokyo Night Moon, grouped-tree layout
-// Colors: keys=magenta #c099ff, headers=blue #82aaff, separator=teal #4fd6be.
+// Colors: keys=magenta #c099ff; root nodes (host + section headers) use bold
+// title blue #82aaff via keyColor/outputColor directives.
 // Icons are Nerd Font glyphs written as \uXXXX escapes (edit freely).
-// Keys are padded to a fixed width so the separator arrows line up in a column.
+// Tree keys: branch \u251c\u2500, last child \u2514\u2500, trunk \u2502.
+// A nested item prefixes trunk + branch (\u2502  \u251c\u2500); last child uses \u2514\u2500.
 // =============================================================================
 {
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
-  "logo": { "source": "CachyOS_small", "type": "builtin", "padding": { "top": 1, "right": 3 } },
+  "logo": { "source": "CachyOS", "type": "builtin", "padding": { "top": 1, "right": 3 } },
   "display": {
     "separator": "  ",
     "color": { "keys": "#c099ff", "title": "#82aaff" },
     "percent": { "type": ["num", "num-color"], "color": { "green": "#c3e88d", "yellow": "#ffc777", "red": "#ff757f" } }
   },
   "modules": [
-  { "type": "custom", "format": "\u001b[1;38;2;130;170;255m\uf449  System\u001b[0m" },
-  { "type": "uptime", "key": "\u251c\u2500 \uf017" },
+  { "type": "os", "key": "\uf17c", "format": "{name}", "keyColor": "1;38;2;130;170;255", "outputColor": "1;38;2;130;170;255" },
+  { "type": "bootmgr", "key": "\u251c\u2500 \uf011", "format": "{name}" },
+  { "type": "kernel", "key": "\u251c\u2500 \uf013", "format": "{release}" },
   { "type": "title", "key": "\u251c\u2500 \uf007", "format": "{user-name}@{host-name}" },
-  { "type": "os", "key": "\u251c\u2500 \uf17c" },
-  { "type": "kernel", "key": "\u2514\u2500 \uf013" },
+  { "type": "uptime", "key": "\u2514\u2500 \uf017", "format": "{formatted}" },
   { "type": "break" },
-  { "type": "custom", "format": "\u001b[1;38;2;130;170;255m\uf085  Hardware\u001b[0m" },
-  { "type": "cpu", "key": "\u251c\u2500 \uf2db" },
-  { "type": "memory", "key": "\u251c\u2500 \uefc5" },
-  { "type": "disk", "key": "\u251c\u2500 \uf0a0" },
-  { "type": "gpu", "key": "\u251c\u2500 \uec19" },
-  { "type": "display", "key": "\u251c\u2500 \uf26c", "format": "{name} {inch}\" {width}x{height}" },
-  { "type": "sound", "key": "\u2514\u2500 \uf028" },
+  { "type": "host", "key": "\uf085", "format": "{family} {sku}", "keyColor": "1;38;2;130;170;255", "outputColor": "1;38;2;130;170;255" },
+  { "type": "cpu", "key": "\u251c\u2500 \uf2db", "format": "{name}" },
+  { "type": "memory", "key": "\u251c\u2500 \uefc5", "format": "{total}" },
+  { "type": "disk", "key": "\u251c\u2500 \uf0a0", "format": "{size-total} ({filesystem})" },
+  { "type": "gpu", "key": "\u251c\u2500 \uec19", "format": "{name}" },
+  { "type": "display", "key": "\u2502  \u2514\u2500 \uf26c", "format": "{name} {inch}\" {width}x{height}" },
+  { "type": "sound", "key": "\u2514\u2500 \uf028", "format": "{name:20}" },
   { "type": "break" },
-  { "type": "custom", "format": "\u001b[1;38;2;130;170;255m\uef09  Network\u001b[0m" },
+  { "type": "custom", "format": "\uef09  Network", "outputColor": "1;38;2;130;170;255" },
   { "type": "localip", "key": "\u251c\u2500 \uf015", "format": "{ipv4} [{ifname}]" },
   { "type": "publicip", "key": "\u251c\u2500 \uf0ac" },
   { "type": "dns", "key": "\u2514\u2500 \uf0e8" },
   { "type": "break" },
-  { "type": "custom", "format": "\u001b[1;38;2;130;170;255m\uf108  Desktop\u001b[0m" },
-  { "type": "de", "key": "\u251c\u2500 \uf108" },
-  { "type": "wm", "key": "\u251c\u2500 \uf2d2" },
-  { "type": "icons", "key": "\u251c\u2500 \uf03e" },
+  { "type": "custom", "format": "\uf108  Desktop", "outputColor": "1;38;2;130;170;255" },
   { "type": "lm", "key": "\u251c\u2500 \uf090" },
-  { "type": "bootmgr", "key": "\u2514\u2500 \uf011", "format": "{name}" },
+  { "type": "wm", "key": "\u251c\u2500 \uf2d2" },
+  { "type": "command", "key": "\u2514\u2500 \ued32", "text": "command -v noctalia >/dev/null 2>&1 && noctalia --version | sed -E 's/^noctalia (v[0-9.]+).*/Noctalia \\1/'" },
   { "type": "break" },
-  { "type": "custom", "format": "\u001b[1;38;2;130;170;255m\uf489  Terminal\u001b[0m" },
+  { "type": "custom", "format": "\uf489  Terminal", "outputColor": "1;38;2;130;170;255" },
   { "type": "terminal", "key": "\u251c\u2500 \ue795" },
   { "type": "shell", "key": "\u251c\u2500 \ue691" },
   { "type": "terminalfont", "key": "\u2514\u2500 \uf031" },
