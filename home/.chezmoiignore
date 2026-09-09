@@ -25,6 +25,7 @@ sddm/
 .config/kitty/
 .config/niri/
 .config/noctalia/
+.config/systemd/user/niri.service.d/
 .config/yay/
 .config/yazi/
 .config/zed/
@@ -55,6 +56,7 @@ sddm/
 # niri: tiling compositor — deploy only when installed
 {{- if not (lookPath "niri") }}
 .config/niri/
+.config/systemd/user/niri.service.d/
 {{- end }}
 
 # noctalia: deploy only when installed

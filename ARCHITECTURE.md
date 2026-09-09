@@ -471,6 +471,7 @@ Implemented via `.chezmoiignore` template conditionals. Source of truth: `.chezm
 | `dot_config/homebrew` | `.config/homebrew/` | ✓ | — | — | macOS (workstation is always darwin or linux-arch/cachyos/fedora) |
 | `dot_config/kitty` | `.config/kitty/` | ✓ | — | — | |
 | `dot_config/niri` | `.config/niri/` | ✓ | — | — | `lookPath "niri"` |
+| `dot_config/systemd/user/niri.service.d` | `.config/systemd/user/niri.service.d/` | ✓ | — | — | `lookPath "niri"`; drop-in `UnsetEnvironment=SHLVL` (niri-session leaks SHLVL via `import-environment`) |
 | `dot_config/noctalia` | `.config/noctalia/` | ✓ | — | — | `lookPath "noctalia"` |
 | `dot_config/yay` | `.config/yay/` | ✓ | — | — | |
 | `dot_config/yazi` | `.config/yazi/` | ✓ | — | — | |
