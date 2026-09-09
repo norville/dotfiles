@@ -646,6 +646,19 @@ directly. The chosen pattern:
 4. Embed text files as heredocs so their content hash drives change detection
 5. Use `{{ output "sha256sum" … }}` for binary files (background.jpg)
 
+### Why the fastfetch Banner Runs from `~/.zshrc`
+
+fastfetch's Shell module identifies the shell by walking up the process tree, but it **skips a
+non-interactive `-c` wrapper** (`sh -c`, `zsh -c`) and attributes "Shell" to the next process up.
+Run as `kitty → sh -c "fastfetch; exec zsh -l"`, fastfetch skips the wrapper and reports its
+grandparent — kitty — as the shell (`Shell → kitty`). Making the wrapper interactive (`-ic`) does
+not help; fastfetch skips any `-c` shell.
+
+So the kitty welcome session (`kitty/sessions/welcome.kitty-session`) launches the login shell
+directly with a marker — `launch --env KITTY_WELCOME=1 zsh -l` — and `~/.zshrc` runs fastfetch once
+under that marker, then clears it. fastfetch's parent is then the interactive login zsh, so its
+Shell module reports `zsh`, and no stray `sh` remains in the process tree.
+
 ## Variable Scopes and Lifecycles
 
 ### Bootstrap-Only Variables
