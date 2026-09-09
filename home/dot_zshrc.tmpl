@@ -372,6 +372,18 @@ if command -v starship >/dev/null 2>&1; then
 {{- end }}
 fi
 
+# -----------------------------------------------------------------------------
+# Fastfetch Welcome Banner
+# -----------------------------------------------------------------------------
+# The kitty welcome session (kitty/sessions/welcome.kitty-session) launches its
+# shell with KITTY_WELCOME=1. Show fastfetch once, then clear the marker so
+# nested shells and other windows don't repeat it. Running it here rather than
+# from a `sh -c` wrapper makes fastfetch's Shell module report zsh, not kitty.
+if [[ -n "${KITTY_WELCOME:-}" ]]; then
+    unset KITTY_WELCOME
+    command -v fastfetch >/dev/null 2>&1 && fastfetch
+fi
+
 # =============================================================================
 # END OF CONFIGURATION
 # =============================================================================
