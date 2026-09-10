@@ -298,7 +298,7 @@ fi
 | `10-install-virt-manager` | onchange | ✅ | — | — | QEMU/KVM + virt-manager (**CachyOS workstation only**, auto-installed, not in matrix): install qemu-full + virt-manager, libvirt iptables backend, `libvirt` group, enable libvirtd.socket, autostart default net, ufw route for `192.168.122.0/24` |
 | `11-config-limine` | onchange | ✅ | — | — | Configure limine-snapper-sync (**CachyOS only**): set `MAX_SNAPSHOT_ENTRIES=10` and `SNAPSHOT_FORMAT_CHOICE=8` in `/etc/limine-snapper-sync.conf` (replace-or-append; skips if the file is absent) |
 | `12-config-syncthing` | onchange | ✅ | ✅ | — | Enforce the `<defaults>` block (default folder/device + ignore patterns) in syncthing's `config.xml` (workstation + terminal): locate via `syncthing paths`, generate config if absent, splice the canonical block, restart the service only when it changes; the rest of the file stays syncthing-owned |
-| `bdb_update.sh` (hook) | `chezmoi update` only | ✅ | ✅ | ✅ | System packages (all); ZSH plugins + caches + `rustup update` + `gem update bundler erb` (non-server) |
+| `bdb_update.sh` (hook) | `chezmoi update` only | ✅ | ✅ | ✅ | System packages (all); ZSH plugins + Neovim (LazyVim) plugins + caches + `rustup update` + `gem update bundler erb` (non-server) |
 
 W = workstation, T = terminal, S = server.
 
@@ -364,7 +364,7 @@ chezmoi update
   Apply configuration changes
   Run [hooks.update.post]:
     └── ~/.config/bdb/bdb_update.sh
-        (system packages for all; zinit + caches + rustup update + gem update for W+T only)
+        (system packages for all; zinit + LazyVim + caches + rustup update + gem update for W+T only)
 ```
 
 Plain `chezmoi apply` does **not** trigger the update hook.

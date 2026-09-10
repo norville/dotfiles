@@ -2,8 +2,8 @@
 # =============================================================================
 # BDB Update — Environment Update After `chezmoi update`
 # =============================================================================
-# Updates system packages, ZSH plugins, bat themes, font caches, and dev
-# toolchains. Registered as a `[hooks.update.post]` hook in .chezmoi.toml.tmpl
+# Updates system packages, ZSH plugins, Neovim (LazyVim) plugins, bat themes,
+# font caches, and dev toolchains. Registered as a `[hooks.update.post]` hook in .chezmoi.toml.tmpl
 # so it runs ONLY after `chezmoi update` — never on plain `chezmoi apply`
 # (chezmoi has no "update-only" script class; run_after_ scripts run on every
 # apply, which is not what we want for full system upgrades).
@@ -52,6 +52,23 @@ if [[ -d "${zinit_home}/.git" ]]; then
     bdb_success "ZSH plugins updated"
 else
     bdb_warn "Zinit not found - skipping plugin updates"
+fi
+
+# -----------------------------------------------------------------------------
+# Update Neovim plugins (LazyVim / lazy.nvim)
+# -----------------------------------------------------------------------------
+# lazy.nvim's `!` runs the command synchronously, so headless nvim waits for the
+# sync to finish before +qa. `sync` = update + install missing + clean removed,
+# which also updates LazyVim itself (it is just another lazy-managed plugin).
+bdb_action "Updating Neovim plugins"
+
+lazy_home="${XDG_DATA_HOME:-${HOME}/.local/share}/nvim/lazy/lazy.nvim"
+if bdb_test_cmd "nvim" && [[ -d "${lazy_home}" ]]; then
+    bdb_exec "Syncing LazyVim and all plugins" \
+        nvim --headless "+Lazy! sync" +qa || true
+    bdb_success "Neovim plugins updated"
+else
+    bdb_warn "LazyVim not found - skipping Neovim plugin updates"
 fi
 
 # -----------------------------------------------------------------------------
