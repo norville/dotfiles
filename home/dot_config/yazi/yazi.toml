@@ -95,6 +95,11 @@ image_bound      = [ 10000, 10000 ]
 suppress_preload = false
 
 [plugin]
+prepend_fetchers = [
+  # git.yazi: compute per-file git status signs (shown in the list linemode)
+  { url = "*",  run = "git", group = "git" },
+  { url = "*/", run = "git", group = "git" },
+]
 fetchers = [
   # MIME-type
   { url = "*/",         run = "mime.dir",    prio = "high", group = "mime" },

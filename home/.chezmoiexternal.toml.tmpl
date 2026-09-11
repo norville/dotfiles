@@ -47,6 +47,24 @@
   executable = false
 
 # -----------------------------------------------------------------------------
+# Yazi plugins (workstation only) — status/header lines + git status signs.
+# init.lua requires them by their directory name (yatline, git).
+# -----------------------------------------------------------------------------
+# yatline.yazi: lualine-style status-line and header (kitty-style tab bar)
+[".config/yazi/plugins/yatline.yazi"]
+  type = "git-repo"
+  url = "https://github.com/imsi32/yatline.yazi.git"
+  refreshPeriod = "720h"
+
+# git.yazi: per-file git status signs (official yazi-rs/plugins monorepo subdir)
+[".config/yazi/plugins/git.yazi"]
+  type = "archive"
+  url = "https://github.com/yazi-rs/plugins/archive/refs/heads/main.tar.gz"
+  include = ["*/git.yazi/**"]
+  stripComponents = 2
+  refreshPeriod = "720h"
+
+# -----------------------------------------------------------------------------
 # Wallpapers (workstation only)
 # -----------------------------------------------------------------------------
 # Named by function. The desktop wallpapers live in ~/Pictures/Wallpapers, which

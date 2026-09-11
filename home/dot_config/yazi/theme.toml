@@ -2,10 +2,6 @@
 
 cwd = { fg = "#828bb8", italic = true }
 
-# Hovered
-hovered         = { bg = "#2f334d" }
-preview_hovered = { bg = "#2f334d" }
-
 # Find
 find_keyword  = { fg = "#1e2030", bg = "#ff966c", bold = true }
 find_position = { fg = "#0db9d7", bg = "#203346", bold = true }
@@ -24,6 +20,12 @@ count_selected = { fg = "#1e2030", bg = "#82aaff" }
 # Border
 border_symbol = "│"
 border_style  = { fg = "#589ed7" }
+
+# Hovered file / dir cursor (yazi 26.x moved this out of [mgr] into [indicator])
+[indicator]
+current = { fg = "#1b1d2b", bg = "#c3e88d" }
+parent  = { reversed = true }
+preview = { underline = true }
 
 # Tab
 [tabs]
@@ -157,4 +159,18 @@ rules = [
 	# Fallback
   { mime = "*", fg = "#c8d3f5" }
 ]
+
+# -----------------------------------------------------------------------------
+# Git status signs in the file list (git.yazi) — Tokyo Night Moon
+# -----------------------------------------------------------------------------
+[git]
+untracked = { fg = "#828bb8" }
+ignored   = { fg = "#545c7e" }
+unstaged  = { fg = "#ffc777" }
+staged    = { fg = "#4fd6be" }
+added     = { fg = "#c3e88d" }
+updated   = { fg = "#ffc777" }
+deleted   = { fg = "#ff757f", bold = true }
+unknown   = { fg = "#545c7e" }
+clean     = { fg = "#c3e88d" }
 
