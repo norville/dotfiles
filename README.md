@@ -141,7 +141,7 @@ font cache, `rustup update`, and `gem update bundler erb`.
 | `.config/nvim/` | Neovim (LazyVim + Tokyo Night Moon, transparent bg) | workstation + terminal |
 | `.config/starship/` | Starship cross-shell prompt | workstation + terminal |
 | `.config/yay/` | yay AUR helper — build dir and config | workstation (pacman only) |
-| `.config/yazi/` | yazi file manager — config, Tokyo Night theme, status bar plugin | workstation |
+| `.config/yazi/` | yazi file manager — Tokyo Night theme, lualine-style status line + kitty-style tab bar (yatline.yazi), git status signs (git.yazi) | workstation |
 | `.config/zed/` | Zed editor — settings aligned with nvim, Tokyo Night theme | workstation |
 | `.config/homebrew/` | Homebrew bundle file | macOS (workstation) |
 

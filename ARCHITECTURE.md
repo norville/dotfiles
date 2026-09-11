@@ -385,7 +385,7 @@ dotfiles/
 └── home/                           # chezmoi source root (set by .chezmoiroot)
     ├── .chezmoi.toml.tmpl          # Chezmoi config + template variables (no package lists)
     ├── .chezmoidata.toml           # Canonical package matrix (never deployed)
-    ├── .chezmoiexternal.toml.tmpl  # External resources (themes, fonts)
+    ├── .chezmoiexternal.toml.tmpl  # External resources (themes, fonts, yazi plugins)
     ├── .chezmoiignore              # OS/platform/machine exclusions
     ├── sddm/                       # Source-only: SDDM config + Tokyo Night Moon theme
     │   ├── etc/sddm.conf
@@ -425,7 +425,7 @@ dotfiles/
     │   ├── nvim/                       # Neovim (LazyVim, workstation + terminal)
     │   ├── starship/                   # Starship prompt config
     │   ├── yay/                        # yay AUR helper config (pacman only)
-    │   ├── yazi/                       # yazi file manager (workstation only)
+    │   ├── yazi/                       # yazi file manager — yatline+git.yazi bars, init.lua (workstation only)
     │   └── zed/                        # Zed editor (workstation only)
     ├── dot_local/share/darkman/
     │   └── executable_gtk3-theme.sh    # GTK3 dark/light switch script
@@ -734,7 +734,9 @@ trap 'rm -rf "$_TMP"; bdb_cleanup' EXIT
 
 1. Create `dot_config/<app>/` in the source directory
 2. Add a `.chezmoiignore` gate if the app is not for all machines
-3. If themes are downloadable: add an entry to `.chezmoiexternal.toml.tmpl`
+3. If themes or plugins are downloadable: add an entry to `.chezmoiexternal.toml.tmpl`
+   (e.g. yazi's `yatline.yazi`/`git.yazi` are fetched there as `git-repo`/`archive`,
+   not via `ya pkg`, so a fresh workstation gets them on `chezmoi apply`)
 4. Commit with `feat: track <app> configuration`
 
 ### Adding a System-Level File (e.g. new `/etc/` config)
