@@ -7,6 +7,7 @@ A comprehensive, cross-platform dotfiles management system using [Chezmoi](https
 - **Cross-Platform Support**: macOS, Debian, Ubuntu, Fedora, Rocky Linux, Arch, and CachyOS
 - **Automated Bootstrap**: One-command installation script for fresh systems
 - **Idempotent Scripts**: All install scripts safely re-run — skip what is already installed
+- **macOS Defaults**: System Settings and app preferences applied automatically via `defaults` (machine-agnostic, idempotent)
 - **Package Management**: Automatic installation of essential development tools
 - **Shell Configuration**: Enhanced ZSH setup with Zinit plugin manager
 - **Modern CLI Tools**: eza, bat, fzf, ripgrep, neovim, yazi, zed, and more

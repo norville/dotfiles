@@ -107,12 +107,15 @@
   refreshPeriod = "8760h"
   executable = false
 
-# Login screen (SDDM) — deployed to /usr/share by 06-install-sddm; see note above
+# Login screen (SDDM) — Linux only; deployed to /usr/share by 06-install-sddm.
+# macOS 26 cannot script the login window, so it needs no login wallpaper.
+{{- if eq .chezmoi.os "linux" }}
 ["{{ .chezmoi.sourceDir | trimPrefix .chezmoi.homeDir | trimPrefix "/" }}/sddm/themes/tokyonight-moon/background.jpg"]
   type = "file"
   url = "https://wallpapercave.com/download/tokyo-aesthetic-wallpapers-wp6570018"
   refreshPeriod = "8760h"
   executable = false
+{{- end }}
 {{- end }}
 
 {{- /* -------------------------------------------------------------------- */ -}}
