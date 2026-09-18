@@ -18,15 +18,11 @@ Host *
 {{- end }}
   IdentitiesOnly yes  # offer only the keys listed below, not everything in the agent
 
-Host jiraya
-  Port 25355
-  User norville
-  IdentityFile ~/.ssh/norville_at_chikyu.pub
-  ForwardAgent yes
-
-Host hashirama asura indra shukaku matatabi isobu songoku kokuo yahiko nagato
-  Port 25355
-  User norville
+# Homelab hosts — list shared with yazi's vfs.toml via .chezmoidata sshHosts;
+# user/port from .chezmoi.toml [data].
+Host {{ .sshHosts | join " " }}
+  Port {{ .port }}
+  User {{ .user }}
   IdentityFile ~/.ssh/norville_at_chikyu.pub
 
 Host github.com

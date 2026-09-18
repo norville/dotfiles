@@ -1,0 +1,17 @@
+# =============================================================================
+# Yazi VFS — SFTP remotes
+# =============================================================================
+# One [sftp.<host>] block per host in .chezmoidata.toml's `sshHosts`, so the
+# host list is shared with ~/.ssh/config (dot_ssh/private_config.tmpl). The
+# shared user and port come from .chezmoi.toml ([data].user / [data].port).
+# Authentication uses the SSH agent via $SSH_AUTH_SOCK — yazi's default when no
+# identity_agent/key_file is set — which ~/.zshrc points at the 1Password agent
+# (per-OS), so no socket path is hard-coded here.
+# =============================================================================
+{{- range .sshHosts }}
+
+[sftp.{{ . }}]
+host = "{{ . }}"
+user = "{{ $.user }}"
+port = {{ $.port }}
+{{- end }}

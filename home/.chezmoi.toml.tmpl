@@ -123,6 +123,8 @@
 
 {{- $email  := "ing.norville@proton.me" -}}
 {{- $name   := "Norville" -}}
+{{- $user   := "norville" -}}
+{{- $port   := 25355 -}}
 
 {{- /* ========================================================================== */ -}}
 {{- /* Editor / Merge Commands                                                    */ -}}
@@ -144,6 +146,8 @@
 [data]
   email          = {{ $email          | quote }}
   name           = {{ $name           | quote }}
+  user           = {{ $user           | quote }}
+  port           = {{ $port }}
   osid           = {{ $osid           | quote }}
   machine        = {{ $machine        | quote }}
   cpuArch        = {{ $cpuArch        | quote }}

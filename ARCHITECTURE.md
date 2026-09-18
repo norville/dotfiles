@@ -78,6 +78,11 @@ they depend on `XDG_CURRENT_DESKTOP` at render time, not just machine type. They
 installed by `07-install-darkman` (pacman and dnf only — neither package is available in
 apt repos), which owns both their install and the service enable.
 
+This file also holds `sshHosts` — the shared homelab host list (see [SSH Key
+Management](#ssh-key-management)) — consumed by both `dot_ssh/private_config.tmpl`
+and `dot_config/yazi/vfs.toml.tmpl`. It is loaded automatically as template data at
+apply time (but, like package data, **not** during `chezmoi init`).
+
 This file is a chezmoi special file (starts with `.chezmoi`) — not deployed to `~/`.
 
 #### Package Manager Name Splits
@@ -186,6 +191,7 @@ template processing (fresh machine), so list construction is deferred to script 
 | `cpuArch` | `amd64`, `arm64` | CPU architecture |
 | `isARM` / `isIntel` / `isAppleSilicon` / `isRPi` | `true`/`false` | Architecture flags |
 | `email` / `name` | — | User identity for git config etc. |
+| `user` / `port` | `norville`, `25355` | Shared SSH login + port for the homelab hosts (consumed by `dot_ssh/private_config.tmpl` and `dot_config/yazi/vfs.toml.tmpl`) |
 
 Package lists are **not** exported here — scripts and `brewfile.tmpl` filter `.package`
 (from `.chezmoidata.toml`) directly at render time.
@@ -692,6 +698,30 @@ wrapped in a `lookPath "op"` guard in `.chezmoiignore`.
 
 After `run_onchange_after_02` installs 1Password, a second `chezmoi apply` deploys the keys.
 
+### Shared homelab host list
+
+The homelab hosts are defined **once** as `sshHosts` in `.chezmoidata.toml`, and the
+shared login/port live **once** as `user`/`port` in `.chezmoi.toml.tmpl`'s `[data]`.
+Two files consume them so nothing is duplicated:
+
+- `dot_ssh/private_config.tmpl` — a single `Host {{ .sshHosts | join " " }}` stanza
+  with `Port {{ .port }}` / `User {{ .user }}`.
+- `dot_config/yazi/vfs.toml.tmpl` — one `[sftp.<host>]` block per host
+  (`{{ range .sshHosts }}`), each with the shared `user`/`port`.
+
+yazi's VFS does **not** read `~/.ssh/config` and has no host inheritance, so the two
+configs must be kept structurally in sync — hence the shared data. yazi authenticates
+via the SSH agent (`$SSH_AUTH_SOCK`, pointed at the 1Password agent per-OS by
+`~/.zshrc`), so no `identity_agent`/key path is hard-coded in `vfs.toml.tmpl`. To
+add/remove a homelab host, edit `sshHosts` only.
+
+> **Caveat — `user`/`port` require re-init.** They live in `.chezmoi.toml.tmpl`, which
+> re-renders **only on `chezmoi init`**, not `apply`. With `missingkey=error`, any
+> machine that has not re-run `chezmoi init` since these were added will fail
+> `apply`/`diff` on the two files above with a missing-key error. Run `chezmoi init`
+> once (config-only re-render; no scripts run) before the next `apply`. `sshHosts`
+> alone (a `.chezmoidata.toml` value) needs no re-init.
+
 ## Error Handling
 
 All scripts share a common lifecycle via `bdb_script_init` from `bdb_helpers.sh`,
@@ -769,6 +799,15 @@ trap 'rm -rf "$_TMP"; bdb_cleanup' EXIT
 3. Add the SSH config stanza to `dot_ssh/private_config.tmpl`
 4. Add the target path to the `lookPath "op"` guard in `.chezmoiignore`
 5. Commit all three files together
+
+### Adding a Homelab Host
+
+1. Add the hostname to `sshHosts` in `.chezmoidata.toml` (the only edit needed)
+2. Both `dot_ssh/private_config.tmpl` and `dot_config/yazi/vfs.toml.tmpl` pick it up
+   on next render — no per-host edits
+3. Hosts share `user`/`port` and the `norville_at_chikyu.pub` key; a host needing a
+   different login/port/key is not a `sshHosts` member — give it its own stanza
+4. Commit with `feat(ssh): add <host> to homelab hosts`
 
 ### Debugging Installation Issues
 

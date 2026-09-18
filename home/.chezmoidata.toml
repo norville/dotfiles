@@ -23,6 +23,13 @@
 #     the entry that guarantees this.
 # =============================================================================
 
+# -----------------------------------------------------------------------------
+# SSH / SFTP hosts — the shared host list. Consumed by dot_ssh/private_config.tmpl
+# (the `Host` line) and dot_config/yazi/vfs.toml.tmpl (one [sftp.<host>] block
+# each). User and port live in .chezmoi.toml ([data].user / [data].port).
+# -----------------------------------------------------------------------------
+sshHosts = ["hashirama", "asura", "indra", "shukaku", "isobu", "songoku", "kokuo", "nagato"]
+
 [[package]]
 name     = "@development-tools"
 managers = ["dnf"]

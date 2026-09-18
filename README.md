@@ -142,7 +142,7 @@ font cache, `rustup update`, and `gem update bundler erb`.
 | `.config/nvim/` | Neovim (LazyVim + Tokyo Night Moon, transparent bg) | workstation + terminal |
 | `.config/starship/` | Starship cross-shell prompt | workstation + terminal |
 | `.config/yay/` | yay AUR helper — build dir and config | workstation (pacman only) |
-| `.config/yazi/` | yazi file manager — Tokyo Night theme, lualine-style status line + kitty-style tab bar (yatline.yazi), git status signs (git.yazi) | workstation |
+| `.config/yazi/` | yazi file manager — Tokyo Night theme, lualine-style status line + kitty-style tab bar (yatline.yazi), git status signs (git.yazi), SFTP remotes to the homelab hosts (vfs.toml) | workstation |
 | `.config/zed/` | Zed editor — settings aligned with nvim, Tokyo Night theme | workstation |
 | `.config/homebrew/` | Homebrew bundle file | macOS (workstation) |
 
@@ -217,6 +217,12 @@ SSH keys are managed via 1Password and deployed as templates. They are skipped d
 | `ansible_at_chikyu` | Ansible automation |
 | `norville_at_github` | GitHub |
 | `norville_at_codeberg` | Codeberg |
+
+The homelab hosts share one login, port, and key, defined once as `sshHosts` in
+`.chezmoidata.toml` (plus `user`/`port` in `.chezmoi.toml.tmpl`) and consumed by both
+`~/.ssh/config` and yazi's SFTP config (`~/.config/yazi/vfs.toml`). Add or remove a host
+by editing `sshHosts` alone. See ARCHITECTURE.md → SSH Key Management for details,
+including the `chezmoi init` re-render needed after changing `user`/`port`.
 
 ## Package Managers
 
