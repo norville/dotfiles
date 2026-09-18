@@ -9,15 +9,27 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# SSH / SFTP hosts — the shared host list. Consumed by dot_ssh/private_config.tmpl
-# (the `Host` line) and dot_config/yazi/vfs.toml.tmpl (one [sftp.<host>] block
-# each). User and port live in .chezmoi.toml ([data].user / [data].port).
+# SSH / SFTP hosts
 # -----------------------------------------------------------------------------
-sshHosts = ["hashirama", "asura", "indra", "shukaku", "isobu", "songoku", "kokuo", "nagato"]
+# Shared host list consumed by:
+# - dot_ssh/private_config.tmpl (the `Host` line)
+# - dot_config/yazi/vfs.toml.tmpl (one [sftp.<host>] block each).
+# User and port live in .chezmoi.toml ([data].user / [data].port).
+# -----------------------------------------------------------------------------
+sshHosts = [
+  "hashirama",
+  "asura",
+  "indra",
+  "shukaku",
+  "isobu",
+  "songoku",
+  "kokuo",
+  "nagato"
+]
 
-# =============================================================================
+# -----------------------------------------------------------------------------
 # Package Matrix
-# =============================================================================
+# -----------------------------------------------------------------------------
 # Edit this section to add, remove, or move packages.
 # The install script (00-install-core.sh.tmpl) and brewfile.tmpl build their
 # arrays by filtering this data at template render time.
@@ -37,8 +49,7 @@ sshHosts = ["hashirama", "asura", "indra", "shukaku", "isobu", "songoku", "kokuo
 #   - The aur list must be non-empty for 00-install-core to bootstrap yay, which
 #     02-install-1password and 03-install-vscode both require. `yay` itself is
 #     the entry that guarantees this.
-# =============================================================================
-
+# -----------------------------------------------------------------------------
 [[package]]
 name     = "@development-tools"
 managers = ["dnf"]
