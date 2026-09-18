@@ -1,8 +1,24 @@
 # =============================================================================
-# .chezmoidata.toml — Canonical Package Matrix
+# .chezmoidata.toml — Canonical chezmoi Template Data
 # =============================================================================
-# Single source of truth for all package data.
-# Edit this file to add, remove, or move packages.
+# Single source of truth for shared data, loaded automatically into every
+# template at apply time (but NOT during `chezmoi init`). Two sections:
+#   1. sshHosts     — the shared homelab host list (below)
+#   2. [[package]]  — the package matrix (further down)
+# This file is a chezmoi special file (starts with `.chezmoi`), never deployed.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# SSH / SFTP hosts — the shared host list. Consumed by dot_ssh/private_config.tmpl
+# (the `Host` line) and dot_config/yazi/vfs.toml.tmpl (one [sftp.<host>] block
+# each). User and port live in .chezmoi.toml ([data].user / [data].port).
+# -----------------------------------------------------------------------------
+sshHosts = ["hashirama", "asura", "indra", "shukaku", "isobu", "songoku", "kokuo", "nagato"]
+
+# =============================================================================
+# Package Matrix
+# =============================================================================
+# Edit this section to add, remove, or move packages.
 # The install script (00-install-core.sh.tmpl) and brewfile.tmpl build their
 # arrays by filtering this data at template render time.
 #
@@ -22,13 +38,6 @@
 #     02-install-1password and 03-install-vscode both require. `yay` itself is
 #     the entry that guarantees this.
 # =============================================================================
-
-# -----------------------------------------------------------------------------
-# SSH / SFTP hosts — the shared host list. Consumed by dot_ssh/private_config.tmpl
-# (the `Host` line) and dot_config/yazi/vfs.toml.tmpl (one [sftp.<host>] block
-# each). User and port live in .chezmoi.toml ([data].user / [data].port).
-# -----------------------------------------------------------------------------
-sshHosts = ["hashirama", "asura", "indra", "shukaku", "isobu", "songoku", "kokuo", "nagato"]
 
 [[package]]
 name     = "@development-tools"
