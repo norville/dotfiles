@@ -53,6 +53,12 @@ sddm/
 # Conditional Paths — excluded when the relevant tool is absent
 # -----------------------------------------------------------------------------
 
+# arch-update / cachy-update: deploy the AURHelper=paru config only where the
+# tool exists (CachyOS ships it; cachy-update is a symlink to arch-update)
+{{- if not (lookPath "arch-update") }}
+.config/arch-update/
+{{- end }}
+
 # niri: tiling compositor — deploy only when installed
 {{- if not (lookPath "niri") }}
 .config/niri/

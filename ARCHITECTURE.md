@@ -159,6 +159,11 @@ paru's user config is a static `dot_config/paru/paru.conf` (pacman.conf-style
 INI — **not** yay's JSON `config.json`) that enables `BottomUp`, `CleanAfter`,
 `CombinedUpgrade`, and `RemoveMake`; everything else is left at paru's defaults.
 
+CachyOS's `cachy-update` (a symlink to `arch-update`) is pinned to paru via
+`dot_config/arch-update/arch-update.conf` (`AURHelper=paru`) — its auto-detection
+already prefers paru, but pinning keeps AUR support from silently changing if
+another helper is later installed. The config is gated on `lookPath "arch-update"`.
+
 #### Full Package Matrix
 
 The full package list is **not** duplicated here — `.chezmoidata.toml` is the single
@@ -427,6 +432,7 @@ dotfiles/
     │   │   ├── bdb_bootstrap.sh        # Not deployed
     │   │   ├── bdb_helpers.sh
     │   │   └── executable_bdb_update.sh.tmpl  # post-update hook (system/toolchain updates)
+    │   ├── arch-update/                # cachy-update/arch-update — AURHelper=paru (lookPath "arch-update")
     │   ├── bat/                        # Bat config and Tokyo Night theme
     │   ├── btop/                       # Btop config and Tokyo Night theme
     │   ├── darkman/                    # darkman config.yaml (GNOME workstation only)
@@ -467,6 +473,7 @@ Implemented via `.chezmoiignore` template conditionals. Source of truth: `.chezm
 
 | Source path | Deployed path | W | T | S | Extra gates |
 |---|---|:---:|:---:|:---:|---|
+| `dot_config/arch-update` | `.config/arch-update/` | ✓ | ✓ | ✓ | `lookPath "arch-update"`; pins `AURHelper=paru` for cachy-update |
 | `dot_config/bdb` | `.config/bdb/` | ✓ | ✓ | ✓ | |
 | `dot_config/git` | `.config/git/` | ✓ | ✓ | ✓ | |
 | `dot_vim` | `.vim/` | ✓ | ✓ | ✓ | |

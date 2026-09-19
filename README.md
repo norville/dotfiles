@@ -129,6 +129,7 @@ font cache, `rustup update`, and `gem update bundler erb`.
 
 | Directory | Description | Condition |
 |-----------|-------------|-----------|
+| `.config/arch-update/` | cachy-update/arch-update — pins `AURHelper=paru` | Arch/CachyOS (arch-update installed) |
 | `.config/bat/` | Bat syntax highlighter — config and Tokyo Night theme | workstation + terminal |
 | `.config/btop/` | Btop system monitor — config and Tokyo Night theme | workstation + terminal |
 | `.config/darkman/` | darkman auto dark/light mode — config and switch scripts | GNOME workstation (pacman/dnf only) |
