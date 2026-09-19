@@ -11,15 +11,8 @@
 # MODERN TOOL REPLACEMENTS
 # =============================================================================
 
-# -----------------------------------------------------------------------------
-# SSH: Kitty Terminal Integration
-# -----------------------------------------------------------------------------
-# Kitten SSH: Enhanced SSH with terminal integration features
-# Provides automatic terminfo setup and improved performance in Kitty terminal
-# Documentation: https://sw.kovidgoyal.net/kitty/kittens/ssh/
-if command -v kitty >/dev/null 2>&1; then
-    alias ksh='kitten ssh'
-fi
+# SSH via Kitty's ssh kitten is provided by the OMZ kitty plugin as `kssh`
+# (`kitty +kitten ssh`) — see plugins.zsh — so no alias is defined here.
 
 # -----------------------------------------------------------------------------
 # Text Editor: Neovim
@@ -117,8 +110,6 @@ fi
 # Enable colored output for grep and related commands
 # Makes search results easier to read by highlighting matches
 alias grep='grep --color=auto'
-alias egrep='egrep --color=auto'
-alias fgrep='fgrep --color=auto'
 
 # -----------------------------------------------------------------------------
 # File Operations: Safety and Verbosity
@@ -161,9 +152,8 @@ alias duh='du -h -d 1 | sort -hr'
 # Process Viewing: Enhanced ps and top
 # -----------------------------------------------------------------------------
 # Human-friendly process listings
-
-# Show all processes in tree format
-alias pstree='ps auxf'
+# (no `pstree` alias — the real psmisc `pstree` draws a proper tree; `ps auxf`
+#  is only a flat forest, so shadowing it lost functionality)
 
 # Show processes sorted by CPU usage
 alias pscpu='ps auxf | sort -nr -k 3 | head -10'
@@ -180,22 +170,9 @@ fi
 # DEVELOPMENT SHORTCUTS
 # =============================================================================
 
-# -----------------------------------------------------------------------------
-# Git Shortcuts
-# -----------------------------------------------------------------------------
-# Common git operations (only create if git is installed)
-if command -v git >/dev/null 2>&1; then
-    alias g='git'
-    alias gs='git status'
-    alias ga='git add'
-    alias gc='git commit'
-    alias gp='git push'
-    alias gl='git pull'
-    alias gd='git diff'
-    alias gco='git checkout'
-    alias gb='git branch'
-    alias glog='git log --oneline --decorate --graph'
-fi
+# Git shortcuts come from the OMZ git plugin (loaded in plugins.zsh): g, ga, gc
+# (`git commit --verbose`), gp, gl, gd, gco, gb, glog, plus `gst` for status and
+# ~250 more. No hand-rolled git aliases here — they only duplicated the plugin.
 
 # -----------------------------------------------------------------------------
 # Python Environment
@@ -269,13 +246,12 @@ fi
 alias reload='exec zsh'
 
 alias cls='clear'
-alias c='clear'
 
 # Show PATH in readable format
 alias path='echo $PATH | tr ":" "\n"'
 
-# Show all aliases
-alias aliases='alias | bat -l bash -p 2>/dev/null || alias'
+# (no `aliases` alias — the OMZ aliases plugin's `als` prints a grouped
+#  cheatsheet of aliases, e.g. `als` or `als git`; see plugins.zsh)
 
 # =============================================================================
 # END OF ALIASES

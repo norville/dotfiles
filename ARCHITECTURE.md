@@ -305,7 +305,7 @@ fi
 | Script | Trigger | W | T | S | Purpose |
 |--------|---------|---|---|---|---------|
 | `00-install-core` | onchange | ✅ | ✅ | ✅ | Platform packages (per-manager lists, machine-type filtered) |
-| `01-config-env` | onchange | ✅ | ✅ | — | Default shell, bat cache, font cache; Go GOPATH/GOBIN; Ruby gems (bundler, erb); Rust stable + rust-analyzer via rustup |
+| `01-config-env` | onchange | ✅ | ✅ | — | Default shell, bat cache, font cache; Go GOPATH/GOBIN; Ruby gems (bundler, erb); Rust stable + rust-analyzer via rustup; macOS: pip-installs Python modules with no brew formula (termcolor) into the user site |
 | `02-install-1password` | onchange | ✅ | — | — | 1Password + op CLI (auto-installed; darwin: brew cask; pacman: needs `paru`, skips if absent) |
 | `03-install-vscode` | onchange | ✅ | — | — | VS Code (prompted; darwin: brew cask; pacman: needs `paru`, skips if absent) |
 | `04-install-ansible` | onchange | ✅ | ✅ | — | Ansible (auto on workstation, prompted on terminal; never on servers) |

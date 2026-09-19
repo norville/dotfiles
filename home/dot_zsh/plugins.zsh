@@ -60,7 +60,17 @@ zinit snippet OMZL::termsupport.zsh         # update terminal tab/window title w
 # the first download so subsequent shell starts are fast.
 
 zinit snippet OMZP::1password               # 1Password CLI completion and shortcuts
-zinit snippet OMZP::aliases                 # 'acs' command to search defined aliases
+
+# aliases: provides `als`, which prints a cheatsheet of your aliases grouped by
+# the command they wrap (`als` for all, `als git` to filter to one command).
+# `als` shells out to the plugin's cheatsheet.py, which the single-file snippet
+# loader does NOT fetch — and zinit's `svn` ice can't grab it either (GitHub
+# retired Subversion in 2024) — so pull that one helper file alongside the
+# snippet via atclone/atpull. cheatsheet.py also needs the python-termcolor
+# package (in .chezmoidata.toml).
+zinit ice atclone'curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/aliases/cheatsheet.py -o cheatsheet.py' atpull'%atclone'
+zinit snippet OMZP::aliases
+
 zinit snippet OMZP::ansible                 # Ansible completion and shortcuts
 [[ -f /etc/arch-release ]] && \
     zinit snippet OMZP::archlinux           # Arch-specific aliases (pacman, AUR helpers)

@@ -170,6 +170,34 @@ else
     bdb_warn "Homebrew not found"
 fi
 
+# -----------------------------------------------------------------------------
+# Python Modules (macOS only)
+# -----------------------------------------------------------------------------
+# Pure-Python libraries that have no Homebrew formula, so they can't come from
+# the package matrix like their Linux counterparts (python-termcolor et al.).
+#   termcolor — required by the OMZ aliases plugin's `als` cheatsheet.
+# Homebrew's python is marked externally-managed (PEP 668), so install into the
+# user site with --break-system-packages; these are pure-Python libs and never
+# touch the brew-managed site-packages. Idempotent (skips modules already
+# importable) and soft-failing (a missing convenience module must not abort).
+if bdb_test_cmd "python3"; then
+    bdb_action "Installing Python modules"
+    _py_modules=(termcolor)
+    for _mod in "${_py_modules[@]}"; do
+        if python3 -c "import ${_mod}" 2>/dev/null; then
+            bdb_success "Python module already present: ${_mod}"
+        elif bdb_exec "Installing Python module: ${_mod}" \
+                python3 -m pip install --user --break-system-packages "${_mod}"; then
+            :
+        else
+            bdb_warn "Failed to install ${_mod} — the \`als\` alias cheatsheet will be unavailable"
+        fi
+    done
+    unset _py_modules _mod
+else
+    bdb_warn "python3 not installed — skipping Python module setup"
+fi
+
 {{- end }}
 
 # =============================================================================

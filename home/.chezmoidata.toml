@@ -324,9 +324,23 @@ name     = "poppler"
 managers = ["brew-formula", "pacman"]
 machines = ["workstation"]
 
+# python-termcolor / python3-termcolor: required by the OMZ `aliases` zsh plugin's
+# `als` cheatsheet (see dot_zsh/plugins.zsh). Name split across managers. Not
+# packaged by Homebrew, so on macOS 01-config-env.sh pip-installs termcolor into
+# the user site instead (this matrix covers the Linux managers only).
+[[package]]
+name     = "python-termcolor"
+managers = ["pacman"]
+machines = ["workstation", "terminal"]
+
 [[package]]
 name     = "python3-neovim"
 managers = ["dnf"]
+machines = ["workstation", "terminal"]
+
+[[package]]
+name     = "python3-termcolor"
+managers = ["apt", "dnf"]
 machines = ["workstation", "terminal"]
 
 [[package]]
