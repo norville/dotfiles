@@ -140,8 +140,8 @@ font cache, `rustup update`, and `gem update bundler erb`.
 | `.config/niri/` | niri tiling compositor | workstation (niri installed) |
 | `.config/noctalia/` | Noctalia desktop shell (v5) — Tokyo Night colors | workstation (noctalia installed) |
 | `.config/nvim/` | Neovim (LazyVim + Tokyo Night Moon, transparent bg) | workstation + terminal |
+| `.config/paru/` | paru AUR helper — `paru.conf` | workstation (Arch/CachyOS) |
 | `.config/starship/` | Starship cross-shell prompt | workstation + terminal |
-| `.config/yay/` | yay AUR helper — build dir and config | workstation (pacman only) |
 | `.config/yazi/` | yazi file manager — Tokyo Night theme, lualine-style status line + kitty-style tab bar (yatline.yazi), git status signs (git.yazi), SFTP remotes to the homelab hosts (vfs.toml) | workstation |
 | `.config/zed/` | Zed editor — settings aligned with nvim, Tokyo Night theme | workstation |
 | `.config/homebrew/` | Homebrew bundle file | macOS (workstation) |
@@ -233,7 +233,7 @@ The dotfiles automatically detect and use the appropriate package manager:
 | macOS | Homebrew (formulae + casks) |
 | Debian/Ubuntu | APT + Snap |
 | Fedora/Rocky Linux | DNF |
-| Arch/CachyOS | Pacman + AUR (yay) |
+| Arch/CachyOS | Pacman + AUR (paru) |
 
 ## Machine Types
 
@@ -286,8 +286,8 @@ sudo apt update && sudo apt upgrade -y
 # Fedora/Rocky Linux
 sudo dnf upgrade -y
 
-# Arch/CachyOS
-sudo pacman -Syu && yay -Syu
+# Arch/CachyOS (paru -Syu upgrades repo + AUR in one pass)
+paru -Syu
 ```
 
 ## Customization

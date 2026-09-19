@@ -46,8 +46,8 @@ sshHosts = [
 #   - Name splits (same tool, different name per manager) are separate entries.
 #     Example: "fd" (brew/pacman) and "fd-find" (apt/dnf) are two entries.
 #   - snap and aur are separate install mechanisms, not mixed with apt/pacman.
-#   - The aur list must be non-empty for 00-install-core to bootstrap yay, which
-#     02-install-1password and 03-install-vscode both require. `yay` itself is
+#   - The aur list must be non-empty for 00-install-core to bootstrap paru, which
+#     02-install-1password and 03-install-vscode both require. `paru` itself is
 #     the entry that guarantees this.
 # -----------------------------------------------------------------------------
 [[package]]
@@ -109,13 +109,13 @@ managers = ["brew-cask"]
 machines = ["workstation"]
 
 [[package]]
-name     = "claude-desktop"
-managers = ["pacman"]
+name     = "claude-code"
+managers = ["brew-cask", "pacman"]
 machines = ["workstation"]
 
 [[package]]
-name     = "claude-code"
-managers = ["brew-cask", "pacman"]
+name     = "claude-desktop"
+managers = ["pacman"]
 machines = ["workstation"]
 
 [[package]]
@@ -308,6 +308,17 @@ name     = "opentofu"
 managers = ["brew-formula", "pacman", "dnf"]
 machines = ["workstation", "terminal"]
 
+# paru bootstraps itself: 00-install-core installs the repo package on CachyOS or
+# builds it from the AUR with makepkg on plain Arch (the Rust toolchain is pulled
+# in as a makedepend), before running `paru -S` over this list — so listing it
+# here is what makes the AUR block run at all. Requires base-devel + git, both
+# pacman/workstation. paru is the AUR helper on all Arch-based distros (CachyOS's
+# default); it replaced yay across this repo.
+[[package]]
+name     = "paru"
+managers = ["aur"]
+machines = ["workstation"]
+
 [[package]]
 name     = "poppler"
 managers = ["brew-formula", "pacman"]
@@ -406,14 +417,6 @@ machines = ["workstation"]
 [[package]]
 name     = "winbox"
 managers = ["brew-cask", "aur"]
-machines = ["workstation"]
-
-# yay bootstraps itself: 00-install-core builds it from source with makepkg
-# before running `yay -S` over this list, so listing it here is what makes the
-# AUR block run at all. Requires base-devel + git, both pacman/workstation.
-[[package]]
-name     = "yay"
-managers = ["aur"]
 machines = ["workstation"]
 
 [[package]]

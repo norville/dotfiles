@@ -120,36 +120,44 @@ if pacman -Si "${_pkg}" &>/dev/null; then _repo_pkgs+=(…) ; else AUR_PACKAGES+
 ```
 
 `pacman -Si` reads the local sync db, so the probe needs neither sudo nor
-network. Repo builds are preferred; anything absent falls through to `yay`.
+network. Repo builds are preferred; anything absent falls through to `paru`.
 Packages listed under `pacman` **only** are never probed, and `aur`-only
-packages always go to `yay`.
+packages always go to `paru`.
 
 Current dual-source packages: `brave-bin` (in the `cachyos` repo, AUR-only on
 plain Arch).
 
 #### The AUR bootstrap (Arch / CachyOS)
 
-`yay` is declared in `.chezmoidata.toml` as `managers = ["aur"]`,
-`machines = ["workstation"]`. This entry is load-bearing, not decorative:
+The AUR helper is **`paru`** on all Arch-based distros — it is CachyOS's default
+choice, and it replaced `yay` across this repo. `paru` is declared in
+`.chezmoidata.toml` as `managers = ["aur"]`, `machines = ["workstation"]`. This
+entry is load-bearing, not decorative:
 
 - `00-install-core` only enters its AUR block when `${#AUR_PACKAGES[@]} -gt 0`,
-  and that block is what installs `yay`. **An empty aur list means `yay` is never
-  installed**, which in turn breaks `02-install-1password` (`1password`,
+  and that block is what installs `paru`. **An empty aur list means `paru` is
+  never installed**, which in turn breaks `02-install-1password` (`1password`,
   `1password-cli`) and `03-install-vscode` (`visual-studio-code-bin`) — all three
   are AUR-only on Arch.
-- Listing `yay` keeps that list non-empty. It bootstraps itself; the subsequent
-  `yay -S --needed` over the list is then a no-op for it.
-- The bootstrap probes `pacman -Si yay` first and installs the prebuilt package
+- Listing `paru` keeps that list non-empty. It bootstraps itself; the subsequent
+  `paru -S --needed` over the list is then a no-op for it.
+- The bootstrap probes `pacman -Si paru` first and installs the prebuilt package
   when present (CachyOS ships one), falling back to `git clone` + `makepkg -si`
-  from the AUR on plain Arch. It is skipped entirely if `yay` is already on PATH.
-- It stays `aur`-declared rather than dual-source: `yay` is the AUR helper
-  itself, so it cannot be installed *by* `yay` and needs this dedicated path.
+  from the AUR on plain Arch. `makepkg -s` pulls paru's Rust toolchain makedepend
+  via pacman (the old yay path pulled Go the same way). It is skipped entirely if
+  `paru` is already on PATH.
+- It stays `aur`-declared rather than dual-source: `paru` is the AUR helper
+  itself, so it cannot be installed *by* `paru` and needs this dedicated path.
 - Building it needs `base-devel` + `git`; both are already pacman packages, and
-  `base-devel` is workstation-scoped, which is why `yay` is too.
+  `base-devel` is workstation-scoped, which is why `paru` is too.
 
-`02` and `03` additionally gate their pacman branch on `bdb_has_cmd "yay"` and
+`02` and `03` additionally gate their pacman branch on `bdb_has_cmd "paru"` and
 skip with a warning if it is absent, so a partial apply degrades instead of
 failing.
+
+paru's user config is a static `dot_config/paru/paru.conf` (pacman.conf-style
+INI — **not** yay's JSON `config.json`) that enables `BottomUp`, `CleanAfter`,
+`CombinedUpgrade`, and `RemoveMake`; everything else is left at paru's defaults.
 
 #### Full Package Matrix
 
@@ -293,8 +301,8 @@ fi
 |--------|---------|---|---|---|---------|
 | `00-install-core` | onchange | ✅ | ✅ | ✅ | Platform packages (per-manager lists, machine-type filtered) |
 | `01-config-env` | onchange | ✅ | ✅ | — | Default shell, bat cache, font cache; Go GOPATH/GOBIN; Ruby gems (bundler, erb); Rust stable + rust-analyzer via rustup |
-| `02-install-1password` | onchange | ✅ | — | — | 1Password + op CLI (auto-installed; darwin: brew cask; pacman: needs `yay`, skips if absent) |
-| `03-install-vscode` | onchange | ✅ | — | — | VS Code (prompted; darwin: brew cask; pacman: needs `yay`, skips if absent) |
+| `02-install-1password` | onchange | ✅ | — | — | 1Password + op CLI (auto-installed; darwin: brew cask; pacman: needs `paru`, skips if absent) |
+| `03-install-vscode` | onchange | ✅ | — | — | VS Code (prompted; darwin: brew cask; pacman: needs `paru`, skips if absent) |
 | `04-install-ansible` | onchange | ✅ | ✅ | — | Ansible (auto on workstation, prompted on terminal; never on servers) |
 | `05-install-docker` | onchange | ✅ | — | — | Docker (linux only, workstation only; prompted) |
 | `06-install-sddm` | onchange | ✅ | — | — | SDDM config + Tokyo Night Moon → /etc/ and /usr/share/ (requires `sddm` on PATH) |
@@ -431,8 +439,8 @@ dotfiles/
     │   ├── niri/                       # niri compositor config (workstation, niri installed)
     │   ├── noctalia/                   # Noctalia v5 shell config (workstation, noctalia installed)
     │   ├── nvim/                       # Neovim (LazyVim, workstation + terminal)
+    │   ├── paru/                       # paru AUR helper config (paru.conf, pacman only)
     │   ├── starship/                   # Starship prompt config
-    │   ├── yay/                        # yay AUR helper config (pacman only)
     │   ├── yazi/                       # yazi file manager — yatline+git.yazi bars, init.lua (workstation only)
     │   └── zed/                        # Zed editor (workstation only)
     ├── dot_local/share/darkman/
@@ -481,7 +489,7 @@ Implemented via `.chezmoiignore` template conditionals. Source of truth: `.chezm
 | `dot_config/niri` | `.config/niri/` | ✓ | — | — | `lookPath "niri"` |
 | `dot_config/systemd/user/niri.service.d` | `.config/systemd/user/niri.service.d/` | ✓ | — | — | `lookPath "niri"`; drop-in `UnsetEnvironment=SHLVL` (niri-session leaks SHLVL via `import-environment`) |
 | `dot_config/noctalia` | `.config/noctalia/` | ✓ | — | — | `lookPath "noctalia"` |
-| `dot_config/yay` | `.config/yay/` | ✓ | — | — | |
+| `dot_config/paru` | `.config/paru/` | ✓ | — | — | AUR helper config (Arch/CachyOS) |
 | `dot_config/yazi` | `.config/yazi/` | ✓ | — | — | |
 | `dot_config/zed` | `.config/zed/` | ✓ | — | — | |
 | `dot_local/share/darkman` | `.local/share/darkman/` | ✓ | — | — | GNOME desktop; pacman/dnf only (not available on apt) |
@@ -748,7 +756,7 @@ trap 'rm -rf "$_TMP"; bdb_cleanup' EXIT
 ## Performance Considerations
 
 - **Idempotent scripts**: Already-installed tools are detected and skipped, no reinstall.
-- **`--needed` flag on pacman/yay**: Skip packages that are already up to date.
+- **`--needed` flag on pacman/paru**: Skip packages that are already up to date.
 - **Zinit turbo mode**: Plugins load asynchronously after the shell prompt appears.
 - **`lazy = true` default**: All custom Neovim plugins are lazy-loaded unless specified.
 - **compinit cache**: `.zcompdump` is only regenerated once per day.

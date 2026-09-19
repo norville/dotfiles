@@ -63,7 +63,7 @@ zinit snippet OMZP::1password               # 1Password CLI completion and short
 zinit snippet OMZP::aliases                 # 'acs' command to search defined aliases
 zinit snippet OMZP::ansible                 # Ansible completion and shortcuts
 [[ -f /etc/arch-release ]] && \
-    zinit snippet OMZP::archlinux           # Arch-specific aliases (pacman, yay, etc.)
+    zinit snippet OMZP::archlinux           # Arch-specific aliases (pacman, AUR helpers)
 zinit snippet OMZP::chezmoi                 # Chezmoi shortcuts and completions
 zinit snippet OMZP::docker                  # Docker completion and aliases
 zinit snippet OMZP::docker-compose          # Docker Compose completion

@@ -232,6 +232,33 @@ if command -v dnf >/dev/null 2>&1; then
     alias dnfup='sudo dnf upgrade -y && sudo dnf autoremove -y'
 fi
 
+# Arch / AUR (paru)
+# The OMZ archlinux plugin defines AUR aliases for aura/pacaur/trizen/yay but
+# NOT paru, so we define paru's here as a `pu*` set with mnemonic names (paru is
+# yay-syntax-compatible). paru drives both the official repos and the AUR, so
+# `puupg` is a full system + AUR upgrade. Commented-out entries are kept as
+# ready-to-enable extras.
+if command -v paru >/dev/null 2>&1; then
+    #alias puinsl='paru -U'              # install from a local package file
+    #alias puinsd='paru -S --asdeps'     # install as a dependency
+    #alias pusu='paru -Syu --noconfirm'  # unattended full upgrade
+    alias puclean='paru -Sc'            # remove cached uninstalled packages
+    alias puclear='paru -Scc'           # clear all cache (incl. AUR build cache)
+    alias puconf='paru -Pg'             # print paru config
+    alias puinfo='paru -Si'             # show package info (repo/AUR)
+    alias puins='paru -S'               # install repo/AUR package
+    alias puinst='paru -Qe'             # list explicitly-installed packages
+    alias pulist='paru -Qi'             # show installed-package info
+    alias pulook='paru -Ss'             # search repos + AUR
+    alias pumir='paru -Syy'             # force-refresh package databases
+    alias puorph='paru -Qtd'            # list orphaned packages
+    alias pupurge='paru -Rns'           # remove package + deps + config
+    alias purm='paru -R'                # remove package
+    alias pusearch='paru -Qs'           # search installed packages
+    alias puupd='paru -Sy'              # refresh package databases
+    alias puupg='paru -Syu'             # full system + AUR upgrade
+fi
+
 # -----------------------------------------------------------------------------
 # System Information
 # -----------------------------------------------------------------------------
