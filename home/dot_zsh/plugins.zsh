@@ -58,28 +58,35 @@ zinit snippet OMZL::termsupport.zsh         # update terminal tab/window title w
 # `zinit snippet OMZP::name` downloads and sources only that plugin file —
 # the full OMZ framework is never loaded. Snippets are cached locally after
 # the first download so subsequent shell starts are fast.
-
-zinit snippet OMZP::1password               # 1Password CLI completion and shortcuts
+#
+# Tool-specific plugins are gated with zinit's `has'<cmd>'` ice, which skips the
+# snippet entirely when <cmd> is not on PATH — so e.g. a machine without docker
+# gets no docker aliases. Universal plugins (extract, git, sudo) and the OMZL
+# libraries load unconditionally.
 
 # aliases: provides `als`, which prints a cheatsheet of your aliases grouped by
 # the command they wrap (`als` for all, `als git` to filter to one command).
 # `als` shells out to the plugin's cheatsheet.py, which the single-file snippet
 # loader does NOT fetch — and zinit's `svn` ice can't grab it either (GitHub
 # retired Subversion in 2024) — so pull that one helper file alongside the
-# snippet via atclone/atpull. cheatsheet.py also needs the python-termcolor
-# package (in .chezmoidata.toml).
-zinit ice atclone'curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/aliases/cheatsheet.py -o cheatsheet.py' atpull'%atclone'
+# snippet via atclone/atpull. Gated on python3 (als can't run without it);
+# cheatsheet.py also needs the python-termcolor package (in .chezmoidata.toml).
+zinit ice has'python3' atclone'curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/aliases/cheatsheet.py -o cheatsheet.py' atpull'%atclone'
 zinit snippet OMZP::aliases
 
-zinit snippet OMZP::ansible                 # Ansible completion and shortcuts
+# Gated on the tool they support
+zinit ice has'op';      zinit snippet OMZP::1password        # 1Password CLI completion + shortcuts
+zinit ice has'ansible'; zinit snippet OMZP::ansible          # Ansible completion + shortcuts
+zinit ice has'chezmoi'; zinit snippet OMZP::chezmoi          # Chezmoi shortcuts + completions
+zinit ice has'docker';  zinit snippet OMZP::docker           # Docker completion + aliases
+zinit ice has'docker';  zinit snippet OMZP::docker-compose   # Docker Compose completion
+zinit ice has'kitty';   zinit snippet OMZP::kitty            # Kitty shortcuts + icat helper
 [[ -f /etc/arch-release ]] && \
     zinit snippet OMZP::archlinux           # Arch-specific aliases (pacman, AUR helpers)
-zinit snippet OMZP::chezmoi                 # Chezmoi shortcuts and completions
-zinit snippet OMZP::docker                  # Docker completion and aliases
-zinit snippet OMZP::docker-compose          # Docker Compose completion
+
+# Universal — no external command dependency
 zinit snippet OMZP::extract                 # 'x' command extracts any archive format
-zinit snippet OMZP::git                     # Git aliases and shortcuts (g, gst, gco, …)
-zinit snippet OMZP::kitty                   # Kitty terminal shortcuts and icat helper
+zinit snippet OMZP::git                     # Git aliases and shortcuts (git is always present)
 zinit snippet OMZP::sudo                    # ESC+ESC prepends 'sudo' to current command
 
 # -----------------------------------------------------------------------------
