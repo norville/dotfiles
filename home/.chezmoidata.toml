@@ -28,6 +28,16 @@ sshHosts = [
 ]
 
 # -----------------------------------------------------------------------------
+# Network
+# -----------------------------------------------------------------------------
+# lanSubnet — this homelab's LAN, consumed by run_onchange_after_14-config-system
+# to scope ufw rules (syncthing/LocalSend) to local peers. It's a per-site fact,
+# not a portable dotfile: correct only for machines actually on this subnet. If
+# machines ever span subnets, move it to a per-machine value in .chezmoi.toml.
+# -----------------------------------------------------------------------------
+lanSubnet = "10.0.1.0/24"
+
+# -----------------------------------------------------------------------------
 # Package Matrix
 # -----------------------------------------------------------------------------
 # Edit this section to add, remove, or move packages.

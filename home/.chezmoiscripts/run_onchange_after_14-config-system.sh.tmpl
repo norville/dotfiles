@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Chezmoi Script: Host System Configuration (Linux)
+# =============================================================================
+# Carries a set of small host-level tweaks that live outside ~/ (firewall rules,
+# a systemd-resolved drop-in, a btrfs scrub timer, the wireless regulatory
+# domain). Each step is independently guarded by its own tool/file/filesystem
+# check and skips silently when it does not apply — there is NO blanket machine
+# gate, so the btrfs scrub timer reaches terminals and servers (where it matters
+# most), while the desktop-only steps no-op there.
+#
+# Nothing here is installed by this repo (ufw, avahi, syncthing, localsend are
+# host-provided); the script only configures them when present.
+#
+# Execution: chezmoi apply (only when this file's content changes)
+# Location:  .chezmoiscripts/run_onchange_after_14-config-system.sh.tmpl
+# =============================================================================
+# Managed file checksum — changes here re-trigger this script:
+# mdns.conf: {{ include "system/etc/systemd/resolved.conf.d/mdns.conf" | sha256sum }}
+{{- /* All four concerns are Linux-only; render a no-op elsewhere (darwin). */ -}}
+{{- if ne .chezmoi.os "linux" }}
+exit 0
+{{- end }}
+
+source "${HELPERS}"
+
+bdb_script_init "${BASH_SOURCE[0]}"
+
+bdb_begin_section "Host system configuration"
+
+# -----------------------------------------------------------------------------
+# Firewall — let LAN peers reach syncthing / LocalSend (ufw)
+# -----------------------------------------------------------------------------
+# ufw is host-managed, not installed here, so configure rules only when it is
+# present. Each rule is scoped to the LAN subnet and added per app actually on
+# the machine. Prefer the ufw *app profile* (covers every port incl. UDP); fall
+# back to explicit ports when the profile is not installed — the syncthing and
+# LocalSend profiles ship with those apps and may be absent on a fresh machine.
+if bdb_has_cmd ufw; then
+    _lan="{{ .lanSubnet }}"
+
+    _ufw_allow_lan() {
+        local label="$1" profile="$2"; shift 2   # remaining args: fallback port/proto
+        local status; status="$(sudo ufw status)"
+
+        if sudo ufw app info "${profile}" &>/dev/null; then
+            if grep -qE "^${profile}[[:space:]].*ALLOW.*${_lan}" <<< "${status}"; then
+                bdb_success "ufw: ${label} already allowed from ${_lan}"
+            else
+                bdb_exec "ufw: allow ${label} (${profile}) from ${_lan}" \
+                    sudo ufw allow from "${_lan}" to any app "${profile}"
+            fi
+            return
+        fi
+
+        bdb_info "ufw: no '${profile}' app profile — using explicit ports"
+        local pp port proto
+        for pp in "$@"; do
+            port="${pp%%/*}"; proto="${pp##*/}"
+            if grep -qE "${port}/${proto}[[:space:]].*ALLOW.*${_lan}" <<< "${status}"; then
+                bdb_success "ufw: ${label} ${pp} already allowed from ${_lan}"
+            else
+                bdb_exec "ufw: allow ${label} ${pp} from ${_lan}" \
+                    sudo ufw allow from "${_lan}" to any port "${port}" proto "${proto}"
+            fi
+        done
+    }
+
+    if bdb_has_cmd syncthing; then
+        _ufw_allow_lan "syncthing" "syncthing" 22000/tcp 22000/udp 21027/udp
+    else
+        bdb_info "syncthing not installed — skipping its firewall rule"
+    fi
+
+    if bdb_has_cmd localsend || bdb_has_cmd localsend_app; then
+        _ufw_allow_lan "LocalSend" "LocalSend" 53317/tcp 53317/udp
+    else
+        bdb_info "localsend not installed — skipping its firewall rule"
+    fi
+
+    unset -f _ufw_allow_lan
+    unset _lan
+else
+    bdb_info "ufw not installed — skipping firewall rules"
+fi
+
+# -----------------------------------------------------------------------------
+# mDNS — stop systemd-resolved contending with Avahi for the mDNS socket
+# -----------------------------------------------------------------------------
+# GUARDED ON AVAHI: disabling resolved's mDNS on a machine that has no Avahi
+# would remove .local resolution entirely, so only deploy the drop-in when Avahi
+# is the active mDNS responder.
+_mdns_src="{{ .chezmoi.sourceDir }}/system/etc/systemd/resolved.conf.d/mdns.conf"
+_mdns_dst="/etc/systemd/resolved.conf.d/mdns.conf"
+if ! bdb_has_cmd resolvectl; then
+    bdb_info "systemd-resolved not present — skipping mDNS drop-in"
+elif ! systemctl is-active --quiet avahi-daemon.service; then
+    bdb_info "Avahi not active — leaving systemd-resolved mDNS untouched"
+elif cmp -s "${_mdns_src}" "${_mdns_dst}" 2>/dev/null; then
+    bdb_success "resolved mDNS drop-in already up to date"
+else
+    bdb_action "Installing systemd-resolved mDNS drop-in"
+    sudo install -d -m 755 /etc/systemd/resolved.conf.d
+    sudo install -m 644 "${_mdns_src}" "${_mdns_dst}"
+    bdb_exec "Restarting systemd-resolved" sudo systemctl restart systemd-resolved
+    bdb_success "systemd-resolved mDNS disabled (Avahi handles mDNS)"
+fi
+unset _mdns_src _mdns_dst
+
+# -----------------------------------------------------------------------------
+# btrfs periodic scrub — any machine with a btrfs root (servers included)
+# -----------------------------------------------------------------------------
+if [[ "$(findmnt -no FSTYPE / 2>/dev/null)" == "btrfs" ]]; then
+    # System timer from btrfs-progs; the '@-' instance escapes the mount '/'.
+    if ! systemctl cat btrfs-scrub@.timer &>/dev/null; then
+        bdb_warn "btrfs-scrub@.timer unit not found — skipping (install btrfs-progs)"
+    elif systemctl is-enabled --quiet btrfs-scrub@-.timer \
+        && systemctl is-active --quiet btrfs-scrub@-.timer; then
+        bdb_success "btrfs-scrub@-.timer already enabled and active"
+    else
+        bdb_exec "Enabling periodic btrfs scrub of /" \
+            sudo systemctl enable --now btrfs-scrub@-.timer
+    fi
+else
+    bdb_info "root filesystem is not btrfs — skipping scrub timer"
+fi
+
+# -----------------------------------------------------------------------------
+# Wireless regulatory domain — only when the config file exists
+# -----------------------------------------------------------------------------
+# /etc/conf.d/wireless-regdom ships (commented) with wireless-regdb; set the
+# active value, replacing an existing uncommented line or appending one. Leaves
+# the commented examples alone.
+_regdom_conf="/etc/conf.d/wireless-regdom"
+if [[ -f "${_regdom_conf}" ]]; then
+    _regdom_line='WIRELESS_REGDOM="IT"'
+    if grep -qxF "${_regdom_line}" "${_regdom_conf}"; then
+        bdb_success "wireless-regdom already set to IT"
+    elif grep -qE '^[[:space:]]*WIRELESS_REGDOM=' "${_regdom_conf}"; then
+        bdb_exec "Setting WIRELESS_REGDOM=IT" \
+            sudo sed -i -E "s|^[[:space:]]*WIRELESS_REGDOM=.*|${_regdom_line}|" "${_regdom_conf}"
+    else
+        bdb_action "Appending WIRELESS_REGDOM=IT"
+        printf '%s\n' "${_regdom_line}" | sudo tee -a "${_regdom_conf}" >/dev/null
+        bdb_success "wireless-regdom set to IT"
+    fi
+    unset _regdom_line
+else
+    bdb_info "${_regdom_conf} not found — skipping wireless-regdom"
+fi
+unset _regdom_conf
+
+bdb_end_section
+
+exit 0

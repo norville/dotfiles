@@ -318,15 +318,18 @@ fi
 | `11-config-limine` | onchange | ✅ | — | — | Configure limine-snapper-sync (**CachyOS only**): set `MAX_SNAPSHOT_ENTRIES=10` and `SNAPSHOT_FORMAT_CHOICE=8` in `/etc/limine-snapper-sync.conf` (replace-or-append; skips if the file is absent) |
 | `12-config-syncthing` | onchange | ✅ | ✅ | — | Enforce the `<defaults>` block (default folder/device + ignore patterns) in syncthing's `config.xml` (workstation + terminal): locate via `syncthing paths`, generate config if absent, splice the canonical block, restart the service only when it changes; the rest of the file stays syncthing-owned |
 | `13-config-macos` | onchange | ✅ | — | — | macOS system + app defaults (**darwin/workstation only**, machine-agnostic, idempotent): language, keyboard, trackpad, appearance, screenshots, Finder, dialogs, Dock, Mission Control, window management, shortcuts + per-app tweaks (organised by category); sets the desktop picture to `primary.jpg` (downloaded by `.chezmoiexternal`). No-op on Linux |
+| `14-config-system` | onchange | ✅ | ✅ | ✅ | Host-level `/etc` tweaks (**Linux**, no blanket machine gate — each step self-guards): ufw LAN rules for syncthing/LocalSend (`.lanSubnet`, app-profile with explicit-port fallback, only if ufw+app present); systemd-resolved mDNS drop-in from source-only `system/` (**only when Avahi is active**, else `.local` would break); `btrfs-scrub@-.timer` on any btrfs root (**reaches servers**); `WIRELESS_REGDOM` (replace-or-append, only if `/etc/conf.d/wireless-regdom` exists). No-op on macOS |
 | `bdb_update.sh` (hook) | `chezmoi update` only | ✅ | ✅ | ✅ | System packages (all); ZSH plugins + Neovim (LazyVim) plugins + caches + `rustup update` + `gem update bundler erb` (non-server) |
 
 W = workstation, T = terminal, S = server.
 
-### 6. System-Level Files (sddm/)
+### 6. System-Level Files (`sddm/`, `system/`)
 
-Files that must live outside `~/` are stored in a source-only directory at the repo root.
-`.chezmoiignore` excludes the directory from home deployment. A `run_onchange_after_`
-script deploys them with `sudo install`.
+Files that must live outside `~/` are stored in a source-only directory at the repo root
+(`sddm/` for the SDDM config + theme; `system/` for `/etc` drop-ins such as the
+systemd-resolved mDNS config deployed by script 14). `.chezmoiignore` excludes the
+directory from home deployment. A `run_onchange_after_` script deploys them with
+`sudo install`.
 
 **Change detection**: text files use `{{ include "path" | sha256sum }}` in the script
 header comment; binary files use `{{ output "sha256sum" (joinPath .chezmoi.sourceDir "path") }}`.
@@ -412,6 +415,8 @@ dotfiles/
     │   ├── etc/sddm.conf.d/tokyonight-moon.conf
     │   ├── etc/sddm/Xsetup
     │   └── themes/tokyonight-moon/ # metadata.desktop, Main.qml, LoginFormComponent.qml, background.jpg
+    ├── system/                     # Source-only: /etc files deployed by script 14
+    │   └── etc/systemd/resolved.conf.d/mdns.conf
     ├── .chezmoiscripts/
     │   ├── run_onchange_after_00-install-core.sh.tmpl        # all machine types
     │   ├── run_onchange_after_01-config-env.sh.tmpl           # workstation + terminal
@@ -426,7 +431,8 @@ dotfiles/
     │   ├── run_onchange_after_10-install-virt-manager.sh.tmpl # CachyOS workstation only
     │   ├── run_onchange_after_11-config-limine.sh.tmpl        # CachyOS only
     │   ├── run_onchange_after_12-config-syncthing.sh.tmpl     # workstation + terminal
-    │   └── run_onchange_after_13-config-macos.sh.tmpl         # macOS/darwin workstation only
+    │   ├── run_onchange_after_13-config-macos.sh.tmpl         # macOS/darwin workstation only
+    │   └── run_onchange_after_14-config-system.sh.tmpl        # Linux, all machine types (per-step guards)
     ├── dot_config/
     │   ├── bdb/
     │   │   ├── bdb_bootstrap.sh        # Not deployed
@@ -502,6 +508,7 @@ Implemented via `.chezmoiignore` template conditionals. Source of truth: `.chezm
 | `dot_local/share/darkman` | `.local/share/darkman/` | ✓ | — | — | GNOME desktop; pacman/dnf only (not available on apt) |
 | `dot_local/share/applications/com.anthropic.Claude.desktop` | `.local/share/applications/com.anthropic.Claude.desktop` | ✓ | — | — | CachyOS only (`osid = linux-cachyos`; claude-desktop ships in the cachyos repo, AUR-only elsewhere) |
 | `sddm/` | (deployed by script 06) | ✓ | — | — | |
+| `system/` | (deployed by script 14) | ✓ | ✓ | ✓ | source-only `/etc` drop-ins; only when the relevant service is present/active |
 
 W = workstation, T = terminal, S = server.
 

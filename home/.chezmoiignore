@@ -13,6 +13,10 @@
 # Deployed to /etc/ and /usr/share/ by run_onchange_after_06-install-sddm.sh.
 sddm/
 
+# system/ holds system-level /etc files that can't target ~/.
+# Deployed by run_onchange_after_14-config-system.sh via sudo install.
+system/
+
 # Bootstrap script (only used for initial setup, not deployed)
 .config/bdb/bdb_bootstrap.sh
 
