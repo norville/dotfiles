@@ -89,11 +89,12 @@ load_helpers
 # =============================================================================
 
 detect_os() {
-    local platform distro
+    local platform distro arch
 
-    bdb_action "Detecting operating system"
+    bdb_action "Detecting system"
 
     platform="$(uname -s)"
+    arch="$(uname -m)"
 
     case "${platform}" in
     Darwin)
@@ -119,9 +120,11 @@ detect_os() {
 
     bdb_var "Platform" "${platform}"
     bdb_var "Distribution" "${distro}"
+    bdb_var "Architecture" "${arch}"
 
     export PLATFORM="${platform}"
     export DISTRO="${distro}"
+    export ARCH="${arch}"
     return 0
 }
 
