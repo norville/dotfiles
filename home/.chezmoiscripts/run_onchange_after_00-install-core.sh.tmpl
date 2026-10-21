@@ -50,6 +50,9 @@ else
     bdb_success "eza repository already configured"
 fi
 
+    {{- /* OpenTofu has no Debian apt package without this repo; on RPi we drop */ -}}
+    {{- /* tofu (.rpi.aptSkip), so skip the repo there too. */ -}}
+    {{- if not .isRPi }}
 # OpenTofu — not in official repos; requires two GPG keys from opentofu.org
 if [[ ! -f /etc/apt/keyrings/opentofu.gpg ]]; then
     bdb_action "Setting up OpenTofu repository"
@@ -68,6 +71,7 @@ if [[ ! -f /etc/apt/keyrings/opentofu.gpg ]]; then
 else
     bdb_success "OpenTofu repository already configured"
 fi
+    {{- end }}
 
     {{- if eq .machine "workstation" }}
 
@@ -109,7 +113,16 @@ fi
 APT_PACKAGES=(
     {{- range .package }}
       {{- if and (has $.machine .machines) (has "apt" .managers) }}
+        {{- /* On RPi, drop packages with no Debian apt package (.rpi.aptSkip). */ -}}
+        {{- if not (and $.isRPi (has .name $.rpi.aptSkip)) }}
     "{{ .name }}"
+        {{- end }}
+      {{- end }}
+    {{- end }}
+    {{- /* On RPi (no snapd), install these natively via apt instead of snap. */ -}}
+    {{- if .isRPi }}
+      {{- range .rpi.aptAdd }}
+    "{{ . }}"
       {{- end }}
     {{- end }}
 )
@@ -120,6 +133,9 @@ bdb_exec "Installing APT packages"    sudo apt-get install -y "${APT_PACKAGES[@]
 # -----------------------------------------------------------------------------
 # Snap packages (chezmoi, lazygit, nvim, yazi — absent/outdated in apt)
 # -----------------------------------------------------------------------------
+    {{- /* RPi is kept snap-free: nvim/lazygit/rustup come from apt (.rpi.aptAdd) */ -}}
+    {{- /* and chezmoi from its official .deb (installed by the bootstrap). */ -}}
+    {{- if not .isRPi }}
 SNAP_PACKAGES=(
     {{- range .package }}
       {{- if and (has $.machine .machines) (has "snap" .managers) }}
@@ -142,6 +158,9 @@ if bdb_test_cmd "snap"; then
 else
     bdb_warn "snapd is not installed — skipping: ${SNAP_PACKAGES[*]}"
 fi
+    {{- else }}
+bdb_info "Raspberry Pi: snap-free — nvim/lazygit/rustup via apt, chezmoi via .deb"
+    {{- end }}
 
   {{- /* ---------------------------------------------------------------- */ -}}
   {{- /* Fedora / Rocky — DNF                                             */ -}}

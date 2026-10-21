@@ -105,6 +105,30 @@ Same logical tool delivered under a different name per manager:
 | GnuPG | — | — | `gpg` | — | `gnupg` | — | `gnupg2` |
 | 7-Zip | `sevenzip` | — | — | — | `7zip` | — | — |
 
+#### Raspberry Pi overrides (`isRPi`)
+
+Raspberry Pi OS is Debian on ARM, so it resolves to `osid = linux-debian` /
+`packageManager = apt`, and `.chezmoi.toml.tmpl` sets **`isRPi = true`**. The Pi is
+kept **snap-free** (plain Debian ships no snapd, and we don't want to pull it in),
+and it has no OpenTofu apt repo. Since the matrix is static data with no access to
+`.isRPi`, `00-install-core` applies a small override from the **`[rpi]`** table in
+`.chezmoidata.toml` when `isRPi`:
+
+- **`aptSkip`** (`tofu`) — removed from the apt list; the OpenTofu repo setup is
+  skipped too. OpenTofu has no Debian apt package without that repo.
+- **`aptAdd`** (`neovim`, `lazygit`, `rustup`) — installed from apt instead of
+  their snap entries (all three exist natively in Debian apt).
+- The entire **snap pass is skipped**; the only remaining snap, **`chezmoi`**, is
+  installed from its official **arm64 `.deb`** (downloaded and handed to apt — no
+  `curl | sh`, no snap), keeping it dpkg-managed. The shared helper
+  **`bdb_install_chezmoi_deb`** (in `bdb_helpers.sh`) does this for both
+  `bdb_bootstrap.sh` (initial install) and the `chezmoi update` hook (which keeps
+  the binary current, since apt's system upgrade doesn't cover a standalone `.deb`).
+  It is idempotent: it (re)installs only when chezmoi is absent or behind the latest release.
+
+Package names stay in `.chezmoidata.toml` (`[rpi]`), never hardcoded in the script.
+Non-RPi apt machines (Ubuntu) are unaffected — they keep the snap + OpenTofu-repo path.
+
 #### Dual-source packages (pacman + aur)
 
 The matrix has no distro axis below `packageManager` — one `pacman` value covers

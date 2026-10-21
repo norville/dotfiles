@@ -181,20 +181,53 @@ install_deps_native() {
 }
 
 # -----------------------------------------------------------------------------
-# Debian / Ubuntu — git via apt; chezmoi via snap (--classic), avoiding a
-# remote script piped into a shell. Follows the official Debian snap guide:
-# https://snapcraft.io/docs/tutorials/install-the-daemon/debian/
+# Raspberry Pi OS is Debian on ARM. We keep it snap-free (no snapd), matching
+# the dotfiles' .isRPi path, and install chezmoi from its official arm64 .deb
+# (via bdb_install_chezmoi_deb in bdb_helpers.sh — the same helper the update
+# hook uses to keep the binary current). (nvim/lazygit/rustup come from apt
+# later, in 00-install-core.)
+# -----------------------------------------------------------------------------
+_bdb_is_rpi() {
+    [[ -r /etc/os-release ]] || return 1
+    [[ "$(. /etc/os-release && echo "${ID:-}")" == "debian" ]] || return 1
+    case "$(uname -m)" in
+        aarch64 | arm64 | armv7l | armv6l | arm) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# -----------------------------------------------------------------------------
+# Debian / Ubuntu — git via apt; chezmoi via snap (--classic) on non-RPi,
+# avoiding a remote script piped into a shell. Follows the official Debian snap
+# guide: https://snapcraft.io/docs/tutorials/install-the-daemon/debian/
+# Raspberry Pi takes the snap-free branch above (chezmoi from its .deb).
 # -----------------------------------------------------------------------------
 install_deps_apt() {
     local packages_to_install=()
-    local snapd_freshly_installed=false
 
+    # git (and curl, needed to fetch the chezmoi .deb on RPi) are required on all
+    # apt machines.
     if bdb_test_cmd "git"; then
         bdb_success "Git already installed"
     else
         packages_to_install+=("git")
     fi
 
+    if _bdb_is_rpi; then
+        # --- Raspberry Pi: snap-free; chezmoi from its official .deb ---
+        if ! bdb_test_cmd "curl"; then
+            packages_to_install+=("curl")
+        fi
+        if [[ ${#packages_to_install[@]} -gt 0 ]]; then
+            bdb_exec "Installing dependencies" sudo apt-get install -y "${packages_to_install[@]}"
+        fi
+        # Idempotent: installs when absent, no-ops when already current.
+        bdb_install_chezmoi_deb
+        return
+    fi
+
+    # --- Other Debian / Ubuntu: snapd + chezmoi via snap ---
+    local snapd_freshly_installed=false
     if bdb_test_cmd "snap"; then
         bdb_success "Snapd already installed"
     else

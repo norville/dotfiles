@@ -38,6 +38,22 @@ sshHosts = [
 lanSubnet = "10.0.1.0/24"
 
 # -----------------------------------------------------------------------------
+# Raspberry Pi overrides
+# -----------------------------------------------------------------------------
+# Raspberry Pi OS is Debian on ARM (.isRPi). We keep the Pi snap-free, and it
+# has no OpenTofu apt repo, so 00-install-core.sh.tmpl remaps the matrix there:
+#   aptSkip — packages to NOT install on RPi (OpenTofu: no Debian apt package).
+#   aptAdd  — install these via apt instead of their snap entries (no snapd on
+#             the Pi). nvim/lazygit/rustup all exist natively in Debian apt.
+# chezmoi — the last snap — is installed from its official arm64 .deb by the
+# bootstrap (bdb_bootstrap.sh), not snap. Keeping the names here (not hardcoded
+# in the script) preserves .chezmoidata.toml as the single source of truth.
+# -----------------------------------------------------------------------------
+[rpi]
+aptSkip = ["tofu"]
+aptAdd  = ["neovim", "lazygit", "rustup"]
+
+# -----------------------------------------------------------------------------
 # Package Matrix
 # -----------------------------------------------------------------------------
 # Edit this section to add, remove, or move packages.

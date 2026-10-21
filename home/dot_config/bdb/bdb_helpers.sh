@@ -240,6 +240,47 @@ bdb_has_cmd() {
 }
 
 # =============================================================================
+# CHEZMOI BINARY (Raspberry Pi)
+# =============================================================================
+# On Raspberry Pi we keep the system snap-free, and chezmoi is not in Debian apt,
+# so it is installed from its official arm64 .deb instead of snap. This single
+# implementation is shared by bdb_bootstrap.sh (initial install) and the chezmoi
+# update hook (keeping the binary current). We download the .deb and hand it to
+# apt — no snap, no `curl | sh` — so chezmoi stays dpkg-managed. Idempotent: it
+# (re)installs only when chezmoi is absent or older than the latest release.
+bdb_install_chezmoi_deb() {
+    local latest installed deb tmp
+    latest="$(curl -fsSL https://api.github.com/repos/twpayne/chezmoi/releases/latest \
+        | sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"v\{0,1\}\([^"]*\)".*/\1/p' | head -n1)"
+    if [[ -z "${latest}" ]]; then
+        bdb_error "Could not determine the latest chezmoi version"
+        return 1
+    fi
+
+    if bdb_has_cmd "chezmoi"; then
+        installed="$(chezmoi --version 2>/dev/null \
+            | sed -n 's/.*version v\{0,1\}\([0-9][^, ]*\).*/\1/p' | head -n1)"
+        if [[ "${installed}" == "${latest}" ]]; then
+            bdb_success "chezmoi already current (${installed})"
+            return 0
+        fi
+    fi
+
+    tmp="$(mktemp -d)"
+    deb="chezmoi_${latest}_linux_arm64.deb"
+    if curl -fsSL -o "${tmp}/${deb}" \
+        "https://github.com/twpayne/chezmoi/releases/download/v${latest}/${deb}"; then
+        bdb_exec "Installing chezmoi ${latest} (.deb)" sudo apt-get install -y "${tmp}/${deb}"
+        bdb_success "chezmoi ${latest} installed"
+    else
+        bdb_error "Failed to download ${deb}"
+        rm -rf "${tmp}"
+        return 1
+    fi
+    rm -rf "${tmp}"
+}
+
+# =============================================================================
 # SYSTEM UPDATE
 # =============================================================================
 # Single implementation of the system package update, shared by

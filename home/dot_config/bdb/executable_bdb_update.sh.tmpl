@@ -33,6 +33,13 @@ bdb_var "Machine type" "{{ .machine }}"
 
 bdb_update_packages
 
+{{- /* RPi chezmoi is a standalone .deb (not snap/repo), so the system upgrade */ -}}
+{{- /* above doesn't cover it — refresh it to the latest release here. Runs on */ -}}
+{{- /* every machine type (a headless Pi can be a server). */ -}}
+{{- if .isRPi }}
+bdb_install_chezmoi_deb
+{{- end }}
+
 # =============================================================================
 # SHELL PLUGIN + APPLICATION UPDATES
 # =============================================================================
