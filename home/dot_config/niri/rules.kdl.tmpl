@@ -1,7 +1,7 @@
 // ────────────── Window & Layer Rules ──────────────
 // Disable border background
 // https://niri-wm.github.io/niri/FAQ.html#why-are-transparent-windows-tinted-why-is-the-borderfocus-ring-showing-up-through-semitransparent-windows
-window-rule { draw-border-with-background false; }
+window-rule                 { draw-border-with-background false; }
 
 // Rounded corners for a modern look.
 window-rule {
@@ -11,40 +11,53 @@ window-rule {
 
 // Default terminal: Kitty — always open focused on main display
 window-rule {
-    match           app-id="kitty"
-    open-on-output  "DP-1"
-    open-focused    true
+    match                   app-id="kitty"
+    open-on-output          "DP-1"
+    open-focused            true
 }
 
 // Default browser: Brave — at startup open unfocused on secondary display
 window-rule {
-    match           app-id="brave-browser" at-startup=true
-    open-on-output  "HDMI-A-1"
-    open-focused    false
+    match                   app-id="brave-browser" at-startup=true
+    open-on-output          "HDMI-A-1"
+    open-focused            false
 }
 
 // Default password manager: 1Password — always open floating and focused on main display
 window-rule {
-    match           app-id="1password"
-    open-on-output  "DP-1"
-    open-floating   true
-    open-focused    true
-    shadow          { on; }
+    match                   app-id="1password"
+    open-on-output          "DP-1"
+    open-floating           true
+    open-focused            true
+    shadow                  { on; }
+}
+
+// virt-manager : vm manager - always open as 1/3 width, 1/2 height
+window-rule {
+    match                   app-id="virt-manager" title="^Virtual Machine Manager$"
+    default-column-width    { proportion 0.33333; }
+    default-window-height   { proportion 0.5; }
+}
+
+// virt-manager : qemu vm - always open maximized
+window-rule {
+    match                   app-id="virt-manager" title="^.+QEMU.+$"
+    open-maximized          true
 }
 {{- if lookPath "noctalia" }}
 
 // Noctalia: floating settings window
 window-rule {
-    match                 app-id="dev.noctalia.Noctalia"
-    default-column-width  { fixed 1080; }
-    default-window-height { fixed 920; }
-    open-floating         true
+    match                   app-id="dev.noctalia.Noctalia"
+    default-column-width    { fixed 1080; }
+    default-window-height   { fixed 920; }
+    open-floating           true
 }
 
 // Stationary overview wallpaper
 // requires [niri/backdrop] disbaled
 layer-rule {
-    match                 namespace="^noctalia-wallpaper"
-    place-within-backdrop true
+    match                   namespace="^noctalia-wallpaper"
+    place-within-backdrop   true
 }
 {{- end }}
