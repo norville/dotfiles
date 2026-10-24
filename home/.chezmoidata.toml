@@ -17,14 +17,16 @@
 # User and port live in .chezmoi.toml ([data].user / [data].port).
 # -----------------------------------------------------------------------------
 sshHosts = [
-  "hashirama",
   "asura",
+  "hashirama",
   "indra",
-  "shukaku",
   "isobu",
-  "songoku",
+  "jiraya",
   "kokuo",
-  "nagato"
+  "nagato",
+  "orochimaru",
+  "shukaku",
+  "songoku"
 ]
 
 # -----------------------------------------------------------------------------
