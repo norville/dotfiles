@@ -65,7 +65,7 @@ else
 {{- else if eq .packageManager "dnf" }}
     bdb_exec "Installing syncthing" sudo dnf install -y syncthing
 {{- else if eq .packageManager "brew" }}
-    bdb_exec "Installing syncthing" brew install syncthing
+    bdb_exec "Installing syncthing" brew install --cask syncthing-app
 {{- else }}
     bdb_error "No install method for syncthing on {{ .packageManager }}"
     bdb_end_section
