@@ -1,0 +1,36 @@
+# Managed by chezmoi (run_onchange_after_15-config-sshd.sh.tmpl).
+# Hardened sshd for Linux workstations: key-only logins for {{ .user }} on port
+# {{ .port }}, with agent forwarding so a session opened from another workstation
+# can reach homelab nodes and GitHub using that client's 1Password agent.
+# sshd keeps the FIRST value it reads for each keyword, and drop-ins are read in
+# lexical order before the rest of sshd_config — the 00- prefix makes this file
+# win over distro drop-ins (e.g. 20-systemd-userdb.conf, 99-archlinux.conf).
+AcceptEnv                         LANG LC_*
+AllowAgentForwarding              yes
+AllowStreamLocalForwarding        no
+AllowTcpForwarding                no
+AllowUsers                        {{ .user }}
+AuthenticationMethods             publickey
+AuthorizedKeysFile                .ssh/authorized_keys
+ChannelTimeout                    session=30m
+ClientAliveCountMax               1
+ClientAliveInterval               300
+GatewayPorts                      no
+HostbasedAuthentication           no
+KbdInteractiveAuthentication      no
+LoginGraceTime                    30
+MaxAuthTries                      2
+MaxSessions                       10
+MaxStartups                       10:30:60
+PasswordAuthentication            no
+PermitEmptyPasswords              no
+PermitRootLogin                   no
+PermitTunnel                      no
+Port                              {{ .port }}
+PrintMotd                         no
+PubkeyAuthentication              yes
+StrictModes                       yes
+# In-process sftp: no distro-specific sftp-server path to get wrong.
+Subsystem                         sftp internal-sftp
+UsePAM                            yes
+X11Forwarding                     no

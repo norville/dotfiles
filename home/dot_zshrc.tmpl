@@ -91,8 +91,12 @@ _onepassword_sock="${HOME}/.1password/agent.sock"
 
   {{ end -}}
 
-# Only set SSH_AUTH_SOCK if the 1Password socket exists and is a valid socket
-if [[ -S "$_onepassword_sock" ]]; then
+# Inside an SSH session with a forwarded agent, keep it: keys then come from the
+# client's 1Password (approval prompts appear on the client), not this machine's.
+if [[ -n "${SSH_CONNECTION:-}" && -S "${SSH_AUTH_SOCK:-}" ]]; then
+    :
+# Otherwise only set SSH_AUTH_SOCK if the 1Password socket exists and is valid
+elif [[ -S "$_onepassword_sock" ]]; then
     export SSH_AUTH_SOCK="$_onepassword_sock"
 elif [[ -n "$SSH_AUTH_SOCK" ]] && [[ ! -S "$SSH_AUTH_SOCK" ]]; then
     # If SSH_AUTH_SOCK is set but invalid, unset it to avoid issues

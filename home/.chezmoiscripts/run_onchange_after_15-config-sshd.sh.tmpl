@@ -1,0 +1,156 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Chezmoi Script: SSH Server (Linux workstations)
+# =============================================================================
+# Runs sshd on Linux workstations so another workstation (e.g. the MacBook) can
+# log in and, through agent forwarding, reach homelab nodes and push to GitHub
+# with the CLIENT's 1Password agent — no private keys on this host.
+#
+# Installs openssh if missing, deploys the hardened drop-in rendered from
+# system/etc/ssh/sshd_config.d/00-chikyu-lan.conf.tmpl (validated with `sshd -t`
+# and rolled back if invalid), enables the service, and opens the port to the
+# LAN in ufw when present. The client side (ForwardAgent, agent selection inside
+# SSH sessions) lives in dot_ssh/private_config.tmpl and dot_zshrc.tmpl.
+#
+# Linux workstation only. Idempotent: skips each step when already current.
+#
+# Execution: chezmoi apply (only when this file's rendered content changes)
+# Location:  .chezmoiscripts/run_onchange_after_15-config-sshd.sh.tmpl
+# =============================================================================
+{{- if not (and (eq .chezmoi.os "linux") (eq .machine "workstation")) }}
+exit 0
+{{- end }}
+
+source "${HELPERS}"
+
+bdb_script_init "${BASH_SOURCE[0]}"
+
+bdb_begin_section "SSH server (sshd)"
+
+# -----------------------------------------------------------------------------
+# Install openssh (server) if missing
+# -----------------------------------------------------------------------------
+# sshd lives in /usr/sbin, which may not be on a regular user's PATH (Debian).
+if [[ -x /usr/sbin/sshd || -x /usr/bin/sshd ]]; then
+    bdb_success "sshd already installed"
+else
+{{- if eq .packageManager "pacman" }}
+    bdb_exec "Installing openssh" sudo pacman -S --needed --noconfirm openssh
+{{- else if eq .packageManager "apt" }}
+    bdb_exec "Installing openssh-server" sudo apt-get install -y openssh-server
+{{- else if eq .packageManager "dnf" }}
+    bdb_exec "Installing openssh-server" sudo dnf install -y openssh-server
+{{- else }}
+    bdb_error "No install method for sshd on {{ .packageManager }}"
+    bdb_end_section
+    exit 1
+{{- end }}
+fi
+
+# -----------------------------------------------------------------------------
+# Deploy the drop-in (validated, rolled back on failure)
+# -----------------------------------------------------------------------------
+_dst="/etc/ssh/sshd_config.d/00-chikyu-lan.conf"
+_new="$(mktemp)"
+_old="$(mktemp)"
+# Register temp files with bdb_cleanup (do NOT set an EXIT trap here — that
+# would override the one bdb_script_init installs for logging cleanup).
+BDB_TEMP_FILES="${BDB_TEMP_FILES:-} ${_new} ${_old}"
+
+cat > "${_new}" <<'SSHD_DROPIN_EOF'
+{{ includeTemplate "system/etc/ssh/sshd_config.d/00-chikyu-lan.conf.tmpl" . -}}
+SSHD_DROPIN_EOF
+
+# Drop-ins only take effect if the main config includes them (default on
+# Arch/Debian/Fedora, but a hand-edited sshd_config may have dropped it).
+if ! sudo grep -qE '^[[:space:]]*Include[[:space:]]+/etc/ssh/sshd_config\.d/\*\.conf' /etc/ssh/sshd_config; then
+    bdb_warn "/etc/ssh/sshd_config does not include sshd_config.d/*.conf — drop-in would be ignored"
+fi
+
+_changed=false
+if sudo cmp -s "${_new}" "${_dst}" 2>/dev/null; then
+    bdb_success "sshd drop-in already up to date"
+else
+    _had_old=false
+    if sudo test -f "${_dst}"; then
+        # shellcheck disable=SC2024  # root reads, the user-owned temp is written
+        sudo cat "${_dst}" > "${_old}"
+        _had_old=true
+    fi
+
+    bdb_action "Installing sshd drop-in ${_dst}"
+    sudo install -d -m 755 /etc/ssh/sshd_config.d
+    sudo install -m 644 "${_new}" "${_dst}"
+
+    # Never leave sshd with a config it can't load (it would fail on next start).
+    if ! bdb_exec "Validating sshd configuration" sudo sshd -t; then
+        if "${_had_old}"; then
+            sudo install -m 644 "${_old}" "${_dst}"
+        else
+            sudo rm -f "${_dst}"
+        fi
+        bdb_error "Invalid sshd configuration — previous drop-in restored"
+        bdb_end_section
+        exit 1
+    fi
+    _changed=true
+    bdb_success "sshd drop-in installed"
+fi
+unset _new _old _had_old
+
+# -----------------------------------------------------------------------------
+# Enable the service (reload it when the config changed)
+# -----------------------------------------------------------------------------
+{{- if eq .packageManager "apt" }}
+_unit="ssh.service"
+{{- else }}
+_unit="sshd.service"
+{{- end }}
+_socket="${_unit%.service}.socket"
+
+if systemctl is-enabled --quiet "${_socket}" 2>/dev/null; then
+    # Socket activation (Ubuntu >= 22.10): the socket unit owns the listening
+    # port and is regenerated from sshd_config on daemon-reload.
+    if "${_changed}"; then
+        bdb_exec "Regenerating ${_socket} from sshd_config" sudo systemctl daemon-reload
+        bdb_exec "Restarting ${_socket}" sudo systemctl restart "${_socket}"
+    else
+        bdb_success "${_socket} already enabled"
+    fi
+elif ! systemctl is-enabled --quiet "${_unit}" 2>/dev/null \
+    || ! systemctl is-active --quiet "${_unit}"; then
+    bdb_exec "Enabling ${_unit}" sudo systemctl enable --now "${_unit}"
+elif "${_changed}"; then
+    # Existing sessions survive a reload; only the listener re-execs.
+    bdb_exec "Reloading ${_unit}" sudo systemctl reload-or-restart "${_unit}"
+else
+    bdb_success "${_unit} already enabled and running"
+fi
+unset _unit _socket _changed _dst
+
+# -----------------------------------------------------------------------------
+# Firewall — let LAN and ZeroTier peers reach sshd (ufw, only when present)
+# -----------------------------------------------------------------------------
+if bdb_has_cmd ufw; then
+    _port="{{ .port }}"
+    _status="$(sudo ufw status)"
+
+    # source subnet + rule comment, one pair per allowed network
+    for _rule in "{{ .lanSubnet }}|sshd LAN" "{{ .zerotierSubnet }}|sshd ZeroTier"; do
+        _src="${_rule%%|*}"
+        # An ALLOW for the port from this subnet, or from Anywhere, covers it.
+        if grep -qE "^${_port}/tcp[[:space:]]+ALLOW[[:space:]]+(IN[[:space:]]+)?(Anywhere|${_src//./\\.})([[:space:]]|$)" <<< "${_status}"; then
+            bdb_success "ufw: sshd ${_port}/tcp already allowed from ${_src}"
+        else
+            bdb_exec "ufw: allow sshd ${_port}/tcp from ${_src}" \
+                sudo ufw allow from "${_src}" to any port "${_port}" proto tcp comment "${_rule#*|}"
+        fi
+    done
+    unset _port _status _rule _src
+else
+    bdb_info "ufw not installed — skipping firewall rule"
+fi
+
+bdb_end_section
+
+exit 0

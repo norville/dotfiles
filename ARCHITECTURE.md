@@ -343,6 +343,7 @@ fi
 | `12-config-syncthing` | onchange | ✅ | ✅ | — | Enforce the `<defaults>` block (default folder/device + ignore patterns) in syncthing's `config.xml` (workstation + terminal): locate via `syncthing paths` (macOS: the daemon bundled in `Syncthing.app`; stop/start by quitting/opening the app), generate config if absent, splice the canonical block, restart the service only when it changes; the rest of the file stays syncthing-owned |
 | `13-config-macos` | onchange | ✅ | — | — | macOS system + app defaults (**darwin/workstation only**, machine-agnostic, idempotent): language, keyboard, trackpad, appearance, screenshots, Finder, dialogs, Dock, Mission Control, window management, shortcuts + per-app tweaks (organised by category); sets the desktop picture to `primary.jpg` (downloaded by `.chezmoiexternal`). No-op on Linux |
 | `14-config-system` | onchange | ✅ | ✅ | ✅ | Host-level `/etc` tweaks (**Linux**, no blanket machine gate — each step self-guards): ufw LAN rules for syncthing/LocalSend (`.lanSubnet`, app-profile with explicit-port fallback, only if ufw+app present); systemd-resolved mDNS drop-in from source-only `system/` (**only when Avahi is active**, else `.local` would break); `btrfs-scrub@-.timer` on any btrfs root (**reaches servers**); `WIRELESS_REGDOM` (replace-or-append, only if `/etc/conf.d/wireless-regdom` exists). No-op on macOS |
+| `15-config-sshd` | onchange | ✅ | — | — | SSH server for **Linux workstations** (incoming sessions from another workstation, with agent forwarding): install openssh if missing; deploy `system/etc/ssh/sshd_config.d/00-chikyu-lan.conf.tmpl` (rendered with `.port`/`.user`; `00-` so it wins sshd's first-value-wins order over distro drop-ins) — validated with `sshd -t`, rolled back if invalid; enable + reload the service (`ssh.socket` aware on Ubuntu); ufw allow `.port`/tcp from `.lanSubnet` and `.zerotierSubnet` (the MacBook over ZeroTier), each skipped when that subnet or Anywhere is already allowed |
 | `bdb_update.sh` (hook) | `chezmoi update` only | ✅ | ✅ | ✅ | System packages (all); ZSH plugins + Neovim (LazyVim) plugins + caches + `rustup update` + `gem update bundler erb` (non-server) |
 
 W = workstation, T = terminal, S = server.
@@ -439,8 +440,9 @@ dotfiles/
     │   ├── etc/sddm.conf.d/tokyonight-moon.conf
     │   ├── etc/sddm/Xsetup
     │   └── themes/tokyonight-moon/ # metadata.desktop, Main.qml, LoginFormComponent.qml, background.jpg
-    ├── system/                     # Source-only: /etc files deployed by script 14
-    │   └── etc/systemd/resolved.conf.d/mdns.conf
+    ├── system/                     # Source-only: /etc files deployed by scripts 14 and 15
+    │   ├── etc/ssh/sshd_config.d/00-chikyu-lan.conf.tmpl  # script 15 (rendered)
+    │   └── etc/systemd/resolved.conf.d/mdns.conf          # script 14
     ├── .chezmoiscripts/
     │   ├── run_onchange_after_00-install-core.sh.tmpl        # all machine types
     │   ├── run_onchange_after_01-config-env.sh.tmpl           # workstation + terminal
@@ -456,7 +458,8 @@ dotfiles/
     │   ├── run_onchange_after_11-config-limine.sh.tmpl        # CachyOS only
     │   ├── run_onchange_after_12-config-syncthing.sh.tmpl     # workstation + terminal
     │   ├── run_onchange_after_13-config-macos.sh.tmpl         # macOS/darwin workstation only
-    │   └── run_onchange_after_14-config-system.sh.tmpl        # Linux, all machine types (per-step guards)
+    │   ├── run_onchange_after_14-config-system.sh.tmpl        # Linux, all machine types (per-step guards)
+    │   └── run_onchange_after_15-config-sshd.sh.tmpl          # linux workstation only
     ├── dot_config/
     │   ├── bdb/
     │   │   ├── bdb_bootstrap.sh        # Not deployed
@@ -761,6 +764,28 @@ via the SSH agent (`$SSH_AUTH_SOCK`, pointed at the 1Password agent per-OS by
 `~/.zshrc`), so no `identity_agent`/key path is hard-coded in `vfs.toml.tmpl`. To
 add/remove a homelab host, edit `sshHosts` only.
 
+### Agent forwarding to Linux workstations
+
+Linux workstations run sshd (`15-config-sshd`), so you can log in from another
+workstation (e.g. the MacBook) and from there reach homelab nodes or push to
+GitHub **with the client's 1Password agent** — no private keys on the remote host,
+and 1Password's approval prompt appears on the client. Three pieces cooperate:
+
+- `.chezmoidata.toml` `sshWorkstations` — the `sshHosts` members running sshd. The
+  client config adds `Host {{ .sshWorkstations | join " " }}` → `ForwardAgent yes`
+  **only** for them: root on a remote host can use a forwarded agent while the
+  session is open, so it is never forwarded to the rest of the homelab.
+- `dot_ssh/private_config.tmpl` — a workstation's `IdentityAgent` (its local
+  1Password socket) sits in a `Match exec` that applies **unless** this is an SSH
+  session (`$SSH_CONNECTION`) with a live `$SSH_AUTH_SOCK`. A plain `Host *`
+  `IdentityAgent` would override the forwarded agent, since it takes precedence
+  over `$SSH_AUTH_SOCK`.
+- `dot_zshrc.tmpl` — keeps a forwarded `$SSH_AUTH_SOCK` inside SSH sessions instead
+  of re-pointing it at the local 1Password socket (which is also what yazi uses).
+
+Without `-A`/forwarding (or with a stale socket, e.g. a reattached tmux), both fall
+back to the local 1Password agent.
+
 > **Caveat — `user`/`port` require re-init.** They live in `.chezmoi.toml.tmpl`, which
 > re-renders **only on `chezmoi init`**, not `apply`. With `missingkey=error`, any
 > machine that has not re-run `chezmoi init` since these were added will fail
@@ -853,7 +878,9 @@ trap 'rm -rf "$_TMP"; bdb_cleanup' EXIT
    on next render — no per-host edits
 3. Hosts share `user`/`port` and the `norville_at_chikyu.pub` key; a host needing a
    different login/port/key is not a `sshHosts` member — give it its own stanza
-4. Commit with `feat(ssh): add <host> to homelab hosts`
+4. If the host is a Linux workstation running sshd, also add it to `sshWorkstations`
+   so clients forward their agent to it (never add other hosts there)
+5. Commit with `feat(ssh): add <host> to homelab hosts`
 
 ### Debugging Installation Issues
 

@@ -23,21 +23,34 @@ sshHosts = [
   "isobu",
   "jiraya",
   "kokuo",
+  "minato",
   "nagato",
   "orochimaru",
   "shukaku",
   "songoku"
 ]
 
+# sshWorkstations — the sshHosts that are Linux workstations running sshd
+# (run_onchange_after_15-config-sshd). Clients forward their 1Password agent
+# ONLY to these: root on the remote host can use a forwarded agent while the
+# session is open, so never forward it to the rest of the homelab.
+sshWorkstations = ["minato"]
+
 # -----------------------------------------------------------------------------
 # Network
 # -----------------------------------------------------------------------------
 # lanSubnet — this homelab's LAN, consumed by run_onchange_after_14-config-system
-# to scope ufw rules (syncthing/LocalSend) to local peers. It's a per-site fact,
-# not a portable dotfile: correct only for machines actually on this subnet. If
-# machines ever span subnets, move it to a per-machine value in .chezmoi.toml.
+# (syncthing/LocalSend) and run_onchange_after_15-config-sshd to scope ufw rules
+# to local peers. It's a per-site fact, not a portable dotfile: correct only for
+# machines actually on this subnet. If machines ever span subnets, move it to a
+# per-machine value in .chezmoi.toml.
 # -----------------------------------------------------------------------------
 lanSubnet = "10.0.1.0/24"
+
+# zerotierSubnet — the ZeroTier network the MacBook joins when away from the LAN
+# (it shows up as 192.168.194.16). run_onchange_after_15-config-sshd allows sshd
+# from it as well as from lanSubnet.
+zerotierSubnet = "192.168.194.0/24"
 
 # -----------------------------------------------------------------------------
 # Raspberry Pi overrides
