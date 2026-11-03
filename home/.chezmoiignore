@@ -14,7 +14,8 @@
 sddm/
 
 # system/ holds system-level /etc files that can't target ~/.
-# Deployed by run_onchange_after_14-config-system.sh via sudo install.
+# Deployed by run_onchange_after_14-config-system.sh and
+# run_onchange_after_15-config-sshd.sh via sudo install.
 system/
 
 # Bootstrap script (only used for initial setup, not deployed)
@@ -100,6 +101,11 @@ sddm/
 .ssh/norville_at_github.pub
 .ssh/norville_at_codeberg.pub
 .ssh/norville_at_kasm.pub
+.ssh/authorized_keys
+{{- end }}
+{{- /* authorized_keys: only where sshd runs (15-config-sshd: Linux workstations). */ -}}
+{{- if not (and (eq .chezmoi.os "linux") (eq .machine "workstation")) }}
+.ssh/authorized_keys
 {{- end }}
 {{- /* kasm is a libvirt VM on minato's NAT network — only minato needs its key. */ -}}
 {{- if ne .chezmoi.hostname "minato" }}

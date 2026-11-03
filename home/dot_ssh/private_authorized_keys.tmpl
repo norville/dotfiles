@@ -1,0 +1,8 @@
+{{- /* -------------------------------------------------------------------- */ -}}
+{{- /* authorized_keys for Linux workstations running sshd (15-config-sshd) */ -}}
+{{- /* 1Password path: op://Private/norville_at_chikyu/public key           */ -}}
+{{- /* Managed: chezmoi owns this file — keys added by hand are removed.    */ -}}
+{{- /* -------------------------------------------------------------------- */ -}}
+# Managed by chezmoi (dot_ssh/private_authorized_keys.tmpl) — edits are overwritten.
+# from= accepts this key only from the LAN and ZeroTier, independently of ufw.
+from="{{ .lanSubnet }},{{ .zerotierSubnet }}" {{ onepasswordRead "op://Private/norville_at_chikyu/public key" }} norville_at_chikyu

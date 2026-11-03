@@ -492,6 +492,7 @@ dotfiles/
     ├── dot_vimrc
     ├── dot_vim/
     └── dot_ssh/
+        ├── private_authorized_keys.tmpl        # Linux workstations (sshd)
         ├── private_config.tmpl
         ├── private_norville_at_chikyu.pub.tmpl
         ├── private_ansible_at_chikyu.pub.tmpl
@@ -788,6 +789,13 @@ and 1Password's approval prompt appears on the client. Three pieces cooperate:
   over `$SSH_AUTH_SOCK`.
 - `dot_zshrc.tmpl` — keeps a forwarded `$SSH_AUTH_SOCK` inside SSH sessions instead
   of re-pointing it at the local 1Password socket (which is also what yazi uses).
+- `dot_ssh/private_authorized_keys.tmpl` — who may log **in**: the
+  `norville_at_chikyu` public key (via `onepasswordRead`), restricted with
+  `from="<lanSubnet>,<zerotierSubnet>"` so a leaked key is refused from anywhere
+  else even when ufw is broader. Fully managed — keys added by hand (e.g.
+  `ssh-copy-id`) are removed on the next apply. Deployed only on Linux workstations,
+  behind the `lookPath "op"` guard. IPv4 subnets only: a login arriving over IPv6
+  would be refused.
 
 Without `-A`/forwarding (or with a stale socket, e.g. a reattached tmux), both fall
 back to the local 1Password agent.
