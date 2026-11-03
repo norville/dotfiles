@@ -39,3 +39,13 @@ Host github.com
 
 Host codeberg.org
   IdentityFile ~/.ssh/norville_at_codeberg.pub
+{{- if eq .chezmoi.hostname "minato" }}
+
+# Kasm VM on minato's libvirt NAT network (192.168.122.0/24) — reachable only
+# from minato, so the stanza (and its key) exist only there.
+Host kasm
+  HostName 192.168.122.220
+  Port {{ .port }}
+  User {{ .user }}
+  IdentityFile ~/.ssh/norville_at_kasm.pub
+{{- end }}

@@ -496,7 +496,8 @@ dotfiles/
         ├── private_norville_at_chikyu.pub.tmpl
         ├── private_ansible_at_chikyu.pub.tmpl
         ├── private_norville_at_github.pub.tmpl
-        └── private_norville_at_codeberg.pub.tmpl
+        ├── private_norville_at_codeberg.pub.tmpl
+        └── private_norville_at_kasm.pub.tmpl   # minato only
 ```
 
 ### Dotfiles Deployment Scope
@@ -742,8 +743,13 @@ deployed helpers path (`~/.config/bdb/bdb_helpers.sh`).
 ## SSH Key Management
 
 SSH public keys are managed as chezmoi templates that call `onepasswordRead` at apply time.
-To prevent failures on machines where 1Password is not yet installed, all four keys are
+To prevent failures on machines where 1Password is not yet installed, all the keys are
 wrapped in a `lookPath "op"` guard in `.chezmoiignore`.
+
+`norville_at_kasm` is host-scoped: the Kasm VM sits on minato's libvirt NAT network
+(`192.168.122.0/24`), reachable only from minato, so both its key (a second
+`.chezmoiignore` gate on `.chezmoi.hostname`) and its `Host kasm` stanza in
+`private_config.tmpl` are deployed on minato only.
 
 After `run_onchange_after_02` installs 1Password, a second `chezmoi apply` deploys the keys.
 

@@ -379,6 +379,7 @@ show_location = false
 
     [[shell.session.actions]]
     action = "suspend"
+    command = "noctalia msg session lock && sleep 1 && systemctl suspend"
     countdown_seconds = 10.0
     enabled = true
     shortcut = "3"

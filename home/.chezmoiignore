@@ -99,4 +99,9 @@ sddm/
 .ssh/ansible_at_chikyu.pub
 .ssh/norville_at_github.pub
 .ssh/norville_at_codeberg.pub
+.ssh/norville_at_kasm.pub
+{{- end }}
+{{- /* kasm is a libvirt VM on minato's NAT network — only minato needs its key. */ -}}
+{{- if ne .chezmoi.hostname "minato" }}
+.ssh/norville_at_kasm.pub
 {{- end }}
