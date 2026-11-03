@@ -27,7 +27,7 @@ start = [ "workspaces" ]
         accordion = false
         accordion_direction = "end"
         enabled = true
-        fill = "surface_variant"
+        fill = "surface_container"
         id = "g1"
         members = [ "temp", "cpu", "ram", "sysmon", "network_rx", "network_tx" ]
         opacity = 0.65
@@ -37,7 +37,7 @@ start = [ "workspaces" ]
     accordion = false
     accordion_direction = "end"
     enabled = true
-    fill = "surface_variant"
+    fill = "surface_container"
     id = "g1"
     members = [ "tray", "bar" ]
     opacity = 0.65
@@ -130,7 +130,7 @@ widget_order = [
     type = "login_box"
 
         [lockscreen_widgets.widget."lockscreen-login-box@DP-1".settings]
-        background_color = "surface_variant"
+        background_color = "surface_container"
         background_opacity = 0.5
         background_radius = 12.0
         center_password_text = true
@@ -158,7 +158,7 @@ widget_order = [
     type = "login_box"
 
         [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-1".settings]
-        background_color = "surface_variant"
+        background_color = "surface_container"
         background_opacity = 0.5
         background_radius = 12.0
         center_password_text = true
