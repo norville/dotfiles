@@ -31,7 +31,15 @@ bdb_begin_section "Syncthing defaults"
 
 # Nothing to configure if syncthing was never installed (e.g. declined on a
 # terminal). 09-install-syncthing runs first, so on a fresh apply it is present.
-if ! bdb_has_cmd "syncthing"; then
+{{- if eq .chezmoi.os "darwin" }}
+# The syncthing-app cask puts no `syncthing` on PATH — use the bundled daemon.
+_app="/Applications/Syncthing.app"
+_syncthing="${_app}/Contents/Resources/syncthing/syncthing"
+if [[ ! -x "${_syncthing}" ]]; then
+{{- else }}
+_syncthing="syncthing"
+if ! bdb_has_cmd "${_syncthing}"; then
+{{- end }}
     bdb_warn "Skipping — syncthing is not installed"
     bdb_end_section
     exit 0
@@ -40,7 +48,7 @@ fi
 # -----------------------------------------------------------------------------
 # Locate config.xml (cross-platform via `syncthing paths`)
 # -----------------------------------------------------------------------------
-_conf="$(syncthing paths 2>/dev/null |
+_conf="$("${_syncthing}" paths 2>/dev/null |
     awk '/^Configuration file:/{getline; gsub(/^[ \t]+/, ""); print; exit}')"
 
 if [[ -z "${_conf}" ]]; then
@@ -57,7 +65,7 @@ bdb_var "Config file" "${_conf}"
 # writes config + keys without starting the daemon and is a no-op if present.
 if [[ ! -f "${_conf}" ]]; then
     bdb_exec "Generating initial syncthing config" \
-        syncthing generate --config "$(dirname "${_conf}")"
+        "${_syncthing}" generate --config "$(dirname "${_conf}")"
 fi
 
 # -----------------------------------------------------------------------------
@@ -395,9 +403,15 @@ if systemctl --user is-active syncthing.service &>/dev/null; then
     bdb_exec "Stopping syncthing" systemctl --user stop syncthing.service
 fi
 {{- else if eq .chezmoi.os "darwin" }}
-if brew services list | awk '$1=="syncthing" && $2=="started"{ok=1} END{exit !ok}'; then
+# Syncthing.app owns the daemon: quitting the app terminates it. Wait for the
+# daemon to exit so it can't rewrite config.xml after the splice.
+if pgrep -xq Syncthing; then
     _was_running=true
-    bdb_exec "Stopping syncthing" brew services stop syncthing
+    bdb_exec "Stopping syncthing" osascript -e 'quit app "Syncthing"'
+    for _ in {1..20}; do
+        pgrep -xq syncthing || break
+        sleep 0.5
+    done
 fi
 {{- end }}
 
@@ -425,7 +439,7 @@ if "${_was_running}"; then
 fi
 {{- else if eq .chezmoi.os "darwin" }}
 if "${_was_running}"; then
-    bdb_exec "Starting syncthing" brew services start syncthing
+    bdb_exec "Starting syncthing" open -a "${_app}"
 fi
 {{- end }}
 
