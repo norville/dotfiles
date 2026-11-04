@@ -6,6 +6,10 @@
 # it to the corresponding private key it holds and signs the challenge.
 # IdentitiesOnly prevents the agent from offering other unrelated keys.
 # =============================================================================
+
+# Options newer than some clients' ssh (e.g. macOS's bundled OpenSSH) — ignored
+# instead of failing the whole config. Must come before the options it covers.
+IgnoreUnknown WarnWeakCrypto
 {{- if eq .machine "workstation" }}
 
 # Workstations use their own 1Password agent — EXCEPT inside an SSH session that
@@ -33,6 +37,11 @@ Host {{ .sshHosts | join " " }}
 # 1Password agent so onward hops (homelab nodes, GitHub) sign on this client.
 Host {{ .sshWorkstations | join " " }}
   ForwardAgent yes
+
+# NAS appliances whose vendor sshd has no post-quantum key exchange
+# (.chezmoidata sshLegacyKexHosts): silence only that warning.
+Host {{ .sshLegacyKexHosts | join " " }}
+  WarnWeakCrypto no-pq-kex
 
 Host github.com
   IdentityFile ~/.ssh/norville_at_github.pub

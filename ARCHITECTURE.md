@@ -771,6 +771,16 @@ via the SSH agent (`$SSH_AUTH_SOCK`, pointed at the 1Password agent per-OS by
 `~/.zshrc`), so no `identity_agent`/key path is hard-coded in `vfs.toml.tmpl`. To
 add/remove a homelab host, edit `sshHosts` only.
 
+### NAS hosts without post-quantum key exchange
+
+OpenSSH 10.1+ warns when a connection doesn't use a post-quantum key exchange. The
+Synology NAS hosts (`.chezmoidata.toml` `sshLegacyKexHosts`) bundle an older sshd
+that offers none, and it can't be upgraded separately from DSM. Their `Host`
+stanza sets `WarnWeakCrypto no-pq-kex`, which turns off only that warning (all other
+weak-crypto warnings stay on). `IgnoreUnknown WarnWeakCrypto` at the top of the
+config keeps older clients (e.g. macOS's bundled ssh) from rejecting the option.
+Remove a host from the list once its firmware ships a post-quantum-capable sshd.
+
 ### Agent forwarding to Linux workstations
 
 Linux workstations run sshd (`15-config-sshd`), so you can log in from another

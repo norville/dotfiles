@@ -36,6 +36,13 @@ sshHosts = [
 # session is open, so never forward it to the rest of the homelab.
 sshWorkstations = ["minato"]
 
+# sshLegacyKexHosts — the sshHosts whose sshd offers no post-quantum key exchange
+# (Synology DSM bundles OpenSSH 8.2 — PQ kex needs >= 8.5 — and it can't be
+# upgraded on its own; check with `ssh -v <host> exit 2>&1 | grep 'remote software'`). Only
+# the "no post-quantum key exchange" warning is turned off for them; every other
+# weak-crypto warning stays on. Drop a host once its firmware ships a newer sshd.
+sshLegacyKexHosts = ["asura", "indra"]
+
 # -----------------------------------------------------------------------------
 # Network
 # -----------------------------------------------------------------------------
