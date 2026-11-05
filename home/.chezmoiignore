@@ -34,6 +34,7 @@ system/
 .config/systemd/user/niri.service.d/
 .config/yazi/
 .config/zed/
+Pictures/Cheatsheets/
 sddm/
 {{- end }}
 
@@ -68,11 +69,13 @@ sddm/
 {{- if not (lookPath "niri") }}
 .config/niri/
 .config/systemd/user/niri.service.d/
+Pictures/Cheatsheets/niri.png
 {{- end }}
 
 # noctalia: deploy only when installed
 {{- if not (lookPath "noctalia") }}
 .config/noctalia/
+Pictures/Cheatsheets/noctalia.png
 {{- end }}
 
 # Noctalia plugins are managed by Noctalia's plugin manager, not chezmoi

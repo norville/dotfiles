@@ -65,7 +65,7 @@ and the chezmoi scripts install the rest on first apply.
 
 ### Repository Layout
 
-The repo root holds only documentation and the chezmoi root pointer:
+The repo root holds documentation, the chezmoi root pointer and helper tools:
 
 | File | Description |
 |------|-------------|
@@ -75,6 +75,7 @@ The repo root holds only documentation and the chezmoi root pointer:
 | `README.md` | This file |
 | `ARCHITECTURE.md` | System architecture reference |
 | `TODO.md` | Open tasks |
+| `tools/` | Repo helper scripts, never deployed: `fastfetch-dump.sh`, `cheatsheets/` (keybinding cheatsheet generator) |
 
 All chezmoi-managed files live under `home/`:
 
